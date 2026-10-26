@@ -62,6 +62,10 @@ impl module::ResolutionHost for SourceResolutionHost {
 struct PhysicalCaptureFs(Rc<CaptureFs>);
 impl PhysicalCaptureFs {
     fn physical(&self, path: &str) -> Option<String> {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.0.live_for(path) {
+            return live.direct(&self.0, path);
+        }
         let key = self.0.key(path);
         self.0.workspace.as_ref().map_or_else(
             || {
@@ -72,10 +76,22 @@ impl PhysicalCaptureFs {
         )
     }
     fn file(&self, path: &str) -> bool {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.0.live_for(path) {
+            return live.direct(&self.0, path).is_some_and(|path| {
+                std::fs::metadata(path).is_ok_and(|metadata| metadata.is_file())
+            });
+        }
         self.physical(path)
             .is_some_and(|key| self.0.files.contains_key(&key))
     }
     fn directory(&self, path: &str) -> bool {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(live) = self.0.live_for(path) {
+            return live.direct(&self.0, path).is_some_and(|path| {
+                std::fs::metadata(path).is_ok_and(|metadata| metadata.is_dir())
+            });
+        }
         self.physical(path)
             .is_some_and(|key| self.0.dirs.contains(&key))
     }
@@ -286,12 +302,28 @@ impl ConfiguredResolver {
         let key = self.fs.key(directory);
         let cached = self.configured.borrow().get(&key).cloned();
         let selected = cached.unwrap_or_else(|| {
-            let inspected = crate::configuration::inspect(
+            let configuration = crate::configuration::inspect(
                 self.fs.clone(),
                 &format!("{directory}/__semctx_configuration_context__.ts"),
                 &self.root,
-            )
-            .map(|configuration| {
+            );
+            #[cfg(any(test, feature = "qualification-observer"))]
+            let configuration = configuration.or_else(|error| {
+                if self.fs.live_for(directory).is_some()
+                    && error == "configuration disappeared from capture"
+                {
+                    Ok(crate::configuration::Configuration {
+                        options: Rc::new(CompilerOptions::default()),
+                        raw: None,
+                        raw_chain: vec![],
+                        reasons: vec![],
+                        consumed: BTreeSet::new(),
+                    })
+                } else {
+                    Err(error)
+                }
+            });
+            let inspected = configuration.map(|configuration| {
                 self.observations
                     .borrow_mut()
                     .consumed

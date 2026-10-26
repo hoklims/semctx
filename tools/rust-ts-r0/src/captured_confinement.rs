@@ -218,7 +218,10 @@ pub fn check(fs: Rc<CaptureFs>, input: Inputs<'_>) -> Result<(), String> {
             || !contained(&fs, input.root, &resolved_path)
             || !physical(&path)?.starts_with(&physical_root)
         {
-            return Err(format!("SOURCE_LINK_OUTSIDE_REPOSITORY: {path}"));
+            return Err(format!(
+                "SOURCE_LINK_OUTSIDE_REPOSITORY: {}",
+                tspath::get_relative_path_from_directory(input.root, &path, &Default::default())
+            ));
         }
         if !visited.insert(fs.key(&resolved_path)) {
             continue;
@@ -299,3 +302,7 @@ pub fn check(fs: Rc<CaptureFs>, input: Inputs<'_>) -> Result<(), String> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/confinement_live_root.rs"]
+mod tests;

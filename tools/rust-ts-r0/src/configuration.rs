@@ -152,6 +152,12 @@ impl System for CaptureFs {
     }
     fn configuration_exists(&self, path: &str) -> bool {
         let found = self.files.contains_key(&self.key(path));
+        #[cfg(any(test, feature = "qualification-observer"))]
+        let found = if self.live_for(path).is_some() {
+            self.file_exists(path)
+        } else {
+            found
+        };
         self.record("configuration_discovery_file_exists", path, found);
         found
     }
