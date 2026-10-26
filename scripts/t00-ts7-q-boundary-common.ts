@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, realpath, symlink, writeFile } from "node:fs/promises";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export type Json = Record<string, unknown>;
 export type Evidence = { path: string; sha256: string; bytes: number };
@@ -8,11 +9,13 @@ export type Property = { name: string; pass: boolean; expected: unknown; actual:
 export type Observation = { index: number; properties: Property[]; evidence: Evidence[]; complete: boolean; reason: string };
 export type Execution = { exitCode: number; stdout: string; stderr: string; value: Json; evidence: Evidence[] };
 export type Context = {
-  root: string; sdk: Json; sdk5?: Json; platform: "macos" | "linux"; producerSha256: string; helper: string;
+  root: string; sdk: Json; sdk5?: Json; platform: "macos" | "linux"; producerSha256: string; helperSha256: string; helper: string;
   producerArtifact: Evidence; oracleArtifact: Evidence; identityReceiver?: Evidence;
   analysis(files: Record<string, string>, overrides?: Json): Json;
   run(label: string, mode: string, descriptor: Json, withSdk?: boolean, sdkOverride?: Json): Promise<Execution>;
   save(label: string, value: unknown): Promise<Evidence>;
+  extractionOracle(label: string, request: Json): Promise<Execution>;
+  applicationRuntime(label: string, request: Json, workers: number): Promise<Execution>;
   oracle(label: string, files: Record<string, string>, options?: Json): Promise<Execution>;
   receiveIdentity(label: string, descriptor: Json): Promise<Execution>;
 };
@@ -81,7 +84,7 @@ function descriptor(value: unknown): Evidence {
   return { path: input.path, sha256: input.sha256, bytes: input.bytes };
 }
 
-export type PlatformAssets = { producer: Evidence; helper: Evidence; observer: Evidence; sdk: Evidence; oracle: Evidence; oracleLibraries: Evidence; transportFixture?: Evidence; ts5Sdk?: Evidence; identityReceiver?: Evidence };
+export type PlatformAssets = { producer: Evidence; helper: Evidence; observer: Evidence; sdk: Evidence; oracle: Evidence; oracleLibraries: Evidence; transportFixture?: Evidence; ts5Sdk?: Evidence; identityReceiver?: Evidence; extractionOracle?: Evidence };
 export type Candidate = { schemaVersion: 1; sourceCommit: string; dryRun: boolean; platforms: Partial<Record<"macos" | "linux", PlatformAssets>> };
 
 export async function loadCandidate(path: string, platform: "macos" | "linux"): Promise<{ candidate: Candidate; assets: PlatformAssets }> {
@@ -90,6 +93,7 @@ export async function loadCandidate(path: string, platform: "macos" | "linux"): 
   const selected = record(record(input.platforms)[platform]);
   const assets: PlatformAssets = { producer: descriptor(selected.producer), helper: descriptor(selected.helper), observer: descriptor(selected.observer), sdk: descriptor(selected.sdk), oracle: descriptor(selected.oracle), oracleLibraries: descriptor(selected.oracleLibraries), ...(selected.transportFixture === undefined ? {} : { transportFixture: descriptor(selected.transportFixture) }), ...(selected.ts5Sdk === undefined ? {} : { ts5Sdk: descriptor(selected.ts5Sdk) }) };
   if (selected.identityReceiver !== undefined) assets.identityReceiver = descriptor(selected.identityReceiver);
+  if (selected.extractionOracle !== undefined) assets.extractionOracle = descriptor(selected.extractionOracle);
   const candidate: Candidate = { schemaVersion: 1, sourceCommit: input.sourceCommit, dryRun: input.dryRun === true, platforms: { [platform]: assets } };
   await verifyAssets(assets, platform);
   return { candidate, assets };
@@ -100,6 +104,7 @@ export async function verifyAssets(assets: PlatformAssets, platform: "macos" | "
   if (assets.transportFixture) await checkAsset(assets.transportFixture);
   if (assets.ts5Sdk) await checkAsset(assets.ts5Sdk);
   if (assets.identityReceiver) await checkAsset(assets.identityReceiver);
+  if (assets.extractionOracle) await checkAsset(assets.extractionOracle);
   const pins = record(JSON.parse(await readFile(new URL("../docs/research/rust-ts-r0/oracle-ts7.json", import.meta.url), "utf8")) as unknown);
   const pinnedBinary = descriptor(record(record(pins.platforms)[platform === "macos" ? "macosArm64" : "linuxAarch64"]).binary);
   const pinnedManifest = descriptor(record(pins.oracleSdk).manifest);
@@ -156,7 +161,7 @@ export async function createContext(out: string, platform: "macos" | "linux", as
     return { exitCode, stdout, stderr, value, evidence: [await save(label + "-execution", execution)] };
   };
   return {
-    root, sdk, ...(sdk5 === undefined ? {} : { sdk5 }), platform, producerSha256: assets.producer.sha256, helper: assets.helper.path, save,
+    root, sdk, ...(sdk5 === undefined ? {} : { sdk5 }), platform, producerSha256: assets.producer.sha256, helperSha256: assets.helper.sha256, helper: assets.helper.path, save,
     producerArtifact: assets.producer, oracleArtifact: assets.oracle, ...(assets.identityReceiver ? { identityReceiver: assets.identityReceiver } : {}),
     async receiveIdentity(label, descriptor) {
       if (!assets.identityReceiver) throw Error("candidate lacks independent identity receiver artifact");
@@ -179,6 +184,27 @@ export async function createContext(out: string, platform: "macos" | "linux", as
       const execution = await execute(id, argv, root);
       execution.evidence.push(request, selectedSdk);
       return execution;
+    },
+    async applicationRuntime(label, input, workers) {
+      await verifyAssets(assets, platform);
+      const id = `${++sequence}-application-${label}`;
+      const request = await save(id + "-request", input);
+      const script = await asset(fileURLToPath(new URL("./t00-ts7-application-runtime.ts", import.meta.url)));
+      const result = await execute(id, [process.execPath, script.path, request.path, assets.sdk.path, assets.producer.path, assets.helper.path, String(workers)], root);
+      await checkAsset(script);
+      await verifyAssets(assets, platform);
+      result.evidence.push(request, script, assets.sdk, assets.producer, assets.helper);
+      return result;
+    },
+    async extractionOracle(label, input) {
+      if (!assets.extractionOracle) throw Error("independent extraction oracle missing from candidate manifest");
+      await verifyAssets(assets, platform);
+      const id = `${++sequence}-extraction-oracle-${label}`;
+      const request = await save(id + "-request", input);
+      const result = await execute(id, [assets.extractionOracle.path, request.path, assets.sdk.path], root);
+      result.evidence.push(request, assets.extractionOracle, assets.sdk);
+      if (result.exitCode !== 0 || result.value.compilerVersion !== "7.1.0-dev" || result.value.revision !== "780dc512d64f40afebffa6a7028207649fb7ed1c" || result.value.sdkLibraries !== 115) throw Error(`independent extraction oracle failed: ${result.stderr}`);
+      return result;
     },
     async oracle(label, files, options = {}) {
       await verifyAssets(assets, platform);

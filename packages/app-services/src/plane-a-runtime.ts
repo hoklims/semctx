@@ -1,5 +1,6 @@
 import { basename } from "node:path";
 import { buildRustFacts } from "./rust-facts";
+import type { ExperimentalTypeScriptRuntime } from "./experimental-typescript-runtime";
 import {
   boundedContextId,
   capabilityId,
@@ -140,13 +141,22 @@ export async function analyzePlaneARuntimeAsync(
   discovery: DiscoveryResult,
   workers: IndexWorkerSelection,
   compilerInputs?: CompilerInputSnapshot,
+  experimentalRuntime?: ExperimentalTypeScriptRuntime,
 ): Promise<AsyncPlaneARuntimeResult> {
-  if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
+  const qualified = String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1";
+  if (qualified && compilerInputs === undefined) {
     throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
   }
-  const result = await analyzeRepositoryAsync(config, discovery.files, workers, compilerInputs);
+  const result = await (experimentalRuntime?.analyzer.analyzeRepositoryAsync ?? analyzeRepositoryAsync)(config, discovery.files, workers, compilerInputs);
+  if (qualified && experimentalRuntime !== undefined && compilerInputs !== undefined) {
+    await experimentalRuntime.bindOwnership(result.analysis, compilerInputs);
+  }
+  const composed = composePlaneARuntime(config, discovery, result.analysis, compilerInputs, experimentalRuntime);
+  if (qualified && experimentalRuntime !== undefined && compilerInputs !== undefined) {
+    await experimentalRuntime.revalidate(composed.analysis, compilerInputs);
+  }
   return {
-    ...composePlaneARuntime(config, discovery, result.analysis, compilerInputs),
+    ...composed,
     parallelism: result.parallelism,
   };
 }
@@ -156,7 +166,12 @@ function composePlaneARuntime(
   discovery: DiscoveryResult,
   legacyAnalysis: AnalysisResult,
   compilerInputs?: CompilerInputSnapshot,
+  experimentalRuntime?: ExperimentalTypeScriptRuntime,
 ): PlaneARuntimeResult {
+  const compiler = experimentalRuntime?.analyzer.compiler;
+  const typescriptProducer = compiler?.producerIdentity("typescript") ?? TYPESCRIPT_PRODUCER;
+  const javascriptProducer = compiler?.producerIdentity("javascript") ?? JAVASCRIPT_PRODUCER;
+  const dialectVersion = compiler?.dialectVersion ?? TYPESCRIPT_DIALECT_VERSION;
   const legacySidecar = getPlaneASidecar(legacyAnalysis);
   if (legacySidecar === undefined) {
     throw new Error("TypeScript analysis did not provide its private Plane-A sidecar");
@@ -255,7 +270,9 @@ function composePlaneARuntime(
         forcedAnalysisReasons.set(candidate.relPath, ["SOURCE_DECLARATION_FILE_UNSUPPORTED"]);
         continue;
       }
-      const reasons = [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs, undefined, workspaceLinks)];
+      const reasons = experimentalRuntime === undefined
+        ? [...inspectSourceParsing(file.absPath, file.content), ...inspectModuleConfiguration(file.absPath, config.repositoryRoot, compilerInputs, undefined, workspaceLinks)]
+        : [...experimentalRuntime.sourceParsingReasons(file), ...experimentalRuntime.configurationReasons(file)];
       if (reasons.length > 0) {
         forcedOutcomes.set(candidate.relPath, "failed");
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...reasons]);
@@ -263,20 +280,21 @@ function composePlaneARuntime(
       }
     }
     if (candidate.language === "javascript") {
-      const diagnostics = inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks);
-      const reasons = [...diagnostics.reasons, ...(localCallReasons.get(candidate.relPath) ?? [])];
+      const diagnostics = (compiler?.inspectJavaScriptSource ?? inspectJavaScriptSource)(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks);
+      const combinedReasons = [...diagnostics.reasons, ...(localCallReasons.get(candidate.relPath) ?? []), ...(experimentalRuntime?.analysisReasons(file) ?? [])];
+      const reasons = experimentalRuntime === undefined ? combinedReasons : [...new Set(combinedReasons)].sort(compareText);
       if (diagnostics.parseFailed) {
         forcedOutcomes.set(candidate.relPath, "failed");
         forcedAnalysisReasons.set(candidate.relPath, ["PRODUCER_FAILED", ...diagnostics.reasons]);
         continue;
       }
       perPath.push({
-        candidate, file, producer: JAVASCRIPT_PRODUCER,
+        candidate, file, producer: javascriptProducer,
         facts: legacyFactsByPath.get(candidate.relPath) ?? [],
         analysisReasons: reasons,
         completenessClaim: reasons.length === 0 ? "producer-declared" : "partial",
         negativeEvidenceEligible: false,
-        resolutionSemantics: "javascript-static-esm-v1",
+        resolutionSemantics: compiler?.resolutionSemantics("javascript") ?? "javascript-static-esm-v1",
       });
       continue;
     }
@@ -306,16 +324,18 @@ function composePlaneARuntime(
       || candidate.language === "markdown"
       || candidate.language === "sql"
     ) {
+      const combinedReasons = [...(localCallReasons.get(candidate.relPath) ?? []), ...(candidate.language === "typescript" ? experimentalRuntime?.analysisReasons(file) ?? [] : [])];
+      const analysisReasons = experimentalRuntime === undefined ? combinedReasons : [...new Set(combinedReasons)].sort(compareText);
       perPath.push({
         candidate,
         file,
-        producer: TYPESCRIPT_PRODUCER,
+        producer: candidate.language === "typescript" ? typescriptProducer : TYPESCRIPT_PRODUCER,
         facts: legacyFactsByPath.get(candidate.relPath) ?? [],
-        analysisReasons: localCallReasons.get(candidate.relPath) ?? [],
-        completenessClaim: (localCallReasons.get(candidate.relPath)?.length ?? 0) === 0 ? "producer-declared" : "partial",
+        analysisReasons,
+        completenessClaim: analysisReasons.length === 0 ? "producer-declared" : "partial",
         negativeEvidenceEligible: false,
         resolutionSemantics: candidate.language === "typescript"
-          ? "typescript-static-v1"
+          ? compiler?.resolutionSemantics("typescript") ?? "typescript-static-v1"
           : "structural-source-v1",
       });
     }
@@ -366,14 +386,15 @@ function composePlaneARuntime(
     if (candidate.selectionDecision !== "selected"
       || (candidate.analysisOutcome !== "failed" && !(candidate.language === "rust" && forcedOutcomes.get(candidate.relPath) === "failed"))) continue;
     const producer = candidate.language === "python" ? PYTHON_PRODUCER
-      : candidate.language === "javascript" ? JAVASCRIPT_PRODUCER
-      : candidate.language === "rust" ? RUST_PRODUCER : TYPESCRIPT_PRODUCER;
+      : candidate.language === "javascript" ? javascriptProducer
+      : candidate.language === "rust" ? RUST_PRODUCER : typescriptProducer;
     const scope = scopeForCandidate(
       repositoryIdentity,
       candidate,
       filesByPath.get(candidate.relPath),
       workspaceUnitByPath.get(candidate.relPath),
       rustFacts?.editionsByPath.get(candidate.relPath),
+      dialectVersion,
     );
     const failureId = digestCanonical({
       status: "failed",
@@ -402,6 +423,7 @@ function composePlaneARuntime(
       item.file,
       workspaceUnitByPath.get(item.candidate.relPath),
       rustFacts?.editionsByPath.get(item.candidate.relPath),
+      dialectVersion,
     );
     const facts = canonicalizeFacts(item.facts);
     const factKinds = [...new Set(facts.map((fact) => fact.kind))].sort(compareText);
@@ -490,6 +512,7 @@ function composePlaneARuntime(
           file,
           workspaceUnitByPath.get(candidate.relPath),
           rustFacts?.editionsByPath.get(candidate.relPath),
+          dialectVersion,
         ),
         selectionDecision: candidate.selectionDecision,
         analysisOutcome: outcome,
@@ -823,6 +846,7 @@ function scopeForCandidate(
   file: DiscoveredFile | undefined,
   workspaceUnitId: string | undefined,
   rustEdition?: string,
+  typescriptDialectVersion = TYPESCRIPT_DIALECT_VERSION,
 ): ArtifactScope {
   const selectedPaths = [candidate.relPath];
   return {
@@ -833,7 +857,7 @@ function scopeForCandidate(
     ...(workspaceUnitId === undefined ? {} : { workspaceUnitId }),
     language: candidate.language,
     ...(candidate.language === "typescript" || candidate.language === "javascript"
-      ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
+      ? { dialectVersion: typescriptDialectVersion }
       : {}),
     ...(candidate.language === "python" ? { dialectVersion: "<=3.12" } : {}),
     ...(candidate.language === "rust" && rustEdition !== undefined ? { dialectVersion: rustEdition } : {}),

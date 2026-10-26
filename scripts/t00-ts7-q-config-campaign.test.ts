@@ -11,7 +11,7 @@ test("campaign has exactly the 47 mandated obligations and deterministic disjoin
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { createRunner, fileEvidence, parseManifest, parseOptions, validateResults, verifyArtifacts, verifySdk } from "./t00-ts7-q-config-campaign";
+import { createCampaignContext, createRunner, fileEvidence, parseManifest, parseOptions, validateResults, verifyArtifacts, verifySdk } from "./t00-ts7-q-config-campaign";
 import type { ObligationResult, PlatformArtifacts } from "./t00-ts7-q-config-campaign";
 
 async function rejection(operation: Promise<unknown>): Promise<unknown> {
@@ -99,4 +99,34 @@ test("real-process runner retains nonzero exit, exact streams and command eviden
   } finally {
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("candidate extraction oracle is optional for old campaigns and authenticated when supplied", () => {
+  const item = { path: "/tmp/binary", sha256: "a".repeat(64), bytes: 1 };
+  const cell = { producer: item, helper: item, observer: item, sdk: item, oracle: item, oracleLibraries: item };
+  const manifest = { schemaVersion: 1, sourceCommit: "b".repeat(40), platforms: { macos: { ...cell, extractionOracle: item } } };
+  expect(parseManifest(manifest, "macos").artifacts.extractionOracle).toEqual(item);
+  expect(() => parseManifest({ ...manifest, platforms: { macos: { ...cell, extractionOracle: { ...item, sha256: "foreign" } } } }, "macos")).toThrow("extractionOracle");
+});
+
+
+test("campaign dispatch invokes the independently bound extraction oracle", async () => {
+  const { runExtractionWorkers } = await import("./t00-ts7-q-config-extraction");
+  const root = await mkdtemp(join(tmpdir(), "t00-q-config-dispatch-"));
+  try {
+    const item = { path: "/fixture", sha256: "a".repeat(64), bytes: 1 };
+    const artifacts: PlatformArtifacts = { producer: item, helper: item, observer: item, sdk: item, oracle: item, oracleLibraries: item, extractionOracle: { ...item, path: "/independent-extraction" }, emitHelpersOracle: { ...item, path: "/independent-helpers" } };
+    const calls: string[][] = [];
+    const run = async (_name: string, argv: string[]) => {
+      calls.push(argv);
+      throw Error("EXTRACTION_ORACLE_REACHED");
+    };
+    const context = createCampaignContext(artifacts, { out: root, platform: "macos" }, run);
+    expect(String(await rejection(runExtractionWorkers(context, [{ index: 239, id: "worker", properties: ["sets"] }])))).toContain("EXTRACTION_ORACLE_REACHED");
+    expect(calls.map(argv => argv[0])).toEqual(["/independent-extraction"]);
+    calls.length = 0;
+    const unbound = createCampaignContext({ ...artifacts, extractionOracle: undefined }, { out: root, platform: "macos" }, run);
+    expect((await runExtractionWorkers(unbound, [{ index: 239, id: "worker", properties: ["sets"] }]))[0]?.status).toBe("not_qualified");
+    expect(calls).toEqual([]);
+  } finally { await rm(root, { recursive: true, force: true }); }
 });

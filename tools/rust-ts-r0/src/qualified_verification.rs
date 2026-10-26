@@ -1,3 +1,4 @@
+mod application_session;
 mod base_capture;
 mod base_scope;
 #[cfg(feature = "qualification-observer")]
@@ -788,4 +789,8 @@ pub(super) fn command(args: &[String]) -> Result<Verification, String> {
     let sdk: Sdk = serde_json::from_slice(&fs::read(&args[4]).map_err(|e| e.to_string())?)
         .map_err(|e| e.to_string())?;
     verify(descriptor, sdk)
+}
+
+pub(super) fn application_session(args: &[String]) -> Result<(), String> {
+    application_session::command(args)
 }
