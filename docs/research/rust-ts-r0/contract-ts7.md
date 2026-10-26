@@ -1,6 +1,6 @@
 # T00 — TS7 reference contract
 
-Status: partially specified research contract, owner decisions of 2026-10-23 and
+Status: partially specified research contract, owner decisions of 2026-10-23,
 2026-10-24 and 2026-10-26. The scope changes below still require Guillaume’s validation.
 This contract applies to the T00 experiment only. It does not migrate the delivered
 profiles in accepted ADRs [0034](../../adr/0034-javascript-static-esm.md) and
@@ -140,8 +140,8 @@ the independent TS7 API oracle on the frozen candidate on both platforms.
 
 The 2026-10-24 campaign left **145** (`yield`) and **166** (structural digest)
 unqualified pending separate owner decisions. That historical result is unchanged;
-the 2026-10-26 decision for 145 below requires fresh candidate-bound evidence.
-The decision for 166 is not yet applied in this revision.
+the 2026-10-26 decisions for 145 and 166 below require fresh candidate-bound
+evidence.
 
 The resumed wave-2 delivery includes only the committed semantic tranche **52**
 in addition to the previously prepared **61/97/102**. Other committed preparatory
@@ -168,6 +168,31 @@ recursive-expression properties of 145 remain cumulative and require their
 activation/control comparisons on the frozen candidate on both platforms.
 The historical TS5 consumer inventory remains provenance; this decision supersedes
 its requirement for an accepted file-scope yield specimen for the TS7 experiment.
+
+## Owner scope decision of 2026-10-26 — obligation 166
+
+Sébastien selected **option A** for obligation **166**. **Guillaume must still
+validate this contract change**; the same experimental qualification and delivery
+limits as for 145 apply.
+
+Only equality/difference relations of structural digests are contractual for the
+pinned TS7 reference. The independent oracle derives structural sequences from
+TS7 child nodes and tokens; the producer computes its own statement digests.
+Qualification compares the relation between the two producer digests with the
+relation between the independently derived oracle sequences. **No byte identity
+with historical TS5 digests is promised or qualified.**
+
+The prepared twelve pairs cover operator, heritage-keyword, declaration-flag,
+raw-template and private-identifier changes; an identical private-identifier
+control; whitespace, comments, array/call/member commas and final-semicolon
+controls. The existing three cumulative properties remain required. All twelve
+pairs must execute, with the activating differences and equality controls, on
+the frozen candidate on macOS arm64 and Linux aarch64. Missing or malformed
+digests, missing pairs and relation mismatches remain non-qualification.
+This is a structural observation of parsed statements, not compilation acceptance
+or qualified analysis admission. The historical TS5 consumer inventory remains
+provenance; its byte-compatibility proof gap does not constrain this TS7 relational
+scope or provide qualification credit by itself.
 
 ## Obligation 229 — P2 acquisition
 

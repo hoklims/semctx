@@ -205,10 +205,6 @@ specimens.push(
     yieldControl: name === "yield-file-scope-diagnostic" ? "file-scope-recovered" : "deferred-generator" })),
 );
 
-export const coverageGaps: Record<number, string> = {
-  166: "Décision propriétaire en attente : relations de digest TS7 ou octets identiques au digest historique TS5 ; aucun crédit avant arbitrage explicite.",
-};
-
 export const cases: CampaignCase[] = specimens.map((specimen) => ({
   name: `O/${specimen.name}`,
   indices: specimen.indices,
@@ -242,10 +238,6 @@ export const cases: CampaignCase[] = specimens.map((specimen) => ({
       expected: ["observation", "moduleLinks"],
     },
   ],
-  gaps: Object.fromEntries<string>(specimen.indices.flatMap((index): [number, string][] => {
-    const gap = coverageGaps[index];
-    return gap === undefined ? [] : [[index, gap]];
-  })),
 }));
 
 export const propertyWitnesses: Record<number, Record<string, string[]>> = {
