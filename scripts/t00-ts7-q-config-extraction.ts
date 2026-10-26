@@ -107,6 +107,7 @@ class ExtractionWitnesses {
       const specifications: { name: string; roots: string[]; texts: Record<string, string> }[] = [
         { name: "disconnected", roots: ["a.ts", "b.ts", "globals.d.ts", "y.ts", "z.ts"], texts: { "a.ts": "import { z } from './z';\nexport function a() { return z(); }\n", "z.ts": "export function z() { return 1; }\n", "b.ts": "import { y } from './y';\nexport function b() { return y(); }\n", "y.ts": "export function y() { return 2; }\n", "globals.d.ts": "interface WorkerContext { value: number }\n", "unselected.ts": "export function unselected() { return 99; }\n" } },
         { name: "cycle", roots: ["a.ts", "b.ts", "globals.d.ts"], texts: { "a.ts": "import { b } from './b';\nexport function a() { return b(); }\n", "b.ts": "import { a } from './a';\nexport function b() { return a(); }\n", "globals.d.ts": "interface WorkerContext { value: number }\n" } },
+        { name: "cyclic-barrels", roots: ["leaf.ts", "a.ts", "b.ts", "main.ts"], texts: { "leaf.ts": "export function helper() { return 1; }\n", "a.ts": "export { helper } from './leaf';\nexport { other } from './b';\n", "b.ts": "export { helper } from './a';\nexport function other() { return 2; }\n", "main.ts": "import { helper as run } from './b';\nexport function main() { return run(); }\n" } },
         { name: "nonroot-bridge", roots: ["a.ts", "b.ts", "isolated.ts"], texts: { "a.ts": "import { bridge } from './bridge';\nexport function a() { return bridge(); }\n", "b.ts": "import { bridge } from './bridge';\nexport function b() { return bridge(); }\n", "bridge.ts": "export function bridge() { return 3; }\n", "isolated.ts": "export function isolated() { return 4; }\n" } },
         { name: "resolution-modes", roots: ["a.mts", "b.cts", "isolated.ts"], texts: { "a.mts": "import type { Context } from './context' with { 'resolution-mode': 'import' };\nexport function a() { return import('./bridge'); }\n", "b.cts": "import bridge = require('./bridge');\nexport function b() { return bridge.bridge(); }\n", "bridge.ts": "export function bridge() { return 5; }\n", "context.d.ts": "export interface Context { value: number }\n", "isolated.ts": "export function isolated() { return 6; }\n" } },
       ];
@@ -131,13 +132,17 @@ class ExtractionWitnesses {
         const importUsage = usages.find(item => item["fromRelPath"] === "a.mts" && item["moduleSpecifier"] === "./context");
         const requireUsage = usages.find(item => item["fromRelPath"] === "b.cts" && item["moduleSpecifier"] === "./bridge");
         const modes = spec.name !== "resolution-modes" || (importUsage !== undefined && requireUsage !== undefined && importUsage["resolvedRelPath"] === "context.d.ts" && requireUsage["resolvedRelPath"] === "bridge.ts" && typeof importUsage["resolutionMode"] === "string" && typeof requireUsage["resolutionMode"] === "string" && importUsage["resolutionMode"] !== requireUsage["resolutionMode"]);
-        const oraclePass = oracleSucceeded(oracle) && loaded.length > 0 && modes;
-        const comparison = { oracle: oraclePass, nonempty: factful, serial: serial.exitCode === 0 && extractionMatches(serial.value, expected), parallel: parallel.exitCode === 0 && extractionMatches(parallel.value, expected), selection: isDeepStrictEqual(parallel.value["parallelism"], expectedSelection), serialSelection: isDeepStrictEqual(serial.value["parallelism"], { requested: 1, used: 1, mode: "single" }), graph: graphPass, modes, components };
+        const reexports = spec.name !== "cyclic-barrels" || isDeepStrictEqual(graph["resolvedEdges"], [
+          { from: "a.ts", specifier: "./b", to: "b.ts" }, { from: "a.ts", specifier: "./leaf", to: "leaf.ts" },
+          { from: "b.ts", specifier: "./a", to: "a.ts" }, { from: "main.ts", specifier: "./b", to: "b.ts" },
+        ]) && isDeepStrictEqual(graph["dependencyComponents"], [["a.ts", "b.ts", "leaf.ts", "main.ts"]]);
+        const oraclePass = oracleSucceeded(oracle) && loaded.length > 0 && modes && reexports;
+        const comparison = { oracle: oraclePass, nonempty: factful, serial: serial.exitCode === 0 && extractionMatches(serial.value, expected), parallel: parallel.exitCode === 0 && extractionMatches(parallel.value, expected), selection: isDeepStrictEqual(parallel.value["parallelism"], expectedSelection), serialSelection: isDeepStrictEqual(serial.value["parallelism"], { requested: 1, used: 1, mode: "single" }), graph: graphPass, modes, reexports, components };
         const casePass = comparison.oracle && comparison.nonempty && comparison.serial && comparison.parallel && comparison.selection && comparison.serialSelection && comparison.graph;
         pass &&= casePass;
         evidence.push(...fixture.evidence, ...oracle.evidence, ...serial.evidence, ...parallel.evidence, ...program.evidence, expectedEvidence, save(resolve(this.directory, spec.name + ".comparisons.json"), { ...comparison, pass: casePass }));
       }
-      return { pass, evidence, reason: "TS7 Program order and complete nonempty ordinary extraction for workers 1/2; independent contract graphs exercise disconnected declarations, cycles, loaded nonroots, import-type import mode, require mode and dynamic imports." };
+      return { pass, evidence, reason: "TS7 Program order and complete nonempty ordinary extraction for workers 1/2; independent contract graphs exercise disconnected declarations, cycles including cyclic reexports, loaded nonroots, import-type import mode, require mode and dynamic imports." };
     });
   }
   boundaries() {
