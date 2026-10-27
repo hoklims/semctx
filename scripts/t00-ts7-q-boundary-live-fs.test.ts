@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { mkdtemp, mkdir, realpath, rm, writeFile } from "node:fs/promises";
+import { lstat, mkdtemp, mkdir, realpath, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { materializeOracleLinks } from "./t00-ts7-q-boundary-common";
@@ -42,6 +42,45 @@ test("independent oracle creates real links only inside its isolated fixture", a
     expect(await materializeOracleLinks(root, { absent: "missing.ts" }).then(() => false, () => true)).toBe(true);
   } finally {
     await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("oracle link confinement rejects existing lexical escape targets before writing links", async () => {
+  const base = await realpath(await mkdtemp(join(tmpdir(), "t00-oracle-lexical-escape-")));
+  const root = join(base, "repository"), outside = join(base, "outside");
+  try {
+    await mkdir(root);
+    await mkdir(outside);
+    await writeFile(join(outside, "entry.ts"), "export {};\n");
+    for (const links of [{ "../outside/alias.ts": "entry.ts" }, { alias: "../outside/entry.ts" }]) {
+      const rejection: unknown = await materializeOracleLinks(root, links).then(() => null, (error: unknown) => error);
+      expect(rejection).toBeInstanceOf(Error);
+      expect(rejection instanceof Error ? rejection.message : null).toBe("oracle symlink escapes isolated fixture");
+    }
+    for (const path of [join(outside, "alias.ts"), join(root, "alias")]) {
+      expect(await lstat(path).then(() => "created", error => (error as NodeJS.ErrnoException).code)).toBe("ENOENT");
+    }
+  } finally {
+    await rm(base, { recursive: true, force: true });
+  }
+});
+
+test("oracle link confinement rejects an existing external target reached through an internal link", async () => {
+  const base = await realpath(await mkdtemp(join(tmpdir(), "t00-oracle-canonical-escape-")));
+  const root = join(base, "repository"), outside = join(base, "outside");
+  try {
+    await mkdir(root);
+    await mkdir(outside);
+    await writeFile(join(outside, "entry.ts"), "export {};\n");
+    await symlink(outside, join(root, "bridge"), process.platform === "win32" ? "junction" : "dir");
+    const rejection: unknown = await materializeOracleLinks(root, { alias: "bridge/entry.ts" }).then(() => null, (error: unknown) => error);
+    expect(rejection).toBeInstanceOf(Error);
+    expect(rejection instanceof Error ? rejection.message : null).toBe("oracle symlink canonical target escapes isolated fixture");
+    await writeFile(join(root, "inside.ts"), "export {};\n");
+    const accepted = await materializeOracleLinks(root, { internal: "inside.ts" });
+    expect(accepted).toEqual([{ path: join(root, "internal"), target: "inside.ts", canonical: join(root, "inside.ts") }]);
+  } finally {
+    await rm(base, { recursive: true, force: true });
   }
 });
 

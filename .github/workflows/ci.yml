@@ -226,6 +226,7 @@ jobs:
         run: |
           cargo test --manifest-path tools/gates/Cargo.toml --locked
           cargo test --manifest-path tools/qualification/Cargo.toml --locked
+      - run: bun install --frozen-lockfile
       - name: Discover and execute native product workspaces
         env:
           SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
@@ -267,7 +268,6 @@ jobs:
         with:
           name: rust-gate-plan
           path: ${{ runner.temp }}/plan
-      - run: bun install --frozen-lockfile
       - name: Build the candidate CLI and the native qualification runner
         run: |
           bun run cli:build

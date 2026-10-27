@@ -39,7 +39,7 @@ export function projectRuntimeModule(input: WrapperOracleInput): WrapperOracleRe
   if ("error" in input.canonical_root) return reject([{ path: input.repository_root, error: input.canonical_root.error }]);
   if (input.canonical_runtime === undefined) throw new Error("canonical evidence missing: runtime companion");
   if ("error" in input.canonical_runtime) return reject([{ path: runtimePath, error: input.canonical_runtime.error }]);
-  const relation = relative(input.canonical_root.path, input.canonical_runtime.path);
+  const relation = relative(input.canonical_root.path, input.canonical_runtime.path).replaceAll("\\", "/");
   if (relation === ".." || relation.startsWith("../") || isAbsolute(relation)) return reject();
   return { ...result, resolved_path: runtimePath };
 }

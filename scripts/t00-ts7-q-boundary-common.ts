@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, realpath, symlink, writeFile } from "node:fs/promises";
-import { basename, dirname, isAbsolute, join, resolve } from "node:path";
+import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export type Json = Record<string, unknown>;
@@ -123,15 +123,19 @@ export async function verifyAssets(assets: PlatformAssets, platform: "macos" | "
 
 export async function materializeOracleLinks(directory: string, links: unknown): Promise<Json[]> {
   const observations: Json[] = [];
+  const inside = (path: string): boolean => {
+    const relation = relative(directory, path).replaceAll("\\", "/");
+    return relation !== "" && relation !== ".." && !relation.startsWith("../") && !isAbsolute(relation);
+  };
   for (const [link, target] of Object.entries(record(links))) {
     if (typeof target !== "string") throw Error("oracle symlink target must be a string");
     const destination = resolve(directory, link);
     const actual = resolve(dirname(destination), target);
-    if (!destination.startsWith(directory + "/") || !actual.startsWith(directory + "/")) throw Error("oracle symlink escapes isolated fixture");
+    if (!inside(destination) || !inside(actual)) throw Error("oracle symlink escapes isolated fixture");
     await mkdir(dirname(destination), { recursive: true });
     await symlink(target, destination);
     const canonical = await realpath(destination);
-    if (!canonical.startsWith(directory + "/")) throw Error("oracle symlink canonical target escapes isolated fixture");
+    if (!inside(canonical)) throw Error("oracle symlink canonical target escapes isolated fixture");
     observations.push({ path: destination, target, canonical });
   }
   return observations;
