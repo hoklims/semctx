@@ -138,6 +138,42 @@ fn resolution_host_refuses_unknown_or_unbounded_inputs() {
 }
 
 #[test]
+fn resolution_host_captured_windows_paths_execute_without_native_disk_access() {
+    let observed = run(json!({
+        "root":"C:/repo", "system":"captured",
+        "files":{"C:/repo/value.json":"captured"},
+        "queries":[{"operation":"read_file","path":"C:/repo/value.json"}],
+        "faults":[{"system":"configuration","operation":"read_file","path":"C:/repo/value.json","outcome":"read_failure"}]
+    }));
+    assert_eq!(observed["executed"], true, "{observed}");
+    assert_eq!(observed["results"][0]["value"], serde_json::Value::Null);
+    assert_eq!(observed["faultsActivated"].as_array().unwrap().len(), 1);
+    assert_eq!(observed["global_admission_inferred"], false);
+}
+
+#[test]
+fn resolution_host_refuses_relative_virtual_roots_queries_and_faults() {
+    for path in [
+        "relative/value.json",
+        "C:relative",
+        "https://example.test/value",
+    ] {
+        for field in ["root", "query", "fault"] {
+            let mut value = request("read_file", "/repo/value.json", json!([]));
+            match field {
+                "root" => value["root"] = json!(path),
+                "query" => value["queries"][0]["path"] = json!(path),
+                _ => {
+                    value["faults"] = json!([{"system":"configuration","operation":"read_file","path":path,"outcome":"undefined"}])
+                }
+            }
+            let observed = run(value);
+            assert_eq!(observed["executed"], false, "{field}: {path}: {observed}");
+        }
+    }
+}
+
+#[test]
 fn configured_omitted_mode_is_owned_by_native_source_metadata() {
     for (file, package_type, expected, module, resolution) in [
         (

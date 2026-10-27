@@ -2,6 +2,15 @@ use super::*;
 use std::path::Path;
 use ts_goport::frontend::module::ResolverOptions;
 
+fn normalized_path(path: &str) -> String {
+    let path = ts_goport::frontend::tspath::normalize_path(&native_paths::compiler_path(path));
+    if ts_goport::frontend::tspath::is_disk_path_root(&path) {
+        path
+    } else {
+        path.trim_end_matches('/').into()
+    }
+}
+
 pub(super) struct LiveBoundary {
     root: String,
     repository_root: Option<String>,
@@ -25,25 +34,41 @@ impl LiveBoundary {
     }
     pub(super) fn observe_workspace_root(&self, root: &str) {
         if self.workspace_root.borrow().is_none() {
-            *self.workspace_root.borrow_mut() = Some(root.into());
+            *self.workspace_root.borrow_mut() = Some(self.lexical(root));
         }
     }
     fn contains(root: &str, path: &str) -> bool {
+        let root = native_paths::compiler_path(root);
+        let path = native_paths::compiler_path(path);
         let (root, path) = if native_case() {
             (root.to_string(), path.to_string())
         } else {
             (root.to_lowercase(), path.to_lowercase())
         };
-        root == "/" || path == root || path.starts_with(&format!("{root}/"))
+        Self::lexical_contains(&root, &path)
     }
     fn lexical_contains(root: &str, path: &str) -> bool {
-        root == "/" || path == root || path.starts_with(&format!("{root}/"))
+        let root = root.trim_end_matches('/');
+        let path = path.trim_end_matches('/');
+        path == root || path.starts_with(&format!("{root}/"))
     }
     fn within(&self, path: &str) -> bool {
         Self::contains(&self.root, path)
     }
-    fn lexical(path: &str) -> String {
-        CaptureFs::new(BTreeMap::new(), true).key(path)
+    fn lexical(&self, path: &str) -> String {
+        let path = native_paths::compiler_path(path);
+        let root_key = CaptureFs::new(BTreeMap::new(), true).key(&self.root);
+        if root_key != self.root && Self::lexical_contains(&root_key, &path) {
+            return path
+                .get(root_key.len()..)
+                .map(|suffix| normalized_path(&format!("{}{suffix}", self.root)))
+                .unwrap_or(path);
+        }
+        if Path::new(&path).is_absolute() {
+            normalized_path(&path)
+        } else {
+            path
+        }
     }
     fn failure(&self, path: &str, reason: &str) {
         self.errors
@@ -56,18 +81,21 @@ impl LiveBoundary {
     }
     fn sandbox_admits(&self, path: &str) -> bool {
         Path::new(path).is_absolute()
-            && self.within(&Self::lexical(path))
+            && self.within(&self.lexical(path))
             && captured_confinement::physical(path)
                 .is_ok_and(|actual| self.within(&actual.to_string_lossy()))
     }
     pub(super) fn entry_exists(&self, path: &str) -> bool {
-        self.within(&Self::lexical(path)) && std::fs::symlink_metadata(path).is_ok()
+        let path = self.lexical(path);
+        self.within(&path) && std::fs::symlink_metadata(path).is_ok()
     }
     pub(super) fn nested_directory(&self, root: &str, path: &str) -> bool {
-        let mut directory = Some(Path::new(path));
+        let root = self.lexical(root);
+        let path = self.lexical(path);
+        let mut directory = Some(Path::new(&path));
         while let Some(current) = directory {
             let text = current.to_string_lossy();
-            if !Self::contains(root, &text) || Self::contains(&text, root) {
+            if !Self::contains(&root, &text) || Self::contains(&text, &root) {
                 return false;
             }
             if self.entry_exists(&format!("{text}/.git")) {
@@ -78,7 +106,8 @@ impl LiveBoundary {
         false
     }
     fn allowed_direct(&self, path: &str) -> bool {
-        let key = Self::lexical(path);
+        let key = self.lexical(path);
+        let path = key.as_str();
         if !Path::new(path).is_absolute() || !self.within(&key) {
             self.refused(&key, "LIVE_SANDBOX_ESCAPE_OR_UNAVAILABLE");
             return false;
@@ -139,10 +168,13 @@ impl LiveBoundary {
         }
     }
     pub(super) fn direct(&self, _fs: &CaptureFs, path: &str) -> Option<String> {
-        (self.allowed_direct(path) && std::fs::metadata(path).is_ok()).then(|| Self::lexical(path))
+        let path = self.lexical(path);
+        (self.allowed_direct(&path) && std::fs::metadata(&path).is_ok()).then_some(path)
     }
     fn confined_synthetic(&self, member: &str, target: &str) -> bool {
-        let target = Self::lexical(target);
+        let member = self.lexical(member);
+        let member = member.as_str();
+        let target = self.lexical(target);
         if !Self::lexical_contains(member, &target)
             || !self.sandbox_admits(&target)
             || self
@@ -177,6 +209,7 @@ impl LiveBoundary {
     }
     fn linked(&self, fs: &CaptureFs, path: &str) -> Option<String> {
         let (member, target) = fs.workspace.as_ref()?.live_target(fs, path)?;
+        let target = self.lexical(&target);
         if self.confined_synthetic(&member, &target) {
             return Some(target);
         }
@@ -203,7 +236,7 @@ impl LiveBoundary {
         }
     }
     pub(super) fn metadata_read(&self, fs: &CaptureFs, path: &str) -> (String, bool) {
-        let key = Self::lexical(path);
+        let key = self.lexical(path);
         let parent = Path::new(&key)
             .parent()
             .unwrap_or(Path::new(&self.root))
@@ -245,11 +278,11 @@ impl LiveBoundary {
                     continue;
                 }
                 if metadata.is_dir() {
-                    pending.push(path.to_string_lossy().into_owned());
+                    pending.push(native_paths::compiler_path(&path.to_string_lossy()));
                     continue;
                 }
                 if metadata.is_file() && entry.file_name() == "package.json" {
-                    files.push(path.to_string_lossy().into_owned());
+                    files.push(native_paths::compiler_path(&path.to_string_lossy()));
                 }
             }
         }
@@ -257,7 +290,9 @@ impl LiveBoundary {
         Ok(files)
     }
     pub(super) fn directory_present(&self, path: &str) -> Option<bool> {
-        if !Path::new(path).is_absolute() || !self.within(&Self::lexical(path)) {
+        let path = self.lexical(path);
+        let path = path.as_str();
+        if !Path::new(path).is_absolute() || !self.within(path) {
             return None;
         }
         match std::fs::metadata(path) {
@@ -277,7 +312,8 @@ impl LiveBoundary {
         }
     }
     pub(super) fn file_exists(&self, fs: &CaptureFs, path: &str) -> bool {
-        let key = Self::lexical(path);
+        let key = self.lexical(path);
+        let path = key.as_str();
         let closest = self
             .repository_root
             .as_deref()
@@ -295,7 +331,8 @@ impl LiveBoundary {
         found
     }
     pub(super) fn read_file(&self, fs: &CaptureFs, path: &str) -> (String, bool) {
-        let key = Self::lexical(path);
+        let key = self.lexical(path);
+        let path = key.as_str();
         let target = if !self.allowed_direct(path) {
             None
         } else if std::fs::metadata(path).is_ok_and(|metadata| metadata.is_file()) {
@@ -307,6 +344,8 @@ impl LiveBoundary {
         self.record_read(fs, target.as_deref().unwrap_or(&key), content)
     }
     pub(super) fn directory_exists(&self, fs: &CaptureFs, path: &str) -> bool {
+        let path = self.lexical(path);
+        let path = path.as_str();
         let found = self.allowed_direct(path)
             && (std::fs::metadata(path).is_ok_and(|metadata| metadata.is_dir())
                 || if path.ends_with("/node_modules") {
@@ -322,6 +361,8 @@ impl LiveBoundary {
         found
     }
     pub(super) fn realpath(&self, fs: &CaptureFs, path: &str) -> String {
+        let path = self.lexical(path);
+        let path = path.as_str();
         if !self.allowed_direct(path) {
             fs.record("realpath", path, false);
             return path.into();
@@ -336,7 +377,7 @@ impl LiveBoundary {
         let resolved = target.as_deref().unwrap_or(path);
         let actual = std::fs::canonicalize(resolved)
             .ok()
-            .map(|path| path.to_string_lossy().into_owned());
+            .map(|path| native_paths::compiler_path(&path.to_string_lossy()));
         fs.record("realpath", resolved, actual.is_some());
         actual.unwrap_or_else(|| resolved.into())
     }
@@ -379,7 +420,10 @@ pub(super) fn build_with_repository_root(
     sdk: Option<&Sdk>,
     repository_root: Option<&str>,
 ) -> Result<CaptureFs, String> {
-    if !Path::new(root).is_absolute() || inventory.len() > 4096 {
+    if !Path::new(root).is_absolute()
+        || repository_root.is_some_and(|path| !Path::new(path).is_absolute())
+        || inventory.len() > 4096
+    {
         return Err("LIVE_INVENTORY_INVALID".into());
     }
     let root =
@@ -387,12 +431,11 @@ pub(super) fn build_with_repository_root(
     if !root.is_dir() {
         return Err("LIVE_ROOT_NOT_DIRECTORY".into());
     }
-    let root = root.to_string_lossy().into_owned();
-    let repository_root = repository_root.map(LiveBoundary::lexical);
-    if repository_root
-        .as_ref()
-        .is_some_and(|boundary| !LiveBoundary::contains(&root, boundary))
-    {
+    let root = normalized_path(&root.to_string_lossy());
+    let repository_root = repository_root.map(normalized_path);
+    if repository_root.as_ref().is_some_and(|boundary| {
+        !Path::new(boundary).is_absolute() || !LiveBoundary::contains(&root, boundary)
+    }) {
         return Err("LIVE_REPOSITORY_BOUNDARY_OUTSIDE_SANDBOX".into());
     }
     let mut live = LiveBoundary {
@@ -408,7 +451,7 @@ pub(super) fn build_with_repository_root(
     for path in inventory {
         let admitted = live
             .sandbox_admits(path)
-            .then(|| LiveBoundary::lexical(path))
+            .then(|| live.lexical(path))
             .ok_or("LIVE_INVENTORY_PATH_REFUSED")?;
         let metadata = std::fs::metadata(&admitted).map_err(|error| error.to_string())?;
         if !metadata.is_file() || metadata.len() > 8_388_608 {
@@ -567,7 +610,7 @@ fn observe(value: serde_json::Value, sdk: Option<&Sdk>) -> Result<serde_json::Va
                 .live
                 .as_ref()
                 .unwrap()
-                .within(&fs.key(&query.containing_file))
+                .within(&native_paths::compiler_path(&query.containing_file))
             || query.specifier.is_empty()
         {
             return Err("LIVE_RESOLUTION_INPUT_INVALID".into());
@@ -629,3 +672,7 @@ mod tests;
 #[cfg(all(test, unix))]
 #[path = "../tests/unit/live_system_inputs.rs"]
 mod inputs_tests;
+
+#[cfg(test)]
+#[path = "../tests/unit/live_system_paths.rs"]
+mod path_tests;

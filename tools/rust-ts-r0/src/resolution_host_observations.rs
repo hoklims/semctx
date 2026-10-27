@@ -215,20 +215,24 @@ impl Effects {
 fn observe(value: serde_json::Value) -> Result<serde_json::Value, String> {
     let request: Request = serde_json::from_value(value)
         .map_err(|error| format!("RESOLUTION_HOST_REQUEST_INVALID:{error}"))?;
-    if !request.root.starts_with('/')
+    let absolute = |path: &str| {
+        if request.files.is_some() {
+            ts_goport::frontend::tspath::is_rooted_disk_path(path)
+        } else {
+            std::path::Path::new(path).is_absolute()
+        }
+    };
+    if !absolute(&request.root)
         || (request.queries.is_empty() && request.resolution.is_none())
         || request.queries.len() > 4096
         || request.faults.len() > 4096
-        || request
-            .queries
-            .iter()
-            .any(|query| !std::path::Path::new(&query.path).is_absolute())
+        || request.queries.iter().any(|query| !absolute(&query.path))
     {
         return Err("RESOLUTION_HOST_REQUEST_UNBOUNDED".into());
     }
     let mut unique_faults = BTreeSet::new();
     for fault in &request.faults {
-        if !std::path::Path::new(&fault.path).is_absolute()
+        if !absolute(&fault.path)
             || !matches!(
                 (fault.system, fault.operation, fault.outcome),
                 (
