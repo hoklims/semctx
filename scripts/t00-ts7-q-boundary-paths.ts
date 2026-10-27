@@ -1,4 +1,4 @@
-import { dirname, relative, resolve } from "node:path";
+import { basename, dirname, relative, resolve } from "node:path";
 
 export function retainedMetadataFromTs7(root: string, available: string[], observations: unknown): string[] {
   if (!Array.isArray(observations)) throw Error("missing TS7 configuration AST observations");
@@ -13,8 +13,8 @@ export function retainedMetadataFromTs7(root: string, available: string[], obser
     references.set(path, row.extends as string[]);
   }
   const named = /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|pyproject\.toml|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/;
-  const metadata = new Set([...files].filter(path => named.test(relative(root, path))));
-  const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(path));
+  const metadata = new Set([...files].filter(path => named.test(basename(path))));
+  const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(basename(path)));
   for (const path of pending) {
     const parents = references.get(path);
     if (!parents) throw Error("missing TS7 configuration AST: " + path);
@@ -25,5 +25,5 @@ export function retainedMetadataFromTs7(root: string, available: string[], obser
       pending.push(target);
     }
   }
-  return [...metadata].map(path => relative(root, path)).toSorted();
+  return [...metadata].map(path => relative(root, path).replaceAll("\\", "/")).toSorted();
 }

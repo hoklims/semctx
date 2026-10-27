@@ -1,4 +1,8 @@
 use super::*;
+#[cfg(unix)]
+use std::os::unix::fs::symlink as symlink_file;
+#[cfg(windows)]
+use std::os::windows::fs::symlink_file;
 
 struct NativeDirectory(std::path::PathBuf);
 impl NativeDirectory {
@@ -11,7 +15,8 @@ impl NativeDirectory {
             NEXT.fetch_add(1, Ordering::Relaxed)
         ));
         std::fs::create_dir_all(&path).unwrap();
-        Self(path.canonicalize().unwrap())
+        let root = ts_goport::frontend::nativepath::realpath(path.to_str().unwrap()).unwrap();
+        Self(root.replace('\\', "/").into())
     }
 }
 impl Drop for NativeDirectory {
@@ -27,13 +32,13 @@ fn native_canonical_control_and_missing_file_fallback_match_pinned_os_fs() {
     let real = root.join("real.ts");
     std::fs::write(&real, "export {};\n").unwrap();
     let alias = root.join("alias.ts");
-    std::os::unix::fs::symlink(&real, &alias).unwrap();
+    symlink_file(&real, &alias).unwrap();
     let identity = SourceIdentity::new(true, true);
     for path in [alias, root.join("missing.ts")] {
-        let path = path.to_str().unwrap();
+        let path = path.to_str().unwrap().replace('\\', "/");
         assert_eq!(
-            identity.key(path),
-            ts_goport::frontend::vfs::osvfs::os_fs_realpath(path)
+            identity.key(&path),
+            ts_goport::frontend::vfs::osvfs::os_fs_realpath(&path)
         );
     }
 }
@@ -85,11 +90,19 @@ fn native_failures_are_consumed_by_direct_and_worker_source_owners() {
 }
 
 fn alias_files(directory: &NativeDirectory) -> (String, String, BTreeMap<String, String>) {
-    let target = directory.0.join("target.ts").to_string_lossy().into_owned();
-    let alias = directory.0.join("alias.ts").to_string_lossy().into_owned();
+    let target = directory
+        .0
+        .join("target.ts")
+        .to_string_lossy()
+        .replace('\\', "/");
+    let alias = directory
+        .0
+        .join("alias.ts")
+        .to_string_lossy()
+        .replace('\\', "/");
     let source = "export function target() { return 7; }\n";
     std::fs::write(&target, source).unwrap();
-    std::os::unix::fs::symlink(&target, &alias).unwrap();
+    symlink_file(&target, &alias).unwrap();
     (
         alias.clone(),
         target.clone(),
@@ -110,7 +123,7 @@ fn canonical_alias_and_target_coalesce_in_the_native_partition_without_colliding
         .0
         .join("distinct.ts")
         .to_string_lossy()
-        .into_owned();
+        .replace('\\', "/");
     std::fs::write(&distinct, "export {};\n").unwrap();
     files.insert(distinct.clone(), "export {};\n".into());
     let roots = vec![alias, target, distinct];

@@ -1,7 +1,10 @@
 use super::*;
+#[cfg(unix)]
+use std::os::unix::fs::symlink as symlink_file;
+#[cfg(windows)]
+use std::os::windows::fs::symlink_file;
 
 #[test]
-#[cfg(unix)]
 fn direct_root_links_keep_internal_sources_and_refuse_external_sources_with_relative_path() {
     let base = std::env::temp_dir().join(format!(
         "t00-confinement-root-links-{}-{}",
@@ -27,14 +30,14 @@ fn direct_root_links_keep_internal_sources_and_refuse_external_sources_with_rela
         ),
     ] {
         let path = root.join(alias);
-        std::os::unix::fs::symlink(target, &path).unwrap();
-        let root = root.to_str().unwrap();
-        let path = path.to_str().unwrap().to_string();
+        symlink_file(target, &path).unwrap();
+        let root = root.to_str().unwrap().replace('\\', "/");
+        let path = path.to_str().unwrap().replace('\\', "/");
         let files = BTreeMap::from([(path.clone(), source.into())]);
         let observed = check(
             Rc::new(CaptureFs::new(files, true)),
             Inputs {
-                root,
+                root: &root,
                 sdk_root: "/sdk/lib",
                 roots: &[path],
                 configured_resolution: false,
