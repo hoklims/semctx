@@ -313,6 +313,7 @@ mod tests {
 
     #[test]
     fn records_complete_symbol_coordinates_and_nearest_doc() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let source = "/** older */\r\n/** closest 😀 */\r\nexport function outer() {\r\n const inner = () => 1;\r\n}\r\n// ordinary\r\nclass Local {}";
         let got = observe(&json!({"files":{"main.ts":source}})).unwrap();
         assert_eq!(got["symbols"][0]["name"], "outer");
@@ -327,6 +328,7 @@ mod tests {
 
     #[test]
     fn owner_body_and_name_absence_are_independent() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = observe(&json!({"files":{"main.ts":"declare function declared(): void;\nexport default function () {}\nfunction named() {}"},"syntheticOwnerAbsence":true})).unwrap();
         assert_eq!(
             got["ownerAbsenceCases"],
@@ -350,12 +352,14 @@ mod tests {
 
     #[test]
     fn malformed_requests_fail_without_fabricating_observations() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         assert!(observe(&json!({})).is_err());
         assert!(observe(&json!({"files":{"main.ts":7}})).is_err());
     }
 
     #[test]
     fn default_only_and_side_effect_imports_have_no_named_binding_node() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = observe(&json!({"files":{"main.ts":"import main from './main';\nimport './side';\nimport type Type from './type';"}})).unwrap();
         assert_eq!(
             got["imports"],

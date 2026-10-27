@@ -453,6 +453,7 @@ mod tests {
 
     #[test]
     fn full_extraction_accepts_runtime_default_imports_and_refuses_uncovered_forms() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let parsed = parse_source_file(
             &SourceFileParseOptions { file_name: "imports.ts".into(), ..Default::default() },
             FileText::new("import value from './value'; import './side'; import type erased from './value'; import { value } from './value'; import invalid from 1;".into(), false),
@@ -468,6 +469,7 @@ mod tests {
 
     #[test]
     fn ts7_declarations_distinguish_eligible_callables_from_signatures_and_data() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let parsed = parse_source_file(
             &SourceFileParseOptions { file_name: "main.ts".into(), ..Default::default() },
             FileText::new("function implementation() {} declare function signature(): void; class Service { method() {} get value() { return 1; } } const arrow = () => 1, expression = function() {}, data = 1, wrapped = (() => 1);".into(), false),
@@ -509,6 +511,7 @@ mod tests {
 
     #[test]
     fn missing_source_and_escaping_inputs_refuse_before_constructing_a_program() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         for input in [
             json!({}),
             json!({"files":{},"filename":"main.ts"}),
@@ -527,6 +530,7 @@ mod tests {
 
     #[test]
     fn sdk_read_decode_inventory_and_content_failures_remain_errors() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let directory =
             std::env::temp_dir().join(format!("t00-callable-sdk-failures-{}", std::process::id()));
         std::fs::create_dir(&directory).unwrap();

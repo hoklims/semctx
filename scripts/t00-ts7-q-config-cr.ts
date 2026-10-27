@@ -1,4 +1,8 @@
 import { createHash } from "node:crypto";
+import { runWorkspaceInputWitnesses } from "./t00-ts7-q-config-inputs";
+import { runResolutionAlternatives, runConfiguredSystemWitnesses } from "./t00-ts7-q-config-resolution-alternatives";
+import { runRuntimeModuleWrapper } from "./t00-ts7-q-config-wrapper";
+import { runLiveFilesystem } from "./t00-ts7-q-config-live-fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve } from "node:path";
 import { isDeepStrictEqual } from "node:util";
@@ -32,6 +36,22 @@ export function resolutionFromTrace(output: string, specifier: string): string |
 }
 export function closeConfigurationResolution(properties: Property[]): "qualified" | "not_qualified" {
   return properties.length > 0 && properties.every(property => property.status === "pass") ? "qualified" : "not_qualified";
+}
+
+export function preserveUnprovedConfigurationProperties(index: number, properties: Property[]): Property[] {
+  const missingOptionalDelegates: Partial<Record<number, string>> = {
+    198: "The configured owning operation depends cumulatively on rows201/204: optional directoryExists absence/undefined and realpath absence/undefined still require a validated native-Fs correspondence and activating/control evidence.",
+    201: "Predicate (system.directoryExists?.(path) ?? false) && (configurationSystem.directoryExists?.(path) ?? false): native true/false faults do not establish the absent/undefined delegate correspondence.",
+    204: "Predicate configurationSystem.realpath?.(path) ?? path and system.directoryExists?.(path) ?? false: injected lexical fallback proves its returned value, not the unvalidated absent/undefined delegate correspondence.",
+    223: "Predicate !system.fileExists(path) && !(system.directoryExists?.(path) ?? false): optional directoryExists absence/undefined has no validated native-Fs correspondence witness.",
+    224: "Predicate system.directoryExists?.(path) ?? false and system.directoryExists?.(target) ?? false: direct and linked optional-delegate alternatives remain unproved.",
+    226: "Predicate system.fileExists(path) || (system.directoryExists?.(path) ?? false): installed-directory native true/false outcomes do not establish the absent/undefined delegate correspondence.",
+    228: "Predicate system.realpath === undefined ? resolved : system.realpath(resolved): no validated native-Fs correspondence witness activates the absent-realpath alternative.",
+  };
+  const reason = missingOptionalDelegates[index];
+  return reason === undefined ? properties : [...properties, {
+    property: "unproved optional System delegate correspondence", status: "not_qualified", reason, evidence: [],
+  }];
 }
 
 const ids: Record<number, string> = {
@@ -230,8 +250,8 @@ async function workspaceWitness(ctx: CampaignContext, installed: boolean): Promi
 const missing: Record<string, string> = {
   configuration: "Full owning-consumer closure remains unproved: retained source predicates, outside-root configuration reads, live read failures, source-dependent runtime branches and complete activating/control allocation are not covered by these compiler controls.",
   named: "Full named-configuration closure remains unproved: normalized case collisions, malformed chain failure paths, cache lifecycle and independent native read-attribution are not all exercised.",
-  resolution: "Full resolver closure remains unproved: default system selection, repositoryRoot absent, canonical escape, live filesystem failures, directoryExists alternatives and delegate absent/undefined are not observable through the captured resolver endpoint.",
-  workspace: "Full workspace-system closure remains unproved: installed/uninstalled direct operations, above-repository absence, nested repositories, canonical symlink confinement and resolver.inputs need an independent complete live-system oracle.",
+  resolution: "Live filesystem controls supplement the captured endpoint; complete resolver closure still requires default/explicit System selection, omitted repositoryRoot, optional delegate absence/undefined, configuration errors, mode/implied-format and runtime-companion alternatives at the owning resolution boundary.",
+  workspace: "Native live direct operations, installed precedence, above-root/nested/symlink confinement and input attribution have finite controls; complete owning workspace-system closure still requires omitted-boundary and optional-delegate alternatives and exact complete resolver.inputs maps.",
 };
 
 const uncovered: Record<number, string[]> = {
@@ -289,21 +309,37 @@ export async function runConfigurationResolution(ctx: CampaignContext, indices: 
     witnesses.push(await workspaceWitness(ctx, false));
     witnesses.push(await workspaceWitness(ctx, true));
   }
+  const live = needed.has("resolution") || needed.has("workspace") ? await runLiveFilesystem(ctx, libraries) : undefined;
+  const workspaceInputs = needed.has("workspace") ? await runWorkspaceInputWitnesses(ctx) : undefined;
+  const resolutionAlternatives = needed.has("resolution") ? await runResolutionAlternatives(ctx) : undefined;
+  const configuredSystems = indices.some(index => index >= 198 && index <= 200) ? await runConfiguredSystemWitnesses(ctx, libraries) : undefined;
+  const runtimeWrapper = indices.includes(205) ? await runRuntimeModuleWrapper(ctx, libraries) : undefined;
   return indices.map(index => {
     if (!ids[index]) throw new Error(`unknown C/R obligation ${index}`);
     const group = index < 40 ? "configuration" : index < 100 ? "named" : index < 223 ? "resolution" : "workspace";
     const relevant = witnesses.filter(value => value.kind === group || (group === "workspace" && value.name === installedConfiguration.name));
     const gap = index === 198 || index === 204 ? `${missing.resolution} Specifically obligation ${index} retains the lot-3 unexercised live branches; no captured substitute closes them.` : missing[group]!;
-    const properties: Property[] = [
+    const specific = index >= 223 ? workspaceInputs : index === 205 ? runtimeWrapper : undefined;
+    const matrix = index === 198
+      ? [...(configuredSystems?.propertiesByObligation[index] ?? []), ...[201, 202, 203, 204].flatMap(key => resolutionAlternatives?.propertiesByObligation[key] ?? [])]
+      : index === 199 || index === 200 ? configuredSystems?.propertiesByObligation[index] : resolutionAlternatives?.propertiesByObligation[index];
+    const closed = index === 198
+      ? (configuredSystems?.propertiesByObligation[index]?.length ?? 0) > 0 && [201, 202, 203, 204].every(key => (resolutionAlternatives?.propertiesByObligation[key]?.length ?? 0) > 0)
+      : index >= 223 || index === 205 ? (specific?.properties.length ?? 0) > 0 : (matrix?.length ?? 0) > 0;
+    const properties: Property[] = preserveUnprovedConfigurationProperties(index, [
+      ...(index >= 198 ? live?.properties ?? [] : []),
+      ...(specific?.properties ?? []),
+      ...(matrix ?? []),
       ...relevant.flatMap(value => value.properties.map(result => ({ ...result, evidence: value.evidence }))),
-      { property: "owning consumer observable rule(s) in canonical family/call-path contract", status: "not_qualified", reason: gap, evidence: [] },
-      ...(uncovered[index] ?? []).map(branch => ({ property: branch, status: "not_qualified" as const, reason: "Independent TS7 activating/control witnesses at this owning boundary are absent; neighboring successful examples receive no closure credit.", evidence: [] })),
-      ...(group === "workspace" ? [
+      ...(!closed ? [{ property: "owning consumer observable rule(s) in canonical family/call-path contract", status: "not_qualified" as const, reason: gap, evidence: [] }] : []),
+      ...(!closed ? uncovered[index] ?? [] : []).map(branch => ({ property: branch, status: "not_qualified" as const, reason: "Independent TS7 activating/control witnesses at this owning boundary are absent; neighboring successful examples receive no closure credit.", evidence: [] })),
+      ...(group === "workspace" && !closed ? [
         { property: "uninstalled/installed/boundary read, existence, directory, realpath and resolver.inputs observations", status: "not_qualified" as const, reason: missing.workspace!, evidence: [] },
         { property: "installed dependency emits invalid module6046 instead of workspace default", status: "not_qualified" as const, reason: "A fresh independent installed-configuration compiler control is recorded; complete native SDK115 support and live System equivalence remain prerequisites.", evidence: [] },
-        { property: "above-repository link absent", status: "not_qualified" as const, reason: "Captured ancestor-query controls are recorded; live canonical symlinks and absent/delegated methods remain unexercised.", evidence: [] },
+        { property: "above-repository link absent", status: "not_qualified" as const, reason: "Captured and native ancestor-query controls are recorded; complete owning consumer alternatives remain separately unproved.", evidence: [] },
       ] : []),
-    ];
-    return { index, id: ids[index]!, status: closeConfigurationResolution(properties), reason: gap, properties, evidence: relevant.flatMap(value => value.evidence), durationMs: relevant.reduce((total, value) => total + value.durationMs, 0) };
+    ]);
+    const unproved = properties.find(property => property.status === "not_qualified");
+    return { index, id: ids[index]!, status: closeConfigurationResolution(properties), reason: unproved?.reason ?? (closed ? "Independent native owning-operation witnesses compose with the existing TS7 SDK115 comparisons; this development rehearsal gives zero final qualification credit." : gap), properties, evidence: [...relevant.flatMap(value => value.evidence), ...(index >= 198 ? live?.evidence ?? [] : []), ...(specific?.evidence ?? []), ...(matrix ? resolutionAlternatives?.evidence ?? [] : []), ...(index >= 198 && index <= 200 ? configuredSystems?.evidence ?? [] : [])], durationMs: relevant.reduce((total, value) => total + value.durationMs, 0) + (index >= 198 ? live?.durationMs ?? 0 : 0) + (specific?.durationMs ?? 0) + (matrix ? resolutionAlternatives?.durationMs ?? 0 : 0) + (index >= 198 && index <= 200 ? configuredSystems?.durationMs ?? 0 : 0) };
   });
 }

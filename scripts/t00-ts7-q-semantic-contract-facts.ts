@@ -1,5 +1,6 @@
 import ts from "typescript";
 import { createHash } from "node:crypto";
+import { types as runtimeTypes } from "node:util";
 import { record } from "./t00-ts7-q-semantic-core";
 
 type Fact = Record<string, unknown>;
@@ -108,6 +109,31 @@ export function createContractFacts(oracle: unknown, path: string, files: Record
   }
   const raw = (value: unknown): Fact => value !== null && typeof value === "object"
     ? rawByObject.get(value) ?? missing("NATIVE_OBJECT_NOT_BOUND") : missing("NATIVE_OBJECT_REQUIRED");
+  const sourceBytes = new Map<string, Buffer>();
+  const sourcePositions = new Map<string, Map<number, number>>();
+  const bytesOfSource = (filePath: string): Buffer | undefined => {
+    const cached = sourceBytes.get(filePath);
+    if (cached !== undefined) return cached;
+    const file = byPath.get(filePath);
+    const sourceFact = list(file?.["nodes"]).map(record).find(entry => entry["kind"] === "SourceFile");
+    const text = file?.["text"] ?? sourceFact?.["text"];
+    if (typeof text !== "string") return undefined;
+    const bytes = Buffer.from(text);
+    sourceBytes.set(filePath, bytes);
+    return bytes;
+  };
+  const utf16Position = (filePath: string, position: number): number | undefined => {
+    const bytes = bytesOfSource(filePath);
+    if (bytes === undefined || !Number.isSafeInteger(position) || position < 0 || position > bytes.length) return undefined;
+    const positions = sourcePositions.get(filePath) ?? new Map<number, number>();
+    const cached = positions.get(position);
+    if (cached !== undefined) return cached;
+    const prefix = bytes.subarray(0, position).toString("utf8");
+    if (Buffer.byteLength(prefix) !== position) return undefined;
+    positions.set(position, prefix.length);
+    sourcePositions.set(filePath, positions);
+    return prefix.length;
+  };
   const source = (filePath: string): Fact => {
     const normalized = canonicalPath(filePath);
     const cached = sourceCache.get(normalized);
@@ -135,14 +161,10 @@ export function createContractFacts(oracle: unknown, path: string, files: Record
     const utf16 = (field: string): number => {
       const position = required(fact, field, "NATIVE_COORDINATE_MISSING");
       if (typeof position !== "number") return missing("NATIVE_COORDINATE_INVALID");
-      const sourceFact = list(file?.["nodes"]).map(record).find(value => value["kind"] === "SourceFile");
-      const text = file?.["text"] ?? sourceFact?.["text"];
-      if (typeof text !== "string") return missing(`NATIVE_SOURCE_TEXT_MISSING:${filePath}`);
-      const bytes = Buffer.from(text);
+      const bytes = bytesOfSource(filePath);
+      if (bytes === undefined) return missing(`NATIVE_SOURCE_TEXT_MISSING:${filePath}`);
       if (position < 0 || position > bytes.length) return missing("NATIVE_COORDINATE_OUT_OF_RANGE");
-      const prefix = bytes.subarray(0, position).toString("utf8");
-      if (Buffer.byteLength(prefix) !== position) return missing("NATIVE_COORDINATE_SPLITS_CODE_POINT");
-      return prefix.length;
+      return utf16Position(filePath, position) ?? missing("NATIVE_COORDINATE_SPLITS_CODE_POINT");
     };
     const methods: Fact = {
       getStart: () => utf16("start"),
@@ -304,15 +326,104 @@ export function createContractFacts(oracle: unknown, path: string, files: Record
     },
   });
   const describe = (value: unknown): unknown => {
-    if (value === undefined) return { kind: "undefined" };
-    if (typeof value === "function") return { kind: "function" };
-    if (value === null || typeof value !== "object") return { kind: typeof value, value };
-    if (Array.isArray(value)) return { kind: "array", values: value.map(describe) };
-    const fact = rawByObject.get(value);
-    if (fact === undefined) return { kind: "object" };
-    if (fact["kind"] !== undefined) return { kind: "node", syntaxKind: fact["kind"], start: fact["start"], end: fact["end"], text: fact["text"], path: fact["path"] };
-    if (fact["name"] !== undefined) return { kind: "symbol", name: fact["name"] };
-    return { kind: "type", text: fact["text"], flagsBits: fact["flagsBits"] };
+    const seenObjects = new Set<object>();
+    const seenFacts = new Set<Fact>();
+    let remaining = 1024;
+    const unavailable = (reason: string): Fact => ({ kind: "unavailable", reason });
+    const capturedReference = (table: string, value: unknown): Fact | undefined => {
+      if (value === null || value === undefined) return undefined;
+      if (typeof value === "string" || typeof value === "number") return graphTables[table]?.get(String(value));
+      const reference = record(value);
+      const id = reference["id"];
+      return typeof id === "string" || typeof id === "number" ? graphTables[table]?.get(String(id)) ?? reference : reference;
+    };
+    const array = (values: unknown[], visit: (entry: unknown) => unknown): unknown => values.length > 256
+      ? unavailable("DESCRIPTION_ARRAY_LIMIT") : values.map(visit);
+    const nativeDescription = (kind: "node" | "symbol" | "type", fact: Fact | undefined, depth: number): unknown => {
+      if (fact === undefined) return unavailable("NATIVE_FACT_NOT_CAPTURED");
+      if (depth > 8 || --remaining < 0) return unavailable("DESCRIPTION_LIMIT");
+      if (seenFacts.has(fact)) return unavailable("DESCRIPTION_CYCLE");
+      seenFacts.add(fact);
+      const result: Fact = { kind, checkerFile: canonicalPath(path) };
+      for (const [output, input] of [["nativeId", "id"], ["route", "route"], ["anchor", "anchor"], ["flagsBits", "flagsBits"]]) {
+        if (input! in fact) result[output!] = fact[input!];
+      }
+      if (fact["kind"] !== "SourceFile" && typeof fact["text"] === "string" && fact["text"].length <= 1024) result["text"] = fact["text"];
+      const reference = (table: string, childKind: typeof kind, value: unknown): unknown => value === null
+        ? { kind: "undefined" } : nativeDescription(childKind, capturedReference(table, value), depth + 1);
+      if (kind === "node") {
+        result["syntaxKind"] = fact["kind"];
+        const anchor = record(fact["anchor"] ?? fact);
+        const filePath = fact["path"] ?? anchor["path"];
+        if (typeof filePath === "string") result["path"] = filePath;
+        const file = typeof filePath === "string" ? byPath.get(canonicalPath(filePath)) : undefined;
+        const bytes = typeof filePath === "string" ? bytesOfSource(canonicalPath(filePath)) : undefined;
+        if (fact["kind"] === "SourceFile" && bytes !== undefined) result["byteLength"] = bytes.length;
+        for (const [input, output] of [["start", "nativeByteStart"], ["end", "nativeByteEnd"]]) {
+          const coordinate = fact[input!] ?? anchor[input!];
+          if (typeof coordinate !== "number") continue;
+          result[output!] = coordinate;
+          if (bytes === undefined || typeof filePath !== "string") continue;
+          const position = utf16Position(canonicalPath(filePath), coordinate);
+          if (position === undefined) return unavailable("NATIVE_COORDINATE_INVALID");
+          result[input!] = position;
+        }
+        if (typeof fact["literalText"] === "string") result["literalText"] = fact["literalText"];
+        const defaultLibrary = fact["defaultLibrary"] ?? file?.["defaultLibrary"];
+        if (typeof defaultLibrary === "boolean") result["defaultLibrary"] = defaultLibrary;
+        const fields = record(fact["fields"]);
+        if ("dotDotDotToken" in fields) result["rest"] = fields["dotDotDotToken"] !== null;
+      } else if (kind === "symbol") {
+        if ("name" in fact) result["name"] = fact["name"];
+        if (Array.isArray(fact["declarations"])) result["declarations"] = array(fact["declarations"], value => reference("nodes", "node", value));
+      } else if (kind === "type") {
+        if (typeof fact["flagsBits"] === "number" && "typeFlags" in constants) {
+          const flags = fact["flagsBits"];
+          result["flagsNames"] = Object.entries(record(constants["typeFlags"])).filter(([, mask]) => typeof mask === "number" && mask !== 0 && (flags & mask) !== 0).map(([name]) => name).sort();
+        }
+        for (const [field, count] of [["callSignatures", "callSignatureCount"], ["constructSignatures", "constructSignatureCount"]]) {
+          const signatures = fact[field!];
+          if (Array.isArray(signatures)) result[count!] = signatures.length;
+          else if (typeof fact[count!] === "number") result[count!] = fact[count!];
+        }
+        for (const field of ["unionTypes", "intersectionTypes"]) {
+          if (Array.isArray(fact[field])) result[field] = array(fact[field], value => reference("types", "type", value));
+        }
+        if ("baseConstraint" in fact) {
+          result["baseConstraintPresent"] = fact["baseConstraint"] !== null;
+          if (fact["baseConstraint"] !== null) result["baseConstraint"] = reference("types", "type", fact["baseConstraint"]);
+        }
+        if ("symbol" in fact) result["symbol"] = reference("symbols", "symbol", fact["symbol"]);
+        if (Array.isArray(fact["properties"])) result["properties"] = array(fact["properties"], value => reference("symbols", "symbol", value));
+      }
+      seenFacts.delete(fact);
+      return result;
+    };
+    const visit = (value: unknown, depth: number): unknown => {
+      if (depth > 8 || --remaining < 0) return unavailable("DESCRIPTION_LIMIT");
+      if (value === undefined) return { kind: "undefined" };
+      if (typeof value === "function") return { kind: "function" };
+      if (value === null || typeof value !== "object") return { kind: typeof value, value };
+      const fact = rawByObject.get(value);
+      if (fact !== undefined) return nativeDescription(fact["kind"] !== undefined ? "node" : fact["name"] !== undefined ? "symbol" : "type", fact, depth);
+      if (runtimeTypes.isProxy(value)) return unavailable("UNBOUND_PROXY");
+      if (seenObjects.has(value)) return unavailable("DESCRIPTION_CYCLE");
+      seenObjects.add(value);
+      let result: unknown;
+      if (Array.isArray(value)) {
+        result = value.length > 256 ? unavailable("DESCRIPTION_ARRAY_LIMIT") : { kind: "array", values: Array.from({ length: value.length }, (_, index) => {
+          const descriptor = Object.getOwnPropertyDescriptor(value, String(index));
+          return descriptor === undefined ? unavailable("ARRAY_HOLE") : "value" in descriptor ? visit(descriptor.value, depth + 1) : unavailable("ACCESSOR_PROPERTY");
+        }) };
+      } else {
+        const prototype: unknown = Object.getPrototypeOf(value);
+        if (prototype !== null && Object.getPrototypeOf(prototype) !== null) result = unavailable("NON_PLAIN_OBJECT");
+        else result = { kind: "object", properties: Object.fromEntries(Object.entries(Object.getOwnPropertyDescriptors(value)).map(([key, descriptor]) => [key, "value" in descriptor ? visit(descriptor.value, depth + 1) : unavailable("ACCESSOR_PROPERTY")])) };
+      }
+      seenObjects.delete(value);
+      return result;
+    };
+    return visit(value, 0);
   };
   return { source: source(path), checker, program, ts: nativeTs, snapshot: new Map(Object.entries(files).map(([filePath, text]) => [canonicalPath(filePath), text])), describe };
 }

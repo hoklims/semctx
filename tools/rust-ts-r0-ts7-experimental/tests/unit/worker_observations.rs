@@ -421,3 +421,93 @@ fn native_worker_refuses_incomplete_foreign_or_changed_sdk_before_extraction() {
         assert!(observed.get("extraction").is_none());
     }
 }
+
+#[test]
+fn native_worker_preserves_program_dependency_order_for_every_extraction_set() {
+    let root = std::env::temp_dir().join(format!(
+        "semctx-worker-program-order-dev-{}-{}",
+        std::process::id(),
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    std::fs::create_dir_all(&root).unwrap();
+    let caller = root.join("a.ts");
+    let leaf = root.join("z.ts");
+    std::fs::write(
+        &caller,
+        "import { z } from './z';\nexport function a() { return z(); }\n",
+    )
+    .unwrap();
+    std::fs::write(&leaf, "export function z() { return 1; }\n").unwrap();
+    let sdk: Sdk = serde_json::from_slice(
+        &std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json")).unwrap(),
+    )
+    .unwrap();
+    let observed = run(
+        serde_json::json!({"schemaVersion":1,"jobId":"program-order-dev","repoRoot":root,"rootAbsPaths":[caller,leaf],"emitAbsPaths":[caller,leaf]}),
+        &sdk,
+    );
+    std::fs::remove_dir_all(root).unwrap();
+    assert_eq!(observed["ok"], true, "{observed}");
+    assert_eq!(
+        observed["extraction"]["modules"],
+        serde_json::json!(["z.ts", "a.ts"])
+    );
+    assert_eq!(
+        observed["extraction"]["symbols"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|item| item["name"].as_str().unwrap())
+            .collect::<Vec<_>>(),
+        vec!["z", "a"]
+    );
+    assert_eq!(
+        observed["extraction"]["imports"].as_array().unwrap().len(),
+        1
+    );
+    assert_eq!(observed["extraction"]["calls"][0]["calleeRelPath"], "z.ts");
+}
+
+#[test]
+fn worker_emission_projection_sanitizes_external_targets_and_preserves_local_targets() {
+    let root = "/project";
+    let extraction = serde_json::json!({
+        "modules":["main.ts","leaf.ts"],"symbols":[],
+        "imports":[
+            {"fromRelPath":"main.ts","moduleSpecifier":"relative","resolvedRelPath":"../outside.ts","names":["external"],"line":1},
+            {"fromRelPath":"main.ts","moduleSpecifier":"absolute","resolvedRelPath":"/outside.ts","names":["external"],"line":2},
+            {"fromRelPath":"main.ts","moduleSpecifier":"./leaf","resolvedRelPath":"leaf.ts","names":["leaf"],"line":3}
+        ],
+        "calls":[
+            {"callerRelPath":"main.ts","calleeName":"external","calleeRelPath":"../outside.ts","calleeSymbolPath":"external","line":4},
+            {"callerRelPath":"main.ts","calleeName":"external","calleeRelPath":"/outside.ts","calleeSymbolPath":"external","line":5},
+            {"callerRelPath":"main.ts","calleeName":"leaf","calleeRelPath":"leaf.ts","calleeSymbolPath":"leaf","line":6}
+        ]
+    });
+    let observed = observe_emission(
+        serde_json::json!({"extraction":extraction,"repoRoot":root,"emitAbsPaths":["/project/main.ts"]}),
+    );
+    assert_eq!(observed["executed"], true);
+    assert_eq!(
+        observed["extraction"]["modules"],
+        serde_json::json!(["main.ts"])
+    );
+    for key in ["imports", "calls"] {
+        let field = if key == "imports" {
+            "resolvedRelPath"
+        } else {
+            "calleeRelPath"
+        };
+        assert!(observed["extraction"][key][0].get(field).is_none());
+        assert!(observed["extraction"][key][1].get(field).is_none());
+        assert_eq!(observed["extraction"][key][2][field], "leaf.ts");
+    }
+    let malformed =
+        observe_emission(serde_json::json!({"extraction":[],"repoRoot":root,"emitAbsPaths":[]}));
+    assert_eq!(malformed["executed"], false);
+    assert!(malformed.get("extraction").is_none());
+    assert!(!malformed["unsupported"].as_array().unwrap().is_empty());
+}

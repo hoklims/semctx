@@ -2,6 +2,24 @@ import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import type { CampaignCase, FileRef } from "./t00-ts7-q-syntax-types.js";
 
+export function validateYieldControl(
+  control: NonNullable<CampaignCase["yieldControl"]>, oracle: unknown,
+  compilation: { exitCode: number; stdout: string; stderr: string },
+) {
+  const fileScope = control === "file-scope-recovered";
+  const expressions = readAt(oracle, ["observation", "yieldExpressions"]);
+  if (!Array.isArray(expressions) || expressions.length !== 1 ||
+      readAt(expressions[0], ["fileScope"]) !== fileScope ||
+      readAt(oracle, ["observation", "statements", 0, "executesOnLoad"]) !== fileScope)
+    throw new Error("yield AST scope or visitor control mismatch");
+  const codes = [...(compilation.stdout + "\n" + compilation.stderr).matchAll(/error TS(\d+):/g)]
+    .map(match => Number(match[1]));
+  if (compilation.exitCode !== (fileScope ? 2 : 0) ||
+      (fileScope ? codes.length !== 1 || codes[0] !== 1163 : codes.length !== 0))
+    throw new Error("yield compiler diagnostic control mismatch");
+  return { fileScope, executesOnLoad: fileScope, diagnosticCodes: codes, exitCode: compilation.exitCode };
+}
+
 export function shardIndices(indices: number[], shard: string): number[] {
   const match = /^([1-9]\d*)\/([1-9]\d*)$/.exec(shard);
   if (!match) throw new Error("invalid shard; expected i/n, 1 <= i <= n");

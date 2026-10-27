@@ -18,20 +18,21 @@ fn require_specifiers(node: core::Node, literals: &mut Vec<core::Node>) {
 fn components(
     frontend: &compiler::NewProgram,
     fs: &CaptureFs,
+    source_identity: &source_identity::SourceIdentity,
     repository: &str,
     roots: &[String],
 ) -> Result<serde_json::Value, String> {
     if let Some(error) = &frontend.module_resolution_error {
         return Err(format!("PARTITION_MODULE_RESOLUTION_ERROR:{error}"));
     }
-    let prefix = format!("{}/", fs.key(repository).trim_end_matches('/'));
+    let prefix = format!("{}/", source_identity.key(repository).trim_end_matches('/'));
     let mut loaded = BTreeMap::new();
     for source in frontend.get_source_files() {
         if source.root.is_nil() {
             return Err("PARTITION_LOADED_SOURCE_UNAVAILABLE".into());
         }
         let filename = ast::source_file_file_name(source.root);
-        let key = fs.key(filename);
+        let key = source_identity.key(filename);
         let Some(relative) = key.strip_prefix(&prefix) else {
             continue;
         };
@@ -39,25 +40,25 @@ fn components(
             continue;
         }
         let relative = relative_source_path(repository, filename, fs.sensitive)?;
-        if loaded.insert(key, (relative, source)).is_some() {
-            return Err("PARTITION_DUPLICATE_LOADED_SOURCE".into());
-        }
+        loaded.insert(key, (relative, source));
     }
     let mut selected = BTreeMap::new();
+    let mut selected_paths = BTreeSet::new();
     for path in roots {
+        if !selected_paths.insert(fs.key(path)) {
+            return Err("PARTITION_DUPLICATE_SELECTED_SOURCE".into());
+        }
         let source = frontend
             .get_source_file(path)
             .ok_or("PARTITION_SELECTED_SOURCE_UNAVAILABLE")?;
         if ast::source_file_info(source.root).is_declaration_file {
             continue;
         }
-        let key = fs.key(ast::source_file_file_name(source.root));
+        let key = source_identity.key(ast::source_file_file_name(source.root));
         let (relative, _) = loaded
             .get(&key)
             .ok_or("PARTITION_SELECTED_SOURCE_OUTSIDE_GRAPH")?;
-        if selected.insert(key, relative.clone()).is_some() {
-            return Err("PARTITION_DUPLICATE_SELECTED_SOURCE".into());
-        }
+        selected.insert(key, relative.clone());
     }
     let mut adjacent = loaded
         .keys()
@@ -106,7 +107,7 @@ fn components(
             }
         }
         for (specifier, resolved_path) in links {
-            let target = fs.key(&resolved_path);
+            let target = source_identity.key(&resolved_path);
             let Some((target_relative, _)) = loaded.get(&target) else {
                 continue;
             };
@@ -164,13 +165,29 @@ fn components(
     }))
 }
 
+pub fn observe_with_identity(
+    frontend: &compiler::NewProgram,
+    fs: &CaptureFs,
+    source_identity: &source_identity::SourceIdentity,
+    repository: &str,
+    roots: &[String],
+) -> serde_json::Value {
+    components(frontend, fs, source_identity, repository, roots).unwrap_or_else(|error| {
+        serde_json::json!({"executed":false,"unsupported":[error],"observationScope":"native_loaded_repository_module_components","parallelSafetyEvaluated":false,"globalAdmissionInferred":false})
+    })
+}
+
 pub fn observe(
     frontend: &compiler::NewProgram,
     fs: &CaptureFs,
     repository: &str,
     roots: &[String],
 ) -> serde_json::Value {
-    components(frontend, fs, repository, roots).unwrap_or_else(|error| {
-        serde_json::json!({"executed":false,"unsupported":[error],"observationScope":"native_loaded_repository_module_components","parallelSafetyEvaluated":false,"globalAdmissionInferred":false})
-    })
+    observe_with_identity(
+        frontend,
+        fs,
+        &source_identity::SourceIdentity::new(fs.sensitive, true),
+        repository,
+        roots,
+    )
 }

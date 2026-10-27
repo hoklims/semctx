@@ -1,7 +1,7 @@
 # T00 — TS7 reference contract
 
-Status: partially specified research contract, owner decisions of 2026-10-23 and
-2026-10-24. The 2026-10-24 scope changes below still require Guillaume’s validation.
+Status: partially specified research contract, owner decisions of 2026-10-23,
+2026-10-24 and 2026-10-26. The scope changes below still require Guillaume’s validation.
 This contract applies to the T00 experiment only. It does not migrate the delivered
 profiles in accepted ADRs [0034](../../adr/0034-javascript-static-esm.md) and
 [0035](../../adr/0035-qualified-static-analysis-admission.md), grant admission,
@@ -138,17 +138,61 @@ controls. Qualification requires fresh activation and control comparisons agains
 the independent TS7 API oracle on the frozen candidate on both platforms.
 **ARB-003 and `__generator` retain zero credit.** No ES5 compatibility promise is made.
 
-Obligations **145** (`yield`) and **166** (structural digest) remain pending a
-separate owner decision and are not qualified in this campaign. The unresolved
-choices concern a recovered immediate YieldExpression with TS1163 versus an
-accepted program, and TS7 digest equality/difference relations versus identical
-historical TS5 digest bytes. Neither choice is inferred from existing tests.
+The 2026-10-24 campaign left **145** (`yield`) and **166** (structural digest)
+unqualified pending separate owner decisions. That historical result is unchanged;
+the 2026-10-26 decisions for 145 and 166 below require fresh candidate-bound
+evidence.
 
 The resumed wave-2 delivery includes only the committed semantic tranche **52**
 in addition to the previously prepared **61/97/102**. Other committed preparatory
 contract matrices are not activated for promotion. Their obligations retain
 baseline witnesses and remain unqualified until a separately delivered closure.
 Uncommitted live-fs, extraction and semantic continuation work is excluded.
+
+## Owner scope decision of 2026-10-26 — obligation 145
+
+Sébastien selected **option A** for obligation **145**. **Guillaume must still
+validate this contract change**; an experimental local qualification does not
+supply that validation or authorize delivery.
+
+The visitor witness is an immediate file-scope `YieldExpression` in the recovered
+TS7 AST for `const value = yield 1;`. The independent AST oracle must observe the
+file-scope node and its immediate evaluation classification, while the separate
+pinned TS7 compiler invocation must report **TS1163**. The valid control is
+`function* deferred() { yield 1; }`: its yield is deferred, its declaration does
+not execute on load, and the compiler accepts this control without diagnostics.
+**The contract does not promise that TS7 accepts the immediate-yield program.**
+Recovery evidence is evidence of the visitor predicate only, not successful
+compilation or qualified analysis admission. All other executable, deferred and
+recursive-expression properties of 145 remain cumulative and require their
+activation/control comparisons on the frozen candidate on both platforms.
+The historical TS5 consumer inventory remains provenance; this decision supersedes
+its requirement for an accepted file-scope yield specimen for the TS7 experiment.
+
+## Owner scope decision of 2026-10-26 — obligation 166
+
+Sébastien selected **option A** for obligation **166**. **Guillaume must still
+validate this contract change**; the same experimental qualification and delivery
+limits as for 145 apply.
+
+Only equality/difference relations of structural digests are contractual for the
+pinned TS7 reference. The independent oracle derives structural sequences from
+TS7 child nodes and tokens; the producer computes its own statement digests.
+Qualification compares the relation between the two producer digests with the
+relation between the independently derived oracle sequences. **No byte identity
+with historical TS5 digests is promised or qualified.**
+
+The prepared twelve pairs cover operator, heritage-keyword, declaration-flag,
+raw-template and private-identifier changes; an identical private-identifier
+control; whitespace, comments, array/call/member commas and final-semicolon
+controls. The existing three cumulative properties remain required. All twelve
+pairs must execute, with the activating differences and equality controls, on
+the frozen candidate on macOS arm64 and Linux aarch64. Missing or malformed
+digests, missing pairs and relation mismatches remain non-qualification.
+This is a structural observation of parsed statements, not compilation acceptance
+or qualified analysis admission. The historical TS5 consumer inventory remains
+provenance; its byte-compatibility proof gap does not constrain this TS7 relational
+scope or provide qualification credit by itself.
 
 ## Obligation 229 — P2 acquisition
 

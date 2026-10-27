@@ -89,3 +89,96 @@ test("SDK helper arguments require the declared origin path", () => {
   result.helperResults[0]!.arguments[0]!.path = "/sdk/lib/lib.es5.d.ts";
   expect(verifyContractWitness(oracle, result, selected, "activate", "main.ts").passed).toBe(true);
 });
+
+test("binds a type helper argument to one native node, kind and byte span", () => {
+  const native = { compilerConstants: { typeFlags: { Object: 64, StringLike: 32 } }, files: [{ path: "/project/main.ts", nodes: [
+    { kind: "Identifier", text: "f", start: 0, end: 1, typeId: "function" },
+    { kind: "BindingElement", text: "f", start: 4, end: 5 },
+    { kind: "Identifier", text: "f", start: 10, end: 11, typeId: "string" },
+  ], factsGraph: { types: [
+    { id: "function", flagsBits: 64, callSignatures: ["signature"], constructSignatures: [], unionTypes: [], intersectionTypes: [] },
+    { id: "string", flagsBits: 32, callSignatures: [], constructSignatures: [], unionTypes: [], intersectionTypes: [] },
+  ] } }] };
+  const selected = witness(99, "type-binding", "f", "f", ["callable"], [helperResult(99, "activate", {
+    kind: "type", native: { nodeText: "f", syntaxKind: "Identifier", nativeByteStart: 0, target: "type" }, callable: true,
+  }, { kind: "boolean", value: true }, ["callable"])]);
+  const actual = { status: "projected", gaps: [], helperResults: [{ index: 99, arguments: [{ kind: "type", nativeId: "function", checkerFile: "/project/main.ts", callSignatureCount: 1 }], value: { kind: "boolean", value: true } }] };
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(true);
+  const wrongType = structuredClone(actual); wrongType.helperResults[0]!.arguments[0]!.nativeId = "string";
+  expect(verifyContractWitness(native, wrongType, selected, "activate", "main.ts").passed).toBe(false);
+  const wrongChecker = structuredClone(actual); wrongChecker.helperResults[0]!.arguments[0]!.checkerFile = "/project/other.ts";
+  expect(verifyContractWitness(native, wrongChecker, selected, "activate", "main.ts").passed).toBe(false);
+  const ambiguous = structuredClone(selected);
+  const assertion = ambiguous.nativeExpectations[0]!;
+  if (assertion.kind === "helper-return" && assertion.argument?.kind === "type") delete assertion.argument.native!.nativeByteStart;
+  expect(verifyContractWitness(native, actual, ambiguous, "activate", "main.ts").passed).toBe(false);
+  const sameType = structuredClone(native); sameType.files[0]!.nodes[2]!.typeId = "function";
+  expect(verifyContractWitness(sameType, actual, ambiguous, "activate", "main.ts").passed).toBe(true);
+});
+
+test("uses positional argument constraints and ordered record contents in the same invocation", () => {
+  const selected = witness(120, "operation-args", "alias", "alias", ["names"], [{
+    ...helperResult(120, "activate", "alias", { kind: "object", properties: { arguments: { kind: "array", values: [{ kind: "string", value: "first" }, { kind: "undefined" }] } } }, ["names"]),
+    argumentConstraints: [{ position: 1, expected: { kind: "array", values: [{ kind: "string", value: "create" }] } }],
+  }]);
+  const value = { kind: "object", properties: { arguments: { kind: "array", values: [{ kind: "string", value: "first" }, { kind: "undefined" }] } } };
+  const actual = { status: "projected", gaps: [], helperResults: [{ index: 120, arguments: [node("alias"), { kind: "array", values: [{ kind: "string", value: "create" }] }], value }] };
+  expect(verifyContractWitness(oracle, actual, selected, "activate", "main.ts").passed).toBe(true);
+  const wrong = structuredClone(actual); wrong.helperResults[0]!.arguments[1] = { kind: "array", values: [{ kind: "string", value: "setPrototypeOf" }] };
+  expect(verifyContractWitness(oracle, wrong, selected, "activate", "main.ts").passed).toBe(false);
+  const reversed = structuredClone(actual); reversed.helperResults[0]!.value.properties.arguments.values.reverse();
+  expect(verifyContractWitness(oracle, reversed, selected, "activate", "main.ts").passed).toBe(false);
+});
+
+test("rehydrates omitted node text from native sources and respects UTF16 argument positions", () => {
+  const selected = { ...scenario, nativeExpectations: scenario.nativeExpectations.map((entry, index) => index === 0 ? { ...entry, argumentStart: 1 } : entry) };
+  const native = { ...oracle, sourceFiles: [{ path: "/project/main.ts", text: "éalias;target" }] };
+  const argument = { kind: "node", syntaxKind: "Identifier", path: "/project/main.ts", start: 1, end: 6, nativeByteStart: 2, nativeByteEnd: 7 };
+  const value = { kind: "node", syntaxKind: "Identifier", path: "/project/main.ts", start: 7, end: 13, nativeByteStart: 8, nativeByteEnd: 14 };
+  const actual = { status: "projected", gaps: [], helperResults: [{ index: 51, arguments: [argument], value }] };
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(true);
+  const wrong = structuredClone(actual); wrong.helperResults[0]!.arguments[0]!.start = 2;
+  expect(verifyContractWitness(native, wrong, selected, "activate", "main.ts").passed).toBe(false);
+});
+
+test("binds SDK parameter type identities through the selected signature and position", () => {
+  const declaration = { path: "/sdk/lib/lib.d.ts", kind: "CallSignature", start: 10, end: 20 };
+  const native = { files: [{ path: "/project/main.ts", nodes: [{ kind: "Identifier", text: "consume", start: 0, end: 7, typeId: "callee" }], factsGraph: {
+    types: [{ id: "callee", callSignatures: ["signature"] }, { id: "callback", callSignatures: ["callback-signature"] }, { id: "number", callSignatures: [] }],
+    signatures: [{ id: "signature", declaration, parameters: ["first", "second"] }],
+    symbols: [{ id: "first", name: "value", declarations: [] }, { id: "second", name: "value", declarations: [] }],
+    symbolTypes: [{ symbolId: "first", location: declaration, typeId: "callback" }, { symbolId: "second", location: declaration, typeId: "number" }],
+  } }] };
+  const selected = witness(59, "parameter", "consume", "consume", ["callback"], [helperResult(59, "activate", {
+    kind: "type", callable: true, native: { nodeText: "consume", syntaxKind: "Identifier", target: "type", steps: [{ op: "callSignature", index: 0 }, { op: "parameter", index: 0 }, { op: "symbolType", location: "signatureDeclaration" }] },
+  }, { kind: "boolean", value: true }, ["callback"])]);
+  const actual = { status: "projected", gaps: [], helperResults: [{ index: 59, arguments: [{ kind: "type", nativeId: "callback", checkerFile: "/project/main.ts", callSignatureCount: 1 }], value: { kind: "boolean", value: true } }] };
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(true);
+  const changed = structuredClone(selected);
+  const expectation = changed.nativeExpectations[0];
+  if (expectation?.kind === "helper-return" && expectation.argument?.kind === "type") expectation.argument.native!.steps![1] = { op: "parameter", index: 1 };
+  expect(verifyContractWitness(native, actual, changed, "activate", "main.ts").passed).toBe(false);
+});
+
+test("distinguishes shorthand value symbols from homonymous property symbols", () => {
+  const native = { files: [{ path: "/project/main.ts", nodes: [{ kind: "ShorthandPropertyAssignment", text: "value", start: 0, end: 5, symbolId: "property", shorthandValueSymbolId: "binding" }], factsGraph: {
+    symbols: [{ id: "property", name: "value", declarations: [] }, { id: "binding", name: "value", declarations: [] }],
+  } }] };
+  const selected = witness(56, "symbol", "value", "value", ["binding"], [helperResult(56, "activate", { kind: "symbol", name: "value", native: { nodeText: "value", syntaxKind: "ShorthandPropertyAssignment", target: "shorthandValueSymbol" } }, { kind: "boolean", value: false }, ["binding"])]);
+  const actual = { status: "projected", gaps: [], helperResults: [{ index: 56, arguments: [{ kind: "symbol", name: "value", nativeId: "binding", checkerFile: "/project/main.ts" }], value: { kind: "boolean", value: false } }] };
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(true);
+  actual.helperResults[0]!.arguments[0]!.nativeId = "property";
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(false);
+});
+
+test.each([["TypeLiteral", true], ["InterfaceDeclaration", false]] as const)("requires the observed %s parent before crediting absence of descendant visits", (syntaxKind, isTypeNode) => {
+  const native = { files: [{ path: "/project/main.ts", nodes: [{ kind: syntaxKind, text: "{value:number}", start: 0, end: 14, isTypeNode }] }] };
+  const selected = witness(134, "type-boundary", "{value:number}", "", ["type-not-visited"], [{ kind: "helper-descendants-absent", variant: "activate", consumerIndex: 134, parent: { nodeText: "{value:number}", syntaxKind, nativeByteStart: 0 }, alternatives: ["type-not-visited"] }]);
+  const parent = { kind: "node", syntaxKind: syntaxKind as string, path: "/project/main.ts", start: 0, end: 14, nativeByteStart: 0, nativeByteEnd: 14 };
+  const actual = { status: "projected", gaps: [], helperResults: [{ index: 134, arguments: [parent], value: { kind: "undefined" } }] };
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(true);
+  const child = { ...parent, syntaxKind: "Identifier", start: 1, end: 6, nativeByteStart: 1, nativeByteEnd: 6 };
+  actual.helperResults.push({ index: 134, arguments: [child], value: { kind: "undefined" } });
+  expect(verifyContractWitness(native, actual, selected, "activate", "main.ts").passed).toBe(false);
+  expect(verifyContractWitness(native, { ...actual, helperResults: actual.helperResults.slice(1) }, selected, "activate", "main.ts").passed).toBe(false);
+});

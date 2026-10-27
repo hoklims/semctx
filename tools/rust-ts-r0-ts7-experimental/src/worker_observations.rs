@@ -107,6 +107,7 @@ fn extract(
     request: &WorkerRequest,
     sdk: &Sdk,
     started: &mut bool,
+    source_identity: &source_identity::SourceIdentity,
 ) -> Result<serde_json::Value, String> {
     if !sdk.matches_reference() {
         return Err("foreign SDK descriptor".into());
@@ -176,33 +177,61 @@ fn extract(
     let _current = native_program::NativeProgram::enter(&frontend.program);
     program::bind_all();
     let mut extraction = ordinary::Extraction::default();
+    let mut runtime_module_trace = Vec::new();
+    let mut runtime_module_inputs = BTreeMap::<String, Option<String>>::new();
+    let emitted_roots = emit
+        .iter()
+        .map(|path| fs.key(path))
+        .collect::<BTreeSet<_>>();
     let mut extracted_roots = BTreeSet::new();
-    for path in &roots {
-        if !extracted_roots.insert(fs.key(path)) {
+    let root_keys = roots
+        .iter()
+        .map(|path| fs.key(path))
+        .collect::<BTreeSet<_>>();
+    for source in program::source_files() {
+        let path = ast::source_file_file_name(source);
+        if !root_keys.contains(&fs.key(path)) || !emitted_roots.contains(&fs.key(path)) {
             continue;
         }
-        let source = program::get_source_file(path);
-        if source.is_nil() {
+        if !extracted_roots.insert(source_identity.key(path)) {
             continue;
         }
         let relative = relative_source_path(&root, path, sensitive)?;
         let repository = root.clone();
-        let current = program::with_type_checker_for_file(source, move |checker| {
-            ordinary::extract(
-                source,
-                checker,
-                &relative,
-                &ordinary::ExtractionContext {
-                    repository_root: &repository,
-                    static_module_links: javascript_enabled,
-                    retained: false,
-                    javascript_enabled,
-                    captured_files: None,
-                    case_sensitive: sensitive,
-                },
-            )
-        })
-        .map_err(|error| format!("worker native checker unavailable: {error}"))?;
+        let configured = javascript_enabled;
+        let (current, runtime_inputs, runtime_trace) =
+            program::with_type_checker_for_file(source, move |checker| {
+                let inputs = Rc::new(RefCell::new(BTreeMap::new()));
+                let trace = Rc::new(RefCell::new(Vec::new()));
+                let runtime_module = ordinary::RuntimeModuleResolver::new(
+                    |path| ts_goport::frontend::vfs::osvfs_fs().file_exists(path),
+                    configured,
+                    false,
+                    Some(repository.clone()),
+                    inputs.clone(),
+                    trace.clone(),
+                );
+                let extracted = ordinary::extract(
+                    source,
+                    checker,
+                    &relative,
+                    &ordinary::ExtractionContext {
+                        runtime_module: Some(&runtime_module),
+                        repository_root: &repository,
+                        static_module_links: javascript_enabled,
+                        retained: false,
+                        javascript_enabled,
+                        captured_files: None,
+                        case_sensitive: sensitive,
+                    },
+                )?;
+                let recorded_inputs = inputs.borrow().clone();
+                let recorded_trace = trace.borrow().clone();
+                Ok::<_, String>((extracted, recorded_inputs, recorded_trace))
+            })
+            .map_err(|error| format!("worker native checker unavailable: {error}"))?;
+        runtime_module_inputs.extend(runtime_inputs);
+        runtime_module_trace.extend(runtime_trace);
         extraction.modules.extend(current.modules);
         extraction.symbols.extend(current.symbols);
         extraction.imports.extend(current.imports);
@@ -248,7 +277,7 @@ fn extract(
     let capability = serde_json::json!({"executed":true,"roots":root_observations,"unsupported":unsupported,"workspaceIssues":workspace_issues,"resolutionErrors":resolution_errors});
     let extraction = restrict(extraction, &emit, &root, sensitive)?;
     Ok(
-        serde_json::json!({"extraction":extraction,"frontendCapabilityObservation":capability,"read_observations":reads,"compiler_probes":fs.log.borrow().clone(),"extraction_started":true,"captured_repository_input_id":capture_id,"sdk_input_id":identity::digest(&serde_json::to_value(sdk).map_err(|error|error.to_string())?),"capture_claim":"single sequential materialization; no atomic live acquisition guarantee"}),
+        serde_json::json!({"extraction":extraction,"runtimeModuleObservation":{"inputs":runtime_module_inputs,"trace":runtime_module_trace},"sourceIdentityObservation":source_identity.observation(),"frontendCapabilityObservation":capability,"read_observations":reads,"compiler_probes":fs.log.borrow().clone(),"extraction_started":true,"captured_repository_input_id":capture_id,"sdk_input_id":identity::digest(&serde_json::to_value(sdk).map_err(|error|error.to_string())?),"capture_claim":"single sequential materialization; no atomic live acquisition guarantee"}),
     )
 }
 
@@ -304,6 +333,36 @@ fn restrict(
     Ok(value)
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+struct EmissionRequest {
+    extraction: ordinary::Extraction,
+    emit_abs_paths: Vec<String>,
+    repo_root: String,
+}
+
+pub fn observe_emission(descriptor: serde_json::Value) -> serde_json::Value {
+    let result = (|| {
+        let request: EmissionRequest = serde_json::from_value(descriptor)
+            .map_err(|error| format!("malformed emission request: {error}"))?;
+        let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+        restrict(
+            request.extraction,
+            &request.emit_abs_paths,
+            &request.repo_root,
+            sensitive,
+        )
+    })();
+    match result {
+        Ok(extraction) => {
+            serde_json::json!({"executed":true,"unsupported":[],"extraction":extraction,"observationScope":"worker_emit_root_projection"})
+        }
+        Err(error) => {
+            serde_json::json!({"executed":false,"unsupported":[error],"observationScope":"worker_emit_root_projection"})
+        }
+    }
+}
+
 fn parse_request(request: &serde_json::Value) -> Option<WorkerRequest> {
     let parsed = serde_json::from_value::<WorkerRequest>(request.clone()).ok()?;
     if parsed.schema_version != 1.0 {
@@ -319,11 +378,26 @@ pub fn malformed_request(request: &serde_json::Value) -> Option<serde_json::Valu
 }
 
 pub fn run(request: serde_json::Value, sdk: &Sdk) -> serde_json::Value {
+    run_with_identity(
+        request,
+        sdk,
+        source_identity::SourceIdentity::new(
+            ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+            true,
+        ),
+    )
+}
+
+pub(super) fn run_with_identity(
+    request: serde_json::Value,
+    sdk: &Sdk,
+    source_identity: source_identity::SourceIdentity,
+) -> serde_json::Value {
     let Some(parsed) = parse_request(&request) else {
         return failure("unbound", "malformed extraction request");
     };
     let mut started = false;
-    match extract(&parsed, sdk, &mut started) {
+    match extract(&parsed, sdk, &mut started, &source_identity) {
         Ok(mut observed) => {
             observed["schemaVersion"] = serde_json::json!(1);
             observed["jobId"] = serde_json::json!(parsed.job_id);

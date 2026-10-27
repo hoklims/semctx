@@ -1350,7 +1350,7 @@ fn loaded_module_partition_connects_selected_roots_through_an_unselected_source(
     );
     assert_eq!(
         observed["raw_extraction"]["modules"],
-        serde_json::json!(["a.ts", "b.ts"])
+        serde_json::json!(["b.ts", "a.ts"])
     );
     assert_eq!(partition["globalAdmissionInferred"], false);
 }
@@ -2836,4 +2836,81 @@ fn raw_array_binding_holes_keep_ordered_names_without_missing_node_crashes() {
             .iter()
             .any(|symbol| symbol["name"] == "leafTriage")
     );
+}
+
+#[test]
+fn retained_reference_windows_paths_preserve_presence_and_case_policy() {
+    let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+    for (reference, retained, missing) in [
+        ("../reference.ts", true, false),
+        ("../reference.ts", false, true),
+        ("../REFERENCE.ts", true, sensitive),
+    ] {
+        let path = "C:/repo/src/selected.ts";
+        let mut request = component_request(
+            "retainedWindowsReference",
+            path,
+            &format!("/// <reference path=\"{reference}\" />\nexport const selected = 1;"),
+        );
+        request.cwd = "C:/repo".into();
+        request.case_sensitive = sensitive;
+        request.retained = true;
+        if retained {
+            request.files.insert(
+                r"C:\repo\reference.ts".into(),
+                "export const reference = 1;".into(),
+            );
+        }
+        let observed = analyze(request, component_sdk()).unwrap();
+        let subject = &observed["subjects"][0];
+        let reasons = &subject["retainedScopeSyntaxObservation"]["reasons"];
+        assert_eq!(
+            reasons,
+            &if missing {
+                serde_json::json!([format!(
+                    "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/selected.ts:{reference}"
+                )])
+            } else {
+                serde_json::json!([])
+            },
+            "sensitive={sensitive}, retained={retained}: {reasons}"
+        );
+    }
+}
+
+#[test]
+fn extraction_follows_program_dependency_order_for_each_request_root_order() {
+    let sdk = component_sdk();
+    for retained in [false, true] {
+        for roots in [
+            vec!["/repo/a.ts".to_string(), "/repo/z.ts".to_string()],
+            vec!["/repo/z.ts".to_string(), "/repo/a.ts".to_string()],
+        ] {
+            let mut request = component_request(
+                "programOrder",
+                "/repo/a.ts",
+                "import { leaf } from './z'; export function caller() { return leaf(); }\n",
+            );
+            request.roots = roots;
+            request.retained = retained;
+            request.qualified = retained;
+            request.files.insert(
+                "/repo/z.ts".into(),
+                "export function leaf() { return 1; }\n".into(),
+            );
+            let observed = analyze(request, sdk.clone()).unwrap();
+            assert_eq!(
+                observed["raw_extraction"]["modules"],
+                serde_json::json!(["z.ts", "a.ts"]),
+                "retained={retained}"
+            );
+            let symbols = observed["raw_extraction"]["symbols"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .map(|symbol| symbol["name"].as_str().unwrap())
+                .collect::<Vec<_>>();
+            assert_eq!(symbols, vec!["leaf", "caller"], "retained={retained}");
+        }
+    }
 }

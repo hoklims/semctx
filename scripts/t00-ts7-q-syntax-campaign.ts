@@ -1,8 +1,9 @@
+import { declaredExternalOracle, materializeExternal, requireNativeManifestFailures, resolutionFromTrace } from "./t00-ts7-q-syntax-live-fs.js";
 import { createHash } from "node:crypto";
 import { mkdir, readFile, readdir, realpath, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, join, resolve } from "node:path";
 import { combineCampaignCases, comparisonMatches, projectComparison } from "./t00-ts7-q-syntax-checker-cases.js";
-import { readAt, shardIndices, verifyFile } from "./t00-ts7-q-syntax-core.js";
+import { readAt, shardIndices, verifyFile, validateYieldControl } from "./t00-ts7-q-syntax-core.js";
 import type { CampaignCase, CandidateManifest, FileRef, PlatformArtifacts } from "./t00-ts7-q-syntax-types.js";
 
 const revision = "780dc512d64f40afebffa6a7028207649fb7ed1c";
@@ -138,18 +139,48 @@ async function runCase(item: CampaignCase, dir: string, artifacts: PlatformArtif
   await mkdir(dir);
   const root = join(dir, "workspace");
   await mkdir(root);
-  const input = { ...item.oracleInput, sdk_directory: dirname(artifacts.oracle.path), sdk_input: artifacts.sdk.path };
+  const request = item.mode === "live-external" ? await materializeExternal(item, root) : item.mode === "primitive" ? item.request : await materialize(item, root);
+  const input = { ...item.oracleInput, fixture: item.request, sdk_directory: dirname(artifacts.oracle.path), sdk_input: artifacts.sdk.path };
   const evidence = [await save(join(dir, "oracle-input.json"), input)];
-  const oracleRun = await execute([artifacts.syntaxOracle.path], root, input);
-  evidence.push(await save(join(dir, "oracle-process.json"), oracleRun));
-  if (oracleRun.exitCode !== 0) throw new Error(`oracle ${item.name} failed: ${oracleRun.stderr}`);
-  const expected = object(JSON.parse(oracleRun.stdout) as unknown);
-  if (expected.compilerVersion !== "7.1.0-dev" || expected.sourceRevision !== revision || expected.sdkLibraryCount !== 115)
-    throw new Error("oracle identity mismatch");
-  const request = item.mode === "primitive" ? item.request : await materialize(item, root);
+  let expected: Record<string, unknown>;
+  if (item.mode === "live-external") {
+    const observation = await declaredExternalOracle(text(request.path), request.repository_root as string | undefined, text(request.specifier));
+    expected = { observation };
+    evidence.push(await save(join(dir, "oracle-contract.json"), { input: request, expected, source: item.oracleInput }));
+    requireNativeManifestFailures(item, root, observation.reads);
+  } else {
+    const oracleRun = await execute([artifacts.syntaxOracle.path], root, input);
+    evidence.push(await save(join(dir, "oracle-process.json"), oracleRun));
+    if (oracleRun.exitCode !== 0) throw new Error(`oracle ${item.name} failed: ${oracleRun.stderr}`);
+    expected = object(JSON.parse(oracleRun.stdout) as unknown);
+    if (expected.compilerVersion !== "7.1.0-dev" || expected.sourceRevision !== revision || expected.sdkLibraryCount !== 115)
+      throw new Error("oracle identity mismatch");
+    if (item.oracleInput.liveLinks) {
+      const trace = await execute([artifacts.oracle.path, "--noEmit", "--pretty", "false", "--traceResolution", "--allowJs", "--checkJs", "--skipLibCheck", "--target", "ES2022", "--module", "ESNext", "--moduleResolution", "Bundler", text(item.oracleInput.filename)], root);
+      evidence.push(await save(join(dir, "tsgo-resolution-trace.json"), trace));
+      if (![0, 2].includes(trace.exitCode)) throw new Error(`TS7 resolution invocation failed: ${trace.stderr}`);
+      const observation = object(expected.observation);
+      const links = [];
+      for (const specifier of array(observation.moduleSpecifiers).map(text)) {
+        let resolution = resolutionFromTrace(trace.stdout, specifier);
+        if (resolution === "unresolved" && !specifier.startsWith(".") && (await declaredExternalOracle(join(root, text(item.oracleInput.filename)), root, specifier)).external) resolution = "external";
+        links.push({ specifier, resolution });
+      }
+      observation.staticModuleLinks = links;
+      observation.javascriptReasons = [...new Set([...array(observation.javascriptReasons).map(text), ...links.filter(link => link.resolution === "unresolved").map(link => `JAVASCRIPT_IMPORT_UNRESOLVED:${link.specifier}`)])].sort();
+      evidence.push(await save(join(dir, "oracle-links-projection.json"), observation));
+    }
+  }
+  if (item.yieldControl) {
+    const compilation = await execute([artifacts.oracle.path, "--noEmit", "--target", "ES2022", "--module", "ESNext",
+      "--moduleResolution", "Bundler", "--skipLibCheck", join(root, text(item.oracleInput.filename))], root);
+    evidence.push(await save(join(dir, "yield-compiler-process.json"), compilation));
+    const control = validateYieldControl(item.yieldControl, expected, compilation);
+    evidence.push(await save(join(dir, "yield-control.json"), control));
+  }
   const requestPath = join(dir, "request.json");
   evidence.push(await save(requestPath, request));
-  const args = item.mode === "primitive" ? ["--observe-primitives", requestPath] : [requestPath, artifacts.sdk.path];
+  const args = item.mode === "primitive" || item.mode === "live-external" ? ["--observe-primitives", requestPath] : [requestPath, artifacts.sdk.path];
   const producer = await execute([artifacts.producer.path, ...args], root);
   evidence.push(await save(join(dir, "producer-process.json"), producer));
   const actual: unknown = producer.exitCode === 0 ? JSON.parse(producer.stdout) as unknown : null;
@@ -159,7 +190,7 @@ async function runCase(item: CampaignCase, dir: string, artifacts: PlatformArtif
       const observed = projectComparison(readAt(actual, check.actual), check.transform);
       const wanted = readAt(expected, check.expected);
       const passed = comparisonMatches(observed, wanted, check.comparison);
-      return { ...check, status: passed ? "passed" : "failed", reason: passed ? "exact independent TS7 comparison" : "independent TS7 mismatch",
+      return { ...check, status: passed ? "passed" : "failed", reason: passed ? "exact independent contract/TS7 comparison" : "independent contract/TS7 mismatch",
         actualValue: observed, expectedValue: wanted };
     } catch (error) {
       return { ...check, status: "failed", reason: String(error) };
@@ -188,7 +219,7 @@ async function main() {
   const out = resolve(text(options.get("--out")));
   const shard = options.get("--shard") ?? "1/1";
   const candidate = await loadCandidate(candidatePath, platform);
-  const modules = await Promise.all([import("./t00-ts7-q-syntax-j.js"), import("./t00-ts7-q-syntax-o.js"), import("./t00-ts7-q-syntax-x.js"), import("./t00-ts7-q-syntax-checker-j.js"), import("./t00-ts7-q-syntax-checker-x.js"), import("./t00-ts7-q-syntax-checker-partition.js"), import("./t00-ts7-q-syntax-checker-parsing.js")]);
+  const modules = await Promise.all([import("./t00-ts7-q-syntax-live-fs.js"), import("./t00-ts7-q-syntax-j.js"), import("./t00-ts7-q-syntax-o.js"), import("./t00-ts7-q-syntax-x.js"), import("./t00-ts7-q-syntax-checker-j.js"), import("./t00-ts7-q-syntax-checker-x.js"), import("./t00-ts7-q-syntax-checker-partition.js"), import("./t00-ts7-q-syntax-checker-parsing.js")]);
   const { cases: allCases, gaps, propertyWitnesses: witnesses } = combineCampaignCases(modules);
   if (new Set(allCases.map(item => item.name)).size !== allCases.length) throw new Error("duplicate witness names");
   const indices = [7,8,9,10,11,17,18,19,...Array.from({length:16},(_,i)=>28+i),48,
@@ -202,14 +233,17 @@ async function main() {
   const version = await execute([candidate.artifacts.oracle.path, "--version"], out);
   if (version.exitCode !== 0 || version.stdout.trim() !== "Version 7.1.0-dev") throw new Error("upstream tsgo identity mismatch");
   const versionRef = await save(join(out, "tsgo-version.json"), version);
-  const runnerSources = await Promise.all(["campaign", "core", "types", "j", "o", "x", "checker-cases", "checker-graph", "checker-j", "checker-x", "checker-partition", "checker-parsing"].map(async name => {
+  const runnerSources = await Promise.all(["live-fs", "campaign", "core", "types", "j", "o", "x", "checker-cases", "checker-graph", "checker-j", "checker-x", "checker-partition", "checker-parsing"].map(async name => {
     const path = join(import.meta.dir, `t00-ts7-q-syntax-${name}.ts`);
     const bytes = await readFile(path);
     return { path, sha256: hash(bytes), bytes: bytes.length };
   }));
+  const referencePath = resolve(import.meta.dir, "../docs/research/rust-ts-r0/contract-ts7.md");
+  const referenceBytes = await readFile(referencePath);
+  const referenceContract = { path: referencePath, sha256: hash(referenceBytes), bytes: referenceBytes.length };
   const binding = await save(join(out, "campaign-binding.json"), { candidateManifestSha256: candidate.manifestHash,
     sourceCommit: candidate.manifest.sourceCommit, artifacts: candidate.artifacts, contracts: hash(await readFile(contractsPath)),
-    runnerSources,
+    runnerSources, referenceContract,
     purpose: candidate.manifest.purpose ?? "qualification", helperAndObserver: "fingerprints checked; historical TS5 observer not executed" });
   const observations: Awaited<ReturnType<typeof runCase>>[] = [];
   const errors: { name: string; error: string; evidence: FileRef[] }[] = [];
@@ -221,7 +255,7 @@ async function main() {
       errors.push({ ...detail, evidence: [await save(join(out, `case-${caseId}-error.json`), detail)] });
     }
   }
-  for (const ref of [...candidate.refs, ...runnerSources]) await verifyFile(ref);
+  for (const ref of [...candidate.refs, ...runnerSources, referenceContract]) await verifyFile(ref);
   if (hash(await readFile(candidatePath)) !== candidate.manifestHash) throw new Error("candidate manifest changed during campaign");
   const results = rows.map(row => {
     const index = Number(row.index);

@@ -1,9 +1,10 @@
 export interface CampaignCase {
   name: string;
   indices: number[];
-  mode: "raw" | "primitive";
+  mode: "raw" | "primitive" | "live-external";
   request: Record<string, unknown>;
   oracleInput: Record<string, unknown>;
+  yieldControl?: "file-scope-recovered" | "deferred-generator";
   checks: {
     name: string;
     actual: (string | number)[];

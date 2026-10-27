@@ -238,6 +238,7 @@ jobs:
           cargo test --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked
           cargo test --manifest-path tools/t00-ts7-oracle-q-semantic/Cargo.toml --locked
           cargo test --manifest-path tools/t00-ts7-oracle-q-syntax/Cargo.toml --locked
+      - run: bun install --frozen-lockfile
       - name: Discover and execute native product workspaces
         env:
           SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
@@ -305,7 +306,6 @@ jobs:
         with:
           name: rust-gate-plan
           path: ${{ runner.temp }}/plan
-      - run: bun install --frozen-lockfile
       - name: Build the candidate CLI and the native qualification runner
         run: |
           bun run cli:build

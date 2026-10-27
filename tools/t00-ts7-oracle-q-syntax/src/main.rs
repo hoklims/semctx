@@ -10,6 +10,9 @@ mod files;
 mod outline;
 mod syntax;
 
+#[cfg(test)]
+static UPSTREAM_FILE_PUBLICATION: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
 fn run() -> Result<Value, String> {
     if std::env::var_os("GOPORT_BUILD_VERSION").is_some() {
         return Err("GOPORT_BUILD_VERSION must be absent".into());

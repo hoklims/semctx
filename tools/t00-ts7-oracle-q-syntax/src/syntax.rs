@@ -354,6 +354,7 @@ mod tests {
 
     #[test]
     fn jsdoc_import_depends_on_compiler_attachment_and_javascript_mode() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         let doc = "/** @type {import('./types').Shape} */ export let value;";
         assert_eq!(
@@ -369,6 +370,7 @@ mod tests {
 
     #[test]
     fn jsdoc_tags_and_nested_attachments_are_semantic_without_exported_variables() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         for source in [
             "/** @type {import('./types').Shape} */ let value; export {};",
@@ -400,6 +402,7 @@ mod tests {
 
     #[test]
     fn parser_recovery_is_distinct_from_a_type_error() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         assert_eq!(
             observe(&json!({"filename":"main.ts","source":"export const value = ;"})).unwrap()["hasSyntaxErrors"],
@@ -416,6 +419,7 @@ mod tests {
 
     #[test]
     fn default_assignments_are_distinct_from_declarations_and_export_equals() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let _program = ts_goport::core::enter_program(None);
         for (source, expected) in [
             ("export default 1;", true),
@@ -431,6 +435,7 @@ mod tests {
 
     #[test]
     fn malformed_input_is_rejected() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         assert!(observe(&json!({"filename":"main.ts"})).is_err());
         assert!(observe(&json!({"filename":"main.txt","source":""})).is_err());
     }

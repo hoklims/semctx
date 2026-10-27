@@ -3,7 +3,7 @@ import { rejects } from "node:assert/strict";
 import { access, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { asset, checkAsset, isolatedEnvironment, parseArguments, resultStatus, sdkMatchesLibraries, selectShard } from "./t00-ts7-q-boundary-common";
+import { asset, checkAsset, createContext, isolatedEnvironment, parseArguments, resultStatus, sdkMatchesLibraries, selectShard } from "./t00-ts7-q-boundary-common";
 
 test("shards partition obligations deterministically and reject invalid boundaries", () => {
   const ids = [0, 1, 2, 3, 4, 5];
@@ -86,4 +86,15 @@ test("fixture Git ignores inherited external index and repository selectors", as
     else process.env.GIT_INDEX_FILE = previousIndex;
     await rm(root, { recursive: true, force: true });
   }
+});
+
+test("extraction proof refuses an omitted independent oracle", async () => {
+  const root = await mkdtemp(join(tmpdir(), "t00-boundary-oracle-"));
+  try {
+    const sdk = join(root, "sdk.json");
+    await writeFile(sdk, "{}");
+    const evidence = await asset(sdk);
+    const context = await createContext(root, "macos", { producer: evidence, helper: evidence, observer: evidence, sdk: evidence, oracle: evidence, oracleLibraries: evidence });
+    await rejects(context.extractionOracle("missing", { files: {}, roots: [] }), /independent extraction oracle missing/);
+  } finally { await rm(root, { recursive: true, force: true }); }
 });

@@ -87,6 +87,168 @@ pub struct Call {
     pub line: u32,
 }
 
+pub struct RuntimeModuleResolver {
+    file_exists: Box<dyn Fn(&str) -> bool>,
+    configured: bool,
+    retained: bool,
+    repository_root: Option<String>,
+    inputs: std::rc::Rc<std::cell::RefCell<BTreeMap<String, Option<String>>>>,
+    trace: std::rc::Rc<std::cell::RefCell<Vec<serde_json::Value>>>,
+    #[cfg(any(test, feature = "qualification-observer"))]
+    canonical_failures: BTreeMap<String, String>,
+}
+
+impl std::fmt::Debug for RuntimeModuleResolver {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("RuntimeModuleResolver")
+            .field("configured", &self.configured)
+            .field("retained", &self.retained)
+            .field("repository_root", &self.repository_root)
+            .finish_non_exhaustive()
+    }
+}
+
+impl RuntimeModuleResolver {
+    pub fn new(
+        file_exists: impl Fn(&str) -> bool + 'static,
+        configured: bool,
+        retained: bool,
+        repository_root: Option<String>,
+        inputs: std::rc::Rc<std::cell::RefCell<BTreeMap<String, Option<String>>>>,
+        trace: std::rc::Rc<std::cell::RefCell<Vec<serde_json::Value>>>,
+    ) -> Self {
+        Self {
+            file_exists: Box::new(file_exists),
+            configured,
+            retained,
+            repository_root,
+            inputs,
+            trace,
+            #[cfg(any(test, feature = "qualification-observer"))]
+            canonical_failures: BTreeMap::new(),
+        }
+    }
+
+    #[cfg(any(test, feature = "qualification-observer"))]
+    pub(super) fn fail_canonical_for_testing(&mut self, path: String, error: String) {
+        self.canonical_failures.insert(path, error);
+    }
+
+    fn canonical_path(&self, path: &str) -> Result<std::path::PathBuf, String> {
+        #[cfg(any(test, feature = "qualification-observer"))]
+        if let Some(error) = self.canonical_failures.get(path) {
+            return Err(error.clone());
+        }
+        let path = std::path::Path::new(path);
+        let absolute = if path.is_absolute() {
+            path.to_owned()
+        } else {
+            std::env::current_dir()
+                .map_err(|error| error.to_string())?
+                .join(path)
+        };
+        let mut normalized = std::path::PathBuf::new();
+        for component in absolute.components() {
+            match component {
+                std::path::Component::CurDir => {}
+                std::path::Component::ParentDir => {
+                    normalized.pop();
+                }
+                component => normalized.push(component),
+            }
+        }
+        let mut ancestor = normalized.clone();
+        loop {
+            match std::fs::canonicalize(&ancestor) {
+                Ok(canonical) => {
+                    let suffix = normalized
+                        .strip_prefix(&ancestor)
+                        .map_err(|error| error.to_string())?;
+                    return Ok(canonical.join(suffix));
+                }
+                Err(error)
+                    if matches!(
+                        error.kind(),
+                        std::io::ErrorKind::NotFound | std::io::ErrorKind::NotADirectory
+                    ) =>
+                {
+                    if !ancestor.pop() {
+                        return Err(error.to_string());
+                    }
+                }
+                Err(error) => return Err(error.to_string()),
+            }
+        }
+    }
+
+    fn refuse_runtime(&self, runtime: &str) {
+        self.inputs
+            .borrow_mut()
+            .insert(ts_goport::frontend::tspath::normalize_path(runtime), None);
+    }
+
+    fn resolve(&self, declaration_path: Option<&str>) -> Option<String> {
+        let mut observation = serde_json::json!({
+            "configured":self.configured,"retained":self.retained,"declaration_path":declaration_path,
+            "runtime_path":null,"runtime_exists":null,"canonical_attempted":false,
+            "canonical_errors":[],"resolved_path":declaration_path
+        });
+        let resolved = (|| {
+            let declaration = declaration_path?;
+            if !self.configured {
+                return Some(declaration.to_owned());
+            }
+            let runtime = if let Some(base) = declaration.strip_suffix(".d.mts") {
+                format!("{base}.mjs")
+            } else if let Some(base) = declaration.strip_suffix(".d.cts") {
+                format!("{base}.cjs")
+            } else if let Some(base) = declaration.strip_suffix(".d.ts") {
+                format!("{base}.js")
+            } else {
+                return Some(declaration.to_owned());
+            };
+            observation["runtime_path"] = serde_json::json!(runtime);
+            let exists = (self.file_exists)(&runtime);
+            observation["runtime_exists"] = serde_json::json!(exists);
+            if !exists {
+                return Some(declaration.to_owned());
+            }
+            if !self.retained
+                && let Some(root) = &self.repository_root
+            {
+                observation["canonical_attempted"] = serde_json::json!(true);
+                let canonical_root = match self.canonical_path(root) {
+                    Ok(path) => path,
+                    Err(error) => {
+                        observation["canonical_errors"] =
+                            serde_json::json!([{"path":root,"error":error}]);
+                        self.refuse_runtime(&runtime);
+                        return None;
+                    }
+                };
+                let canonical_runtime = match self.canonical_path(&runtime) {
+                    Ok(path) => path,
+                    Err(error) => {
+                        observation["canonical_errors"] =
+                            serde_json::json!([{"path":runtime,"error":error}]);
+                        self.refuse_runtime(&runtime);
+                        return None;
+                    }
+                };
+                if !canonical_runtime.starts_with(canonical_root) {
+                    self.refuse_runtime(&runtime);
+                    return None;
+                }
+            }
+            Some(runtime)
+        })();
+        observation["resolved_path"] = serde_json::json!(resolved);
+        self.trace.borrow_mut().push(observation);
+        resolved
+    }
+}
+
 #[derive(Clone, Copy, Debug)]
 pub struct ExtractionContext<'a> {
     pub repository_root: &'a str,
@@ -94,6 +256,7 @@ pub struct ExtractionContext<'a> {
     pub retained: bool,
     pub javascript_enabled: bool,
     pub captured_files: Option<&'a BTreeMap<String, String>>,
+    pub runtime_module: Option<&'a RuntimeModuleResolver>,
     pub case_sensitive: bool,
 }
 
@@ -628,17 +791,8 @@ impl SymbolWalker<'_, '_> {
             return;
         }
         let symbol = self.checker.get_symbol_at_location_exported(literal);
-        let resolved = if let Some(resolutions) = self.module_resolutions {
-            resolutions
-                .get(&(literal.pos(), literal.end()))
-                .map(|path| {
-                    relative_path(
-                        self.context.repository_root,
-                        runtime_companion(path, &self.context)
-                            .as_deref()
-                            .unwrap_or(path),
-                    )
-                })
+        let declaration_path = if let Some(resolutions) = self.module_resolutions {
+            resolutions.get(&(literal.pos(), literal.end())).cloned()
         } else if symbol.is_some() {
             self.checker
                 .sym(symbol)
@@ -646,17 +800,17 @@ impl SymbolWalker<'_, '_> {
                 .first()
                 .map(|declaration| {
                     let owner = ast::get_source_file_of_node(*declaration);
-                    let path = ast::source_file_file_name(owner);
-                    relative_path(
-                        self.context.repository_root,
-                        runtime_companion(path, &self.context)
-                            .as_deref()
-                            .unwrap_or(path),
-                    )
+                    ast::source_file_file_name(owner).to_owned()
                 })
         } else {
             None
         };
+        let resolved_path = if let Some(runtime_module) = self.context.runtime_module {
+            runtime_module.resolve(declaration_path.as_deref())
+        } else {
+            declaration_path.map(|path| runtime_companion(&path, &self.context).unwrap_or(path))
+        };
+        let resolved = resolved_path.map(|path| relative_path(self.context.repository_root, &path));
         self.output.imports.push(Import {
             from_rel_path: self.rel_path.into(),
             module_specifier: literal.text().into(),

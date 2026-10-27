@@ -155,6 +155,12 @@ impl System for CaptureFs {
     }
     fn configuration_exists(&self, path: &str) -> bool {
         let found = self.files.contains_key(&self.key(path));
+        #[cfg(any(test, feature = "qualification-observer"))]
+        let found = if self.live_for(path).is_some() {
+            self.file_exists(path)
+        } else {
+            found
+        };
         self.record("configuration_discovery_file_exists", path, found);
         found
     }
@@ -313,7 +319,7 @@ pub(super) fn find_configuration(fs: &dyn System, path: &str) -> Option<String> 
         &directory
     });
     loop {
-        let candidate = format!("{dir}/tsconfig.json");
+        let candidate = ts_goport::frontend::tspath::combine_paths(&dir, &["tsconfig.json"]);
         let found = fs.configuration_exists(&candidate);
         if found {
             break Some(fs.configuration_path(&candidate));

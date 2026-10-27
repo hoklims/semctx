@@ -19,7 +19,7 @@ fn contained(fs: &CaptureFs, root: &str, path: &str) -> bool {
     path == root || relative_source_path(&root, &path, fs.sensitive).is_ok()
 }
 
-fn physical(path: &str) -> Result<std::path::PathBuf, String> {
+pub(super) fn physical(path: &str) -> Result<std::path::PathBuf, String> {
     let mut ancestor = std::path::absolute(tspath::normalize_path(path))
         .map_err(|error| format!("SOURCE_CANONICAL_PATH_UNAVAILABLE: {path}: {error}"))?;
     let mut tail = Vec::new();
@@ -218,7 +218,10 @@ pub fn check(fs: Rc<CaptureFs>, input: Inputs<'_>) -> Result<(), String> {
             || !contained(&fs, input.root, &resolved_path)
             || !physical(&path)?.starts_with(&physical_root)
         {
-            return Err(format!("SOURCE_LINK_OUTSIDE_REPOSITORY: {path}"));
+            return Err(format!(
+                "SOURCE_LINK_OUTSIDE_REPOSITORY: {}",
+                tspath::get_relative_path_from_directory(input.root, &path, &Default::default())
+            ));
         }
         if !visited.insert(fs.key(&resolved_path)) {
             continue;
@@ -299,3 +302,7 @@ pub fn check(fs: Rc<CaptureFs>, input: Inputs<'_>) -> Result<(), String> {
     }
     Ok(())
 }
+
+#[cfg(test)]
+#[path = "../tests/unit/confinement_live_root.rs"]
+mod tests;

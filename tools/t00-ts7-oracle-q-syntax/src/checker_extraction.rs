@@ -563,6 +563,7 @@ mod tests {
 
     #[test]
     fn exports_aliases_and_call_targets_come_from_program_symbols() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = extract(
             json!({"main.ts":"import { helper } from './helper'; helper(); missing();", "helper.ts":"function helper() {} export { helper };"}),
         );
@@ -585,6 +586,7 @@ mod tests {
 
     #[test]
     fn runtime_origins_distinguish_shorthand_exports_extends_and_erased_uses() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = extract(json!({
             "api.ts":"export function used() {} export function unused() {} export class Base {}",
             "main.ts":"import {used as short, used as exported, Base, unused, used as erased, used as shadowed} from './api'; const object = {short}; export {exported}; class Child extends Base {} type Erased = typeof erased; function f(shadowed: number) {return shadowed;}"
@@ -601,6 +603,7 @@ mod tests {
 
     #[test]
     fn namespace_direct_and_destructured_targets_exclude_literal_brackets() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = extract(json!({
             "api.ts":"export function helper() {} export function sibling() {} export const FLAG = 1;",
             "main.ts":"import * as ns from './api'; ns.helper(); ns['helper']; const {helper: alias} = ns; ns.FLAG; type Erased = typeof ns.sibling; consume(ns); ns[computed];"
@@ -622,6 +625,7 @@ mod tests {
 
     #[test]
     fn declaration_only_targets_keep_symbol_without_fabricating_runtime_path() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let got = extract(json!({
             "main.ts":"import {declared} from './api'; declared();",
             "api.d.ts":"export declare function declared(): void;"
@@ -644,6 +648,7 @@ mod tests {
 
     #[test]
     fn ambiguous_star_orders_refuse_arbitrary_targets_and_explicit_export_controls_the_target() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         let sdk = crate::checker_program::test_sdk_directory();
         for (barrel, rejected) in [
             ("export * from './a'; export * from './b';", true),
@@ -692,6 +697,7 @@ mod tests {
 
     #[test]
     fn invalid_file_root_or_sdk_refuses_observation() {
+        let _publication = crate::UPSTREAM_FILE_PUBLICATION.lock().unwrap();
         assert!(observe(&json!({"files":{}})).is_err());
         assert!(observe(&json!({"files":{"main.ts":""},"roots":"main.ts"})).is_err());
         assert!(observe(&json!({"files":{"main.ts":""},"options":{"module":"CommonJS"}})).is_err());

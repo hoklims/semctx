@@ -7,6 +7,7 @@ fn native_discovery_resolver_paths_preserve_drive_roots_across_verbatim_spelling
         ("D:/repo/main.ts", "D:/repo/main.ts"),
         ("/repo/main.ts", "/repo/main.ts"),
         (r"\\server\share\main.ts", "//server/share/main.ts"),
+        (r"\\?\UNC\server\share\main.ts", "//server/share/main.ts"),
     ] {
         assert_eq!(resolver_path(path), expected);
     }

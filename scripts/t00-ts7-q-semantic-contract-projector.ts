@@ -21,6 +21,7 @@ type Row = { index: number; consumer: string; inputContract: { consumerPredicate
 const rows = (JSON.parse(readFileSync(new URL("../docs/research/rust-ts-r0/qualification/suite-20261022/consumer-contracts.json", import.meta.url), "utf8")) as { rows: Row[] }).rows;
 const normalize = (value: string): string => value.replace(/\s+/g, "");
 const unavailable = (name: string): never => { throw new Error(`CONTRACT_EXTERNAL_UNAVAILABLE:${name}`); };
+const ordinaryNativeProcessMembers = new Set(["argv", "cwd", "env", "execPath", "exit", "exitCode", "platform", "stderr", "stdout", "versions"]);
 
 function compileContract(): { executable: string; inventory: Inventory } {
   const owner = rows.find(row => row.index === 49)!;
@@ -28,6 +29,9 @@ function compileContract(): { executable: string; inventory: Inventory } {
   const rowByName = new Map(rows.filter(row => row.index >= 50 && row.index <= 135).map(row => [row.consumer.split(" > ").at(-1)!, row]));
   const scopes = new Map<ts.Node, Row>();
   const scopeRoots = new Map<number, ts.Node>();
+  const ownerRoot = source.statements.find(ts.isFunctionDeclaration)!;
+  scopes.set(ownerRoot, owner);
+  scopeRoots.set(owner.index, ownerRoot);
   const callbackPredicate = normalize(rows.find(row => row.index === 50)!.inputContract.consumerPredicate);
   const findScopes = (node: ts.Node): void => {
     if (ts.isArrowFunction(node) || ts.isFunctionExpression(node)) {
@@ -49,12 +53,13 @@ function compileContract(): { executable: string; inventory: Inventory } {
   const sites: Site[] = [];
   const gaps: string[] = [];
   const siteNodes = new Map<ts.Node, Site[]>();
-  for (const row of rows.filter(row => row.index >= 50 && row.index <= 135)) {
+  for (const row of rows.filter(row => row.index >= 49 && row.index <= 135)) {
     const root = scopeRoots.get(row.index);
     if (root === undefined) { gaps.push(`CONTRACT_HELPER_MISSING:${row.index}`); continue; }
     const candidates = new Map<string, ts.Node[]>();
     const collect = (node: ts.Node): void => {
       if (node !== root && scopes.has(node)) return;
+      if (row.index === 49 && ts.isTypeNode(node)) return;
       if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node) || ts.isIdentifier(node)) {
         const expression = normalize(node.getText(source));
         const matching = candidates.get(expression) ?? [];
@@ -142,13 +147,13 @@ export function projectContract(oracle: unknown, path: string, files: Record<str
           return [...snapshot.keys()].some(key => sensitive ? key === normalized : key.toLowerCase() === normalized.toLowerCase());
         },
       }),
-      isOrdinaryNativeProcessMember: () => unavailable("isOrdinaryNativeProcessMember"),
-      sdkNodeInsertions: new Proxy([], { get: () => unavailable("sdkNodeInsertions") }),
+      isOrdinaryNativeProcessMember: (name: string) => ordinaryNativeProcessMembers.has(name),
       __site: (site: Site, value: unknown) => { result.sites.push({ ...site, value: facts.describe(value) }); return value; },
       __branch: (branch: Branch, value: unknown) => { result.branches.push({ ...branch, outcome: Boolean(value) }); return value; },
       __helper: (index: number, fn: (...args: unknown[]) => unknown) => (...args: unknown[]) => {
+        const argumentsBeforeCall = args.map(facts.describe);
         const value = fn(...args);
-        result.helperResults.push({ index, arguments: args.map(facts.describe), value: facts.describe(value) });
+        result.helperResults.push({ index, arguments: argumentsBeforeCall, value: facts.describe(value) });
         return value;
       },
     };
@@ -156,6 +161,7 @@ export function projectContract(oracle: unknown, path: string, files: Record<str
     runInNewContext(prepared.executable, { exports, ...globals });
     const inspect = exports["inspectSemanticDependencies"] as (source: unknown, snapshot: unknown, path: string) => unknown;
     const reasons = inspect(facts.source, facts.snapshot, path.startsWith("/") ? path : `/project/${path}`);
+    result.helperResults.push({ index: 49, arguments: [facts.describe(facts.source)], value: facts.describe(reasons) });
     if (!Array.isArray(reasons) || !reasons.every(reason => typeof reason === "string")) throw new Error("CONTRACT_REASON_RESULT_INVALID");
     result.reasons = reasons;
     result.status = "projected";

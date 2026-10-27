@@ -383,3 +383,24 @@ fn navigation_strips_browser_control_whitespace_before_reading_the_scheme() {
     assert!(!unsafe_script_navigation(Some("/relative/path")));
     assert!(!unsafe_script_navigation(Some("1invalid:scheme")));
 }
+
+#[test]
+fn locale_shorthand_options_follow_value_provenance() {
+    for (binding, refused) in [
+        ("const style='decimal';", false),
+        ("let style='decimal';", true),
+        ("const decimal='decimal';const style=decimal;", false),
+        ("const style=undefined;", false),
+        ("", true),
+        ("const style={toString(){return 'decimal'}};", true),
+        ("const style=other;const other=style;", true),
+    ] {
+        let source = format!("{binding}[1].toLocaleString(undefined,{{style}});export {{}};");
+        let scanned = scan_code(&source);
+        assert_eq!(
+            scanned.reasons.contains("SOURCE_COERCION_UNSUPPORTED"),
+            refused,
+            "{source}: {scanned:?}"
+        );
+    }
+}
