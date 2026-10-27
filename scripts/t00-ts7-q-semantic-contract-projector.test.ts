@@ -50,6 +50,7 @@ describe("contract projection", () => {
     expect(projection.helperResults.some(result => result.index === 84)).toBe(true);
     expect(projection.sites.some(site => site.index === 84)).toBe(true);
     expect(projection.sites.some(site => site.index === 129)).toBe(false);
+    expect(projection.sites.filter(site => site.index === 49).map(site => site.site).sort()).toEqual(["49:0", "49:3"]);
   });
   test("keeps unavailable native facts unprojected", () => {
     expect(projectContract({}, "main.ts", { "main.ts": "1+2;" }).status).toBe("unsupported");
