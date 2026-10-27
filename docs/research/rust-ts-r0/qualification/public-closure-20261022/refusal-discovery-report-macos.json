@@ -1,0 +1,591 @@
+{
+  "schemaVersion": 1,
+  "platform": "darwin",
+  "architecture": "arm64",
+  "typescript": "5.9.3",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "obligation_indices": [
+    6
+  ],
+  "freeze": {
+    "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/freeze.json",
+    "sha256": "5b306e39d87fe0c09c748c4be07a0581c41b057ef5317a0712cba95b75762fd9"
+  },
+  "sourceIdentities": [
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+      "sha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/sdk-input.json",
+      "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/suite-a/packages/ts-analyzer/src/discovery.ts",
+      "sha256": "08069117cf26c6c2ca743af2bee3aaf6fb8f5959538c92c106150a18f52b881e"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/suite-a/packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-discovery-inputs.json",
+      "sha256": "155075c23a21cf575b55c19ec6e79e57d85b3fe4475df77f659812978f1e0fa7"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/qualification/public-closure-20261022/refusal-discovery-capture.mjs",
+      "sha256": "29aae5fdeb1d30fdd236f1da8d4dbc1af56395571e40a44c910c238eefb0cbc8"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/qualification/public-closure-20261022/public-native-context.mjs",
+      "sha256": "d074a20c93efbbb794e5d5039b753f1a74370f992510925955e6d94a828b51c9"
+    }
+  ],
+  "boundInputsStable": true,
+  "units": [
+    {
+      "id": "javascript-missing-in-root",
+      "pass": true,
+      "checks": [
+        {
+          "name": "discovery-process-success",
+          "actual": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "expected": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "pass": true
+        },
+        {
+          "name": "discovery-producer-binding",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "discovery-descriptor-binding",
+          "actual": "sha256:5778e7d03d6d2a2b80d8e2bf9e1afc47afde5e6f44b66c075c6fbf5902a97f8f",
+          "expected": "sha256:5778e7d03d6d2a2b80d8e2bf9e1afc47afde5e6f44b66c075c6fbf5902a97f8f",
+          "pass": true
+        },
+        {
+          "name": "executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "complete-owning-discovery-output",
+          "actual": {
+            "files": [
+              {
+                "absPath": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/repository/main.js",
+                "content": "import { missing } from './missing'; export function run() { return missing(); }",
+                "language": "javascript",
+                "relPath": "main.js",
+                "role": "source"
+              }
+            ],
+            "candidates": [
+              {
+                "language": "javascript",
+                "reason": "SELECTED",
+                "relPath": "main.js",
+                "selectionDecision": "selected"
+              }
+            ]
+          },
+          "expected": {
+            "files": [
+              {
+                "absPath": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/repository/main.js",
+                "relPath": "main.js",
+                "role": "source",
+                "content": "import { missing } from './missing'; export function run() { return missing(); }",
+                "language": "javascript"
+              }
+            ],
+            "candidates": [
+              {
+                "relPath": "main.js",
+                "language": "javascript",
+                "selectionDecision": "selected",
+                "reason": "SELECTED"
+              }
+            ]
+          },
+          "pass": true
+        },
+        {
+          "name": "diagnostic-process-success",
+          "actual": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "expected": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "pass": true
+        },
+        {
+          "name": "diagnostic-producer-binding",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "diagnostic-raw-context-supportedInputRepresentations",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-raw-context-requestIdentity",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-raw-context-inputAndSdkIdentity",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-raw-context-complete",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-raw-context-noAdmission",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-raw-context-productContext",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "unresolved-owning-diagnostic-reasons",
+          "actual": [
+            "JAVASCRIPT_IMPORT_UNRESOLVED:./missing"
+          ],
+          "expected": [
+            "JAVASCRIPT_IMPORT_UNRESOLVED:./missing"
+          ],
+          "pass": true
+        },
+        {
+          "name": "unresolved-discriminator-activated",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "diagnostic-unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        }
+      ],
+      "processes": [
+        {
+          "argv": [
+            "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+            "--discover-repository",
+            "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/discovery-request.json"
+          ],
+          "cwd": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/repository",
+          "timeoutMs": 40000,
+          "outputCapBytes": 33554432,
+          "durationMs": 102.72233299999994,
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "stdout": {
+            "bytes": 2668,
+            "sha256": "2ed0d06b18331a9ee96243a40b43b908863d5d720e313409c04f616b2592326d"
+          },
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "request": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/discovery-request.json",
+            "sha256": "03012f6baf28a44bb951ed9f14269bd13b6994b46f0b0c1c4e69ec7ed5dd241d"
+          }
+        },
+        {
+          "argv": [
+            "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+            "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/diagnostic-request.json",
+            "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/sdk-input.json"
+          ],
+          "cwd": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/repository",
+          "timeoutMs": 40000,
+          "outputCapBytes": 33554432,
+          "durationMs": 365.6334999999999,
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "stdout": {
+            "bytes": 146316,
+            "sha256": "110eb042351c9fa8c8b4926eebe51260810d4683be0d847c642760422593f9e6"
+          },
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "request": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root/diagnostic-request.json",
+            "sha256": "3c4194d19145f0238ef745a713fd5aa1fa8a493908c0b89d1fa750e8c2cf86ca"
+          }
+        }
+      ],
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-in-root",
+      "typescriptOutcomeSha256": "3a291c9577bc8cc988ed3f28de220fa6e45ca55ff03ad1e13adf71e4e6c2e5ba"
+    },
+    {
+      "id": "javascript-missing-outside",
+      "pass": true,
+      "checks": [
+        {
+          "name": "discovery-process-success",
+          "actual": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "expected": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "pass": true
+        },
+        {
+          "name": "discovery-producer-binding",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "discovery-descriptor-binding",
+          "actual": "sha256:c95b9df05bba80f9cb721c6ac4ad5567ec48df2c68a6092d697f0a64f4e57836",
+          "expected": "sha256:c95b9df05bba80f9cb721c6ac4ad5567ec48df2c68a6092d697f0a64f4e57836",
+          "pass": true
+        },
+        {
+          "name": "executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "complete-owning-discovery-output",
+          "actual": {
+            "files": [],
+            "candidates": [
+              {
+                "analysisOutcome": "failed",
+                "language": "javascript",
+                "reason": "IMPORT_OUTSIDE_REPOSITORY",
+                "relPath": "main.js",
+                "selectionDecision": "selected"
+              }
+            ]
+          },
+          "expected": {
+            "files": [],
+            "candidates": [
+              {
+                "relPath": "main.js",
+                "language": "javascript",
+                "selectionDecision": "selected",
+                "analysisOutcome": "failed",
+                "reason": "IMPORT_OUTSIDE_REPOSITORY"
+              }
+            ]
+          },
+          "pass": true
+        }
+      ],
+      "processes": [
+        {
+          "argv": [
+            "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+            "--discover-repository",
+            "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-outside/discovery-request.json"
+          ],
+          "cwd": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-outside/repository",
+          "timeoutMs": 40000,
+          "outputCapBytes": 33554432,
+          "durationMs": 91.21262500000012,
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "stdout": {
+            "bytes": 908,
+            "sha256": "2986f7a6cb762c69697b1f7d5daac78fc0c7b90368859020177c17d82d1db116"
+          },
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "request": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-outside/discovery-request.json",
+            "sha256": "d05a2bd2636156c63307149a526af47a5c042547d272a1e1f179e361e4886f7f"
+          }
+        }
+      ],
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-missing-outside",
+      "typescriptOutcomeSha256": "72ac6861213bbb3a756b48ec0cfe920597a2ae02063b163a0fcaa37fd3eba8bd"
+    },
+    {
+      "id": "javascript-import-outside",
+      "pass": true,
+      "checks": [
+        {
+          "name": "discovery-process-success",
+          "actual": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "expected": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "pass": true
+        },
+        {
+          "name": "discovery-producer-binding",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "discovery-descriptor-binding",
+          "actual": "sha256:143a138429aab0149f609001c3579516dc3f582f4eabade0b5cdb08b2fafda23",
+          "expected": "sha256:143a138429aab0149f609001c3579516dc3f582f4eabade0b5cdb08b2fafda23",
+          "pass": true
+        },
+        {
+          "name": "executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "complete-owning-discovery-output",
+          "actual": {
+            "files": [],
+            "candidates": [
+              {
+                "analysisOutcome": "failed",
+                "language": "javascript",
+                "reason": "IMPORT_OUTSIDE_REPOSITORY",
+                "relPath": "main.js",
+                "selectionDecision": "selected"
+              }
+            ]
+          },
+          "expected": {
+            "files": [],
+            "candidates": [
+              {
+                "relPath": "main.js",
+                "language": "javascript",
+                "selectionDecision": "selected",
+                "analysisOutcome": "failed",
+                "reason": "IMPORT_OUTSIDE_REPOSITORY"
+              }
+            ]
+          },
+          "pass": true
+        }
+      ],
+      "processes": [
+        {
+          "argv": [
+            "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+            "--discover-repository",
+            "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-import-outside/discovery-request.json"
+          ],
+          "cwd": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-import-outside/repository",
+          "timeoutMs": 40000,
+          "outputCapBytes": 33554432,
+          "durationMs": 89.76312500000017,
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "stdout": {
+            "bytes": 906,
+            "sha256": "1fe945c50559949830a64e54d13d9a2bb6dd69685ef5209b2d06779e988b17fb"
+          },
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "request": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-import-outside/discovery-request.json",
+            "sha256": "723915088bfb6f8a338122850ad0f161d1c6c7e686b924f09ac34528797c43b9"
+          }
+        }
+      ],
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-import-outside",
+      "typescriptOutcomeSha256": "72ac6861213bbb3a756b48ec0cfe920597a2ae02063b163a0fcaa37fd3eba8bd"
+    },
+    {
+      "id": "javascript-reference-outside",
+      "pass": true,
+      "checks": [
+        {
+          "name": "discovery-process-success",
+          "actual": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "expected": {
+            "status": 0,
+            "signal": null,
+            "error": null,
+            "stderr": ""
+          },
+          "pass": true
+        },
+        {
+          "name": "discovery-producer-binding",
+          "actual": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "expected": "sha256:78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "pass": true
+        },
+        {
+          "name": "discovery-descriptor-binding",
+          "actual": "sha256:99934f621f39e64b6460888aa3555a8258b38d304e61779ed3afa5dcd7eed54f",
+          "expected": "sha256:99934f621f39e64b6460888aa3555a8258b38d304e61779ed3afa5dcd7eed54f",
+          "pass": true
+        },
+        {
+          "name": "executed",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "unsupported",
+          "actual": [],
+          "expected": [],
+          "pass": true
+        },
+        {
+          "name": "complete-owning-discovery-output",
+          "actual": {
+            "files": [],
+            "candidates": [
+              {
+                "analysisOutcome": "failed",
+                "language": "javascript",
+                "reason": "REFERENCE_OUTSIDE_REPOSITORY",
+                "relPath": "main.js",
+                "selectionDecision": "selected"
+              }
+            ]
+          },
+          "expected": {
+            "files": [],
+            "candidates": [
+              {
+                "relPath": "main.js",
+                "language": "javascript",
+                "selectionDecision": "selected",
+                "analysisOutcome": "failed",
+                "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+              }
+            ]
+          },
+          "pass": true
+        }
+      ],
+      "processes": [
+        {
+          "argv": [
+            "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+            "--discover-repository",
+            "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-reference-outside/discovery-request.json"
+          ],
+          "cwd": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-reference-outside/repository",
+          "timeoutMs": 40000,
+          "outputCapBytes": 33554432,
+          "durationMs": 90.14966699999991,
+          "status": 0,
+          "signal": null,
+          "error": null,
+          "stdout": {
+            "bytes": 915,
+            "sha256": "92fb26ec0b4dcdfd56f89c75344959c02814fb99cc54dad6803ddf89058dcb02"
+          },
+          "stderr": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "request": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-reference-outside/discovery-request.json",
+            "sha256": "7c3a55db7a9e988b6292eafbf0ea36e8b13bf83e032797448da83edbcc452846"
+          }
+        }
+      ],
+      "rawDirectory": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/refusals/discovery-macos-v3/javascript-reference-outside",
+      "typescriptOutcomeSha256": "82c8b034a1ab7ef88057dcd671c983287814dfe271ad6171b5bcdcf90ae3c7d2"
+    }
+  ],
+  "pass": true,
+  "formalR0Qualified": false
+}

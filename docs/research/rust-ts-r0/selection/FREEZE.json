@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "frozenUtc": "2026-10-17T18:58:42+00:00",
+  "status": "SELECTED_OPTIMIZED_CANDIDATE_FROZEN_BEFORE_QUALIFICATION",
+  "composition": "C1",
+  "correctionPass": 1,
+  "nativeCompositionsConsumed": 1,
+  "correctionPassesConsumed": 1,
+  "remainingCorrectionPassesForC1": 1,
+  "qualificationQueriesBeforeFreeze": 0,
+  "reservedQueriesBeforeFreeze": 0,
+  "artifacts": [
+    {
+      "role": "optimized candidate",
+      "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-r0-probe",
+      "sourcePath": "tools/rust-ts-r0/target/release/semctx-r0-probe",
+      "sha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+      "bytes": 31252624
+    },
+    {
+      "role": "independent #383 supervisor",
+      "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-gates",
+      "sourcePath": "tools/gates/target/release/semctx-gates",
+      "sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+      "bytes": 1157952
+    },
+    {
+      "role": "capturedSDK",
+      "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/sdk/sdk-input.json",
+      "sourcePath": "tools/rust-ts-r0/sdk/sdk-input.json",
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "bytes": 3218481
+    }
+  ],
+  "sourceManifest": {
+    "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/source-manifest.json",
+    "sha256": "d2c96aeb197283698c7b7be3acb49264236a45ec1d74ee7936055531dc2f2208",
+    "files": 39
+  },
+  "compiler": {
+    "rust": "1.95.0",
+    "cargoProfile": "release",
+    "optLevel": 3,
+    "upstream": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "checkerVersion": "7.1.0-dev",
+    "declarations": "TypeScript5.9.3"
+  },
+  "runtimeEnvironment": {
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0"
+  },
+  "host": "macOS27.0.1ARM64",
+  "developmentEvidence": {
+    "log": "/private/tmp/semctx-t00-20261017/evidence/native-optimized-selected-dev.log",
+    "sha256": "c1b59a11d0009a74dbaf91285b438a2294ff43491ae7d4e10f548c057826fcef",
+    "exitCode": 0,
+    "libtestCases": 3,
+    "commonTsJsVectors": 4,
+    "pipelineCases": 2,
+    "qualificationCredit": false
+  },
+  "pendingEvidence": [
+    "full qualification354units and51supports",
+    "reserved23cases26variants",
+    "optimized common native Windows/Linux CI",
+    "remaining consuming APIs recorded as nonpass until exercised"
+  ],
+  "scope": "Native feasibility prototype only; no G01–G28 certification, fullT02/store/service or publicadmission."
+}

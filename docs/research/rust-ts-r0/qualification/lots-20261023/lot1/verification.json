@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "candidateProducerCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+  "environment": {
+    "macos": "27.0.1 arm64 (Darwin27.0.0)",
+    "bun": "1.4.3",
+    "rust": "1.95.0",
+    "pythonQuality": "3.11.15",
+    "ruff": "0.16.10",
+    "zizmor": "1.30.1",
+    "GIT_CONFIG_GLOBAL": "absent",
+    "cargoNetwork": "offline",
+    "linux": "aarch64 OrbStack, native case-sensitive volume, UID501:20",
+    "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "linuxNetwork": "none",
+    "SEMCTX_TEST_RUST_ANALYZER": "/private/tmp/semctx-t00-restack-20261019/navigation-tool/rust-analyzer",
+    "rustAnalyzerSha256": "c863e967a7244fa3687d7bd6235ac7abae5a7ce44bcbf8307eb1dc80aa85f397",
+    "SEMCTX_TEST_RUST_TOOLCHAIN": "/Users/sebastien/.rustup/toolchains/1.98.1-aarch64-apple-darwin",
+    "SEMCTX_TEST_RUST_TARGET": "aarch64-apple-darwin"
+  },
+  "checks": [
+    {
+      "check": "verify:pr",
+      "result": "PASS exit0",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/verify-pr.log",
+        "sha256": "c6ad6b27e8aa1029e4be864ddbf250844dfd0303f3734c7a233cc01d7f91e537",
+        "bytes": 1053
+      }
+    },
+    {
+      "check": "quality",
+      "result": "PASS exit0",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/quality-final.log",
+        "sha256": "aff9da66d61c1faa4b0d74f9d6e9c094349a89ac1d9f5321e7b80452c4e29f71",
+        "bytes": 959
+      }
+    },
+    {
+      "check": "docs:check",
+      "result": "PASS exit0",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/docs-check-delivery.log",
+        "sha256": "ecc1566aa857c4d85448527b0638e6f9336b59c07fd8b84f398b3efe9a34ca41",
+        "bytes": 71
+      }
+    },
+    {
+      "check": "macOS lot tests",
+      "result": "9 PASS",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/bun-tests-final.log",
+        "sha256": "d6f380accd73e50900ea5f61d076ce641f3ce805b41e50c08a871027f698fa93",
+        "bytes": 987
+      }
+    },
+    {
+      "check": "Linux lot tests",
+      "result": "9 PASS",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/linux/bun-tests-final.log",
+        "sha256": "35318eaef8579c24e89de1394226118add29d2ece334539708682ab123ce34f7",
+        "bytes": 987
+      }
+    },
+    {
+      "check": "macOS cargo test",
+      "result": "324 PASS",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/diagnosis/full-cargo-test.log",
+        "sha256": "2574fc775afe1f37542e040cbdfedba8a8229a92f021aca28705838df3cf38e5",
+        "bytes": 35432
+      }
+    },
+    {
+      "check": "Linux cargo test",
+      "result": "326 PASS",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/linux/native-tests-v4/cargo-test.log",
+        "sha256": "249da8dd21cd10d26c946ac9e7c306b327f1dd1e9ccff46311024aa6e69326ca",
+        "bytes": 35079
+      }
+    },
+    {
+      "check": "macOS cargo clippy",
+      "result": "PASS exit0",
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/diagnosis/clippy.log",
+        "sha256": "a7b98c136fd1c06190d8f59f223a0325fbd7160d855e0831b2cb26b2027c29d9",
+        "bytes": 2276
+      }
+    }
+  ],
+  "verificationScopeNote": "verify:pr ran while witness validation and evidence were finalized. The producer did not change. Final tooling quality, lot tests and documentation were also executed separately on the final files; no immutable whole-tree execution receipt is claimed.",
+  "remoteCIExecuted": false,
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ]
+}

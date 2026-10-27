@@ -1,0 +1,239 @@
+{
+  "schema_version": 1,
+  "author": "/root/qualified_ts_inventory",
+  "status": "STAGE3_INPUT_EXPECTATION_ANNEX_NOT_GLOBAL_FREEZE_NOT_NATIVE_PROOF",
+  "activity_interval_utc": {
+    "start": "2026-10-17T15:09:58Z",
+    "end": "2026-10-17T15:16:15.330866+00:00",
+    "budget_minutes": 10
+  },
+  "scope": "Source/SDK reading and ordinary TS oracle observation only; no Rust producer, tracked file, original proposal, heldout or GitHub mutation",
+  "environment": {
+    "platform": "Darwin",
+    "arch": "arm64",
+    "Bun": "1.4.3",
+    "TypeScript": "5.9.3",
+    "supported_native_targets_not_exercised": [
+      "Windows",
+      "Linux"
+    ]
+  },
+  "input_hashes": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/private-batch-contract.draft.md",
+      "bytes": 7356,
+      "sha256": "fc7265215a9f8e1a068ce619aed4203c1ab58d96de3fd0b9c06fd494e2348c8a"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/candidate-manifest.json",
+      "bytes": 1074746,
+      "sha256": "5ed63d8c641469e8d21c9137a1941fd9e20ded28f614e2266b3b30219cab1d27"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/remaining-gaps.json",
+      "bytes": 5803,
+      "sha256": "4634fc6d053a953cdbb8bb7fe7518ebe5ca473eb99943aedda47d6b0bcfc4901"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-qualification-cases-20261017/case-proposals.v3.json",
+      "bytes": 1000914,
+      "sha256": "e89b5080b455f84e6a8b8564bcc64c9eec5c9095bfca7fe1d94479af44797306"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-qualification-cases-20261017/primitive-vectors.json",
+      "bytes": 21736,
+      "sha256": "95e8f21c3901ff281b5490beba19921387998ea16810574a1688158952542a5c"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-qualification-cases-20261017/sdk-required-closure.v3.json",
+      "bytes": 18368,
+      "sha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/sdk/sdk-manifest.json",
+      "bytes": 17131,
+      "sha256": "fcc810fa0d69bdcb6fb10d6411a62e8578e84f9982a26cf02e3ec5c64e91747c"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/sdk/typescript-5.9.3.tgz",
+      "bytes": 4377468,
+      "sha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "baseline-analyzer-identity.expected.json",
+      "bytes": 47460,
+      "sha256": "7a46c92b9437a6b706b1ddcd320df70a5a73c790077cfc90a87126fe1f3cf15c"
+    },
+    {
+      "path": "diagnostic-expectations.json",
+      "bytes": 4914,
+      "sha256": "4e40c1f6d9b868bd26a11a73d8b1f7a5250adcfac7b9146b205abbb757495c71"
+    },
+    {
+      "path": "e03-expectations.json",
+      "bytes": 3502,
+      "sha256": "36d94cc69dda4d5c1d35129e65a5f45a1b6b2636cbf84954cee4fc0d46c8f1ac"
+    },
+    {
+      "path": "encoding-coordinate-expectations.json",
+      "bytes": 16269,
+      "sha256": "a3247af341848e9041d4bd6d92d73258104082f2784d77b2e0acdaeb04a9238e"
+    },
+    {
+      "path": "encoding-edge-observations.json",
+      "bytes": 700,
+      "sha256": "6e629b044d22ef133c86b920a62d2e8875a690cea1a9ad0dd153742d71d5751f"
+    },
+    {
+      "path": "primitive-inputs.json",
+      "bytes": 15724,
+      "sha256": "eb674c88faa94603371d8ee2b8767fe4a070192980941859c75d78ccbf4952a6"
+    },
+    {
+      "path": "private-identity-expectations.json",
+      "bytes": 69301,
+      "sha256": "47930accda6b9ee8eae24799152cc5d9f8496b006db425684f70e1b74eca856a"
+    },
+    {
+      "path": "typescript-observations.json",
+      "bytes": 11214,
+      "sha256": "acc5093f0854f57d0289d249cdf882b936749f1763f4ae1f0e095cfd35b9d107"
+    }
+  ],
+  "source_authorities": [
+    {
+      "status": "implemented baseline source",
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/app-services/src/qualified-analysis.ts",
+      "lines": [
+        95,
+        97,
+        107,
+        171,
+        172
+      ]
+    },
+    {
+      "status": "implemented baseline source",
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "lines": [
+        16,
+        32,
+        154,
+        163,
+        167,
+        183
+      ]
+    },
+    {
+      "status": "implemented baseline source",
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "lines": [
+        242,
+        246,
+        333,
+        337,
+        381,
+        410
+      ]
+    },
+    {
+      "status": "implemented baseline identity source",
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "scripts/analyzer-identity.ts",
+      "lines": [
+        19,
+        39
+      ]
+    },
+    {
+      "status": "implemented canonical primitive",
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/core/src/canonical.ts",
+      "lines": [
+        12,
+        35
+      ]
+    },
+    {
+      "status": "pinned published upstream implementation, independently acquired archive; not product policy",
+      "path": "package/lib/typescript.js",
+      "sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+      "lines": [
+        8525,
+        8548,
+        9268,
+        9573,
+        11387,
+        12794,
+        12811,
+        13230,
+        13233,
+        34565,
+        34566
+      ]
+    }
+  ],
+  "closed_at_source_expectation_level": [
+    "12 encoding/coordinate support records: six paired profile vectors, UTF16LE/BE BOM, invalidUTF8, surrogate-interior, odd UTF16 tail and lone-surrogate distinctions",
+    "Complete baseline identity specimen290 files+compiler101 entries and exact digest, relocation/CRLF controls",
+    "Minimal proposed private fixed input/producer/SDK/capture identity vectors+11 named single-record mutations and distinct digest relations",
+    "Six parser/config private diagnostic code projections including config18003 filtering",
+    "E03 exact private reason SOURCE_EXPORT_AMBIGUOUS for two star orders; explicit named control retains b.same and no ambiguity reason"
+  ],
+  "not_closed": [
+    "Independent expectation review/freeze and expanded execution-scenario denominator",
+    "Generalized T02 schema/service is deliberately not designed here",
+    "Full public diagnostic-message and complete recovered-fact parity is not established by private stable-code projection",
+    "Exact adapter error wire representation for a UTF16 surrogate-interior boundary is unspecified; never round/fabricate scalar position",
+    "Native producer artifact identity, actual attempted/read capture set, SDK consumption and acquisition coherence",
+    "Native Windows/Linux execution and qualification",
+    "All other per-obligation gaps in original remaining-gaps remain outside this annex",
+    "Raw UTF16 lone-surrogate representation remains a decoder/parser witness. No baseline ordinary-product SOURCE_PARSE_ERROR1127 consumer is established; retained product parse guards receive UTF8-decoded text. No Rust impossibility claim follows."
+  ],
+  "oracle_integrity": "Inputs/arithmetic and consumer/upstream source are expected-value authority. TS5.9.3 observation corroborates only; no observation was promoted to R0/native proof. Raw message text remains observation, deliberately excluded only from named private diagnostic projection, not rewritten as public parity.",
+  "case_count": "236 authored semantic/public/outline records unchanged; added support records and three E03 execution variants are not silently counted as extra cases.",
+  "policy_boundary": "Private identity recipe is a bounded author proposal for root review. E03 product refusal approved by user arbitration; exact private reason selected/delegated by root, not falsely attributed to baseline or text of arbitration comment.",
+  "web": "Agent-Reach absent; no web reading performed",
+  "commands": [
+    {
+      "argv": [
+        "bun",
+        "/private/tmp/semctx-t00-input-freeze-20261017/observe.cjs"
+      ],
+      "exit": 0,
+      "role": "pinned TS oracle observation; no native candidate executed"
+    },
+    {
+      "argv": [
+        "python3",
+        "/private/tmp/semctx-t00-input-freeze-20261017/author_vectors.py"
+      ],
+      "exit": 0,
+      "role": "source-backed independent vector and identity expectation calculation"
+    },
+    {
+      "argv": [
+        "bun",
+        "/private/tmp/semctx-t00-input-freeze-20261017/observe-encoding-edges.cjs"
+      ],
+      "exit": 0,
+      "role": "Two new decoder edge observations, no native candidate execution"
+    }
+  ],
+  "metadata_corrections": [
+    {
+      "at_utc": "2026-10-17T15:19:19.378766+00:00",
+      "reason": "Independent consumer review narrowed unsupported ordinary-product reason credit",
+      "file": "encoding-coordinate-expectations.json",
+      "old_sha256": "2c812f1c030f5d4e9433dc66426bed77ca039fb2a181d7dee124272a5b0ae536",
+      "new_sha256": "a3247af341848e9041d4bd6d92d73258104082f2784d77b2e0acdaeb04a9238e",
+      "change": "Removed expected_private_projection SOURCE_PARSE_ERROR1127; preserved published SDK decoder/parser observation and code-unit constraint without product consumer credit",
+      "new_semantic_cases": 0
+    }
+  ]
+}

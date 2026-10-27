@@ -1,0 +1,108 @@
+{
+  "recordVersion": 1,
+  "state": "FROZEN_UNSELECTED_INTERMEDIATE_MODULE_COMPONENT_UNIT_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "86cd9f1d78845d8fca5e3918c1a14aa6b71af3b6",
+  "reviewedDiffSha256": "e4bbd0ea0c8b50db998005aa8d9faed2640c2c89557c48c054594ffd5f5822a1",
+  "archive": {
+    "path": "gap-loaded-partition-evidence.tar.gz.b64",
+    "bytes": 1429708,
+    "sha256": "49f4971260b42633dc9b88ac0dfa93c228c755d37c6f8e08b34db8b862513009",
+    "decodedSha256": "70d51a4b88038d05cf95a5a7a4e51b3a388ea60b8d47e8b52e904e5af377b09b",
+    "files": 214
+  },
+  "units": [
+    "N12-unselected-intermediate-connects::base"
+  ],
+  "nativeArtifactSha256": "9ad2a4f915df2f4770111c28fdeacf137934314243ba7f355bc8c4c83b327c29",
+  "nativeEngineSourceCount": 30,
+  "recipesSha256": "fd63866fb9bdd630b2519d7a2d7402a9c477b6b0b9621153fbf809f753f67958",
+  "authority": "Frozen N12 allocation/input-index.json and qualification/scenarios.json; historical parallel-extraction test159-169 and rootModuleComponents. Accepted ADR0037; owner-authorized same T00/C1/pass1.",
+  "mechanism": "Observe the existing ordinary full-SDK native NewProgram after construction and bind_all. Inventory actual loaded repository sources, excluding node_modules; obtain actual imported targets from the same native resolution cache. Traverse undirected connectivity through loaded unselected connectors and project only selected non-declaration roots. Separately compare actual raw_extraction.modules. This is the module-components boundary, not historical noLib preflight or workers2 execution.",
+  "binding": "Selected a.ts,b.ts derive from the exact frozen baseline_operation, preserving all three frozen file contents. Existing actual #383-supervised raw runner binds Request/logical input, SDK/executable/Outcome identities and reported successful read joins. The two assertions are unchanged; ancillary checks require actual middle.ts loaded, exact selected roots/scope, executed=true,unsupported=[] and false safety/admission claims.",
+  "failurePaths": [
+    "Native module-resolution error, unavailable selected root, duplicate selected root or selected root outside loaded repository inventory produces executed=false/unsupported with the actual error and no invented dependencyComponents.",
+    "Actual nil source or malformed import literal refuses the component; unresolved native target or target outside loaded repository graph adds no edge.",
+    "Valid retained/qualified modes report component not executed. Qualified without retained still fails SOURCE_SNAPSHOT_REQUIRED earlier.",
+    "Missing observation, absent or incomplete component, wrong graph projection, unwanted emitted intermediate, or wrong actual input/artifact cannot pass N12.",
+    "Nonzero, timeout, output-limit, cancellation, capture error or malformed stdout remain NONPASS under the existing runner."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64 Rust1.95.0 Bun1.4.3 Python3.10.22; snapshots0 RUST_TEST_THREADS1 GIT_CONFIG_GLOBAL unset",
+    "nativeBinaryTests": 207,
+    "nativeLibraryTests": 47,
+    "nativeProcessFlows": 4,
+    "currentObserverComparators": 45,
+    "currentRecipeCliTests": 7,
+    "currentNewFrozenUnits": 1,
+    "currentNewNativeProcesses": 1,
+    "currentNewProjectedChecks": 9,
+    "frozenPropertiesCredited": 2,
+    "currentCarryoverFrozenUnits": 6,
+    "currentCarryoverProcesses": 9,
+    "currentCarryoverProjectedChecks": 36,
+    "carryoverUnits": [
+      "N02 base",
+      "V2-E08 base",
+      "P23 base",
+      "N01 base",
+      "P01 analyze-snapshot-consistent",
+      "QDYN07 base"
+    ],
+    "formatClippyRuffExitCode": 0,
+    "fullVerifyPrRerun": false,
+    "redWitnesses": [
+      "Owning loaded-module test executes and fails before the native observation is implemented.",
+      "Frozen N12 helper refuses the old GAP recipe before mapping."
+    ],
+    "currentCarryoverRelations": 1
+  },
+  "review": {
+    "standards": "review/standards/report.json",
+    "specProofAdversarial": "review/spec-proof/report.json",
+    "boundedVerdict": "PROOF_ADEQUATE for this frozen native raw component unit only",
+    "standardsFreshChecks": "Five owning native tests PASS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaults": [
+      "Compiled omission of unselected loaded sources makes actual frozen N12 NONPASS on dependencyComponents and loadedRepositorySources; restored source recompilation passes9checks.",
+      "Compiled omission of reciprocal adjacency makes the dedicated reversed-connectivity BIN test fail; restore5 owning tests PASS. No frozen forward N12 sensitivity claimed for this second mutation."
+    ],
+    "setupFailuresNotBehavioralWitnesses": [
+      "Initial bare --exact filter discovered zero tests; corrected tests:: qualified filter discovers one actual RED."
+    ],
+    "candidateUnchangedDuringReview": true,
+    "claimAudit": {
+      "author_task": "/root",
+      "auditor_task": "/root/gap_batch15_claims",
+      "ledger": "review/claims/design-claim-ledger.md",
+      "provenance": "Full named read-only child final response persisted verbatim by parent.",
+      "reconciliation": [
+        "Do not adopt contradicted complete baseline workers2, preflight, parallel safety, full SDK, physical canonicalization, OS reads, capture atomicity, performance, reserved-forensics or R0/completion claims.",
+        "The ordinary full SDK NewProgram is observed after its existing construction and bind_all. It is not the historical noLib/types[] preflight Program. Source order is inspected; no independent before-all-analysis temporal oracle is claimed.",
+        "N12 credits exactly two frozen assertions. The explicit frozen baseline operation supplies selected a.ts,b.ts. Its workers2 phrase is not executed or qualified. Unloaded-source, external-package and reverse-connectivity controls are DEV only.",
+        "The ledger recorded reviews and faults before final reports. Later standards/report.json and spec-proof/report.json now attest both independent reviews complete, two compiled source faults detected then restored, and unchanged four-source anchor.",
+        "The omit-unselected mutant fails actual frozen N12 on dependencyComponents and loadedRepositorySources, then restored/recompiled N12 passes9checks. Removing reciprocal adjacency fails the dedicated reversed-connectivity BIN test; the forward frozen N12 is not claimed to detect that second fault. Restored5 owning tests pass.",
+        "A reviewer initial bare --exact filter discovered zero tests. It is setup non-evidence; the corrected tests:: qualified filter discovered one real failure. Source-identical restored binary hash differs across build paths; no binary reproducibility claim.",
+        "Six carryover units pass on the current author artifact: ordinary N02/E08, P23, N01/P01 and QDYN07. QDYN07 uses two processes; total carryover9processes/36checks plus1 N02 relation. No new frozen property credit follows.",
+        "The new response field is raw only. Request DTO unchanged; batch projection drops it and worker contract remains separate, uncredited. ParallelSafetyEvaluated and globalAdmissionInferred remain false.",
+        "Abbreviated ledger hashes are locators; full fixture/recipe/artifact/raw identities are canonical. Reserved non-access is actor attestation. Owner budget remains planning only.",
+        "The four documentary files are outside the original source anchor and require subsequent indexed parser and independent reconciliation."
+      ]
+    },
+    "finalDocumentaryCorrection": "Final independent reconciliation counted actual process outcomes: N02=2,E08=2,P23=1,N01/P01=2,QDYN07=2, total9, not7. Six units,36checks and1N02relation PASS. Only documentation/context changed; native four-source anchor unchanged."
+  },
+  "workflowRecurrence": "Reuse existing focused replay commands and standard archive/manifest primitives; no standalone packaging utility or new CI lane shipped.",
+  "newMappingsCredited": 1,
+  "newProjectedPasses": 1,
+  "qualificationCredit": 0,
+  "limits": [
+    "32 of64 initial GAP units mapped:31 limited PASS and N17c version-attributed NONPASS;32 static GAP remain;0/240 qualified obligations.",
+    "322 of354 prepared recipes have no known static GAP; no new full-campaign aggregate. Historical283PASS/7NONPASS/64GAP retain their original provenance.",
+    "No workers2 execution, weighted chunking, full preflight, parallel safety, declaration-replication, P12 equivalence or global admission is evaluated.",
+    "Current ordinary full-SDK NewProgram is not asserted equivalent to the historical noLib/types[] preflight Program.",
+    "The new field is raw only; Request DTO unchanged, batch projection omits it and worker uses a separate contract.",
+    "No physical canonicalization, full public Plane-A runtime, full retained scope, capture atomicity, complete SDK consumption, all-OS-read or performance guarantee.",
+    "Current evidence is macOS DEV only; Linux/Windows,178-obligation review,full354campaign,reserved once andR0 remain pending.",
+    "Additional C1 pass1 OPEN,pass2 unused; owner3-4day estimate is planning, not measured duration or exact deadline. No new version arbitration.",
+    "Reserved non-access is actor attestation; author and named reviewers attest no reserved payload access or execution."
+  ]
+}

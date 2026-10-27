@@ -1,0 +1,17 @@
+{
+  "checks": {
+    "semanticManifestExact": true,
+    "semantic-completionManifestExact": true,
+    "semantic-runtimeManifestExact": true,
+    "bothParallelExpectedOraclesExact": true,
+    "diagnosticsExactExceptFreshWorkspaceCoordinate": true,
+    "symbolsExactExceptFreshTracePathAndDerivedHash": true,
+    "boundariesExpectationsExactWithThreeExplicitLiveMutationRecipes": true,
+    "mergedSemanticActivationReplayed356UnitsAndSiteDenominatorExact": true,
+    "semanticProofMapReferencesAndReasonTogglesFaithful": true,
+    "symbolsProofPairsAndSiteValuesFaithful": true,
+    "diagnosticsProofMapActivationFaithful": true
+  },
+  "allPassed": true,
+  "nativeQualificationImplied": false
+}

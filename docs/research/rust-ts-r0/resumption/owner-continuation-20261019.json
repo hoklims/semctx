@@ -1,0 +1,87 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-19",
+  "state": "OWNER_CONTINUATION_WITHOUT_FIXED_TURN_CEILING",
+  "authority": {
+    "owner": "Sébastien",
+    "date": "2026-10-19",
+    "source": "Explicit owner instruction in the active T00 session, supplied verbatim to the documentary author and independent auditor.",
+    "kind": "Owner workflow decision; not an ADR, technical proof or qualification waiver",
+    "verbatim": "Oui, ne t'arrête pas, je souhaite absolument terminer ce ticket. On doit absolument trouver une solution. Ce ticket bloque tout le reste de la migration. Ne mets pas de blocage sur le nombre de tours à faire. On fera le nombre de tours qu'il faut, mais on doit trouver absolument une solution."
+  },
+  "subject": {
+    "issue": 365,
+    "composition": "C1",
+    "branch": "rust/365-t00",
+    "pullRequest": "https://github.com/hoklims/semctx/pull/386",
+    "publishedHeadAtInstruction": "fce14fee3f4d6bbab555091cc06d9a3f98155bbf",
+    "newBranch": false,
+    "newPullRequest": false,
+    "separateExperiment": false,
+    "C2": "ABANDONED_FOR_RESUMPTION"
+  },
+  "decision": {
+    "continueSameT00": true,
+    "fixedTurnOrCorrectionPassCeiling": false,
+    "supersedes": [
+      "The operative two-additional-C1-pass maximum in record.json#/budget",
+      "Any local correction/review-turn count ceiling, including the local two-cycle limit"
+    ],
+    "effect": "Continue technical correction and independent review without stopping solely because a turn/pass count was reached. This prospectively overrides the local code-review-fix turn ceiling for this work.",
+    "passRegistrationStillRequired": true,
+    "newDurationOrNumericalBudget": null,
+    "countersReset": false
+  },
+  "historyPreservation": {
+    "previousR0Decision": "STOP_BUDGET",
+    "historicalTerminalDossier": "../final/README.md",
+    "supersededBudgetSnapshot": "record.json#/history/supersededCorrectionBudget20261018",
+    "historicalClaimLedger": "claim-audit.md#independent-reopening-claim-ledger",
+    "historicalC1CorrectionsClosed": 2,
+    "historicalC2CorrectionsClosed": 2,
+    "historicalLocalReviewContinuation": "local-review-continuation.json",
+    "historicalLocalCyclesTotal": 4,
+    "resumedC1PassesStarted": 1,
+    "resumedC1PassesClosed": 0,
+    "resumedC1Pass1": "OPEN",
+    "resumedC1Pass2": "NOT_STARTED",
+    "historicalRecordsUnchanged": true
+  },
+  "currentLocalRepair": {
+    "scope": "Unresolved-import adapter repair on the four unpublished Rust files; no certification by this documentary record.",
+    "provenance": "Author task /root reported this local workflow state; not independently verified Rust behavioral evidence.",
+    "localCorrectionReviewTurnsAlreadyConsumed": 2,
+    "findingRemains": true,
+    "thirdAndFurtherTechnicalCorrectionReviewTurnsAuthorized": true,
+    "countersReset": false,
+    "globalC1PassStillOpen": 1
+  },
+  "qualificationState": {
+    "orderedStep": 3,
+    "qualifiedObligations": 0,
+    "totalObligations": 240,
+    "r0Decision": null,
+    "READY_TS_NATIVE": false,
+    "semanticWaiver": false,
+    "profileWaiver": false,
+    "solutionProven": false,
+    "orderedCampaignAndReservedGatesRetained": true,
+    "publishedGapEvidence": "gap-dynamic-import-evidence.json",
+    "scopeLimit": "No Rust behavior, retained-scope parity, full campaign, reserved replay or R0 passage is certified by this decision record."
+  },
+  "versions": {
+    "crateVersion": "=7.0.0-dev",
+    "compilerVersion": "7.1.0-dev",
+    "upstreamCommit": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "sdkVersion": "5.9.3"
+  },
+  "publicationScope": {
+    "githubComments": "PROHIBITED_EVERYWHERE",
+    "mergeReleaseDeploy": false
+  },
+  "audit": {
+    "authorTask": "/root/owner_unbounded_continuation_record",
+    "auditorTask": "/root/owner_unbounded_continuation_record/owner_continuation_audit",
+    "ledger": "claim-audit.md#owner-continuation-2026-10-19"
+  }
+}

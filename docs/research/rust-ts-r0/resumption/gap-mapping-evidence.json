@@ -1,0 +1,53 @@
+{
+  "recordVersion": 1,
+  "state": "FIRST_FIVE_GAP_MAPPINGS_DEV_EVIDENCE_NOT_CAMPAIGN",
+  "baseHead": "c6a4241cb98ebb266e7601aa3ed1e00ffca9955e",
+  "reviewedDiffSha256": "755fdca58c3d6d47d673105fcb591f2d236af590fda9a6e02960b820fa9f2bd6",
+  "archive": {
+    "path": "gap-mapping-evidence.tar.gz.b64",
+    "bytes": 1098793,
+    "sha256": "f57606e212ec65870931800741ef4a2e44015a47979a36c1b4249436419093d6",
+    "decodedSha256": "958d4c546d9c01d4e1d7d743aa34572240ba95120030f7f07547c7e1f9df20e8",
+    "files": 198,
+    "historicalReconciliation": "MANIFEST identifies the pre-extension180-entry check and its original archive identity; current documentary reconciliation below verifies197 entries."
+  },
+  "progress": "gap-mapping-progress.json",
+  "reproduction": {
+    "recipes": "recipes/replay-recipes.json",
+    "nativeFixture": "raw/gap-components-trivia-native/fixture.json",
+    "nativeResults": "raw/gap-components-trivia-evidence/units-N21-actual-sdk-map-callback/repair-results.json",
+    "versionOracleCommand": "env -u GIT_CONFIG_GLOBAL bun version-differential/oracle.mjs /absolute/path/to/worktree",
+    "rawNativeComparison": "Four PASS; N17c NONPASS __generator absent; no retries/fallback or expected-value substitution",
+    "qualificationAuthorized": false
+  },
+  "environment": {
+    "os": "macOS27.0.1",
+    "architecture": "arm64",
+    "rust": "1.95.0",
+    "bun": "1.4.3",
+    "python": "3.10.22",
+    "GIT_CONFIG_GLOBAL": "unset"
+  },
+  "review": {
+    "author": "/root",
+    "standards": "/root/gap_batch1_standards",
+    "specProof": "/root/gap_batch1_spec_proof",
+    "claimAudit": "/root/es5_version_claim_audit",
+    "verdict": "PROOF_ADEQUATE for mapped verification mechanisms only",
+    "counterexamples": 18,
+    "nativeObservationsReproduced": 6,
+    "reports": [
+      "review/standards/report.md",
+      "review/spec-proof/report.md",
+      "es5-version-claim-audit.md"
+    ],
+    "windowsFixtureDelta": "review/windows-fixture/{standards.md,spec-proof.md}; production helper unchanged; negative witness rejects missing physical write then restoration passes; macOS only"
+  },
+  "limits": [
+    "macOS DEV observations only; no354-unit campaign or qualification credit.",
+    "N17c raw mismatch remains; ARB003 is a separate property-specific version attribution.",
+    "Artifact changed from historicalC1; a new full qualification freeze and SDK/input closure are still required.",
+    "Reserved payload remains unaccessed.",
+    "CI at c6 passed32 comparators+7 Python tests on Linux/macOS; Windows passed31 comparators then failed a test-fixture key format. Fixture corrected locally; fixed remote result pending."
+  ]
+}

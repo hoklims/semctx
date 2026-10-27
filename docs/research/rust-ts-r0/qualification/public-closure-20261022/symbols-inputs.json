@@ -1,0 +1,451 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-symbols-declarations-active",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** public coordinate probe */\nexport function outer(value: number): number;\nexport function outer(value: number) {\n function inner() { return value; }\n return inner();\n}\nexport class Owner { method() { return outer(1); } }\nexport interface Shape { value: number }\nexport type Alias = Shape;\nexport enum Flag { Ready }\nnamespace Box { export function local() {} }\nexport const arrow = () => outer(2), plain = 7;\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        178,
+        179
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declarations-control",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "\n\nfunction privateFn() { return 0; }\nconst plain = 7;\nconst {value} = {value: 1};\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        178,
+        179
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-imports-active",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import main, { exported as renamed, unused } from \"./dep\";\nimport * as namespace from \"./dep\";\nimport type { Shape } from \"./dep\";\nexport { exported as relay } from \"./dep\";\nexport { renamed };\nrenamed(); namespace.exported(); main();\nimport(\"./dep\");\n",
+        "dep.ts": "export default function defaultFn() {}\nexport function exported() {}\nexport function unused() {}\nexport interface Shape { value: number }\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        179,
+        197,
+        205,
+        167,
+        175
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-imports-control",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { absent } from \"./missing\";\nimport type * as types from \"./missing-types\";\nabsent(); unknown();\nimport(moduleName);\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        179,
+        197,
+        205,
+        167,
+        175
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-object-members-active",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() {}\nconst object = {\n method() { leaf(); },\n get getter() { leaf(); return 1; },\n set setter(value: number) { leaf(); },\n arrow: (((() => leaf()) as (() => void))!),\n satisfies: ((() => leaf()) satisfies (() => void)),\n asserted: <(() => void)>(() => leaf())\n};\nobject.method(); object.arrow();\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        180,
+        197
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-object-members-control",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() {}\nclass Owner { method() { leaf(); } }\nconst local = () => leaf();\nlocal();\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        180,
+        197
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-targets-active",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "function leaf() {}\nconst value = 1;\nlet missingInitializer;\nenum Status { Ready }\nconst object = { method() {} };\nleaf(); value(); missingInitializer(); Status(); Status.Ready(); object.method();\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-targets-control",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare function external(): void;\ndeclare const dynamic: any;\nexternal(); dynamic(); unknown();\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declaration-runtime-ts",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"./dep.js\";\ntarget();\n",
+        "dep.d.ts": "export declare function target(): void;\n",
+        "dep.js": "exports.target = function target() {};\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declaration-only-ts",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"./dep.js\";\ntarget();\n",
+        "dep.d.ts": "export declare function target(): void;\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declaration-runtime-mts",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"./dep.mjs\";\ntarget();\n",
+        "dep.d.mts": "export declare function target(): void;\n",
+        "dep.mjs": "exports.target = function target() {};\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declaration-only-mts",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"./dep.mjs\";\ntarget();\n",
+        "dep.d.mts": "export declare function target(): void;\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declaration-runtime-cts",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"./dep.cjs\";\ntarget();\n",
+        "dep.d.cts": "export declare function target(): void;\n",
+        "dep.cjs": "exports.target = function target() {};\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-declaration-only-cts",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"./dep.cjs\";\ntarget();\n",
+        "dep.d.cts": "export declare function target(): void;\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-config-alias-retained",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { target } from \"@local/dep\";\ntarget();\n",
+        "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+        "src/dep.ts": "export function target() {}\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-config-missing-retained",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { target } from \"@local/missing\";\ntarget();\n",
+        "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+        "src/control.ts": "export function control() {}\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-config-invalid-retained",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { target } from \"./dep\";\ntarget();\n",
+        "tsconfig.json": "{invalid json\n",
+        "dep.ts": "export function target() {}\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-config-alias-live",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+        "src/dep.ts": "export function target() {}\n",
+        "main.js": "import { target } from \"@local/dep\";\ntarget();\n"
+      },
+      "retained": false,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-config-missing-live",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+        "src/control.ts": "export function control() {}\n",
+        "main.js": "import { target } from \"@local/missing\";\ntarget();\n"
+      },
+      "retained": false,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-config-invalid-live",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "tsconfig.json": "{invalid json\n",
+        "dep.ts": "export function target() {}\n",
+        "main.js": "import { target } from \"./dep\";\ntarget();\n"
+      },
+      "retained": false,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-no-config-live",
+      "operation": "extraction",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "import { target } from \"./dep\"; target();\n",
+        "dep.ts": "export function target() {}\n"
+      },
+      "retained": false,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-live-package",
+      "operation": "extraction",
+      "path": "main.js",
+      "files": {
+        "main.js": "import { target } from \"public-probe\"; target();\n",
+        "node_modules/public-probe/package.json": "{\"name\":\"public-probe\",\"types\":\"index.d.ts\",\"main\":\"index.js\"}\n",
+        "node_modules/public-probe/index.d.ts": "export declare function target(): void;\n",
+        "node_modules/public-probe/index.js": "exports.target = function target() {};\n"
+      },
+      "retained": false,
+      "origin": "Public independently authored package lookup; no symlinks",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        197
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-outline-active",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "/** preceding */\n\nexport function active() {\n return input;\n}\nimport \"./dep\";\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-outline-control",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "\n\nconst value = 1;\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-outline-empty",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": ""
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    },
+    {
+      "id": "PUBLIC-symbols-outline-recovery",
+      "operation": "outline",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function incomplete( {\n"
+      },
+      "retained": true,
+      "origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    }
+  ]
+}

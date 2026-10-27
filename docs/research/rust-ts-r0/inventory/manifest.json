@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "kind": "portable_stage2_source_inventory_bundle",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "status": "stage2_documentary_candidate_source_inventory_only",
+  "producer": "/root/ordinary_ts_inventory",
+  "effort": {
+    "started_utc": "2026-10-17T09:41:16Z",
+    "finished_utc": "2026-10-17T09:42:31.210606+00:00",
+    "activity_limit_minutes": 5,
+    "work": "Bundle transformation of existing artifacts only; no source scans or native/runtime execution.",
+    "assembly_environment": "Existing Darwin arm64 workspace session; original provenance environment remains unchanged in byte-exact copied summary."
+  },
+  "original_inputs": [
+    {
+      "input_id": "stage2-proposal",
+      "original_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/stage2-obligations.proposal.json",
+      "sha256": "e244fdb53e9e465d9209eeb31e7068e8c33059556a5db87f8a53dc0708a551b0",
+      "size_bytes": 5595730,
+      "distributed_exact_bytes": false,
+      "read_role": "Existing source-discovery data only; no execution replay."
+    },
+    {
+      "input_id": "scope-original",
+      "original_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/scope.json",
+      "sha256": "e57f41cac2f648c1da55162f386ab82d85c8b00a29fff3150c0753430e93d846",
+      "size_bytes": 2443,
+      "distributed_exact_bytes": false,
+      "read_role": "Existing source-discovery data only; no execution replay."
+    },
+    {
+      "input_id": "provenance-summary-original",
+      "original_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/compiler-api-provenance.summary.json",
+      "sha256": "be8b8b2a87c50905d80af48f80b8bb999ed6e7b5e68dacd5c557eac10692d15c",
+      "size_bytes": 45918,
+      "distributed_exact_bytes": true,
+      "read_role": "Existing source-discovery data only; no execution replay."
+    },
+    {
+      "input_id": "compiler-api-provenance.full",
+      "original_path": "/private/tmp/semctx-t00-inventory-20261017/ordinary-compiler-api/compiler-api-provenance.json",
+      "sha256": "e5688ce6960ed1dec36d30b8083c6fc32101cbaa7c7af04fd7a30cde4e202ba4",
+      "size_bytes": 28209853,
+      "distributed_exact_bytes": false,
+      "read_role": "Existing source-discovery data only; no execution replay."
+    },
+    {
+      "input_id": "mechanism-documentation-original",
+      "original_path": "/private/tmp/semctx-t00-mechanisms-20261017/mechanism-feasibility.json",
+      "sha256": "c7d27a22a5ddbc3051f10a514e771b8f7233a1dad1aa2ade690ac2713165e93a",
+      "size_bytes": 9987,
+      "distributed_exact_bytes": true,
+      "read_role": "Existing source-discovery data only; no execution replay."
+    }
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "8c75f817c9c38d36264a95b9ce6374ba6002673e4d7cf6465235ab9d61c1cac0",
+      "size_bytes": 3303
+    },
+    {
+      "path": "baseline-to-T00-deltas.json",
+      "sha256": "4aad7b6f9af5850f0258eb06ecb125e78cf2f9f0c4cb5b1a4a0225f856397d61",
+      "size_bytes": 9123
+    },
+    {
+      "path": "catalogue.json",
+      "sha256": "20d4dd84108e11c85693bb1ab768457b9716871054ec4c84dde756da3f548cef",
+      "size_bytes": 170584
+    },
+    {
+      "path": "mechanism-feasibility.json",
+      "sha256": "c7d27a22a5ddbc3051f10a514e771b8f7233a1dad1aa2ade690ac2713165e93a",
+      "size_bytes": 9987
+    },
+    {
+      "path": "obligations.json",
+      "sha256": "a6d5a69484f5f85ffa8df07dc48238b02c2840b5bac3f6187052bb1f407309fe",
+      "size_bytes": 5413402
+    },
+    {
+      "path": "provenance-summary.json",
+      "sha256": "be8b8b2a87c50905d80af48f80b8bb999ed6e7b5e68dacd5c557eac10692d15c",
+      "size_bytes": 45918
+    },
+    {
+      "path": "scope-and-method.json",
+      "sha256": "0b884931644876dce1c1d41a3b7b4ad1be5e79abea06499d7f4cff86e962734a",
+      "size_bytes": 18175
+    }
+  ],
+  "manifest_self_hash": "Omitted to avoid recursive self-reference. All other bundle files are listed.",
+  "transformations": [
+    {
+      "from": "stage2-proposal",
+      "to": [
+        "obligations.json",
+        "catalogue.json"
+      ],
+      "change": "Split single proposal into one obligations array plus one registry/catalogue; remove duplicated full-proposal/rows representation. Keep exactly eight fields per obligation and native state unknown."
+    },
+    {
+      "from": "stage2-proposal",
+      "to": [
+        "obligations.json",
+        "catalogue.json"
+      ],
+      "change": "Replace exact original mechanism scratch reference with relative mechanism-feasibility.json; replace source_provenance_file raw filename with logical input:compiler-api-provenance.full. No environment/path facts inside recorded provenance summary altered."
+    },
+    {
+      "from": [
+        "scope-original",
+        "stage2-proposal"
+      ],
+      "to": "scope-and-method.json",
+      "change": "Combine existing root hashes, four source-verified anchors, packaging annex and main census confirmation with explicit read-only Git source reproduction method; no new source read or scan."
+    },
+    {
+      "from": "provenance-summary-original",
+      "to": "provenance-summary.json",
+      "change": "Byte-exact copy; original execution environment and paths preserved."
+    },
+    {
+      "from": "mechanism-documentation-original",
+      "to": "mechanism-feasibility.json",
+      "change": "Byte-exact copy; documentation pending, no mechanism selection."
+    },
+    {
+      "from": "Current-session main messages",
+      "to": "baseline-to-T00-deltas.json",
+      "change": "Bounded recognition of 16-file delta facts already known; full path list/mapping explicitly pending, no diff replay."
+    },
+    {
+      "from": "Bundle assembly facts",
+      "to": [
+        "README.md",
+        "manifest.json"
+      ],
+      "change": "Add scope/proof boundaries, portable input IDs, hashes and sizes; no new executable or validation surface."
+    }
+  ],
+  "not_distributed": [
+    "Full compiler-api-provenance.json (~28 MB), raw member/AST scans, source copies, dependency tree, scripts, duplicate obligations JSONL."
+  ],
+  "native_state_accounting": {
+    "obligations": 240,
+    "unknown": 240,
+    "selected_compositions": 0,
+    "runtime_proof": 0,
+    "targets_exercised": []
+  },
+  "source_read_reproduction": "Read scope-and-method.json root/anchor paths by Git at exact baseline; compare SHA-256 bytes. Registry coordinates identify tests in the same baseline. No rerun claim made.",
+  "rootAdoption": {
+    "agent": "/root",
+    "inputBundleManifestSha256": "0454e9554d8f8272e303ec17bcba71b6123a06353c856d32507cc05e60caab49",
+    "changes": [
+      "Explicit17-path Git delta inspection and baseline dispositions.",
+      "README reflects documentary adoption and separate historical arbitration.",
+      "Independent review correction: two assembleRepository usage groups describe the actual retained dynamic-test-import refusal path; add one baseline assertion reference and one explicit pending microcase.",
+      "Adopted metadata references the distributed provenance-summary.json name; historical provenance bytes remain unchanged.",
+      "Stage3 adoption corrects stale bundle summary counts to111 historical assertion references and27 families; registry entries and native states unchanged."
+    ],
+    "nativeQualification": false
+  }
+}

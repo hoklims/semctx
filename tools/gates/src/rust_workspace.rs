@@ -10,7 +10,11 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const TOOL_MANIFESTS: &[&str] = &["tools/gates/Cargo.toml", "tools/qualification/Cargo.toml"];
+const TOOL_MANIFESTS: &[&str] = &[
+    "tools/gates/Cargo.toml",
+    "tools/qualification/Cargo.toml",
+    "tools/rust-ts-r0/Cargo.toml",
+];
 #[derive(Serialize)]
 pub struct Report {
     pub schema: u32,

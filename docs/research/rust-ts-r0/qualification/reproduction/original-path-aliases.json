@@ -1,0 +1,1144 @@
+{
+  "schemaVersion": 1,
+  "originalFiles": [
+    {
+      "originalPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/allocation/input-index.json",
+      "archiveMember": "repository/docs/research/rust-ts-r0/cases/allocation/input-index.json",
+      "bytes": 465689,
+      "sha256": "2b661e61877daf5a4ce14ab76a3ce31f0703f288b01b0853cbc3a8b448c0cded"
+    },
+    {
+      "originalPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/allocation/policy.json",
+      "archiveMember": "repository/docs/research/rust-ts-r0/cases/allocation/policy.json",
+      "bytes": 26118,
+      "sha256": "a732cdb98b48621910ea2c7e7bc6044fa0f33146f096d923a371743609b978df"
+    },
+    {
+      "originalPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/index.json",
+      "archiveMember": "repository/docs/research/rust-ts-r0/cases/index.json",
+      "bytes": 817245,
+      "sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1"
+    },
+    {
+      "originalPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/qualification/obligations.json",
+      "archiveMember": "repository/docs/research/rust-ts-r0/cases/qualification/obligations.json",
+      "bytes": 3331549,
+      "sha256": "60e3cf74c75f2733476ddfc721b54a4b7cd9e5e7dbff6745205b0eaed6d0fba5"
+    },
+    {
+      "originalPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/qualification/scenarios.json",
+      "archiveMember": "repository/docs/research/rust-ts-r0/cases/qualification/scenarios.json",
+      "bytes": 854617,
+      "sha256": "b17b5ea68e702a2d45c6b04ae50654a93611584ec84e60a318ac3bce9d609906"
+    },
+    {
+      "originalPath": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases/qualification/support.json",
+      "archiveMember": "repository/docs/research/rust-ts-r0/cases/qualification/support.json",
+      "bytes": 197550,
+      "sha256": "a0ea3216c1d23dbac8e8ca79cbfe1bc5a028203b73144c779ec600b933421619"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/effort-ledger.prequery.json",
+      "archiveMember": "session/qualification-adapter/effort-ledger.prequery.json",
+      "bytes": 1020,
+      "sha256": "67047cda66819fd6195037896be50f3705577b0551e88ca039498e88f2413918"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/execution-registry.final-prequery.json",
+      "archiveMember": "session/qualification-adapter/execution-registry.final-prequery.json",
+      "bytes": 187050,
+      "sha256": "962de038bc45228c51cfccf06ff9c3222f9670609958eb1cd0de474cc623c7d3"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-c1-pass1.log",
+      "archiveMember": "session/qualification-adapter/first-replay-c1-pass1.log",
+      "bytes": 588,
+      "sha256": "96dd2e952606344c3e98db4628ca482af22cf4459a8956c79e8a07fc583c41ea"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-identity-after.json",
+      "archiveMember": "session/qualification-adapter/first-replay-identity-after.json",
+      "bytes": 19473,
+      "sha256": "88484e195814dfc28aec94553b1bf27762b9b6a98fdfe59ef2cee78534703a6a"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-preflight.authorized.json",
+      "archiveMember": "session/qualification-adapter/first-replay-preflight.authorized.json",
+      "bytes": 22145,
+      "sha256": "c8ebe19ef9c9d180d9f237db40ea8206b77f5e22abf7da6f83a3e6c277809a4f"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-preflight.blocked.json",
+      "archiveMember": "session/qualification-adapter/first-replay-preflight.blocked.json",
+      "bytes": 1091,
+      "sha256": "07cd41c8673b094e3faf438871962fc1620a53845f4fd3a45be97e308cdbd0a1"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-summary.json",
+      "archiveMember": "session/qualification-adapter/first-replay-summary.json",
+      "bytes": 136576,
+      "sha256": "ce023a254dd0d3edf86409e3bb867432b5ca7bfc4dbd0d19b72b9b61f61bc39f"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/first-replay-triage.json",
+      "archiveMember": "session/qualification-adapter/first-replay-triage.json",
+      "bytes": 4505,
+      "sha256": "c8b9d925322e18dca27c4d3b588b4119eeb3b7d00303deb90bd40c291fb7406c"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/freeze-adapter-bridge.proposed.json",
+      "archiveMember": "session/qualification-adapter/freeze-adapter-bridge.proposed.json",
+      "bytes": 3460,
+      "sha256": "7eccaa19609355578791ce0bb48ff49541e5443918af014a4660a6de679c6b90"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/observer-build-before.json",
+      "archiveMember": "session/qualification-adapter/observer-build-before.json",
+      "bytes": 1846,
+      "sha256": "374c6046f852a0c7ef4c68de7c4587432ea5f59464819a12998ff80b04024e2b"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/optimized-comparator-build-proof.final.json",
+      "archiveMember": "session/qualification-adapter/optimized-comparator-build-proof.final.json",
+      "bytes": 4681,
+      "sha256": "bfc4989c214429e814a387317a8e2a440faa7e5ce4e4095fc164edbfaa5099d7"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/optimized-comparator-build-proof.json",
+      "archiveMember": "session/qualification-adapter/optimized-comparator-build-proof.json",
+      "bytes": 2580,
+      "sha256": "6f0365c8c1c6bde6c0e315087eb6146c809acf7f725e057b220aec92d2cf282b"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/plan.json",
+      "archiveMember": "session/qualification-adapter/plan.json",
+      "bytes": 10225,
+      "sha256": "87e4f0c062cd72eaa79b8096eb3831973b0e5b884548f9a088e824f1a5448b04"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/prepare_recipes.py",
+      "archiveMember": "session/qualification-adapter/prepare_recipes.py",
+      "bytes": 24632,
+      "sha256": "f68689d30b7e7073c771018bea86fdcd1fed270addb7ca718aee6cbb02bd4900"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/qualification_replay.rs",
+      "archiveMember": "session/qualification-adapter/qualification_replay.rs",
+      "bytes": 66634,
+      "sha256": "d300daf678f851b8720322d0caed9bce10a6504fdc565e769044ec53f8862786"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/replay-c1-pass1/freeze-manifest.json",
+      "archiveMember": "session/qualification-adapter/replay-c1-pass1/freeze-manifest.json",
+      "bytes": 3459,
+      "sha256": "dc0092b81a5863fc9942440aee40d4a83ecf4ccf9448ce255f1ab07cef0fab2c"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/replay-recipes.json",
+      "archiveMember": "session/qualification-adapter/replay-recipes.json",
+      "bytes": 1169226,
+      "sha256": "ebeaa398e7b7faaf897c7e0ddfef659a72221acef69770d5995229528d3c25fd"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/support-registry.json",
+      "archiveMember": "session/qualification-adapter/support-registry.json",
+      "bytes": 13457,
+      "sha256": "16033c68a5830dc080038b85f6f82f3973c08c03ce948a7a420debe62e51ec3d"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-native-observations-manifest.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-native-observations-manifest.json",
+      "bytes": 3474,
+      "sha256": "6dd6deb6c3426ab59b6c594874ef05ecf99f8d6b0a40a517d73411ac84196508"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-native-observations-preparation.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-native-observations-preparation.json",
+      "bytes": 4428,
+      "sha256": "ecd65439a381603ac5129fe1df1d643dc3b4c7975633c068eeb1f5aa00e78ae5"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-native-observations-review.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-native-observations-review.json",
+      "bytes": 6262,
+      "sha256": "32d96100a8caae0e279d6beecd0b0fde416b4e32ff9e4dd785e824671f9910ad"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-prepared-source-checkpoint/additional-native-observations-preparation.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-prepared-source-checkpoint/additional-native-observations-preparation.json",
+      "bytes": 4428,
+      "sha256": "ecd65439a381603ac5129fe1df1d643dc3b4c7975633c068eeb1f5aa00e78ae5"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-prepared-source-checkpoint/additional-native-observations-review.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-prepared-source-checkpoint/additional-native-observations-review.json",
+      "bytes": 6262,
+      "sha256": "32d96100a8caae0e279d6beecd0b0fde416b4e32ff9e4dd785e824671f9910ad"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-prepared-source-checkpoint/prepare_recipes.py",
+      "archiveMember": "session/qualification-adapter/v2/additional-prepared-source-checkpoint/prepare_recipes.py",
+      "bytes": 56160,
+      "sha256": "63a04e3d495334ebada6e8732f862da44a589cfe04636b2521628e59d2fcb014"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-prepared-source-checkpoint/qualification_replay.rs",
+      "archiveMember": "session/qualification-adapter/v2/additional-prepared-source-checkpoint/qualification_replay.rs",
+      "bytes": 130655,
+      "sha256": "137f7c15567765a3505969f80735b3d6226650efe80536c6d763421d7b7cc604"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-prepared-source-checkpoint/replay-recipes.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-prepared-source-checkpoint/replay-recipes.json",
+      "bytes": 1679563,
+      "sha256": "6172f34bfc74b2cc8f0755af08400e9fd37b867886221fc99285e239d6ac77ef"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/additional-prepared-source-checkpoint/support-mapping-plan.json",
+      "archiveMember": "session/qualification-adapter/v2/additional-prepared-source-checkpoint/support-mapping-plan.json",
+      "bytes": 288136,
+      "sha256": "26c265a78d04cf8dab237e513080f4c0ca7db4aaac4c5d505491fa03cb31674a"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/comparator-pass2-release-green-28.log",
+      "archiveMember": "session/qualification-adapter/v2/comparator-pass2-release-green-28.log",
+      "bytes": 2469,
+      "sha256": "b5442aa817e71af56c2ba5b7a9ecdcb074dcf14b392b76cf43e7968a4c44bcca"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/freeze-adapter-bridge.c1-pass2.json",
+      "archiveMember": "session/qualification-adapter/v2/freeze-adapter-bridge.c1-pass2.json",
+      "bytes": 3294,
+      "sha256": "72fd142c637d7d085daa2e250eb0c6cc7ee89537e373607b54c9bad3e650800c"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/independent-review.json",
+      "archiveMember": "session/qualification-adapter/v2/independent-review.json",
+      "bytes": 5029,
+      "sha256": "d30157c63b17a5c9e423e956b18842aa62a247196fc6db8437348281cf3fa802"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/preparation-evidence-manifest.json",
+      "archiveMember": "session/qualification-adapter/v2/preparation-evidence-manifest.json",
+      "bytes": 5049,
+      "sha256": "99f7827071f8b78c4a4dcd1f14d0fcf7dc34e055a103ba7a51fc209ae30effdf"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/preparation-report.json",
+      "archiveMember": "session/qualification-adapter/v2/preparation-report.json",
+      "bytes": 26639,
+      "sha256": "fbcf53a6bb82f1d26c8f7f8c3c57d559fc38a683f1e61f4f739267627f970764"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepare_recipes.py",
+      "archiveMember": "session/qualification-adapter/v2/prepare_recipes.py",
+      "bytes": 56160,
+      "sha256": "63a04e3d495334ebada6e8732f862da44a589cfe04636b2521628e59d2fcb014"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepared-source-checkpoint/preparation-report.json",
+      "archiveMember": "session/qualification-adapter/v2/prepared-source-checkpoint/preparation-report.json",
+      "bytes": 26631,
+      "sha256": "351cd1b5ce3ab602ec1ba55d9553dff02fd0c0e1fa274528084cdc89cab8c6c4"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepared-source-checkpoint/prepare_recipes.py",
+      "archiveMember": "session/qualification-adapter/v2/prepared-source-checkpoint/prepare_recipes.py",
+      "bytes": 54377,
+      "sha256": "5be7b5bf0f01c19fc3a6bf21db001455e88511e6ebb94231a8e789fe22e8a3a0"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepared-source-checkpoint/qualification_replay.rs",
+      "archiveMember": "session/qualification-adapter/v2/prepared-source-checkpoint/qualification_replay.rs",
+      "bytes": 118450,
+      "sha256": "1cdbd9f5dd246b875425a2c0e5cc9859fcb405e5a81606a816493662b001de12"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepared-source-checkpoint/replay-recipes.json",
+      "archiveMember": "session/qualification-adapter/v2/prepared-source-checkpoint/replay-recipes.json",
+      "bytes": 1676207,
+      "sha256": "a721938acc8619d866f2d0ca9f5916d48c581086e1f5942877b000f27e2f8dd8"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepared-source-checkpoint/support-mapping-plan.json",
+      "archiveMember": "session/qualification-adapter/v2/prepared-source-checkpoint/support-mapping-plan.json",
+      "bytes": 288136,
+      "sha256": "26c265a78d04cf8dab237e513080f4c0ca7db4aaac4c5d505491fa03cb31674a"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/qualification_replay.rs",
+      "archiveMember": "session/qualification-adapter/v2/qualification_replay.rs",
+      "bytes": 130655,
+      "sha256": "137f7c15567765a3505969f80735b3d6226650efe80536c6d763421d7b7cc604"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/freeze-manifest.json",
+      "archiveMember": "session/qualification-adapter/v2/replay-c1-pass2/freeze-manifest.json",
+      "bytes": 3293,
+      "sha256": "55ec15c8defb5f9ee9756c08b30a9dd6434b3fe9a3459cd8687e0e7f716174a2"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-recipes.json",
+      "archiveMember": "session/qualification-adapter/v2/replay-recipes.json",
+      "bytes": 1679563,
+      "sha256": "6172f34bfc74b2cc8f0755af08400e9fd37b867886221fc99285e239d6ac77ef"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-c1-pass2.log",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-c1-pass2.log",
+      "bytes": 690,
+      "sha256": "ca54346f988dc4d777cf9d1753180de0019a58b87a1b14ec61318bc08c05a655"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-identity-after.json",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-identity-after.json",
+      "bytes": 55596,
+      "sha256": "3fd225097cf9b37e02f99c840b9e09a79133891862b8647691fe29b759ea167a"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-identity-before.json",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-identity-before.json",
+      "bytes": 41586,
+      "sha256": "41877c9141efec8334cfc607706e349d66cc8183a60c9bd767fa76cbc5d31ede"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-launch.json",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-launch.json",
+      "bytes": 722,
+      "sha256": "942c16c699d06c5c2757855890b4254a3ae3f12c1558a12f6d22d3032f043f98"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-preflight.source.json",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-preflight.source.json",
+      "bytes": 36910,
+      "sha256": "884ce698c62f2771297cfeedb67f3508ad89d015f25be1d727681eb3058899a1"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-summary.json",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-summary.json",
+      "bytes": 175049,
+      "sha256": "24e3b49b1e0d528b2ac86f4d8e1716370aaff7289eab488559029291aa942386"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-triage.json",
+      "archiveMember": "session/qualification-adapter/v2/second-replay-triage.json",
+      "bytes": 6273,
+      "sha256": "38ddb512dcfd8b674fb751942e87fdc9f08855edc05841c79b6446ca7bc871cb"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/FREEZE.json",
+      "archiveMember": "session/selected-c1-pass1/FREEZE.json",
+      "bytes": 2559,
+      "sha256": "08b21830ea567442d8767e813419490bb311158b9df51074c3df740377208996"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/post-freeze-validation-delta.json",
+      "archiveMember": "session/selected-c1-pass1/post-freeze-validation-delta.json",
+      "bytes": 1808,
+      "sha256": "961b0852bbcc20c422df0b473a83fefc3d33ec4a8a7ff08071dd5f6a2282885c"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/source-manifest.json",
+      "archiveMember": "session/selected-c1-pass1/source-manifest.json",
+      "bytes": 6770,
+      "sha256": "d2c96aeb197283698c7b7be3acb49264236a45ec1d74ee7936055531dc2f2208"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/FREEZE.json",
+      "archiveMember": "session/selected-c1-pass2/FREEZE.json",
+      "bytes": 2815,
+      "sha256": "b987704e06211f90700af3b18611e7fc2ab922dd05c9bdde721c1aa1e77d6661"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/post-freeze-documentary-delta.json",
+      "archiveMember": "session/selected-c1-pass2/post-freeze-documentary-delta.json",
+      "bytes": 544,
+      "sha256": "7a1e1e3eec474b2147cd7b7abc8a5d865383c477560cfa39d508b8e8b5256f11"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source-manifest.json",
+      "archiveMember": "session/selected-c1-pass2/source-manifest.json",
+      "bytes": 7745,
+      "sha256": "9c5883bdf6b07a13cb2c6d21906cf312f8e59b6ef54cb14cc7643d5892ea8da5"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/clippy.toml",
+      "archiveMember": "frozen-sources/c1-pass2/clippy.toml",
+      "bytes": 92,
+      "sha256": "637674406714e6494d5774cc85fb00303daafdeafb6520977d0cf1e9769f26ec",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/docs/research/rust-ts-r0/cases/sources/development-cases.json",
+      "archiveMember": "frozen-sources/c1-pass2/docs/research/rust-ts-r0/cases/sources/development-cases.json",
+      "bytes": 56848,
+      "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/rust-toolchain.toml",
+      "archiveMember": "frozen-sources/c1-pass2/rust-toolchain.toml",
+      "bytes": 86,
+      "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/gates/Cargo.lock",
+      "archiveMember": "frozen-sources/c1-pass2/tools/gates/Cargo.lock",
+      "bytes": 5342,
+      "sha256": "d7c34e58e5bb2e5a0da55fad216b90a0eba6c6b612224be80a6e469ffe455277",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/gates/Cargo.toml",
+      "archiveMember": "frozen-sources/c1-pass2/tools/gates/Cargo.toml",
+      "bytes": 862,
+      "sha256": "3011dca3a2ff977b1adda3931f1a1ce3a859e1f38bac747625c9a5304749ff26",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/gates/src/process.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/gates/src/process.rs",
+      "bytes": 23993,
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/.gitignore",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/.gitignore",
+      "bytes": 32,
+      "sha256": "64c94088bff99e8f75106676fcbb9a8614d90105ec177ded0b63c44f967c3230",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/Cargo.lock",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/Cargo.lock",
+      "bytes": 22559,
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/Cargo.toml",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/Cargo.toml",
+      "bytes": 551,
+      "sha256": "4463a58893448d2faf6580925256fe64174302659a930d6f2eb963dd7006db3b",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/README.md",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/README.md",
+      "bytes": 4171,
+      "sha256": "41ab728e6c9dfef260311d1b654184cab37e0af31921fd0872ba807428f9a4e8",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/builtin-modules.json",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/builtin-modules.json",
+      "bytes": 4535,
+      "sha256": "79db033d1873d73a41c2045fcb2bb893f8d0c7cf214a1f4b1d3b99cc562b7eb2",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/development/review-controls.json",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/development/review-controls.json",
+      "bytes": 3167,
+      "sha256": "705f985c832686b22bb35870f4cba6544a4f3e4c6719669f70db862e1b173991",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/provenance.json",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/provenance.json",
+      "bytes": 2563,
+      "sha256": "51f6fc05b14ca9f04d7410999e8ee2a608847f72ada973a21d0ed35c61d6780d",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/sdk/LICENSE.txt",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/sdk/LICENSE.txt",
+      "bytes": 9141,
+      "sha256": "527adf9d4c760f7367c2aeffed6a89afba8ba40ea1b0efbc8f56496ad30ea9cf",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/sdk/ThirdPartyNoticeText.txt",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/sdk/ThirdPartyNoticeText.txt",
+      "bytes": 37608,
+      "sha256": "f7d7409c091d9d5c09a8bafbc4a27dc30ce2da6e19b7c0f91c59754a7c4b195b",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/sdk/sdk-input.json",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/sdk/sdk-input.json",
+      "bytes": 3218481,
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/assembly.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/assembly.rs",
+      "bytes": 41032,
+      "sha256": "ab6612af4562e651ed3f7fb00122cd71cb5f689af9150edbf5dea7988041d799",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/batch.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/batch.rs",
+      "bytes": 12147,
+      "sha256": "fc667a1acf5577a767dbcb37d8dfc3e133b32b1b2f1238ade5000bfefa99a9eb",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/captured.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/captured.rs",
+      "bytes": 717,
+      "sha256": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/captured_system_observations.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/captured_system_observations.rs",
+      "bytes": 47703,
+      "sha256": "5183806941a4ce47fbc70b158c078c4b92227844e8a562e7d8e3f2a24731fc5f",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/component_observations.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/component_observations.rs",
+      "bytes": 5707,
+      "sha256": "d0c311b2e8b555e49e5b0ca9785456a851b4da56cee9192d6b6ef05dbff04053",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/configuration.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/configuration.rs",
+      "bytes": 21749,
+      "sha256": "7ba5ce64b25ab3e7117084713d5459202f8684eac6811b3630f79ade272554bf",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/configured_resolver.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/configured_resolver.rs",
+      "bytes": 46400,
+      "sha256": "9662a49eb72ff114ecf054c99bf2db3d8a839aa81cb746c77ec7f4a2438199a0",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/development.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/development.rs",
+      "bytes": 2517,
+      "sha256": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/es5_helpers.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/es5_helpers.rs",
+      "bytes": 16237,
+      "sha256": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/identity.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/identity.rs",
+      "bytes": 2859,
+      "sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/input_identity.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/input_identity.rs",
+      "bytes": 7285,
+      "sha256": "6d19329c0728e4189f16593d76f3f270ca2df9494e8837f8a146b4df0e998455",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/javascript.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/javascript.rs",
+      "bytes": 49823,
+      "sha256": "73f679b7a86804fca8a0c7afa3c678b43f31de264657d1ddca79213fd01280e6",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/legacy_resolution.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/legacy_resolution.rs",
+      "bytes": 58144,
+      "sha256": "94e0436de9440c8cc77c2a4abebe5c72612ea5b9e4c64d892b0c355e92afcbe1",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/lib.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/lib.rs",
+      "bytes": 103,
+      "sha256": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/main.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/main.rs",
+      "bytes": 96382,
+      "sha256": "ea93d652a91248dda192e4dcb77e8f9925b7e84fc8c4f825d92898712c08e93a",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/ordinary.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/ordinary.rs",
+      "bytes": 67231,
+      "sha256": "6a28b56966fcda7d0e4d90dc9c0baf27fa26f62b64c85237226aa4ab506c9fa5",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/outline.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/outline.rs",
+      "bytes": 36401,
+      "sha256": "1dea2737e5d1f33604a045f52d4a4864ad85bc01833c02a7a789d8aecd74741c",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/primitive_observations.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/primitive_observations.rs",
+      "bytes": 22100,
+      "sha256": "26e13109961a68d8b88f10a0471571dad7be7d4a8ae8415a9fe99c730f1e7a50",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/qualified.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/qualified.rs",
+      "bytes": 151471,
+      "sha256": "01e93d020a13ad8b4c437ee320133399a9db8de8711a088d157f10e12fd9d662",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/receiver.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/receiver.rs",
+      "bytes": 76544,
+      "sha256": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/runtime_configuration.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/runtime_configuration.rs",
+      "bytes": 71034,
+      "sha256": "3ec763a02dc7ceb51358beeeac5f399fba460c85f421fdbd309bc3cb1f346e5b",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/source_text.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/source_text.rs",
+      "bytes": 2942,
+      "sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/wire.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/wire.rs",
+      "bytes": 2871,
+      "sha256": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/worker_observations.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/worker_observations.rs",
+      "bytes": 24978,
+      "sha256": "8455b1697f51233507eaf0d4a986171cf6cfebd74502e18cf9a3a40940960c5d",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/src/worker_response.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/src/worker_response.rs",
+      "bytes": 18071,
+      "sha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/tests/fixtures/native-development-flow/cases.json",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/tests/fixtures/native-development-flow/cases.json",
+      "bytes": 5639,
+      "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/tests/native_common_portability.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/tests/native_common_portability.rs",
+      "bytes": 7494,
+      "sha256": "90d946fc3d8b28b5fd67114df8044989ad994bd7dafb6fa7d0fac5eea94fb845",
+      "matchesFrozenManifest": true
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/source/tools/rust-ts-r0/tests/native_development_flow.rs",
+      "archiveMember": "frozen-sources/c1-pass2/tools/rust-ts-r0/tests/native_development_flow.rs",
+      "bytes": 47014,
+      "sha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762",
+      "matchesFrozenManifest": true
+    }
+  ],
+  "gitObjectSources": [
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "clippy.toml",
+      "archiveMember": "frozen-sources/c1-pass1/clippy.toml",
+      "bytes": 92,
+      "sha256": "637674406714e6494d5774cc85fb00303daafdeafb6520977d0cf1e9769f26ec",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "docs/research/rust-ts-r0/cases/sources/development-cases.json",
+      "archiveMember": "frozen-sources/c1-pass1/docs/research/rust-ts-r0/cases/sources/development-cases.json",
+      "bytes": 56848,
+      "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "rust-toolchain.toml",
+      "archiveMember": "frozen-sources/c1-pass1/rust-toolchain.toml",
+      "bytes": 86,
+      "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/Cargo.lock",
+      "archiveMember": "frozen-sources/c1-pass1/tools/gates/Cargo.lock",
+      "bytes": 5342,
+      "sha256": "d7c34e58e5bb2e5a0da55fad216b90a0eba6c6b612224be80a6e469ffe455277",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/Cargo.toml",
+      "archiveMember": "frozen-sources/c1-pass1/tools/gates/Cargo.toml",
+      "bytes": 862,
+      "sha256": "3011dca3a2ff977b1adda3931f1a1ce3a859e1f38bac747625c9a5304749ff26",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/process.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/gates/src/process.rs",
+      "bytes": 23993,
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/.gitignore",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/.gitignore",
+      "bytes": 32,
+      "sha256": "64c94088bff99e8f75106676fcbb9a8614d90105ec177ded0b63c44f967c3230",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/Cargo.lock",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/Cargo.lock",
+      "bytes": 22559,
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/Cargo.toml",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/Cargo.toml",
+      "bytes": 551,
+      "sha256": "4463a58893448d2faf6580925256fe64174302659a930d6f2eb963dd7006db3b",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+      "repositoryPath": "tools/rust-ts-r0/README.md",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/README.md",
+      "bytes": 2576,
+      "sha256": "512bc650cc8b077d1d9eba2db76290ecea1f18f6f27bba77d2e70fc3458cf1f4",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/builtin-modules.json",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/builtin-modules.json",
+      "bytes": 4535,
+      "sha256": "79db033d1873d73a41c2045fcb2bb893f8d0c7cf214a1f4b1d3b99cc562b7eb2",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/development/review-controls.json",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/development/review-controls.json",
+      "bytes": 3167,
+      "sha256": "705f985c832686b22bb35870f4cba6544a4f3e4c6719669f70db862e1b173991",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/provenance.json",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/provenance.json",
+      "bytes": 2563,
+      "sha256": "51f6fc05b14ca9f04d7410999e8ee2a608847f72ada973a21d0ed35c61d6780d",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/sdk/LICENSE.txt",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/sdk/LICENSE.txt",
+      "bytes": 9141,
+      "sha256": "527adf9d4c760f7367c2aeffed6a89afba8ba40ea1b0efbc8f56496ad30ea9cf",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/sdk/ThirdPartyNoticeText.txt",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/sdk/ThirdPartyNoticeText.txt",
+      "bytes": 37608,
+      "sha256": "f7d7409c091d9d5c09a8bafbc4a27dc30ce2da6e19b7c0f91c59754a7c4b195b",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/sdk/sdk-input.json",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/sdk/sdk-input.json",
+      "bytes": 3218481,
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/assembly.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/assembly.rs",
+      "bytes": 41032,
+      "sha256": "ab6612af4562e651ed3f7fb00122cd71cb5f689af9150edbf5dea7988041d799",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/batch.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/batch.rs",
+      "bytes": 12276,
+      "sha256": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/captured.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/captured.rs",
+      "bytes": 717,
+      "sha256": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/component_observations.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/component_observations.rs",
+      "bytes": 5397,
+      "sha256": "5f7051d69de1ca9a4b07738ec588a2da5757f4ab8cae8255bf36cab9423cdfa8",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/configuration.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/configuration.rs",
+      "bytes": 21629,
+      "sha256": "af4b8bd70fd1133eca067d84d82767d2f40b41afc8494ce0817fc92b799f0dd7",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/configured_resolver.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/configured_resolver.rs",
+      "bytes": 46400,
+      "sha256": "9662a49eb72ff114ecf054c99bf2db3d8a839aa81cb746c77ec7f4a2438199a0",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/development.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/development.rs",
+      "bytes": 2517,
+      "sha256": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/es5_helpers.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/es5_helpers.rs",
+      "bytes": 16237,
+      "sha256": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/identity.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/identity.rs",
+      "bytes": 2859,
+      "sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/javascript.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/javascript.rs",
+      "bytes": 43160,
+      "sha256": "d1d123c4567240bbce7228ff75ec2ec6fbad5055c6f3b5346151d16403948525",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/legacy_resolution.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/legacy_resolution.rs",
+      "bytes": 58144,
+      "sha256": "94e0436de9440c8cc77c2a4abebe5c72612ea5b9e4c64d892b0c355e92afcbe1",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/lib.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/lib.rs",
+      "bytes": 50,
+      "sha256": "ca837cdbbbf9eb7aa1ad2eb110f331ff02aa334cb2e7ea5a970f787695738dd8",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/main.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/main.rs",
+      "bytes": 75427,
+      "sha256": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/ordinary.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/ordinary.rs",
+      "bytes": 66070,
+      "sha256": "ee22fe8d5df67b31c7bc2c05434c36cc22910cecdd62c7537e84eca928b0cc50",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/outline.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/outline.rs",
+      "bytes": 36401,
+      "sha256": "1dea2737e5d1f33604a045f52d4a4864ad85bc01833c02a7a789d8aecd74741c",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/qualified.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/qualified.rs",
+      "bytes": 151471,
+      "sha256": "01e93d020a13ad8b4c437ee320133399a9db8de8711a088d157f10e12fd9d662",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/receiver.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/receiver.rs",
+      "bytes": 76544,
+      "sha256": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/runtime_configuration.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/runtime_configuration.rs",
+      "bytes": 71034,
+      "sha256": "3ec763a02dc7ceb51358beeeac5f399fba460c85f421fdbd309bc3cb1f346e5b",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/source_text.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/source_text.rs",
+      "bytes": 2942,
+      "sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/src/wire.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/src/wire.rs",
+      "bytes": 2871,
+      "sha256": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/tests/fixtures/native-development-flow/cases.json",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/tests/fixtures/native-development-flow/cases.json",
+      "bytes": 5639,
+      "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/rust-ts-r0/tests/native_common_portability.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/tests/native_common_portability.rs",
+      "bytes": 7494,
+      "sha256": "90d946fc3d8b28b5fd67114df8044989ad994bd7dafb6fa7d0fac5eea94fb845",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+      "repositoryPath": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "archiveMember": "frozen-sources/c1-pass1/tools/rust-ts-r0/tests/native_development_flow.rs",
+      "bytes": 38768,
+      "sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+      "matchesFrozenManifest": true
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/Cargo.lock",
+      "archiveMember": "supporting-gates-source/tools/gates/Cargo.lock",
+      "bytes": 5342,
+      "sha256": "d7c34e58e5bb2e5a0da55fad216b90a0eba6c6b612224be80a6e469ffe455277",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/Cargo.toml",
+      "archiveMember": "supporting-gates-source/tools/gates/Cargo.toml",
+      "bytes": 862,
+      "sha256": "3011dca3a2ff977b1adda3931f1a1ce3a859e1f38bac747625c9a5304749ff26",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/lib.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/src/lib.rs",
+      "bytes": 264,
+      "sha256": "b3941c8a830199f8913ef7ff1b379a3c163a7cfb94dfbd6c761ff4634992925f",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/main.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/src/main.rs",
+      "bytes": 9218,
+      "sha256": "dbeb66f67bf8973e7ef7116a9d00e1fb0857121e44e14752447c5aa261a72a6e",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/plan.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/src/plan.rs",
+      "bytes": 13122,
+      "sha256": "98b3c3f8fe3e314839e01ce21bff63b45af08954a58d0fc9e4a81f0a6b619084",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/process.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/src/process.rs",
+      "bytes": 23993,
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/receipt.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/src/receipt.rs",
+      "bytes": 20753,
+      "sha256": "27509340a5c239a3031c9e7f2735402a0931089514c0bc4b0f97bfb0ef318f4b",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/src/rust_workspace.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/src/rust_workspace.rs",
+      "bytes": 9770,
+      "sha256": "d7ffeb14b2f74494d3d4ddc01ccc438b0d5dac841f4f4f80562588e6b00af053",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    },
+    {
+      "repository": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+      "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+      "repositoryPath": "tools/gates/tests/support/fixture.rs",
+      "archiveMember": "supporting-gates-source/tools/gates/tests/support/fixture.rs",
+      "bytes": 7605,
+      "sha256": "023a2c300e4eb821c347f9fa2a55342ddadf5a65ff39d4911d1e90f0f149e9c7",
+      "scope": "local path dependency completion from published checkpoint; separate from original frozen manifests"
+    }
+  ],
+  "intentionalBinaryOmissions": [
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-r0-probe",
+      "role": "optimized candidate",
+      "bytes": 31252624,
+      "sha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+      "reason": "original selected native binary omitted; original byte identity required for historical replay"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/bin/semctx-gates",
+      "role": "independent #383 supervisor",
+      "bytes": 1157952,
+      "sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+      "reason": "original selected native binary omitted; original byte identity required for historical replay"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/bin/semctx-r0-probe",
+      "role": "optimized candidate",
+      "bytes": 32743824,
+      "sha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+      "reason": "original selected native binary omitted; original byte identity required for historical replay"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/selected-c1-pass2/bin/semctx-gates",
+      "role": "independent #383 supervisor",
+      "bytes": 1157952,
+      "sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+      "reason": "original selected native binary omitted; original byte identity required for historical replay"
+    }
+  ],
+  "frozenSourceValidation": {
+    "pass1": 39,
+    "pass2": 44,
+    "allMatch": true
+  },
+  "pendingCanonicalVerification": "Four current verify-integrated-p2-*-generated.log streams excluded. Root reports a current shard4 analyzer-identity-generated.ts parity failure after exact pins; native regeneration remains pending at this documentary checkpoint. No final result inferred.",
+  "reservedAccess": false
+}

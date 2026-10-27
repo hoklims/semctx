@@ -1,0 +1,6624 @@
+use semctx_gates::process;
+use semctx_r0_probe::identity;
+mod ambiguous_exports_replay;
+mod identity_support_replay;
+mod legacy_identity_replay;
+mod parallel_replay;
+mod qualified_flow_replay;
+mod reader_error_replay;
+#[path = "../tests/support/receiver_context.rs"]
+mod receiver_context;
+mod repository_replay;
+mod retained_runtime_replay;
+mod source_confinement_replay;
+mod suite_replay;
+#[path = "../tests/support/transport_process.rs"]
+mod transport_process;
+mod workspace_system_replay;
+use serde_json::{Value, json};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fs,
+    io::Write,
+    path::{Path, PathBuf},
+    time::{SystemTime, UNIX_EPOCH},
+};
+
+fn sha(bytes: &[u8]) -> String {
+    identity::digest_bytes(bytes)
+        .trim_start_matches("sha256:")
+        .into()
+}
+fn read_json(path: &Path) -> Result<Value, String> {
+    serde_json::from_slice(&fs::read(path).map_err(|e| e.to_string())?).map_err(|e| e.to_string())
+}
+fn save(path: &Path, value: &Value) -> Result<(), String> {
+    fs::write(
+        path,
+        serde_json::to_vec_pretty(value).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())
+}
+fn value_text<'a>(v: &'a Value, key: &str) -> Result<&'a str, String> {
+    v.get(key)
+        .and_then(Value::as_str)
+        .ok_or_else(|| format!("missing string {key}"))
+}
+fn exact_hash(path: &Path, expected: &str) -> Result<String, String> {
+    let actual = sha(&fs::read(path).map_err(|e| format!("{}: {e}", path.display()))?);
+    if actual != expected.trim_start_matches("sha256:") {
+        return Err(format!("identity mismatch: {}", path.display()));
+    }
+    Ok(actual)
+}
+fn select<'a>(root: &'a Value, steps: &[Value]) -> Result<&'a Value, String> {
+    let mut cursor = root;
+    for step in steps {
+        if let Some(key) = step.as_str() {
+            cursor = cursor
+                .get(key)
+                .ok_or_else(|| format!("missing observed field {key}"))?;
+        } else if let Some(index) = step.as_u64() {
+            cursor = cursor
+                .get(index as usize)
+                .ok_or_else(|| format!("missing observed index {index}"))?;
+        } else if let Some(filter) = step.as_object() {
+            let values = cursor
+                .as_array()
+                .ok_or("selector requires observed array")?;
+            let found = values
+                .iter()
+                .filter(|v| filter.iter().all(|(k, x)| v.get(k) == Some(x)))
+                .collect::<Vec<_>>();
+            if found.len() != 1 {
+                return Err(format!(
+                    "selector expected one observed value, found {}",
+                    found.len()
+                ));
+            }
+            cursor = found[0];
+        } else {
+            return Err("invalid adapter selector".into());
+        }
+    }
+    Ok(cursor)
+}
+fn projected_eq(actual: &Value, expected: &Value) -> bool {
+    match expected {
+        Value::Object(fields) => actual.as_object().is_some_and(|a| {
+            fields.iter().all(|(k, v)| {
+                if v == &json!({"$field_absent":true}) {
+                    !a.contains_key(k)
+                } else {
+                    a.get(k).is_some_and(|av| projected_eq(av, v))
+                }
+            })
+        }),
+        Value::Array(values) => actual.as_array().is_some_and(|a| {
+            a.len() == values.len() && a.iter().zip(values).all(|(av, ev)| projected_eq(av, ev))
+        }),
+        _ => actual == expected,
+    }
+}
+fn injective_matches(actual: &[Value], expected: &[Value]) -> bool {
+    fn augment(
+        e: usize,
+        a: &[Value],
+        b: &[Value],
+        seen: &mut [bool],
+        owners: &mut [Option<usize>],
+    ) -> bool {
+        for n in 0..a.len() {
+            if !seen[n] && projected_eq(&a[n], &b[e]) {
+                seen[n] = true;
+                if owners[n].is_none() || augment(owners[n].unwrap(), a, b, seen, owners) {
+                    owners[n] = Some(e);
+                    return true;
+                }
+            }
+        }
+        false
+    }
+    let mut owners = vec![None; actual.len()];
+    (0..expected.len()).all(|e| {
+        augment(
+            e,
+            actual,
+            expected,
+            &mut vec![false; actual.len()],
+            &mut owners,
+        )
+    })
+}
+fn clone_field(object: &mut serde_json::Map<String, Value>, value: &Value, to: &str, from: &str) {
+    if let Some(v) = value.get(from) {
+        object.insert(to.into(), v.clone());
+    }
+}
+fn transform(actual: &Value, name: &str) -> Result<Value, String> {
+    if name == "none" {
+        return Ok(actual.clone());
+    }
+    if name == "baseline_raw_extraction" {
+        let mut projected = actual.clone();
+        let object = projected
+            .as_object_mut()
+            .ok_or("missing native extraction")?;
+        for key in ["modules", "symbols", "imports", "calls"] {
+            let rows = object
+                .get_mut(key)
+                .and_then(Value::as_array_mut)
+                .ok_or("missing extraction collection")?;
+            if key == "symbols" {
+                for row in rows.iter_mut() {
+                    let fields = row.as_object_mut().ok_or("malformed native symbol")?;
+                    fields.remove("startUtf16");
+                    fields.remove("endUtf16");
+                }
+            }
+            rows.sort_by_key(Value::to_string);
+        }
+        return Ok(projected);
+    }
+    if name == "outline_without_digest_bytes" {
+        let mut outline = actual.clone();
+        let statements = outline["statements"]
+            .as_array_mut()
+            .ok_or("missing native outline statements")?;
+        for statement in statements {
+            if statement["digest"].as_str().is_none_or(str::is_empty) {
+                return Err("missing native structural digest".into());
+            }
+            statement
+                .as_object_mut()
+                .ok_or("malformed native statement")?
+                .remove("digest");
+        }
+        return Ok(outline);
+    }
+    if name == "native_capability_dialect_versions" {
+        let version = value_text(actual, "native_compiler_version")?;
+        if version.is_empty() {
+            return Err("native compiler identity is empty".into());
+        }
+        let subjects = actual["subjects"]
+            .as_array()
+            .filter(|v| !v.is_empty())
+            .ok_or("native dialect capability inventory missing")?;
+        let mut paths = BTreeSet::new();
+        let mut versions = BTreeSet::new();
+        for subject in subjects {
+            if !paths.insert(value_text(subject, "path")?)
+                || subject["selection"] != "selected"
+                || subject["outcome"] != "analyzed"
+                || subject["sourceFileObservation"]["executed"] != true
+                || subject["sourceFileObservation"]["unsupported"] != json!([])
+                || !matches!(
+                    subject["capabilityScope"]["language"].as_str(),
+                    Some("typescript" | "javascript")
+                )
+                || subject["capabilityScope"]["dialectVersion"] != version
+            {
+                return Err(
+                    "native dialect capability is incomplete, unexecuted or foreign".into(),
+                );
+            }
+            versions.insert(version);
+        }
+        return Ok(json!(versions));
+    }
+    if let Some(path) = name.strip_prefix("opaque_ownership_graph_binding:") {
+        if path.is_empty() {
+            return Err("missing ownership subject path".into());
+        }
+        let graph = actual.get("assembly").ok_or("missing actual assembly")?;
+        for field in ["nodes", "edges"] {
+            graph[field]
+                .as_array()
+                .ok_or("missing actual graph inventory")?;
+        }
+        let observed = select(
+            actual,
+            &[
+                json!("subjects"),
+                json!({"path":path}),
+                json!("opaqueCallbackOwnership"),
+            ],
+        )?;
+        if observed["executed"] != true
+            || observed["unsupported"] != json!([])
+            || observed["observationScope"] != "native_module_configuration_graph_ownership"
+            || observed["globalAdmissionInferred"] != false
+            || observed["graphBeforeEdgeRemovalId"] != identity::digest(graph)
+        {
+            return Err("ownership observation lacks actual graph binding".into());
+        }
+        let mut removed = graph.clone();
+        removed["edges"] = json!([]);
+        if observed["graphAfterEdgeRemovalId"] != identity::digest(&removed) {
+            return Err("ownership removal does not bind the actual edge-free graph".into());
+        }
+        return Ok(json!(true));
+    }
+    if let Some(path) = name.strip_prefix("qualified_test_integrity_reasons:") {
+        if path.is_empty() {
+            return Err("missing actual test owner path".into());
+        }
+        let nodes = actual["nodes"]
+            .as_array()
+            .ok_or("missing actual graph nodes")?;
+        if nodes
+            .iter()
+            .filter(|node| node["kind"] == "test" && node["filePath"] == path)
+            .count()
+            != 1
+        {
+            return Err("integrity reasons require one actual test owner".into());
+        }
+        let reasons = actual["integrityReasons"]
+            .as_object()
+            .ok_or("missing complete actual integrity map")?;
+        if reasons.values().any(|values| {
+            values
+                .as_array()
+                .is_none_or(|values| values.iter().any(|value| !value.is_string()))
+        }) {
+            return Err("malformed actual integrity reason list".into());
+        }
+        return Ok(reasons.get(path).cloned().unwrap_or_else(|| json!([])));
+    }
+    if [
+        "logical_coverage_edges",
+        "logical_import_edges",
+        "logical_call_edges",
+    ]
+    .contains(&name)
+    {
+        let nodes = actual["nodes"]
+            .as_array()
+            .ok_or("missing actual graph nodes")?;
+        let symbols = actual["symbols"]
+            .as_array()
+            .ok_or("missing actual grouped symbols")?;
+        let coordinate = |id: &Value| -> Result<Value, String> {
+            let matches = nodes
+                .iter()
+                .filter(|n| n.get("id") == Some(id))
+                .collect::<Vec<_>>();
+            if matches.len() != 1 {
+                return Err("graph endpoint does not identify one actual node".into());
+            }
+            let node = matches[0];
+            let path = value_text(node, "filePath")?;
+            if node["kind"] == "test" {
+                return Ok(json!({"path":path,"test_node":true}));
+            }
+            if node["kind"] == "module" {
+                return Ok(json!({"path":path,"module_node":true}));
+            }
+            let matches = symbols
+                .iter()
+                .filter(|n| n.get("id") == Some(id))
+                .collect::<Vec<_>>();
+            if matches.len() != 1 {
+                return Err("symbol endpoint lacks unique actual logical coordinate".into());
+            }
+            let symbol = matches[0];
+            let mut names = symbol["scope"]
+                .as_array()
+                .ok_or("missing symbol scope")?
+                .iter()
+                .map(|s| s.as_str().ok_or("invalid scope"))
+                .collect::<Result<Vec<_>, _>>()?;
+            names.push(value_text(symbol, "name")?);
+            Ok(json!({"path":path,"symbol_path":names.join(".")}))
+        };
+        let mut values = vec![];
+        for edge in actual["edges"]
+            .as_array()
+            .ok_or("missing actual graph edges")?
+        {
+            let kind = value_text(edge, "kind")?;
+            if if name == "logical_coverage_edges" {
+                !["covers", "tested_by"].contains(&kind)
+            } else if name == "logical_import_edges" {
+                kind != "imports"
+            } else {
+                kind != "calls"
+            } {
+                continue;
+            }
+            values.push(json!({"kind":kind,"from":coordinate(&edge["from"])?,"to":coordinate(&edge["to"])?}));
+        }
+        return Ok(json!(values));
+    }
+    let values = actual
+        .as_array()
+        .ok_or("adapter transform requires observed array")?;
+    if name == "reason_prefix" {
+        return values
+            .iter()
+            .map(|v| {
+                let text = v.as_str().ok_or("malformed native reason string")?;
+                let (prefix, _) = text
+                    .split_once(':')
+                    .ok_or("native reason lacks declared prefix separator")?;
+                Ok(json!(prefix))
+            })
+            .collect::<Result<Vec<_>, String>>()
+            .map(Value::Array);
+    }
+    if name == "configuration_diagnostic_projection" {
+        let mut diagnostics = vec![];
+        for value in values {
+            let reason = value
+                .as_str()
+                .ok_or("malformed native configuration reason")?;
+            if let Some(detail) = reason.strip_prefix("SOURCE_CONFIGURATION_INVALID:") {
+                let (code, _) = detail
+                    .split_once(':')
+                    .ok_or("native configuration diagnostic lacks message separator")?;
+                let code = code
+                    .parse::<u32>()
+                    .map_err(|_| "native configuration diagnostic code malformed")?;
+                diagnostics.push(json!({"reason":"SOURCE_CONFIGURATION_INVALID","code":code}));
+            }
+        }
+        return Ok(json!(diagnostics));
+    }
+    if let Some(field) = name.strip_prefix("pluck:") {
+        return values
+            .iter()
+            .map(|v| {
+                v.get(field)
+                    .cloned()
+                    .ok_or_else(|| format!("missing actual projection field {field}"))
+            })
+            .collect::<Result<Vec<_>, _>>()
+            .map(Value::Array);
+    }
+    if name == "statement_line_triples" {
+        return values
+            .iter()
+            .map(|v| {
+                Ok(json!([
+                    v.get("startLine").ok_or("missing startLine")?,
+                    v.get("endLine").ok_or("missing endLine")?,
+                    v.get("leadingStartLine")
+                        .ok_or("missing leadingStartLine")?
+                ]))
+            })
+            .collect::<Result<Vec<Value>, String>>()
+            .map(Value::Array);
+    }
+    let mut result = vec![];
+    for value in values {
+        if name == "symbol_coordinates" {
+            let path = value.get("relPath").ok_or("missing symbol path")?;
+            let mut parts = value
+                .get("scope")
+                .and_then(Value::as_array)
+                .cloned()
+                .ok_or("missing symbol scope")?;
+            parts.push(value.get("name").ok_or("missing symbol name")?.clone());
+            let names = parts
+                .iter()
+                .map(|p| p.as_str().ok_or("invalid symbol scope"))
+                .collect::<Result<Vec<_>, _>>()?;
+            result.push(json!([path, names.join(".")]));
+            continue;
+        }
+        if name == "binding_aliases" {
+            let Some(bindings) = value.get("bindingTargets") else {
+                continue;
+            };
+            for binding in bindings.as_array().ok_or("invalid bindingTargets")? {
+                let mut object = binding
+                    .as_object()
+                    .cloned()
+                    .ok_or("invalid binding target")?;
+                clone_field(&mut object, value, "importer", "fromRelPath");
+                if let (Some(p), Some(s)) = (binding.get("relPath"), binding.get("symbolPath")) {
+                    object.insert("target".into(), json!([p, s]));
+                }
+                result.push(Value::Object(object));
+            }
+            continue;
+        }
+        let mut object = value
+            .as_object()
+            .cloned()
+            .ok_or("invalid observed object")?;
+        match name {
+            "symbol_aliases" => clone_field(&mut object, value, "path", "relPath"),
+            "import_aliases" => {
+                for (to, from) in [
+                    ("from", "fromRelPath"),
+                    ("specifier", "moduleSpecifier"),
+                    ("resolved", "resolvedRelPath"),
+                ] {
+                    clone_field(&mut object, value, to, from);
+                }
+            }
+            "call_aliases" | "public_call_aliases" => {
+                for (to, from) in [
+                    ("caller_path", "callerRelPath"),
+                    ("caller_symbol", "callerSymbolPath"),
+                    ("callee_path", "calleeRelPath"),
+                    ("callee_symbol", "calleeSymbolPath"),
+                ] {
+                    clone_field(&mut object, value, to, from);
+                }
+                if let (Some(p), Some(s)) =
+                    (value.get("callerRelPath"), value.get("callerSymbolPath"))
+                {
+                    object.insert("caller".into(), json!([p, s]));
+                }
+                if let (Some(p), Some(s)) =
+                    (value.get("calleeRelPath"), value.get("calleeSymbolPath"))
+                {
+                    object.insert("callee".into(), json!([p, s]));
+                }
+            }
+            _ => return Err(format!("unknown adapter transform {name}")),
+        }
+        result.push(Value::Object(object));
+    }
+    Ok(Value::Array(result))
+}
+fn confined_coordinate(path: &str) -> bool {
+    !path.starts_with('/')
+        && !path.starts_with('\\')
+        && !path.split(['/', '\\']).any(|part| part == "..")
+        && path.as_bytes().get(1).is_none_or(|byte| *byte != b':')
+}
+fn compare(actual: &Value, expected: &Value, mode: &str) -> Result<bool, String> {
+    match mode {
+        "eq" => Ok(actual == expected),
+        "neq" => Ok(actual != expected),
+        "contains_text" => Ok(actual
+            .as_str()
+            .ok_or("expected observed error string")?
+            .contains(expected.as_str().ok_or("expected frozen error substring")?)),
+        "prefix_count" => {
+            let rows = actual.as_array().ok_or("missing observed rows")?;
+            let prefix = value_text(expected, "prefix")?;
+            let count = expected["count"].as_u64().ok_or("missing expected count")?;
+            let ids = rows
+                .iter()
+                .map(|n| value_text(n, "id"))
+                .collect::<Result<Vec<_>, _>>()?;
+            Ok(ids.iter().filter(|id| id.starts_with(prefix)).count() as u64 == count)
+        }
+        "ordered_projected_eq" => Ok(projected_eq(actual, expected)),
+        "unordered_projected_eq" | "contains_projected" | "excludes_projected" => {
+            let a = actual.as_array().ok_or("expected observed array")?;
+            let e = expected.as_array().ok_or("expected frozen array")?;
+            Ok(match mode {
+                "unordered_projected_eq" => a.len() == e.len() && injective_matches(a, e),
+                "contains_projected" => injective_matches(a, e),
+                _ => !a.iter().any(|v| e.iter().any(|x| projected_eq(v, x))),
+            })
+        }
+        "indexed_field_absences" => {
+            let a = actual.as_array().ok_or("expected observed binding list")?;
+            let entries = expected.as_array().ok_or("expected indexed absence list")?;
+            for e in entries {
+                let index = e["index"].as_u64().ok_or("missing binding index")? as usize;
+                let object = a
+                    .get(index)
+                    .and_then(Value::as_object)
+                    .ok_or("missing observed binding index")?;
+                for field in e["fields"].as_array().ok_or("missing absence fields")? {
+                    if object.contains_key(field.as_str().ok_or("invalid absence field")?) {
+                        return Ok(false);
+                    }
+                }
+            }
+            Ok(true)
+        }
+        "all_fields_absent" => {
+            let a = actual.as_array().ok_or("expected observed array")?;
+            let e = expected.as_array().ok_or("expected frozen field list")?;
+            Ok(a.iter().all(|v| {
+                v.as_object().is_some_and(|o| {
+                    e.iter()
+                        .all(|k| k.as_str().is_some_and(|s| !o.contains_key(s)))
+                })
+            }))
+        }
+        "reason_constraints" => {
+            let a = actual.as_array().ok_or("expected observed reason list")?;
+            if a.iter().any(|v| !v.is_string()) {
+                return Err("malformed observed reason".into());
+            }
+            let e = expected.as_object().ok_or("expected frozen constraints")?;
+            let supported = [
+                "contains",
+                "excludes",
+                "exact_set",
+                "contains_prefix",
+                "global_admission_inferred",
+            ];
+            if e.get("global_admission_inferred")
+                .is_some_and(|v| v != &Value::Bool(false))
+            {
+                return Err("a reason projection cannot infer global admission".into());
+            }
+            if let Some(k) = e.keys().find(|k| !supported.contains(&k.as_str())) {
+                return Err(format!("unmapped reason constraint {k}"));
+            }
+            let list = |key: &str| -> Result<Vec<String>, String> {
+                match e.get(key) {
+                    None | Some(Value::Null) => Ok(vec![]),
+                    Some(v) => v
+                        .as_array()
+                        .ok_or_else(|| format!("invalid constraint {key}"))?
+                        .iter()
+                        .map(|x| {
+                            x.as_str()
+                                .map(str::to_string)
+                                .ok_or_else(|| format!("invalid constraint value {key}"))
+                        })
+                        .collect(),
+                }
+            };
+            let contains = list("contains")?;
+            let excludes = list("excludes")?;
+            let prefixes = list("contains_prefix")?;
+            let mut ok = contains
+                .iter()
+                .all(|e| a.iter().any(|v| v.as_str() == Some(e)))
+                && excludes
+                    .iter()
+                    .all(|e| a.iter().all(|v| v.as_str() != Some(e)))
+                && prefixes
+                    .iter()
+                    .all(|e| a.iter().any(|v| v.as_str().unwrap().starts_with(e)));
+            if let Some(exact) = e.get("exact_set").filter(|v| !v.is_null()) {
+                let exact = exact.as_array().ok_or("invalid exact reason set")?;
+                let av = a
+                    .iter()
+                    .map(|v| v.as_str().unwrap())
+                    .collect::<BTreeSet<_>>();
+                let ev = exact
+                    .iter()
+                    .map(|v| v.as_str().ok_or("invalid exact reason"))
+                    .collect::<Result<BTreeSet<_>, _>>()?;
+                ok &= av == ev && av.len() == a.len();
+            }
+            Ok(ok)
+        }
+        "confined_paths" => {
+            fn confined(v: &Value) -> bool {
+                match v {
+                    Value::Object(o) => o.iter().all(|(k, x)| {
+                        if [
+                            "relPath",
+                            "fromRelPath",
+                            "resolvedRelPath",
+                            "callerRelPath",
+                            "calleeRelPath",
+                        ]
+                        .contains(&k.as_str())
+                        {
+                            x.as_str().is_some_and(confined_coordinate)
+                        } else {
+                            confined(x)
+                        }
+                    }),
+                    Value::Array(a) => a.iter().all(confined),
+                    _ => true,
+                }
+            }
+            Ok(expected == &Value::Bool(true) && confined(actual))
+        }
+        _ => Err(format!("unimplemented comparator {mode}")),
+    }
+}
+fn evaluate(observed: &Value, check: &Value) -> Value {
+    let result = (|| -> Result<bool, String> {
+        let steps = check
+            .get("target")
+            .and_then(Value::as_array)
+            .ok_or("missing adapter selector")?;
+        validate_reason_routing(check)?;
+        let actual = select(observed, steps)?;
+        let filtered = if let Some(filter) = check.get("actual_filter") {
+            let f = filter
+                .as_object()
+                .ok_or("invalid explicit projection filter")?;
+            Value::Array(
+                actual
+                    .as_array()
+                    .ok_or("filter requires observed array")?
+                    .iter()
+                    .filter(|v| f.iter().all(|(k, e)| v.get(k) == Some(e)))
+                    .cloned()
+                    .collect(),
+            )
+        } else {
+            actual.clone()
+        };
+        let filtered = if let Some(prefixes) = check.get("actual_filter_prefix") {
+            let fields = prefixes.as_object().ok_or("invalid prefix filter")?;
+            Value::Array(
+                filtered
+                    .as_array()
+                    .ok_or("prefix filter requires observed array")?
+                    .iter()
+                    .filter(|v| {
+                        fields.iter().all(|(k, p)| {
+                            v.get(k)
+                                .and_then(Value::as_str)
+                                .zip(p.as_str())
+                                .is_some_and(|(v, p)| v.starts_with(p))
+                        })
+                    })
+                    .cloned()
+                    .collect(),
+            )
+        } else {
+            filtered
+        };
+        let transformed = transform(&filtered, value_text(check, "actual_transform")?)?;
+        compare(
+            &transformed,
+            check.get("expected").ok_or("missing frozen expected")?,
+            value_text(check, "mode")?,
+        )
+    })();
+    match result {
+        Ok(true) => json!({"state":"PASS_PROJECTED_PROPERTY"}),
+        Ok(false) => json!({"state":"MISMATCH"}),
+        Err(error) => json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":error}),
+    }
+}
+fn join_successful_reads(observed: &Value, request: &Value, sdk: &Value) -> Result<Value, String> {
+    let mut known = BTreeMap::new();
+    for field in [request.get("files"), sdk.get("files")] {
+        for (path, text) in field
+            .and_then(Value::as_object)
+            .ok_or("missing input file map")?
+        {
+            known.insert(
+                path.clone(),
+                identity::digest_bytes(
+                    text.as_str().ok_or("non-string captured input")?.as_bytes(),
+                ),
+            );
+        }
+    }
+    let probes = observed
+        .get("capture_probes")
+        .and_then(Value::as_array)
+        .ok_or("missing real capture probes")?;
+    let mut reads = BTreeSet::new();
+    for probe in probes {
+        let op = value_text(probe, "operation")?;
+        let successful = op == "read_file" && probe.get("found") == Some(&Value::Bool(true));
+        if successful {
+            let path = value_text(probe, "path")?;
+            let content = value_text(probe, "content_id")?;
+            if known.get(path).map(String::as_str) != Some(content) {
+                return Err(format!(
+                    "successful read does not join captured input: {path}"
+                ));
+            }
+            reads.insert(path.to_string());
+        } else if probe.get("content_id").is_some_and(|v| !v.is_null()) {
+            return Err("content identity claimed for a non-read".into());
+        }
+    }
+    Ok(
+        json!({"state":"JOINED_REPORTED_SUCCESSFUL_READS_ONLY","read_paths":reads,"supplied_sdk_files":sdk["files"].as_object().unwrap().len(),"all_supplied_sdk_consumed_claimed":false,"os_sandbox_claimed":false}),
+    )
+}
+fn safe_relative(path: &str) -> bool {
+    !path.is_empty()
+        && !Path::new(path).is_absolute()
+        && !path.split(['/', '\\']).any(|p| p == "..")
+        && path.as_bytes().get(1).is_none_or(|c| *c != b':')
+}
+fn materialize(template: &Value, root: &Path, case_sensitive: bool) -> Result<Value, String> {
+    let cwd = std::path::absolute(root)
+        .map_err(|e| e.to_string())?
+        .to_string_lossy()
+        .replace('\\', "/");
+    let mut request = template.clone();
+    let siblings = request
+        .as_object_mut()
+        .ok_or("prepared input must be object")?
+        .remove("outside_root_retained_files")
+        .unwrap_or_else(|| json!({}));
+    let siblings = siblings.as_object().ok_or("invalid sibling capture map")?;
+    let mut files = serde_json::Map::new();
+    for (path, text) in template["files"]
+        .as_object()
+        .ok_or("missing prepared input files")?
+    {
+        if !safe_relative(path) {
+            return Err("authored path needs explicit root recipe".into());
+        }
+        let target = root.join(path);
+        fs::create_dir_all(target.parent().unwrap()).map_err(|e| e.to_string())?;
+        fs::write(
+            &target,
+            text.as_str()
+                .ok_or("prepared source must be string")?
+                .as_bytes(),
+        )
+        .map_err(|e| e.to_string())?;
+        files.insert(format!("{cwd}/{path}"), text.clone());
+    }
+    if !siblings.is_empty() {
+        let parent = root.canonicalize().map_err(|e| e.to_string())?;
+        let parent = parent.parent().ok_or("missing input envelope")?;
+        for (path, text) in siblings {
+            let name = path
+                .strip_prefix("../")
+                .filter(|name| {
+                    safe_relative(name)
+                        && *name != "."
+                        && !name.contains('/')
+                        && !name.contains('\\')
+                })
+                .ok_or("outside capture requires a direct sibling filename")?;
+            let text = text.as_str().ok_or("sibling capture must be string")?;
+            let target = parent.join(name);
+            let key = Path::new(&cwd)
+                .parent()
+                .ok_or("missing logical input envelope")?
+                .join(name)
+                .to_string_lossy()
+                .replace('\\', "/");
+            if files.contains_key(&key) {
+                return Err("sibling capture conflicts with prepared source".into());
+            }
+            fs::OpenOptions::new()
+                .create_new(true)
+                .write(true)
+                .open(&target)
+                .and_then(|mut file| file.write_all(text.as_bytes()))
+                .map_err(|e| e.to_string())?;
+            files.insert(key, json!(text));
+        }
+    }
+    let roots = template["roots"]
+        .as_array()
+        .ok_or("missing prepared roots")?
+        .iter()
+        .map(|p| {
+            p.as_str()
+                .filter(|p| safe_relative(p))
+                .map(|p| json!(format!("{cwd}/{p}")))
+                .ok_or("invalid prepared root")
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    request["files"] = Value::Object(files);
+    request["roots"] = Value::Array(roots);
+    request["cwd"] = json!(cwd);
+    request["case_sensitive"] = json!(case_sensitive);
+    Ok(request)
+}
+fn verify_sources(base: &Path, recipes: &Value) -> Result<(), String> {
+    exact_hash(
+        &base.join("index.json"),
+        value_text(recipes, "source_index_sha256")?,
+    )?;
+    for reference in recipes["immutable_sources"]
+        .as_object()
+        .ok_or("missing frozen source refs")?
+        .values()
+    {
+        let path = value_text(reference, "path")?;
+        if !safe_relative(path) {
+            return Err("invalid frozen source path".into());
+        }
+        exact_hash(&base.join(path), value_text(reference, "sha256")?)?;
+    }
+    Ok(())
+}
+fn evaluate_relation(observations: &[Value], relation: &Value) -> Value {
+    let result = (|| -> Result<bool, String> {
+        let left = relation["left_observation"]
+            .as_u64()
+            .ok_or("missing left observation")? as usize;
+        let right = relation["right_observation"]
+            .as_u64()
+            .ok_or("missing right observation")? as usize;
+        let target = relation["target"]
+            .as_array()
+            .ok_or("missing relation target")?;
+        let mut a = transform(
+            select(
+                observations
+                    .get(left)
+                    .ok_or("missing left native observation")?,
+                target,
+            )?,
+            value_text(relation, "transform")?,
+        )?;
+        let mut b = transform(
+            select(
+                observations
+                    .get(right)
+                    .ok_or("missing right native observation")?,
+                target,
+            )?,
+            value_text(relation, "transform")?,
+        )?;
+        if relation["first_only"] == true {
+            a = a
+                .as_array()
+                .and_then(|v| v.first())
+                .cloned()
+                .ok_or("missing first actual left value")?;
+            b = b
+                .as_array()
+                .and_then(|v| v.first())
+                .cloned()
+                .ok_or("missing first actual right value")?;
+        }
+        if let Some(expected) = relation["expected_equal"].as_bool() {
+            return Ok((a == b) == expected);
+        }
+        let expected = relation["expected_equal"]
+            .as_array()
+            .ok_or("missing frozen pairwise relation")?;
+        let av = a.as_array().ok_or("missing actual left collection")?;
+        let bv = b.as_array().ok_or("missing actual right collection")?;
+        Ok(av.len() == expected.len()
+            && bv.len() == expected.len()
+            && av
+                .iter()
+                .zip(bv)
+                .zip(expected)
+                .all(|((a, b), e)| e.as_bool() == Some(a == b)))
+    })();
+    match result {
+        Ok(true) => json!({"state":"PASS_PROJECTED_PROPERTY"}),
+        Ok(false) => json!({"state":"MISMATCH"}),
+        Err(error) => json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":error}),
+    }
+}
+fn raw_execution_limits(recipe: &Value) -> Result<(u64, usize), String> {
+    let Some(limits) = recipe.get("execution_limits") else {
+        return Ok((20_000, 8_388_608));
+    };
+    let object = limits
+        .as_object()
+        .ok_or("raw execution limits must be an object")?;
+    if object.len() != 2 || !object.contains_key("timeout_ms") || !object.contains_key("output_cap")
+    {
+        return Err("raw execution limits require exactly timeout_ms/output_cap".into());
+    }
+    let timeout = limits["timeout_ms"]
+        .as_u64()
+        .filter(|value| (1..=20_000).contains(value))
+        .ok_or("invalid raw timeout")?;
+    let cap = limits["output_cap"]
+        .as_u64()
+        .filter(|value| (1..=8_388_608).contains(value))
+        .ok_or("invalid raw output cap")?;
+    Ok((
+        timeout,
+        usize::try_from(cap).map_err(|_| "raw output cap overflow")?,
+    ))
+}
+
+fn version_arbitration(recipe: &Value, observations: &[Value], bindings_verified: bool) -> Value {
+    if !bindings_verified || observations.len() != 1 || ts_goport::core::version() != "7.1.0-dev" {
+        return Value::Null;
+    }
+    let observed = &observations[0];
+    let signature = identity::digest(recipe);
+    // T00-ARB-002/003/004 in docs/research/rust-ts-r0/arbitrations.json preserve raw NONPASS and allow only these individually demonstrated differences.
+    let (id, mismatches, observed_difference): (&str, &[usize], bool) = match signature.as_str() {
+        "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353" => {
+            let output = select(
+                observed,
+                &[
+                    json!("subjects"),
+                    json!({"path":"main.ts"}),
+                    json!("runtimeConfiguration"),
+                    json!("emission"),
+                    json!("observation"),
+                    json!("output_text"),
+                ],
+            )
+            .ok()
+            .and_then(Value::as_str);
+            (
+                "T00-ARB-003",
+                &[7],
+                output.is_some_and(|text| {
+                    sha(text.as_bytes())
+                        == "d8c5cf03fd65d07f2096cba9250704d347f00e25542bfceeb81344941255aae7"
+                }),
+            )
+        }
+        "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147" => (
+            "T00-ARB-004",
+            &[0, 1],
+            transform(observed, "native_capability_dialect_versions").ok()
+                == Some(json!(["7.1.0-dev"])),
+        ),
+        "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed" => (
+            "T00-ARB-002",
+            &[4],
+            observed["source_parsing_observation"]["diagnostics"]
+                == json!([
+                    {"code":1490,"start_utf16":0,"end_utf16":0,"message":"File appears to be binary."}
+                ]),
+        ),
+        _ => return Value::Null,
+    };
+    if !observed_difference
+        || (id != "T00-ARB-002"
+            && (observed["native_compiler_version"] != "7.1.0-dev"
+                || observed["sdk_version"] != "5.9.3"
+                || observed["engine_revision"] != "780dc512d64f40afebffa6a7028207649fb7ed1c"))
+    {
+        return Value::Null;
+    }
+    let Some(checks) = recipe["checks"].as_array() else {
+        return Value::Null;
+    };
+    if !checks.iter().enumerate().all(|(index, check)| {
+        evaluate(observed, check)["state"]
+            == if mismatches.contains(&index) {
+                "MISMATCH"
+            } else {
+                "PASS_PROJECTED_PROPERTY"
+            }
+    }) {
+        return Value::Null;
+    }
+    json!({"id":id,"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","recipe_signature":signature,"qualification_credit":0})
+}
+
+fn run_raw_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    let (sdk_path, sdk) = sdk_input;
+    let (timeout_ms, output_cap) = raw_execution_limits(recipe)?;
+    if let Err(error) = validate_component_checks(
+        recipe["checks"]
+            .as_array()
+            .ok_or("missing credited raw checks")?,
+    ) {
+        return Ok(
+            json!({"state":"NOT_EXECUTABLE_INCOMPLETE_COMPONENT_COMPARATOR","error":error,"pass":false}),
+        );
+    }
+    fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    let templates = recipe["requests"]
+        .as_array()
+        .ok_or("missing native request templates")?;
+    if templates.is_empty() {
+        return Ok(
+            json!({"state":"NOT_EXECUTABLE_INPUT_GAP","pass":false,"error":"no actual request"}),
+        );
+    }
+    let mut observations = vec![];
+    let mut boundaries = vec![];
+    for (index, template) in templates.iter().enumerate() {
+        let subdir = if templates.len() == 1 {
+            dir.to_path_buf()
+        } else {
+            dir.join(format!("observation-{index:03}"))
+        };
+        let root = if template.get("outside_root_retained_files").is_some() {
+            subdir.join("input-envelope/workspace")
+        } else {
+            subdir.join("workspace")
+        };
+        fs::create_dir_all(&root).map_err(|e| e.to_string())?;
+        let sentinel = root.join("T00NativeCaseSentinel");
+        fs::write(&sentinel, b"native case probe").map_err(|e| e.to_string())?;
+        let case_sensitive = !root.join("t00nativecasesentinel").exists();
+        fs::remove_file(sentinel).map_err(|e| e.to_string())?;
+        let request = match materialize(template, &root, case_sensitive) {
+            Ok(v) => v,
+            Err(error) => {
+                return Ok(json!({"state":"NOT_EXECUTABLE_INPUT_GAP","error":error,"pass":false}));
+            }
+        };
+        let request_path = subdir.join("request.json");
+        save(&request_path, &request)?;
+        let setup = apply_physical_post_capture(
+            &request,
+            &recipe["physical_live_after_capture"],
+            &root,
+            &request_path,
+        )?;
+        save(&subdir.join("physical-post-capture-setup.json"), &setup)?;
+        let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+        let argv = vec![
+            artifact.to_string_lossy().into_owned(),
+            request_path.to_string_lossy().into_owned(),
+            sdk_path.to_string_lossy().into_owned(),
+        ];
+        let outcome = process::run_with_helper(&argv, &root, timeout_ms, output_cap, helper)
+            .map_err(|e| e.to_string())?;
+        let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+        save(
+            &subdir.join("process-outcome.json"),
+            &serde_json::to_value(&outcome).map_err(|e| e.to_string())?,
+        )?;
+        save(
+            &subdir.join("artifact-observation.json"),
+            &json!({"before":before,"after":after}),
+        )?;
+        let process_outcome_id =
+            identity::digest(&serde_json::to_value(&outcome).map_err(|error| error.to_string())?);
+        save(
+            &subdir.join("process-invocation.json"),
+            &json!({"argv":argv,"cwd":root,"timeout_ms":timeout_ms,"output_cap":output_cap,"process_outcome_id":process_outcome_id}),
+        )?;
+        if outcome.kind != "success" || outcome.exit_code != Some(0) {
+            return Ok(
+                json!({"state":"PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION","outcome_kind":outcome.kind,"process_outcome_id":process_outcome_id,"observation":index,"pass":false}),
+            );
+        }
+        let observed: Value = match serde_json::from_str(&outcome.stdout) {
+            Ok(v) => v,
+            Err(error) => {
+                return Ok(
+                    json!({"state":"MALFORMED_NATIVE_OBSERVATION","error":error.to_string(),"observation":index,"pass":false}),
+                );
+            }
+        };
+        let binding = match observation_bound_to_request(&observed, &request, sdk, artifact_sha) {
+            Ok(v) => v,
+            Err(error) => {
+                return Ok(
+                    json!({"state":"INVALID_NATIVE_OBSERVATION_BINDING","error":error,"observation":index,"pass":false}),
+                );
+            }
+        };
+        save(&subdir.join("verified-input-binding.json"), &binding)?;
+        let mut scope = recipe.clone();
+        scope["checks"] = json!(
+            recipe["checks"]
+                .as_array()
+                .ok_or("missing checks")?
+                .iter()
+                .filter(
+                    |c| c.get("observation").and_then(Value::as_u64).unwrap_or(0) as usize == index
+                )
+                .cloned()
+                .collect::<Vec<_>>()
+        );
+        if let Some(relations) = recipe.get("relations").and_then(Value::as_array) {
+            for relation in relations {
+                if ["left_observation", "right_observation"]
+                    .iter()
+                    .any(|key| relation[*key].as_u64() == Some(index as u64))
+                {
+                    scope["checks"]
+                        .as_array_mut()
+                        .unwrap()
+                        .push(json!({"target":relation["target"],"expected":null}));
+                }
+            }
+        }
+        let capability = native_product_capability(&observed, &request, &scope);
+        let reads = join_successful_reads(&observed, &request, sdk);
+        boundaries.push(json!({"observation":index,"native_product_capability":match capability {Ok(v)=>v,Err(e)=>json!({"state":"NATIVE_PRODUCT_CONTEXT_UNKNOWN_OR_UNIMPLEMENTED","error":e})},"read_provenance":match reads {Ok(v)=>v,Err(e)=>json!({"state":"READ_PROVENANCE_REJECTED","error":e})}}));
+        observations.push(observed);
+    }
+    let checks=recipe["checks"].as_array().ok_or("missing checks")?.iter().map(|c| {
+        let i=c.get("observation").and_then(Value::as_u64).unwrap_or(0) as usize;
+        let result=observations.get(i).map(|o|evaluate(o,c)).unwrap_or_else(||json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":"missing bound native observation"}));
+        json!({"expected_origin":c["expected_origin"],"observation":i,"target":c["target"],"result":result})
+    }).collect::<Vec<_>>();
+    let relations = recipe
+        .get("relations")
+        .and_then(Value::as_array)
+        .map(|rs| {
+            rs.iter()
+                .map(|r| json!({"origin":r["origin"],"result":evaluate_relation(&observations,r)}))
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    let pass = (!checks.is_empty() || !relations.is_empty())
+        && checks
+            .iter()
+            .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY")
+        && relations
+            .iter()
+            .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY")
+        && boundaries.iter().all(|b| {
+            b["native_product_capability"].get("error").is_none()
+                && b["read_provenance"].get("error").is_none()
+        });
+    let version_arbitration = version_arbitration(
+        recipe,
+        &observations,
+        sdk["version"] == "5.9.3"
+            && sdk["archive_sha256"]
+                == "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
+            && boundaries.iter().all(|b| {
+                b["native_product_capability"].get("error").is_none()
+                    && b["read_provenance"].get("error").is_none()
+            }),
+    );
+    let result = json!({"version_arbitration":version_arbitration,"state":if pass{"PASS_FROZEN_PROJECTED_UNIT"}else{"NONPASS_PROJECTED_UNIT"},"checks":checks,"relations":relations,"bound_observations":boundaries,"pass":pass,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+fn run_consumer_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    let root = dir
+        .canonicalize()
+        .map_err(|e| e.to_string())?
+        .to_string_lossy()
+        .replace('\\', "/");
+    let mut observations = vec![];
+    for (index, template) in recipe["consumer_descriptors"]
+        .as_array()
+        .ok_or("missing frozen consumer descriptors")?
+        .iter()
+        .enumerate()
+    {
+        let mut descriptor = template.clone();
+        if descriptor["request"]["repoRoot"] == "NATIVE_ROOT" {
+            descriptor["request"]["repoRoot"] = json!(root);
+        }
+        for field in ["rootAbsPaths", "emitAbsPaths"] {
+            for path in descriptor["request"][field]
+                .as_array_mut()
+                .ok_or("missing controlled valid request path array")?
+            {
+                let relative = path
+                    .as_str()
+                    .and_then(|s| s.strip_prefix("ROOT/"))
+                    .ok_or("consumer path requires controlled root recipe")?;
+                if !safe_relative(relative) {
+                    return Err("consumer request root escapes case workspace".into());
+                }
+                *path = json!(format!("{root}/{relative}"));
+            }
+        }
+        let subdir = dir.join(format!("observation-{index:03}"));
+        fs::create_dir_all(&subdir).map_err(|e| e.to_string())?;
+        let path = subdir.join("consumer-descriptor.json");
+        save(&path, &descriptor)?;
+        let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+        let argv = vec![
+            artifact.to_string_lossy().into_owned(),
+            "--consume-worker".into(),
+            path.to_string_lossy().into_owned(),
+        ];
+        let outcome = process::run_with_helper(&argv, &subdir, 20_000, 8_388_608, helper)
+            .map_err(|e| e.to_string())?;
+        let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+        save(
+            &subdir.join("process-outcome.json"),
+            &serde_json::to_value(&outcome).map_err(|e| e.to_string())?,
+        )?;
+        save(
+            &subdir.join("artifact-observation.json"),
+            &json!({"before":before,"after":after}),
+        )?;
+        if outcome.kind != "success" || outcome.exit_code != Some(0) {
+            return Ok(
+                json!({"state":"CONSUMER_TRANSPORT_PROCESS_NONPASS","outcome_kind":outcome.kind,"pass":false}),
+            );
+        }
+        let observed: Value = match serde_json::from_str(&outcome.stdout) {
+            Ok(v) => v,
+            Err(error) => {
+                return Ok(
+                    json!({"state":"MALFORMED_CONSUMER_NATIVE_OBSERVATION","error":error.to_string(),"pass":false}),
+                );
+            }
+        };
+        if observed["request_descriptor_id"] != identity::digest(&descriptor)
+            || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        {
+            return Ok(json!({"state":"INVALID_CONSUMER_DESCRIPTOR_BINDING","pass":false}));
+        }
+        save(
+            &subdir.join("verified-descriptor-binding.json"),
+            &json!({"request_descriptor_id":observed["request_descriptor_id"],"artifact_sha256":artifact_sha,"compiler_or_sdk_consumption_claimed":false}),
+        )?;
+        observations.push(observed);
+    }
+    let checks=recipe["checks"].as_array().ok_or("missing consumer assertions")?.iter().map(|c|{let index=c["observation"].as_u64().unwrap_or(0) as usize;json!({"observation":index,"target":c["target"],"expected_origin":c["expected_origin"],"result":observations.get(index).map(|o|evaluate(o,c)).unwrap_or_else(||json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":"missing bound actual consumer observation"}))})}).collect::<Vec<_>>();
+    let pass = !checks.is_empty()
+        && checks
+            .iter()
+            .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass{"PASS_FROZEN_NATIVE_RAW_CONSUMER_CONTROL"}else{"NONPASS_NATIVE_RAW_CONSUMER_CONTROL"},"checks":checks,"pass":pass,"proof_scope":"Actual native raw extraction response consumer, controlled structure-valid frozen carrier and one authored mutation; no actual producer semantic parity or graph admission inferred."});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+fn worker_bound_to_request(
+    observed: &Value,
+    request: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+    controlled_refusal: bool,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+    {
+        return Err("worker response not bound to exact request descriptor/artifact".into());
+    }
+    if controlled_refusal {
+        if observed["ok"] != false || observed["extraction_started"] != false {
+            return Err("worker malformed-request refusal not observed before extraction".into());
+        }
+    } else if observed["ok"] != true || observed["sdk_input_id"] != identity::digest(sdk) {
+        return Err("worker useful result lacks expected SDK binding".into());
+    }
+    Ok(
+        json!({"request_descriptor_id":observed["request_descriptor_id"],"sdk_input_id":observed.get("sdk_input_id"),"artifact_sha256":artifact_sha,"controlled_malformed_request":controlled_refusal,"atomic_capture_claimed":false,"absence_of_all_os_reads_claimed":false}),
+    )
+}
+fn worker_negative_boundary_directory_probes(
+    observed: &Value,
+    request: &Value,
+    case_sensitive: bool,
+) -> Result<Vec<Value>, String> {
+    let issues = observed["frontendCapabilityObservation"]["workspaceIssues"]
+        .as_array()
+        .ok_or("missing worker workspace issue inventory")?;
+    let reported_probes = observed
+        .get("compiler_probes")
+        .map(|value| {
+            value
+                .as_array()
+                .ok_or("invalid worker compiler probe inventory")
+        })
+        .transpose()?;
+    for probe in reported_probes.into_iter().flatten() {
+        if probe["operation"] != "case_sensitive" {
+            continue;
+        }
+        let sensitive = probe["found"].as_bool().ok_or("invalid case capability")?;
+        if sensitive != case_sensitive
+            || *probe
+                != json!({"path":"","operation":"case_sensitive","found":sensitive,"content_id":null})
+        {
+            return Err("invalid pathless compiler capability probe".into());
+        }
+    }
+    if issues.is_empty() {
+        return Ok(vec![]);
+    }
+    let raw_root = value_text(request, "repoRoot")?;
+    if verifier_absolute_key(raw_root, true)? != raw_root.replace('\\', "/") {
+        return Err("worker repository coordinate is not canonical".into());
+    }
+    let root = verifier_absolute_key(raw_root, case_sensitive)?;
+    let volume_root = if root.starts_with('/') {
+        "/"
+    } else {
+        &root[..3]
+    };
+    let mut allowed = BTreeSet::new();
+    let mut ancestor = root.clone();
+    while ancestor != volume_root {
+        let end = ancestor
+            .rfind('/')
+            .ok_or("missing worker repository ancestor")?;
+        ancestor = if end < volume_root.len() {
+            volume_root.to_owned()
+        } else {
+            ancestor[..end].to_owned()
+        };
+        allowed.insert(ancestor.clone());
+        allowed.insert(format!(
+            "{}/node_modules/@types",
+            ancestor.trim_end_matches('/')
+        ));
+    }
+    let probes = reported_probes
+        .ok_or("missing actual worker compiler probes")?
+        .iter()
+        .map(|probe| {
+            if probe["operation"] == "case_sensitive" {
+                return Ok(probe.clone());
+            }
+            let path = verifier_absolute_key(value_text(probe, "path")?, case_sensitive)?;
+            let mut normalized = probe.clone();
+            normalized["path"] = json!(path);
+            Ok(normalized)
+        })
+        .collect::<Result<Vec<Value>, String>>()?;
+    for issue in issues {
+        let raw_path = value_text(issue, "path")?;
+        let path = verifier_absolute_key(raw_path, case_sensitive)?;
+        if !allowed.contains(&path)
+            || *issue
+                != json!({"path":raw_path,"kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"})
+        {
+            return Err(
+                "worker workspace issue is outside the negative ancestor-directory scope".into(),
+            );
+        }
+        let matching = probes
+            .iter()
+            .filter(|probe| probe["path"] == path)
+            .collect::<Vec<_>>();
+        let expected =
+            json!({"path":path,"operation":"directory_exists","found":false,"content_id":null});
+        if matching.is_empty() || matching.iter().any(|probe| **probe != expected) {
+            return Err(
+                "worker boundary refusal lacks exclusively negative bound directory probes".into(),
+            );
+        }
+    }
+    Ok(issues.clone())
+}
+fn worker_frontend_capability(
+    observed: &Value,
+    request: &Value,
+    case_sensitive: bool,
+) -> Result<Value, String> {
+    let capability = &observed["frontendCapabilityObservation"];
+    if capability["executed"] != true
+        || capability["unsupported"] != json!([])
+        || capability["resolutionErrors"] != json!({})
+    {
+        return Err("worker native frontend context is incomplete or unresolved".into());
+    }
+    let negative_boundary_directory_probes =
+        worker_negative_boundary_directory_probes(observed, request, case_sensitive)?;
+    let roots = capability["roots"]
+        .as_array()
+        .ok_or("missing worker root capability observations")?;
+    let expected = request["rootAbsPaths"]
+        .as_array()
+        .ok_or("missing worker root descriptor")?;
+    let paths = roots.iter().map(|r| r["path"].clone()).collect::<Vec<_>>();
+    let mut actual = paths
+        .iter()
+        .map(identity::canonical_json)
+        .collect::<Vec<_>>();
+    actual.sort();
+    let mut expected = expected
+        .iter()
+        .map(identity::canonical_json)
+        .collect::<Vec<_>>();
+    expected.sort();
+    if actual != expected
+        || roots
+            .iter()
+            .any(|r| r["loaded"] != true || r["parseDiagnosticCodes"] != json!([]))
+    {
+        return Err("worker did not load every exact root without parser incapacity".into());
+    }
+    Ok(
+        json!({"state":"COMPLETE_OBSERVED_NATIVE_WORKER_CONTEXT","roots":paths,"case_sensitive":case_sensitive,"negative_boundary_directory_probes":negative_boundary_directory_probes,"global_admission_inferred":false}),
+    )
+}
+fn worker_read_provenance(
+    observed: &Value,
+    request: &Value,
+    source_inputs: &serde_json::Map<String, Value>,
+    sdk: &Value,
+    case_sensitive: bool,
+) -> Result<Value, String> {
+    let frontend = worker_frontend_capability(observed, request, case_sensitive)?;
+    let repository_reads = observed["read_observations"]
+        .as_array()
+        .ok_or("missing actual worker repository reads")?;
+    let expected_paths = source_inputs.keys().cloned().collect::<BTreeSet<_>>();
+    let actual_paths = repository_reads
+        .iter()
+        .map(|r| value_text(r, "path").map(str::to_owned))
+        .collect::<Result<BTreeSet<_>, _>>()?;
+    if actual_paths != expected_paths || actual_paths.len() != repository_reads.len() {
+        return Err(
+            "worker captured source denominator differs from authored physical files".into(),
+        );
+    }
+    for observation in repository_reads {
+        let path = value_text(observation, "path")?;
+        let text = source_inputs
+            .get(path)
+            .and_then(Value::as_str)
+            .ok_or("reported worker read does not match authored source path")?;
+        let target = Path::new(path).canonicalize().map_err(|e| e.to_string())?;
+        let actual = fs::read(&target).map_err(|e| e.to_string())?;
+        if actual != text.as_bytes()
+            || observation["raw_bytes_sha256"] != identity::digest_bytes(text.as_bytes())
+            || observation["canonical_path"] != json!(target.to_string_lossy().replace('\\', "/"))
+        {
+            return Err("worker source read bytes or physical after observation do not match authored input".into());
+        }
+        if !text.is_ascii() {
+            return Err("worker decoded-port hash needs explicit non-ASCII profile mapping".into());
+        }
+        if observation["decoded_port_text_sha256"] != identity::digest_bytes(text.as_bytes()) {
+            return Err("worker ASCII decoded source identity mismatch".into());
+        }
+    }
+    let reads = join_successful_reads(
+        &json!({"capture_probes":observed["compiler_probes"]}),
+        &json!({"files":source_inputs}),
+        sdk,
+    )?;
+    let read_paths = reads["read_paths"]
+        .as_array()
+        .ok_or("missing joined worker compiler reads")?;
+    for root in request["rootAbsPaths"]
+        .as_array()
+        .ok_or("missing native worker roots")?
+    {
+        if !read_paths.contains(root) {
+            return Err(
+                "requested worker source root has no successful compiler read observation".into(),
+            );
+        }
+    }
+    for basename in ["/lib.es5.d.ts", "/lib.es2022.full.d.ts"] {
+        let path = sdk["files"]
+            .as_object()
+            .ok_or("missing pinned SDK file map")?
+            .keys()
+            .find(|p| p.ends_with(basename))
+            .ok_or("required baseline ES2022 default library absent from pinned SDK")?;
+        if !read_paths.contains(&json!(path)) {
+            return Err("worker actual ES2022 default library consumption not observed".into());
+        }
+    }
+    Ok(
+        json!({"state":"JOINED_REPORTED_NATIVE_WORKER_READS_ONLY","compiler_reads":reads,"frontend":frontend,"atomic_capture_claimed":false,"all_sdk_supplied_consumed_claimed":false}),
+    )
+}
+
+fn run_worker_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    let (sdk_path, sdk) = sdk_input;
+    fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|e| e.to_string())?;
+    let sentinel = root.join("T00WorkerCaseSentinel");
+    fs::OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&sentinel)
+        .map_err(|e| e.to_string())?;
+    let case_sensitive = !root
+        .join("t00workercasesentinel")
+        .try_exists()
+        .map_err(|e| e.to_string())?;
+    fs::remove_file(&sentinel).map_err(|e| e.to_string())?;
+    let cwd = root
+        .canonicalize()
+        .map_err(|e| e.to_string())?
+        .to_string_lossy()
+        .replace('\\', "/");
+    let mut source_inputs = serde_json::Map::new();
+    for (path, text) in recipe["physical_files"]
+        .as_object()
+        .ok_or("missing authored physical worker inputs")?
+    {
+        if !safe_relative(path) {
+            return Err("worker physical input escapes case root".into());
+        }
+        let content = text.as_str().ok_or("non-string worker input")?;
+        let target = root.join(path);
+        fs::create_dir_all(target.parent().unwrap()).map_err(|e| e.to_string())?;
+        fs::write(&target, content.as_bytes()).map_err(|e| e.to_string())?;
+        source_inputs.insert(format!("{cwd}/{path}"), text.clone());
+    }
+    let mut request = recipe["worker_request"].clone();
+    if let Some(object) = request.as_object_mut() {
+        if object.get("repoRoot") == Some(&json!("NATIVE_ROOT")) {
+            object.insert("repoRoot".into(), json!(cwd));
+        }
+        for field in ["rootAbsPaths", "emitAbsPaths"] {
+            let Some(paths) = object.get_mut(field).and_then(Value::as_array_mut) else {
+                continue;
+            };
+            for path in paths {
+                let Some(relative) = path.as_str().and_then(|s| s.strip_prefix("ROOT/")) else {
+                    continue;
+                };
+                if !safe_relative(relative) {
+                    return Err("worker requested path escapes authored root".into());
+                }
+                *path = json!(format!("{cwd}/{relative}"));
+            }
+        }
+    }
+    let request_path = dir.join("worker-request.json");
+    save(&request_path, &request)?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--extract-worker".into(),
+        request_path.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        .map_err(|e| e.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    save(
+        &dir.join("process-outcome.json"),
+        &serde_json::to_value(&outcome).map_err(|e| e.to_string())?,
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Ok(
+            json!({"state":"WORKER_TRANSPORT_PROCESS_NONPASS","outcome_kind":outcome.kind,"pass":false}),
+        );
+    }
+    let observed: Value = match serde_json::from_str(&outcome.stdout) {
+        Ok(v) => v,
+        Err(error) => {
+            return Ok(
+                json!({"state":"MALFORMED_WORKER_NATIVE_OBSERVATION","error":error.to_string(),"pass":false}),
+            );
+        }
+    };
+    let controlled = recipe["controlled_request_refusal"] == true;
+    let binding = match worker_bound_to_request(&observed, &request, sdk, artifact_sha, controlled)
+    {
+        Ok(v) => v,
+        Err(error) => {
+            return Ok(
+                json!({"state":"INVALID_WORKER_BINDING_OR_REFUSAL","error":error,"pass":false}),
+            );
+        }
+    };
+    save(&dir.join("verified-input-binding.json"), &binding)?;
+    let provenance = if controlled {
+        Ok(
+            json!({"state":"CONTROLLED_REQUEST_REFUSAL_NO_USEFUL_COMPILER_RESULT_CREDITED","absence_of_all_os_reads_claimed":false}),
+        )
+    } else {
+        worker_read_provenance(&observed, &request, &source_inputs, sdk, case_sensitive)
+    };
+    let checks=recipe["checks"].as_array().ok_or("missing worker checks")?.iter().map(|c|json!({"expected_origin":c["expected_origin"],"target":c["target"],"result":evaluate(&observed,c)})).collect::<Vec<_>>();
+    let mut direct_relation = json!({"state":"NOT_REQUIRED"});
+    let mut direct_pass = true;
+    if let Some(direct) = recipe.get("direct_recipe") {
+        let result = run_raw_recipe(
+            direct,
+            &dir.join("direct-control"),
+            artifact,
+            helper,
+            (sdk_path, sdk),
+            artifact_sha,
+            helper_sha,
+        )?;
+        direct_pass = result["pass"] == true;
+        if direct_pass {
+            let control = read_json(&dir.join("direct-control/process-outcome.json"))?;
+            let raw: Value =
+                serde_json::from_str(value_text(&control, "stdout")?).map_err(|e| e.to_string())?;
+            let same = ["modules", "symbols", "imports", "calls"]
+                .iter()
+                .all(|field| {
+                    let canonical = |v: &Value| -> Option<Vec<String>> {
+                        let mut values = v
+                            .as_array()?
+                            .iter()
+                            .map(identity::canonical_json)
+                            .collect::<Vec<_>>();
+                        values.sort();
+                        Some(values)
+                    };
+                    canonical(&observed["extraction"][field])
+                        .zip(canonical(&raw["raw_extraction"][field]))
+                        .is_some_and(|(a, b)| a == b)
+                });
+            direct_relation = json!({"state":if same{"PASS_EXACT_COMPLETE_LOGICAL_SETS_WORKER_AND_DIRECT"}else{"MISMATCH_WORKER_DIRECT_EXTRACTION"},"pass":same});
+            direct_pass &= same;
+        } else {
+            direct_relation = json!({"state":"DIRECT_EXPECTED_PROJECTION_NONPASS","result":result});
+        }
+    }
+    let pass = !checks.is_empty()
+        && checks
+            .iter()
+            .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY")
+        && provenance.is_ok()
+        && direct_pass;
+    let result = json!({"state":if pass{"PASS_FROZEN_NATIVE_WORKER_PROJECTED_UNIT"}else{"NONPASS_NATIVE_WORKER_PROJECTED_UNIT"},"checks":checks,"direct_relation":direct_relation,"provenance":match provenance{Ok(v)=>v,Err(error)=>json!({"state":"WORKER_READ_PROVENANCE_REJECTED","error":error})},"pass":pass,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+fn project_process_fault(
+    expected_kind: &str,
+    budget: (u64, usize),
+    raw_result: &Value,
+    captured: &Value,
+) -> Result<Value, String> {
+    let outcome: process::Outcome =
+        serde_json::from_value(captured.clone()).map_err(|error| error.to_string())?;
+    if !matches!(expected_kind, "timeout" | "output_limit")
+        || outcome.kind != expected_kind
+        || raw_result["state"]
+            != "PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION"
+        || raw_result["pass"] != false
+        || raw_result["outcome_kind"] != outcome.kind
+        || raw_result["process_outcome_id"] != identity::digest(captured)
+    {
+        return Err("native fault kind, raw rejection or captured outcome identity differs".into());
+    }
+    let bounded = [
+        (
+            outcome.stdout.as_bytes(),
+            outcome.stdout_bytes,
+            &outcome.stdout_hash,
+        ),
+        (
+            outcome.stderr.as_bytes(),
+            outcome.stderr_bytes,
+            &outcome.stderr_hash,
+        ),
+    ]
+    .iter()
+    .all(|(prefix, count, digest)| {
+        prefix.len() <= budget.1
+            && *count >= prefix.len() as u64
+            && digest.len() == 64
+            && digest.bytes().all(|byte| byte.is_ascii_hexdigit())
+            && (*count > budget.1 as u64
+                || (*count == prefix.len() as u64 && sha(prefix) == **digest))
+    });
+    if !bounded
+        || (expected_kind == "timeout" && outcome.duration_ms < budget.0)
+        || (expected_kind == "output_limit"
+            && outcome.stdout_bytes <= budget.1 as u64
+            && outcome.stderr_bytes <= budget.1 as u64)
+    {
+        return Err("native fault budget or bounded capture is inconsistent".into());
+    }
+    Ok(json!({
+        "failure_kind":outcome.kind,"qualification_success":raw_result["pass"],"useful_product_success":false,"controlled_product_refusal":false,
+        "failure_kind_distinct_from_success":outcome.kind != "success","available_bounded_capture_retained":bounded,"error_identity_preserved":true,
+        "supervisor_outcome":captured,"process_outcome_id":raw_result["process_outcome_id"],
+        "captured_stdout_id":identity::digest_bytes(outcome.stdout.as_bytes()),"captured_stderr_id":identity::digest_bytes(outcome.stderr.as_bytes()),
+        "full_stream_hashes_are_supervisor_observations":true,"lower_level_errors_invented":false,"global_admission_inferred":false
+    }))
+}
+
+fn evaluate_process_fault_unit(
+    recipe: &Value,
+    observed: &Value,
+    before: &Value,
+    after: &Value,
+) -> Result<Value, String> {
+    let checks = recipe["checks"].as_array().ok_or("missing process fault checks")?.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(observed,check)})).collect::<Vec<_>>();
+    let healthy = |control: &Value| {
+        control["pass"] == true && control["state"] == "PASS_FROZEN_PROJECTED_UNIT"
+    };
+    let pass = healthy(before)
+        && healthy(after)
+        && !checks.is_empty()
+        && checks
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    Ok(
+        json!({"state":if pass {"PASS_FROZEN_NATIVE_PROCESS_FAULT_UNIT"} else {"NONPASS_NATIVE_PROCESS_FAULT_UNIT"},"pass":pass,"checks":checks,"global_admission_inferred":false}),
+    )
+}
+
+fn run_process_fault_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing fault gap registry")?
+        .is_empty()
+    {
+        return Ok(json!({"pass":false,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS"}));
+    }
+    let control = recipe
+        .get("control_recipe")
+        .ok_or("missing native runnable control")?;
+    let before = run_raw_recipe(
+        control,
+        &dir.join("before-control"),
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let mut faulty = control.clone();
+    faulty["execution_limits"] = recipe["execution_limits"].clone();
+    let fault_dir = dir.join("fault");
+    let rejected = run_raw_recipe(
+        &faulty,
+        &fault_dir,
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let after = run_raw_recipe(
+        control,
+        &dir.join("after-control"),
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let captured = read_json(&fault_dir.join("process-outcome.json"))?;
+    let limits = &recipe["execution_limits"];
+    let budget = (
+        limits["timeout_ms"]
+            .as_u64()
+            .ok_or("missing fault timeout")?,
+        usize::try_from(
+            limits["output_cap"]
+                .as_u64()
+                .ok_or("missing fault output cap")?,
+        )
+        .map_err(|_| "fault output cap overflow")?,
+    );
+    let observed = match project_process_fault(
+        value_text(recipe, "expected_fault_kind")?,
+        budget,
+        &rejected,
+        &captured,
+    ) {
+        Ok(value) => value,
+        Err(error) => {
+            let result = json!({"state":"NATIVE_PROCESS_FAULT_EVIDENCE_REJECTED","pass":false,"error":error,"before":before,"fault":rejected,"after":after});
+            save(&dir.join("result.json"), &result)?;
+            return Ok(result);
+        }
+    };
+    save(&dir.join("process-fault-observation.json"), &observed)?;
+    let mut result = evaluate_process_fault_unit(recipe, &observed, &before, &after)?;
+    result["before"] = before;
+    result["fault_rejection"] = rejected;
+    result["after"] = after;
+    result["fault_observation"] = observed;
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
+fn run_transport_recipe(recipe: &Value, dir: &Path, manifest: &Value) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("transport gap registry absent")?
+        .is_empty()
+    {
+        return Ok(json!({"pass":false,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS"}));
+    }
+    let producer = Path::new(value_text(manifest, "artifact_path")?);
+    let helper = Path::new(value_text(manifest, "helper_path")?);
+    let fixture = Path::new(value_text(manifest, "transport_fixture_path")?);
+    let sdk = Path::new(value_text(manifest, "sdk_path")?);
+    for (path, field) in [
+        (producer, "artifact_sha256"),
+        (helper, "helper_sha256"),
+        (fixture, "transport_fixture_sha256"),
+        (sdk, "sdk_sha256"),
+    ] {
+        exact_hash(path, value_text(manifest, field)?)?;
+    }
+    let tools = transport_process::Tools {
+        producer,
+        helper,
+        fixture,
+        sdk,
+    };
+    let observed = transport_process::run(&tools, dir, value_text(recipe, "case_id")?)?;
+    let checks = recipe["checks"].as_array().ok_or("transport checks absent")?.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = !checks.is_empty()
+        && checks
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"pass":pass,"state":if pass {"PASS_FROZEN_NATIVE_TRANSPORT_UNIT"}else{"NONPASS_NATIVE_TRANSPORT_UNIT"},"checks":checks,"observation":observed,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
+fn controlled_assembly_observation(outcome: &process::Outcome) -> Result<Value, Value> {
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Err(json!({"state":"CONTROLLED_ASSEMBLY_PROCESS_NONPASS","pass":false}));
+    }
+    serde_json::from_str(&outcome.stdout).map_err(|error| json!({"state":"CONTROLLED_ASSEMBLY_MALFORMED_OBSERVATION","error":error.to_string(),"pass":false}))
+}
+
+fn run_controlled_assembly_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing controlled recipe gaps")?
+        .is_empty()
+    {
+        return Ok(json!({"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","pass":false}));
+    }
+    let checks = recipe["checks"]
+        .as_array()
+        .ok_or("missing private component checks")?;
+    validate_component_checks(checks)?;
+    let (sdk_path, sdk) = sdk_input;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
+    let sentinel = root.join("ControlledConsumerCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
+    let sensitive = !root.join("controlledconsumercaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|error| error.to_string())?;
+    let analysis = materialize(&recipe["capture_request"], &root, sensitive)?;
+    let request = json!({"analysis":analysis,"control":recipe["private_control"]});
+    let descriptor = dir.join("controlled-assembly-request.json");
+    save(&descriptor, &request)?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--observe-controlled-assembly".into(),
+        descriptor.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        .map_err(|error| error.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let outcome_value = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
+    save(&dir.join("process-outcome.json"), &outcome_value)?;
+    save(
+        &dir.join("process-invocation.json"),
+        &json!({"argv":argv,"cwd":root,"timeout_ms":20_000,"output_cap":8_388_608,"process_outcome_id":identity::digest(&outcome_value)}),
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    let observed = match controlled_assembly_observation(&outcome) {
+        Ok(observed) => observed,
+        Err(result) => {
+            save(&dir.join("result.json"), &result)?;
+            return Ok(result);
+        }
+    };
+    save(&dir.join("native-observation.json"), &observed)?;
+    let binding = controlled_assembly_complete_binding(&observed, &request, sdk, artifact_sha);
+    let checked=checks.iter().map(|check|json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checked.is_empty()
+        && checked
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass{"PASS_FROZEN_PRIVATE_CONSUMER_UNIT"}else{"NONPASS_PRIVATE_CONSUMER_UNIT"},"checks":checked,"binding":match binding{Ok(value)=>value,Err(error)=>json!({"state":"CONTROLLED_ASSEMBLY_BINDING_REJECTED","error":error})},"pass":pass,"public_extractor_reachability_claimed":false,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
+fn portable_capture_path(path: &str) -> bool {
+    safe_relative(path)
+        && !path.contains(['\\', ':', '\0'])
+        && path.split('/').all(|part| !matches!(part, "" | "." | ".."))
+}
+
+fn copy_private_scan_sources(
+    public_root: &Path,
+    private_root: &Path,
+    files: &Value,
+) -> Result<Value, String> {
+    let mut copies = vec![];
+    for path in files
+        .as_object()
+        .ok_or("missing physical source inventory")?
+        .keys()
+    {
+        if !portable_capture_path(path) || path.eq_ignore_ascii_case("descriptor.json") {
+            return Err("invalid private physical source path".into());
+        }
+        let bytes = fs::read(public_root.join(path)).map_err(|error| error.to_string())?;
+        let target = private_root.join(path);
+        fs::create_dir_all(target.parent().ok_or("missing private parent")?)
+            .map_err(|error| error.to_string())?;
+        fs::write(&target, &bytes).map_err(|error| error.to_string())?;
+        copies.push(json!({"path":path,"source_sha256":sha(&bytes),"private_physical_sha256":sha(&fs::read(target).map_err(|error|error.to_string())?)}));
+    }
+    Ok(json!(copies))
+}
+
+fn retained_omissions(analysis: &mut Value, omitted: &Value, root: &Path) -> Result<Value, String> {
+    let mut proof = vec![];
+    for path in omitted
+        .as_array()
+        .ok_or("retained omissions must be an array")?
+    {
+        let path = path
+            .as_str()
+            .filter(|path| portable_capture_path(path))
+            .ok_or("invalid retained omission path")?;
+        let key = format!("{}/{path}", value_text(analysis, "cwd")?);
+        let captured = analysis["files"]
+            .as_object_mut()
+            .ok_or("missing capture files")?
+            .remove(&key)
+            .ok_or("omitted source is not captured")?;
+        let text = captured.as_str().ok_or("omitted source must be text")?;
+        let physical = fs::read(root.join(path)).map_err(|error| error.to_string())?;
+        if physical != text.as_bytes() {
+            return Err("physical omitted source differs from frozen capture".into());
+        }
+        proof.push(json!({"path":path,"physical_source_sha256":sha(&physical),"captured_entry_removed":true,"physical_file_retained":true}));
+    }
+    Ok(json!(proof))
+}
+
+fn missing_test_capture_binding(public: &Value, private: &Value) -> Result<Value, String> {
+    let analysis = &public["analysis"];
+    let prefix = format!("{}/", value_text(analysis, "cwd")?);
+    let mut retained = serde_json::Map::new();
+    for (path, text) in analysis["files"]
+        .as_object()
+        .ok_or("missing public retained files")?
+    {
+        let relative = path
+            .strip_prefix(&prefix)
+            .filter(|path| safe_relative(path))
+            .ok_or("foreign public retained file")?;
+        retained.insert(relative.into(), text.clone());
+    }
+    let roles = analysis["roles"]
+        .as_object()
+        .ok_or("missing public roles")?;
+    let tests = roles
+        .iter()
+        .filter(|(_, role)| **role == "test")
+        .map(|(path, _)| path.clone())
+        .collect::<Vec<_>>();
+    let discovered = public["discovered_sources"]
+        .as_array()
+        .ok_or("missing public discovery")?;
+    if tests.is_empty()
+        || tests.iter().any(|path| {
+            retained.contains_key(path)
+                || discovered
+                    .iter()
+                    .filter(|row| row["relPath"] == *path && row["content"].is_string())
+                    .count()
+                    != 1
+        })
+    {
+        return Err(
+            "private scan requires actual missing retained test and discovered text".into(),
+        );
+    }
+    if private["operation"] != "test_dynamic_imports"
+        || private["retained_texts"] != Value::Object(retained)
+        || private["test_paths"] != json!(tests)
+    {
+        return Err("private scan is not coupled to public retained capture/test roles".into());
+    }
+    Ok(
+        json!({"state":"BOUND_MISSING_RETAINED_TEST_COMPONENTS","test_paths":tests,"public_reachability_claimed":false,"global_admission_inferred":false}),
+    )
+}
+
+fn run_missing_retained_test_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing coupled gaps")?
+        .is_empty()
+    {
+        return Ok(json!({"pass":false,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS"}));
+    }
+    fs::create_dir_all(dir).map_err(|error| error.to_string())?;
+    let public_dir = dir.join("public");
+    let public_result = run_retained_discovery_recipe(
+        &recipe["public_guard_recipe"],
+        &public_dir,
+        artifact,
+        helper,
+        sdk_input,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let private_dir = dir.join("private");
+    let physical_root = private_dir.join("observation-000");
+    fs::create_dir_all(&physical_root).map_err(|error| error.to_string())?;
+    let copies = copy_private_scan_sources(
+        &public_dir.join("workspace"),
+        &physical_root,
+        &recipe["public_guard_recipe"]["capture_request"]["files"],
+    )?;
+    save(&dir.join("private-physical-source-setup.json"), &copies)?;
+    let private_result = run_primitive_recipe(
+        &recipe["private_scan_recipe"],
+        &private_dir,
+        artifact,
+        helper,
+        artifact_sha,
+        helper_sha,
+    )?;
+    let public = read_json(&public_dir.join("retained-discovery-request.json"))?;
+    let private = read_json(&physical_root.join("descriptor.json"))?;
+    let binding = missing_test_capture_binding(&public, &private);
+    let pass = public_result["pass"] == true && private_result["pass"] == true && binding.is_ok();
+    let result = json!({"state":if pass{"PASS_FROZEN_MISSING_RETAINED_TEST_UNIT"}else{"NONPASS_MISSING_RETAINED_TEST_UNIT"},"pass":pass,"public":public_result,"private":private_result,"coupling":match binding{Ok(value)=>value,Err(error)=>json!({"error":error})},"public_reachability_claimed":false,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
+fn retained_discovery_observation(outcome: &process::Outcome) -> Result<Value, Value> {
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Err(json!({"state":"RETAINED_DISCOVERY_PROCESS_NONPASS","pass":false}));
+    }
+    serde_json::from_str(&outcome.stdout).map_err(|error| json!({"state":"RETAINED_DISCOVERY_MALFORMED_OBSERVATION","error":error.to_string(),"pass":false}))
+}
+
+fn retained_discovery_complete_binding(
+    observed: &Value,
+    descriptor: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(descriptor)
+        || observed["sdk_input_id"] != identity::digest(sdk)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("retained discovery observation is unbound".into());
+    }
+    match observed["executed"].as_bool() {
+        Some(false) => {
+            if observed["state"] != "RETAINED_DISCOVERY_REFUSED"
+                || observed["snapshot_guard_passed"] != false
+                || observed.get("native_analysis").is_some()
+                || !observed["unsupported"].as_array().is_some_and(|errors| {
+                    errors.len() == 1 && errors[0].as_str().is_some_and(|error| !error.is_empty())
+                })
+            {
+                return Err("incomplete retained discovery refusal".into());
+            }
+            Ok(
+                json!({"state":"BOUND_RETAINED_DISCOVERY_REFUSAL","sdk_consumption_claimed":false,"global_admission_inferred":false}),
+            )
+        }
+        Some(true) => {
+            if observed["state"] != "RETAINED_DISCOVERY_OBSERVED"
+                || observed["snapshot_guard_passed"] != true
+                || observed["unsupported"] != json!([])
+            {
+                return Err("incomplete retained discovery analysis".into());
+            }
+            let analysis = &descriptor["analysis"];
+            let native = &observed["native_analysis"];
+            let binding = observation_bound_to_request(native, analysis, sdk, artifact_sha)?;
+            let capability = native_product_capability(
+                native,
+                analysis,
+                &json!({"checks":[{"target":["raw_extraction"]}]}),
+            )?;
+            let reads = join_successful_reads(native, analysis, sdk)?;
+            Ok(
+                json!({"state":"BOUND_RETAINED_DISCOVERY_ANALYSIS","native_binding":binding,"capability":capability,"read_provenance":reads,"global_admission_inferred":false}),
+            )
+        }
+        None => Err("missing retained discovery execution state".into()),
+    }
+}
+
+fn run_retained_discovery_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing retained discovery gaps")?
+        .is_empty()
+    {
+        return Ok(json!({"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","pass":false}));
+    }
+    let checks = recipe["checks"]
+        .as_array()
+        .ok_or("missing retained discovery checks")?;
+    validate_component_checks(checks)?;
+    let (sdk_path, sdk) = sdk_input;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
+    let sentinel = root.join("RetainedDiscoveryCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
+    let sensitive = !root.join("retaineddiscoverycaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|error| error.to_string())?;
+    let mut analysis = materialize(&recipe["capture_request"], &root, sensitive)?;
+    if let Some(omitted) = recipe.get("retained_omissions") {
+        let proof = retained_omissions(&mut analysis, omitted, &root)?;
+        save(&dir.join("retained-omissions.json"), &proof)?;
+    }
+    let analysis_path = dir.join("analysis-request.json");
+    save(&analysis_path, &analysis)?;
+    let setup = apply_physical_post_capture(
+        &analysis,
+        &recipe["physical_live_after_capture"],
+        &root,
+        &analysis_path,
+    )?;
+    save(&dir.join("physical-post-capture-setup.json"), &setup)?;
+    let descriptor = json!({"analysis":analysis,"discovered_sources":recipe["discovered_sources"]});
+    let request_path = dir.join("retained-discovery-request.json");
+    save(&request_path, &descriptor)?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--analyze-retained-discovery".into(),
+        request_path.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        .map_err(|error| error.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let outcome_value = serde_json::to_value(&outcome).map_err(|error| error.to_string())?;
+    save(&dir.join("process-outcome.json"), &outcome_value)?;
+    save(
+        &dir.join("process-invocation.json"),
+        &json!({"argv":argv,"cwd":root,"timeout_ms":20_000,"output_cap":8_388_608,"process_outcome_id":identity::digest(&outcome_value)}),
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    let observed = match retained_discovery_observation(&outcome) {
+        Ok(observed) => observed,
+        Err(result) => {
+            save(&dir.join("result.json"), &result)?;
+            return Ok(result);
+        }
+    };
+    save(&dir.join("native-observation.json"), &observed)?;
+    let binding = retained_discovery_complete_binding(&observed, &descriptor, sdk, artifact_sha);
+    let checked = checks.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checked.is_empty()
+        && checked
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass{"PASS_FROZEN_RETAINED_DISCOVERY_UNIT"}else{"NONPASS_RETAINED_DISCOVERY_UNIT"},"checks":checked,"binding":match binding {Ok(value)=>value,Err(error)=>json!({"error":error})},"pass":pass,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
+fn configured_query_complete_binding(
+    observed: &Value,
+    request: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["sdk_input_id"] != identity::digest(sdk)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+        || observed["containing_file"] != request["containing_file"]
+        || observed["specifier"] != request["specifier"]
+        || observed["resolutionMode"] != "omitted"
+        || observed["configuration"]["executed"] != true
+        || observed["configuration"]["unsupported"] != json!([])
+        || observed["native_diagnostics"] != json!([])
+        || observed.get("native_error") != Some(&Value::Null)
+        || observed["resolutionObservations"]["errors"] != json!({})
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("configured query observation is incomplete or unbound".into());
+    }
+    if !observed["configuration"]["reasons"]
+        .as_array()
+        .is_some_and(|reasons| reasons.iter().all(Value::is_string))
+    {
+        return Err("configured query lacks actual configuration reasons".into());
+    }
+    let sensitive = request["case_sensitive"]
+        .as_bool()
+        .ok_or("missing measured native case mode")?;
+    let files = request["files"]
+        .as_object()
+        .ok_or("missing configured source capture")?;
+    let root = verifier_absolute_key(value_text(request, "root")?, sensitive)?;
+    let resolved = observed
+        .get("resolved_file_name")
+        .ok_or("missing configured resolution result")?;
+    let relative = observed
+        .get("resolved_relative_path")
+        .ok_or("missing configured relative result")?;
+    if resolved.is_null() {
+        if !relative.is_null() {
+            return Err("unresolved query reports a relative target".into());
+        }
+    } else {
+        let resolved = verifier_absolute_key(
+            resolved.as_str().ok_or("invalid resolved file name")?,
+            sensitive,
+        )?;
+        let expected_relative = resolved
+            .strip_prefix(&format!("{root}/"))
+            .ok_or("resolved source outside root")?;
+        if !files.keys().any(|path| verifier_absolute_key(path, sensitive).is_ok_and(|key| key == resolved))
+            || relative.as_str().is_none_or(|path| if sensitive { path.to_string() } else { path.to_lowercase() } != expected_relative)
+        {
+            return Err("configured target is not the captured resolved source".into());
+        }
+    }
+    let directories = request["directories"]
+        .as_array()
+        .ok_or("missing configured directory inventory")?;
+    let actual = observed["capturedDirectories"]
+        .as_array()
+        .ok_or("missing actual directory inventory")?;
+    let probes = observed["probes"]
+        .as_array()
+        .ok_or("missing native query probes")?;
+    if directories.len() != actual.len() {
+        return Err("configured directory count differs".into());
+    }
+    for (path, actual) in directories.iter().zip(actual) {
+        if actual["path"] != *path
+            || actual["found"] != true
+            || !probes.iter().any(|probe| {
+                probe["operation"] == "directory_exists"
+                    && probe["path"].as_str().zip(path.as_str()).is_some_and(
+                        |(actual, expected)| {
+                            verifier_absolute_key(actual, sensitive)
+                                .ok()
+                                .zip(verifier_absolute_key(expected, sensitive).ok())
+                                .is_some_and(|(actual, expected)| actual == expected)
+                        },
+                    )
+                    && probe["found"] == true
+            })
+        {
+            return Err(
+                "captured empty directory was not observed in the workspace profile".into(),
+            );
+        }
+    }
+    Ok(
+        json!({"state":"BOUND_EXPLICIT_CONFIGURED_COMPONENT","request_descriptor_id":observed["request_descriptor_id"],"sdk_consumption_claimed":false,"global_admission_inferred":false}),
+    )
+}
+
+fn run_configured_query_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    sdk_input: (&Path, &Value),
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    if !recipe["gaps"]
+        .as_array()
+        .ok_or("missing query gap registry")?
+        .is_empty()
+    {
+        return Ok(json!({"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","pass":false}));
+    }
+    let (sdk_path, sdk) = sdk_input;
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|error| error.to_string())?;
+    let sentinel = root.join("NativeConfiguredQueryCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|error| error.to_string())?;
+    let sensitive = !root.join("nativeconfiguredquerycaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|error| error.to_string())?;
+    let capture = materialize(&recipe["capture_request"], &root, sensitive)?;
+    let cwd = value_text(&capture, "cwd")?;
+    let mut directories = vec![];
+    let mut setup = vec![];
+    for directory in recipe["capture_directories"]
+        .as_array()
+        .ok_or("missing frozen directories")?
+    {
+        let path = directory
+            .as_str()
+            .filter(|path| safe_relative(path))
+            .ok_or("invalid frozen empty directory")?;
+        let target = root.join(path);
+        fs::create_dir_all(&target).map_err(|error| error.to_string())?;
+        if fs::read_dir(&target)
+            .map_err(|error| error.to_string())?
+            .next()
+            .is_some()
+        {
+            return Err("frozen empty directory has unexpected entries".into());
+        }
+        directories.push(json!(format!("{cwd}/{path}")));
+        setup.push(json!({"relative_path":path,"directory_exists":target.is_dir(),"entries":[]}));
+    }
+    let source = value_text(&recipe["explicit_query"], "containing_file")?;
+    if !safe_relative(source) {
+        return Err("configured containing file escapes root".into());
+    }
+    let request = json!({"root":cwd,"sdk_directory":capture["sdk_directory"],"case_sensitive":sensitive,"files":capture["files"],"directories":directories,"containing_file":format!("{cwd}/{source}"),"specifier":recipe["explicit_query"]["specifier"]});
+    let descriptor = dir.join("configured-query-request.json");
+    save(&descriptor, &request)?;
+    save(&dir.join("physical-setup.json"), &json!(setup))?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--observe-configured-resolution".into(),
+        descriptor.to_string_lossy().into_owned(),
+        sdk_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, dir, 20_000, 8_388_608, helper)
+        .map_err(|error| error.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    save(
+        &dir.join("process-outcome.json"),
+        &serde_json::to_value(&outcome).map_err(|error| error.to_string())?,
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Ok(json!({"state":"CONFIGURED_QUERY_PROCESS_NONPASS","pass":false}));
+    }
+    let observed: Value =
+        serde_json::from_str(&outcome.stdout).map_err(|error| error.to_string())?;
+    save(&dir.join("native-observation.json"), &observed)?;
+    let binding = configured_query_complete_binding(&observed, &request, sdk, artifact_sha);
+    let checks = recipe["checks"].as_array().ok_or("missing configured query checks")?.iter().map(|check| json!({"expected_origin":check["expected_origin"],"target":check["target"],"result":evaluate(&observed,check)})).collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checks.is_empty()
+        && checks
+            .iter()
+            .all(|check| check["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass {"PASS_FROZEN_CONFIGURED_QUERY_UNIT"} else {"NONPASS_CONFIGURED_QUERY_UNIT"},"checks":checks,"binding":match binding {Ok(value)=>value,Err(error)=>json!({"state":"CONFIGURED_QUERY_BINDING_REJECTED","error":error})},"pass":pass,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+
+fn system_complete_binding(
+    observed: &Value,
+    request: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["requestDescriptorId"] != identity::digest(request)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+    {
+        return Err("captured-system observation is unbound or incomplete".into());
+    }
+    let queries = request["queries"]
+        .as_array()
+        .ok_or("missing system queries")?;
+    let results = observed["results"]
+        .as_array()
+        .ok_or("missing system results")?;
+    if queries.len() != results.len() {
+        return Err("system result denominator differs from requested queries".into());
+    }
+    for (query, result) in queries.iter().zip(results) {
+        if result["operation"] != query["operation"]
+            || result["path"] != query["path"]
+            || result["executed"] != true
+            || result["unsupported"] != json!([])
+            || result["refusals"] != json!([])
+        {
+            return Err("system query is unbound, refused or unsupported".into());
+        }
+    }
+    let reads = join_successful_reads(
+        &json!({"capture_probes":observed["probes"]}),
+        &json!({"files":request["files"]}),
+        &json!({"files":{}}),
+    )?;
+    Ok(
+        json!({"state":"BOUND_ACTUAL_CAPTURED_SYSTEM_QUERIES","reads":reads,"all_os_reads_observed_claimed":false,"cache_identity_claimed":false}),
+    )
+}
+fn system_observation_json(stdout: &str) -> Result<Value, Value> {
+    serde_json::from_str(stdout).map_err(|error|json!({"state":"MALFORMED_SYSTEM_NATIVE_OBSERVATION","error":error.to_string(),"pass":false}))
+}
+fn run_system_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    let root = dir.join("workspace");
+    fs::create_dir_all(&root).map_err(|e| e.to_string())?;
+    let cwd = root
+        .canonicalize()
+        .map_err(|e| e.to_string())?
+        .to_string_lossy()
+        .replace('\\', "/");
+    let mut files = serde_json::Map::new();
+    for (path, text) in recipe["system_files"]
+        .as_object()
+        .ok_or("missing frozen system snapshot")?
+    {
+        if !safe_relative(path) {
+            return Err("system snapshot path escapes case root".into());
+        }
+        let target = root.join(path);
+        fs::create_dir_all(target.parent().unwrap()).map_err(|e| e.to_string())?;
+        fs::write(
+            &target,
+            text.as_str().ok_or("nonstring system source")?.as_bytes(),
+        )
+        .map_err(|e| e.to_string())?;
+        files.insert(format!("{cwd}/{path}"), text.clone());
+    }
+    let sentinel = root.join("NativeSystemCaseProbe");
+    fs::write(&sentinel, b"case").map_err(|e| e.to_string())?;
+    let sensitive = !root.join("nativesystemcaseprobe").exists();
+    fs::remove_file(sentinel).map_err(|e| e.to_string())?;
+    let queries = recipe["system_queries"]
+        .as_array()
+        .ok_or("missing frozen system queries")?
+        .iter()
+        .map(|q| {
+            let path = value_text(q, "path")?;
+            if !safe_relative(path) {
+                return Err("system query escapes root".into());
+            }
+            Ok(json!({"operation":q["operation"],"path":format!("{cwd}/{path}")}))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    let request = json!({"profile":recipe["system_profile"],"root":cwd,"case_sensitive":sensitive,"files":files,"utf16_files":{},"raw_files":{},"sdk_directory":null,"queries":queries});
+    let request_path = dir.join("system-request.json");
+    save(&request_path, &request)?;
+    let descriptor_bytes = fs::read(&request_path).map_err(|e| e.to_string())?;
+    let mut setup = vec![];
+    for (path, text) in recipe["system_live_after_capture"]
+        .as_object()
+        .ok_or("missing frozen system live map")?
+    {
+        if !safe_relative(path) {
+            return Err("system physical live path escapes root".into());
+        }
+        let target = root.join(path);
+        fs::create_dir_all(target.parent().unwrap()).map_err(|e| e.to_string())?;
+        let bytes = text
+            .as_str()
+            .ok_or("nonstring physical system setup")?
+            .as_bytes();
+        fs::write(&target, bytes).map_err(|e| e.to_string())?;
+        if fs::read(&target).map_err(|e| e.to_string())? != bytes {
+            return Err("physical live system setup not held".into());
+        }
+        setup.push(json!({"path":path,"physical_sha256":sha(bytes),"retained_value":recipe["system_files"].get(path)}));
+    }
+    if fs::read(&request_path).map_err(|e| e.to_string())? != descriptor_bytes {
+        return Err("retained system descriptor changed during physical setup".into());
+    }
+    save(&dir.join("physical-live-setup.json"), &json!(setup))?;
+    let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    let argv = vec![
+        artifact.to_string_lossy().into_owned(),
+        "--observe-system".into(),
+        request_path.to_string_lossy().into_owned(),
+    ];
+    let outcome = process::run_with_helper(&argv, &root, 20_000, 8_388_608, helper)
+        .map_err(|e| e.to_string())?;
+    let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+    save(
+        &dir.join("process-outcome.json"),
+        &serde_json::to_value(&outcome).map_err(|e| e.to_string())?,
+    )?;
+    save(
+        &dir.join("artifact-observation.json"),
+        &json!({"before":before,"after":after}),
+    )?;
+    if outcome.kind != "success" || outcome.exit_code != Some(0) {
+        return Ok(json!({"state":"SYSTEM_PROCESS_NONPASS","pass":false}));
+    }
+    let observed = match system_observation_json(&outcome.stdout) {
+        Ok(observed) => observed,
+        Err(nonpass) => {
+            save(&dir.join("result.json"), &nonpass)?;
+            return Ok(nonpass);
+        }
+    };
+    let binding = system_complete_binding(&observed, &request, artifact_sha);
+    let checks = recipe["checks"]
+        .as_array()
+        .ok_or("missing system expectations")?
+        .iter()
+        .map(|c| evaluate(&observed, c))
+        .collect::<Vec<_>>();
+    let pass = binding.is_ok()
+        && !checks.is_empty()
+        && checks
+            .iter()
+            .all(|c| c["state"] == "PASS_PROJECTED_PROPERTY");
+    let result = json!({"state":if pass{"PASS_FROZEN_CAPTURED_SYSTEM_COMPONENT"}else{"NONPASS_CAPTURED_SYSTEM_COMPONENT"},"pass":pass,"checks":checks,"binding":match binding{Ok(v)=>v,Err(error)=>json!({"error":error})},"sdk_fallback_claimed":false,"cache_identity_claimed":false,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+fn primitive_bound_to_request(
+    observed: &Value,
+    request: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["operation"] != request["operation"]
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+    {
+        return Err("primitive observation not bound to exact descriptor/artifact and complete native operation".into());
+    }
+    Ok(
+        json!({"request_descriptor_id":observed["request_descriptor_id"],"artifact_sha256":artifact_sha,"operation":request["operation"],"sdk_readset_claimed":false}),
+    )
+}
+fn run_primitive_recipe(
+    recipe: &Value,
+    dir: &Path,
+    artifact: &Path,
+    helper: &Path,
+    artifact_sha: &str,
+    helper_sha: &str,
+) -> Result<Value, String> {
+    fs::create_dir_all(dir).map_err(|e| e.to_string())?;
+    let templates = recipe["primitive_requests"]
+        .as_array()
+        .ok_or("missing primitive descriptors")?;
+    let mut observations = vec![];
+    for (index, template) in templates.iter().enumerate() {
+        let subdir = dir.join(format!("observation-{index:03}"));
+        fs::create_dir_all(&subdir).map_err(|e| e.to_string())?;
+        let root = subdir
+            .canonicalize()
+            .map_err(|e| e.to_string())?
+            .to_string_lossy()
+            .replace('\\', "/");
+        let mut request = template.clone();
+        if request.get("cwd") == Some(&json!("NATIVE_ROOT")) {
+            request["cwd"] = json!(root);
+        }
+        if let Some(path) = request
+            .get("path")
+            .and_then(Value::as_str)
+            .map(str::to_owned)
+            && (path == "ROOT" || path.starts_with("ROOT/") || path.starts_with("ROOT\\"))
+        {
+            request["path"] = json!(format!(
+                "{}{}",
+                dir.canonicalize()
+                    .map_err(|e| e.to_string())?
+                    .to_string_lossy()
+                    .replace('\\', "/"),
+                &path[4..]
+            ));
+        }
+        if request.get("cwd").is_some() {
+            request["cwd"] = json!(
+                dir.canonicalize()
+                    .map_err(|e| e.to_string())?
+                    .to_string_lossy()
+                    .replace('\\', "/")
+            );
+        }
+        let path = subdir.join("descriptor.json");
+        save(&path, &request)?;
+        let before = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+        let argv = vec![
+            artifact.to_string_lossy().into_owned(),
+            "--observe-primitives".into(),
+            path.to_string_lossy().into_owned(),
+        ];
+        let outcome = process::run_with_helper(&argv, &subdir, 20_000, 8_388_608, helper)
+            .map_err(|e| e.to_string())?;
+        let after = json!({"artifact_sha256":exact_hash(artifact,artifact_sha)?,"helper_sha256":exact_hash(helper,helper_sha)?});
+        save(
+            &subdir.join("process-outcome.json"),
+            &serde_json::to_value(&outcome).map_err(|e| e.to_string())?,
+        )?;
+        save(
+            &subdir.join("artifact-observation.json"),
+            &json!({"before":before,"after":after}),
+        )?;
+        if outcome.kind != "success" || outcome.exit_code != Some(0) {
+            return Ok(
+                json!({"state":"PRIMITIVE_PROCESS_NONPASS","outcome_kind":outcome.kind,"observation":index,"pass":false}),
+            );
+        }
+        let observed: Value = match serde_json::from_str(&outcome.stdout) {
+            Ok(v) => v,
+            Err(error) => {
+                return Ok(
+                    json!({"state":"MALFORMED_PRIMITIVE_OBSERVATION","error":error.to_string(),"pass":false}),
+                );
+            }
+        };
+        match primitive_bound_to_request(&observed, &request, artifact_sha) {
+            Ok(binding) => save(&subdir.join("verified-descriptor-binding.json"), &binding)?,
+            Err(error) => {
+                return Ok(json!({"state":"INVALID_PRIMITIVE_BINDING","error":error,"pass":false}));
+            }
+        };
+        observations.push(observed);
+    }
+    let checks=recipe["checks"].as_array().ok_or("missing primitive checks")?.iter().map(|c|{
+        let i=c.get("observation").and_then(Value::as_u64).unwrap_or(0) as usize;
+        json!({"expected_origin":c["expected_origin"],"observation":i,"target":c["target"],"result":observations.get(i).map(|o|evaluate(o,c)).unwrap_or_else(||json!({"state":"UNKNOWN_UNMAPPED_OR_MALFORMED","error":"missing actual primitive observation"}))})
+    }).collect::<Vec<_>>();
+    let relations = recipe
+        .get("relations")
+        .and_then(Value::as_array)
+        .map(|rs| {
+            rs.iter()
+                .map(|r| json!({"origin":r["origin"],"result":evaluate_relation(&observations,r)}))
+                .collect::<Vec<_>>()
+        })
+        .unwrap_or_default();
+    let gaps = recipe
+        .get("gaps")
+        .and_then(Value::as_array)
+        .cloned()
+        .unwrap_or_default();
+    let passed_checks = (!checks.is_empty() || !relations.is_empty())
+        && checks
+            .iter()
+            .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY")
+        && relations
+            .iter()
+            .all(|c| c["result"]["state"] == "PASS_PROJECTED_PROPERTY");
+    let pass = passed_checks && gaps.is_empty();
+    let version_arbitration = version_arbitration(recipe, &observations, true);
+    let result = json!({"version_arbitration":version_arbitration,"state":if pass{"PASS_FROZEN_PRIMITIVE_PROJECTED_UNIT"}else if passed_checks && !gaps.is_empty(){"PARTIAL_PRIMITIVE_OBSERVATION_WITH_EXPLICIT_GAPS"}else{"NONPASS_PRIMITIVE_PROJECTED_UNIT"},"checks":checks,"relations":relations,"gaps":gaps,"pass":pass,"sdk_readset_claimed":false,"global_admission_inferred":false});
+    save(&dir.join("result.json"), &result)?;
+    Ok(result)
+}
+fn support_projection(support: &Value) -> Value {
+    let id = support.get("support_id").cloned().unwrap_or(Value::Null);
+    let p = &support["payload"];
+    let result = (|| -> Result<Value, String> {
+        if let Some(v) = p.get("value") {
+            let canonical = identity::canonical_json(v);
+            let digest = identity::digest(v);
+            let pass = p.get("canonical_json").and_then(Value::as_str) == Some(canonical.as_str())
+                && p.get("expected_digest").and_then(Value::as_str) == Some(digest.as_str());
+            return Ok(
+                json!({"state":if pass{"PASS_FIXED_IDENTITY_DESCRIPTOR"}else{"MISMATCH_FIXED_IDENTITY_DESCRIPTOR"},"pass":pass,"proof_scope":"fixed canonical descriptor and digest only; no artifact/capture acquisition asserted"}),
+            );
+        }
+        if let Some(v) = p.get("mutated_record") {
+            let digest = identity::digest(v);
+            let pass = p.get("expected_digest").and_then(Value::as_str) == Some(digest.as_str());
+            return Ok(
+                json!({"state":if pass{"PASS_FIXED_MUTATED_IDENTITY_DIGEST"}else{"MISMATCH_FIXED_MUTATED_IDENTITY_DIGEST"},"pass":pass,"proof_scope":"fixed descriptor digest only; original-request rejection requires actual receiver controls"}),
+            );
+        }
+        if let Some(p) = p.get("projection").filter(|p| p.get("bytes_hex").is_some()) {
+            let text = value_text(p, "bytes_hex")?;
+            if text.len() % 2 != 0 {
+                return Err("invalid fixed byte vector".into());
+            }
+            let bytes = (0..text.len())
+                .step_by(2)
+                .map(|i| u8::from_str_radix(&text[i..i + 2], 16).map_err(|e| e.to_string()))
+                .collect::<Result<Vec<_>, _>>()?;
+            let pass = identity::digest_bytes(&bytes) == value_text(p, "expected_sha256")?;
+            return Ok(
+                json!({"state":if pass{"PASS_FIXED_SHA256_PRIMITIVE"}else{"MISMATCH_FIXED_SHA256_PRIMITIVE"},"pass":pass,"proof_scope":"SHA256 primitive only, not aggregate analyzer identity"}),
+            );
+        }
+        Err("support requires native decoder/consumer/acquisition observation beyond fixed digest API".into())
+    })();
+    match result {
+        Ok(mut r) => {
+            r["support_id"] = id;
+            r
+        }
+        Err(error) => {
+            json!({"support_id":id,"state":"NOT_EXECUTABLE_SUPPORT_API_OR_MAPPING_GAP","error":error,"pass":false})
+        }
+    }
+}
+fn run_support_recipe(
+    recipe: &Value,
+    dir: &Path,
+    fixture: &Value,
+    recipes: &Value,
+) -> Result<Value, String> {
+    if recipe["surface"] == "identity_support_cli" {
+        return identity_support_replay::run(recipe, dir, fixture, recipes);
+    }
+    let artifact = Path::new(value_text(fixture, "artifact_path")?);
+    let helper = Path::new(value_text(fixture, "helper_path")?);
+    let artifact_sha = value_text(fixture, "artifact_sha256")?;
+    let helper_sha = value_text(fixture, "helper_sha256")?;
+    if recipe["surface"] == "raw_cli" {
+        let sdk_path = Path::new(value_text(fixture, "sdk_path")?);
+        let sdk = read_json(sdk_path)?;
+        run_raw_recipe(
+            recipe,
+            dir,
+            artifact,
+            helper,
+            (sdk_path, &sdk),
+            artifact_sha,
+            helper_sha,
+        )
+    } else {
+        run_primitive_recipe(recipe, dir, artifact, helper, artifact_sha, helper_sha)
+    }
+}
+
+fn replay() -> Result<Value, String> {
+    if std::env::var("SEMCTX_QUALIFICATION_RUN_SIGNAL").as_deref()
+        != Ok("stage5-optimized-frozen-stage6-authorized")
+    {
+        return Err(
+            "qualification execution is not authorized by root optimized-freeze signal".into(),
+        );
+    }
+    let manifest = PathBuf::from(
+        std::env::var_os("SEMCTX_QUALIFICATION_FREEZE_MANIFEST")
+            .ok_or("missing stage5 freeze manifest")?,
+    );
+    let freeze = read_json(&manifest)?;
+    if freeze["optimized_frozen"] != true {
+        return Err("candidate is not optimized-frozen".into());
+    }
+    let artifact = PathBuf::from(value_text(&freeze, "artifact_path")?);
+    let helper = PathBuf::from(value_text(&freeze, "helper_path")?);
+    let sdk_path = PathBuf::from(value_text(&freeze, "sdk_path")?);
+    let recipes_path = PathBuf::from(value_text(&freeze, "recipes_path")?);
+    let base = PathBuf::from(value_text(&freeze, "cases_path")?);
+    let artifact_sha = exact_hash(&artifact, value_text(&freeze, "artifact_sha256")?)?;
+    let helper_sha = exact_hash(&helper, value_text(&freeze, "helper_sha256")?)?;
+    exact_hash(&sdk_path, value_text(&freeze, "sdk_sha256")?)?;
+    exact_hash(&recipes_path, value_text(&freeze, "recipes_sha256")?)?;
+    let sdk = read_json(&sdk_path)?;
+    if sdk["version"] != "5.9.3"
+        || sdk["archive_sha256"]
+            != "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3"
+    {
+        return Err("SDK identity mismatch".into());
+    }
+    let recipes = read_json(&recipes_path)?;
+    verify_sources(&base, &recipes)?;
+    let units = recipes["recipes"]
+        .as_array()
+        .ok_or("missing replay recipes")?;
+    if units.len() != 354 {
+        return Err("unit denominator drift".into());
+    }
+    let out = PathBuf::from(
+        std::env::var_os("SEMCTX_QUALIFICATION_EVIDENCE")
+            .ok_or("missing caller-owned evidence directory")?,
+    );
+    if out.exists() {
+        return Err("evidence directory already exists; overwrite forbidden".into());
+    }
+    fs::create_dir_all(&out).map_err(|e| e.to_string())?;
+    save(&out.join("freeze-manifest.json"), &freeze)?;
+    let inputs = read_json(&base.join("allocation/input-index.json"))?;
+    let guard_inputs = inputs["qualification_records"]
+        .as_array()
+        .ok_or("missing input records")?
+        .iter()
+        .map(|r| (r["case_id"].as_str().unwrap(), &r["input_specification"]))
+        .collect::<BTreeMap<_, _>>();
+    let artifact_bytes = fs::read(&artifact).map_err(|e| e.to_string())?;
+    let mut results = vec![];
+    for (index, recipe) in units.iter().enumerate() {
+        let uid = value_text(recipe, "unit_id")?;
+        if recipe["surface"] == "workspace_system_cli" {
+            let mut result = workspace_system_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "repository_eligibility_cli" {
+            let mut result = repository_replay::run_eligibility(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "ambiguous_exports_cli" {
+            let mut result = ambiguous_exports_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "source_confinement_cli" {
+            let mut result = source_confinement_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &sdk_path,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "legacy_identity_cli" {
+            let mut result = legacy_identity_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "native_transport_cli" {
+            let mut result =
+                run_transport_recipe(recipe, &out.join(format!("unit-{index:03}")), &freeze)?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "repository_discovery_cli" {
+            let mut result = repository_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "parallel_cli" {
+            let mut result = parallel_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "process_fault_cli" {
+            let mut result = run_process_fault_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "missing_retained_test_cli" {
+            let mut result = run_missing_retained_test_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "qualified_flow_cli" {
+            let mut result =
+                qualified_flow_replay::run(recipe, &out.join(format!("unit-{index:03}")), &freeze)?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "reader_error_component" {
+            let mut result =
+                reader_error_replay::run(recipe, &out.join(format!("unit-{index:03}")))?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "retained_runtime_cli" {
+            let mut result = retained_runtime_replay::run(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &freeze,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "retained_discovery_cli" {
+            let mut result = run_retained_discovery_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "controlled_assembly_cli" {
+            let mut result = run_controlled_assembly_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "configured_query_cli" {
+            let mut result = run_configured_query_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "captured_system_cli" {
+            let mut result = run_system_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "worker_consumer_cli" {
+            let mut result = run_consumer_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "worker_cli" {
+            if recipe["gaps"]
+                .as_array()
+                .ok_or("missing worker gap registry")?
+                .iter()
+                .next()
+                .is_some()
+            {
+                results.push(json!({"unit_id":uid,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","gaps":recipe["gaps"],"pass":false}));
+                continue;
+            }
+            let mut result = run_worker_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                (&sdk_path, &sdk),
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "primitive_cli" {
+            let mut result = run_primitive_recipe(
+                recipe,
+                &out.join(format!("unit-{index:03}")),
+                &artifact,
+                &helper,
+                &artifact_sha,
+                &helper_sha,
+            )?;
+            result["unit_id"] = json!(uid);
+            results.push(result);
+            continue;
+        }
+        if recipe["surface"] == "private_receiver_component" {
+            exact_hash(&artifact, &artifact_sha)?;
+            let input = guard_inputs
+                .get(value_text(recipe, "guard_input_case_id")?)
+                .ok_or("missing guard frozen input")?;
+            let mut result =
+                receiver_guard_projection(input, &recipe["guard_variant"], &artifact_bytes);
+            result["unit_id"] = json!(uid);
+            result["required_external_property_links"] =
+                recipe["required_external_property_links"].clone();
+            results.push(result);
+            continue;
+        }
+        let gaps = recipe["gaps"].as_array().ok_or("missing gap status")?;
+        if !gaps.is_empty() {
+            results.push(json!({"unit_id":uid,"state":"NOT_EXECUTABLE_EXPLICIT_GAPS","gaps":gaps,"pass":false}));
+            continue;
+        }
+        if let Err(error) = validate_component_checks(
+            recipe["checks"]
+                .as_array()
+                .ok_or("missing credited checks")?,
+        ) {
+            results.push(json!({"unit_id":uid,"state":"NOT_EXECUTABLE_INCOMPLETE_COMPONENT_COMPARATOR","error":error,"pass":false}));
+            continue;
+        }
+        let dir = out.join(format!("unit-{index:03}"));
+        let mut result = run_raw_recipe(
+            recipe,
+            &dir,
+            &artifact,
+            &helper,
+            (&sdk_path, &sdk),
+            &artifact_sha,
+            &helper_sha,
+        )?;
+        result["unit_id"] = json!(uid);
+        results.push(result);
+    }
+    verify_sources(&base, &recipes)?;
+    exact_hash(&artifact, &artifact_sha)?;
+    exact_hash(&helper, &helper_sha)?;
+    let supports = read_json(&base.join("qualification/support.json"))?;
+    let support_results = supports["support_units"]
+        .as_array()
+        .ok_or("missing supports")?
+        .iter()
+        .enumerate()
+        .map(|(index, support)| {
+            let recipe = recipes
+                .get("support_recipes")
+                .and_then(Value::as_array)
+                .and_then(|rs| rs.iter().find(|r| r["support_id"] == support["support_id"]));
+            if let Some(recipe) = recipe {
+                let mut result = run_support_recipe(
+                    recipe,
+                    &out.join(format!("support-{index:03}")),
+                    &freeze,
+                    &recipes,
+                )?;
+                result["support_id"] = support["support_id"].clone();
+                Ok(result)
+            } else {
+                Ok(support_projection(support))
+            }
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    if support_results.len() != 51 {
+        return Err("support denominator drift".into());
+    }
+    let obligations = read_json(&base.join("qualification/obligations.json"))?;
+    let results_by_id = results
+        .iter()
+        .map(|r| (r["unit_id"].as_str().unwrap(), r["pass"] == true))
+        .collect::<BTreeMap<_, _>>();
+    let obligation_results=obligations["obligations"].as_array().ok_or("missing obligation map")?.iter().map(|o|{let ids=o["qualification_execution_unit_ids"].as_array().unwrap();let passed=ids.iter().all(|id|results_by_id.get(id.as_str().unwrap())==Some(&true));json!({"obligation_id":o["obligation_id"],"associated_units_all_passed":passed,"state":"REQUIRES_PROPERTY_AND_SUPPORT_REVIEW","qualified":false})}).collect::<Vec<_>>();
+    let report = json!({"phase":"stage6_qualification","platform":std::env::consts::OS,"architecture":std::env::consts::ARCH,"timestamp_unix_ms":SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis(),"denominators":{"records":268,"units":354,"supports":51,"obligations":240},"units":results,"supports":support_results,"obligations":obligation_results,"qualified":false,"R0_decision":"NOT_MADE_BY_ADAPTER","source_expectations_unchanged":true,"artifact_sha256":artifact_sha,"helper_sha256":helper_sha});
+    save(&out.join("report.json"), &report)?;
+    Ok(report)
+}
+
+fn comparison_resolved(result: &Value) -> bool {
+    result["pass"] == true
+        || (result["pass"] == false
+            && matches!(
+                result["state"].as_str(),
+                Some("NONPASS_PROJECTED_UNIT" | "NONPASS_PRIMITIVE_PROJECTED_UNIT")
+            )
+            && result["version_arbitration"]["state"]
+                == "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+            && result["version_arbitration"]["qualification_credit"] == 0)
+}
+
+#[test]
+fn comparator_unresolved_failures_do_not_gain_arbitration_or_qualification_credit() {
+    assert!(comparison_resolved(&json!({"pass":true})));
+    for result in [
+        json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT"}),
+        json!({"pass":false,"state":"NOT_EXECUTABLE_INPUT_GAP","version_arbitration":{"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","qualification_credit":0}}),
+        json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT","version_arbitration":{"state":"OTHER_DIFFERENCE","qualification_credit":0}}),
+        json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT","version_arbitration":{"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","qualification_credit":1}}),
+    ] {
+        assert!(!comparison_resolved(&result));
+    }
+    let result = json!({"pass":false,"state":"NONPASS_PROJECTED_UNIT","version_arbitration":{"state":"INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED","qualification_credit":0}});
+    let before = result.clone();
+    assert!(comparison_resolved(&result));
+    assert_eq!(result, before);
+}
+
+#[test]
+fn qualification_replay_requires_explicit_optimized_freeze() {
+    let report = replay().expect("qualification preparation is not execution authorization");
+    assert_eq!(report["qualified"], false);
+    assert_eq!(report["R0_decision"], "NOT_MADE_BY_ADAPTER");
+    assert_eq!(report["units"].as_array().unwrap().len(), 354);
+    assert_eq!(report["supports"].as_array().unwrap().len(), 51);
+    assert!(
+        report["units"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(comparison_resolved),
+        "campaign has unresolved unit differences; inspect raw report.json"
+    );
+    assert!(
+        report["supports"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(comparison_resolved),
+        "campaign has unresolved support differences; inspect raw report.json"
+    );
+}
+#[test]
+fn comparator_exact_projection_detects_missing_extra_and_wrong_properties() {
+    let expected = json!([{"name":"devAlpha","kind":"function"}]);
+    assert!(
+        compare(
+            &json!([{"name":"devAlpha","kind":"function","offset":19}]),
+            &expected,
+            "unordered_projected_eq"
+        )
+        .unwrap()
+    );
+    assert!(!compare(&json!([]), &expected, "unordered_projected_eq").unwrap());
+    assert!(
+        !compare(
+            &json!([{"name":"devAlpha","kind":"function"},{"name":"devExtra","kind":"function"}]),
+            &expected,
+            "unordered_projected_eq"
+        )
+        .unwrap()
+    );
+    assert!(
+        !compare(
+            &json!([{"name":"devAlpha","kind":"class"}]),
+            &expected,
+            "unordered_projected_eq"
+        )
+        .unwrap()
+    );
+}
+#[test]
+fn comparator_matching_is_injective_and_handles_overlapping_projections() {
+    assert!(injective_matches(
+        &[json!({"x":1,"y":2}), json!({"x":1,"y":3})],
+        &[json!({"x":1}), json!({"x":1,"y":2})]
+    ));
+    assert!(!injective_matches(
+        &[json!({"x":1})],
+        &[json!({"x":1}), json!({"x":1})]
+    ));
+}
+#[test]
+fn comparator_missing_fields_and_unmapped_constraints_are_unknown() {
+    let c = json!({"target":["absent"],"mode":"eq","actual_transform":"none","expected":false});
+    assert_eq!(
+        evaluate(&json!({}), &c)["state"],
+        "UNKNOWN_UNMAPPED_OR_MALFORMED"
+    );
+    assert!(
+        compare(
+            &json!([]),
+            &json!({"novel_constraint":true}),
+            "reason_constraints"
+        )
+        .is_err()
+    );
+}
+#[test]
+fn comparator_reasons_preserve_exact_set_contains_and_excludes_strength() {
+    assert!(compare(&json!(["DEV_REASON_A","DEV_REASON_B"]),&json!({"contains":["DEV_REASON_A"],"excludes":["DEV_REASON_C"],"contains_prefix":["DEV_REASON_"]}),"reason_constraints").unwrap());
+    assert!(
+        !compare(
+            &json!(["DEV_REASON_A", "DEV_REASON_B"]),
+            &json!({"exact_set":["DEV_REASON_A"]}),
+            "reason_constraints"
+        )
+        .unwrap()
+    );
+    assert!(
+        !compare(
+            &json!(["DEV_REASON_A", "DEV_REASON_A"]),
+            &json!({"exact_set":["DEV_REASON_A"]}),
+            "reason_constraints"
+        )
+        .unwrap()
+    );
+    assert!(
+        !compare(
+            &json!(["DEV_REASON_A"]),
+            &json!({"excludes":["DEV_REASON_A"]}),
+            "reason_constraints"
+        )
+        .unwrap()
+    );
+}
+#[test]
+fn comparator_reported_reads_require_known_input_bytes_and_nonread_absence() {
+    let source = "export const devOnly=73;";
+    let content = identity::digest_bytes(source.as_bytes());
+    let request = json!({"files":{"/dev/source.ts":source}});
+    let sdk = json!({"files":{}});
+    let good = json!({"capture_probes":[{"operation":"read_file","path":"/dev/source.ts","found":true,"content_id":content}]});
+    assert!(join_successful_reads(&good, &request, &sdk).is_ok());
+    let mut poison = good.clone();
+    poison["capture_probes"][0]["content_id"] = json!("sha256:forged");
+    assert!(join_successful_reads(&poison, &request, &sdk).is_err());
+    poison = good.clone();
+    poison["capture_probes"][0]["operation"] = json!("file_exists");
+    assert!(join_successful_reads(&poison, &request, &sdk).is_err());
+    poison = good;
+    poison["capture_probes"][0]["path"] = json!("/dev/foreign.ts");
+    assert!(join_successful_reads(&poison, &request, &sdk).is_err());
+}
+#[test]
+fn comparator_never_promotes_admission_from_reason_constraints() {
+    assert!(
+        compare(
+            &json!([]),
+            &json!({"global_admission_inferred":true}),
+            "reason_constraints"
+        )
+        .is_err()
+    );
+}
+#[test]
+fn comparator_subject_selector_rejects_ambiguous_native_observation() {
+    assert!(
+        select(
+            &json!({"subjects":[{"path":"dev.ts"},{"path":"dev.ts"}]}),
+            &[json!("subjects"), json!({"path":"dev.ts"})]
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn comparator_identity_support_rejects_forged_fixed_digest() {
+    let good = json!({"support_id":"DEV-ONLY-ADAPTER-DIGEST","payload":{"projection":{"bytes_hex":"616461707465722d6f776e65642d6465762d3230323631303137","expected_sha256":"sha256:0bb65b58df6781d5214b1918e34def9a0ea56f28ee5953ab8b82d5ca4f80e8b0"}}});
+    assert_eq!(support_projection(&good)["pass"], true);
+    let mut bad = good;
+    bad["payload"]["projection"]["expected_sha256"] = json!("sha256:forged");
+    assert_eq!(support_projection(&bad)["pass"], false);
+}
+
+#[test]
+fn comparator_private_guard_carrier_detects_missing_seal_with_new_dev_input() {
+    let input = json!({"files":{"adapterDevelopmentGuard.ts":"export function adapterDevelopmentGuard(){ return 913; }"},"base_observations":{"expected_profile":"modelo-suite-static-v1","observed_profile":"modelo-suite-static-v1","expected_root":"development-root","observed_root":"development-root","expected_capture_identity":"development-capture-A","observed_capture_identity":"development-capture-A","actual_observed_facts_hash":"development-facts-A","sealed_facts_hash":"development-facts-A","indexed_facts_hash":"development-facts-A","sealed_input_hash":"development-input-A","indexed_input_hash":"development-input-A","consumed_input_hash":"development-input-A","expected_input_hash":"development-input-A","binding_valid":true,"build_complete":true,"check_changed":false,"freshness_verdict":"FRESH","freshness_reasons":[],"seal_present":true,"receiver_execution_observation":{"matching_request":true,"terminal_success":true,"complete_valid_artifact":true,"artifact_matches_observed_process":true,"input_capture_bound":true,"late_or_cancelled":false}}});
+    let valid = json!({"id":"development-valid","replace_observations":{},"consumer_owned_context_available":true});
+    assert_eq!(
+        receiver_guard_projection(&input, &valid, b"development-guard-native-artifact")["pass"],
+        true
+    );
+    let missing = json!({"id":"development-missing","replace_observations":{"seal_present":false},"consumer_owned_context_available":false});
+    assert_eq!(
+        receiver_guard_projection(&input, &missing, b"development-guard-native-artifact")["pass"],
+        true
+    );
+}
+
+fn receiver_guard_projection(input: &Value, variant: &Value, artifact_bytes: &[u8]) -> Value {
+    use semctx_r0_probe::{receiver::*, wire};
+    use std::time::{Duration, Instant};
+    let replay = |producer_claimed_ownership: bool| -> Result<Value, String> {
+        let base = input["base_observations"]
+            .as_object()
+            .ok_or("missing frozen receiver base observations")?;
+        let mut current = base.clone();
+        for (key, value) in variant["replace_observations"]
+            .as_object()
+            .ok_or("missing guard replacements")?
+        {
+            current.insert(key.clone(), value.clone());
+        }
+        let observed = Value::Object(current);
+        let original = Value::Object(base.clone());
+        let boolean = |value: &Value, key: &str| {
+            value
+                .get(key)
+                .and_then(Value::as_bool)
+                .ok_or_else(|| format!("missing guard boolean {key}"))
+        };
+        let changed = |key: &str| -> Result<bool, String> {
+            let now = observed
+                .get(key)
+                .ok_or_else(|| format!("missing current guard value {key}"))?;
+            let before = original
+                .get(key)
+                .ok_or_else(|| format!("missing base guard value {key}"))?;
+            Ok(now != before)
+        };
+        let execution = &observed["receiver_execution_observation"];
+        let source_files = input["files"]
+            .as_object()
+            .ok_or("missing frozen guard input files")?;
+        let path = source_files
+            .keys()
+            .find(|p| p.ends_with(".ts"))
+            .ok_or("missing guard source path")?
+            .clone();
+        let source = source_files[&path]
+            .as_str()
+            .ok_or("missing guard source bytes")?;
+        let input_a = json!({"files":source_files});
+        let input_b = json!({"files":source_files,"foreign_input":true});
+        let capture_a = json!({"root":original["expected_root"],"files":source_files});
+        let capture_b =
+            json!({"root":observed["observed_root"],"files":source_files,"foreign_capture":true});
+        let facts_a: Vec<wire::Fact> = vec![];
+        let facts_b = vec![wire::Fact::Node {
+            id: "guard-mutated-fact".into(),
+            subject_id: path.clone(),
+            fact_kind: "node:module".into(),
+            path: Some(path.clone()),
+            range: None,
+            payload: json!({"id":"guard-mutated-fact","kind":"module","name":path,"filePath":path,"evidence":[],"tags":[],"metadata":{}}),
+        }];
+        let graph_a = json!({"nodes":[],"edges":[]});
+        let graph_b = json!({"nodes":[{"id":"guard-mutated-fact","kind":"module","name":path,"filePath":path,"evidence":[],"tags":[],"metadata":{}}],"edges":[]});
+        let snapshot = json!({"guard_fixture_snapshot":capture_a});
+        let scope = json!({"profile":original["expected_profile"],"root":original["expected_root"],"selection_mode":original.get("expected_selection_mode")});
+        let facts_id_a =
+            FactsId::observed_json(&serde_json::to_value(&facts_a).map_err(|e| e.to_string())?);
+        let facts_id_b =
+            FactsId::observed_json(&serde_json::to_value(&facts_b).map_err(|e| e.to_string())?);
+        let input_id_a = InputId::observed_json(&input_a);
+        let input_id_b = InputId::observed_json(&input_b);
+        let bindings = Bindings {
+            artifact: ArtifactId::observed_bytes(artifact_bytes),
+            input: if changed("expected_input_hash")? {
+                input_id_b.clone()
+            } else {
+                input_id_a.clone()
+            },
+            capture: CaptureId::observed_json(&capture_a),
+            facts: facts_id_a.clone(),
+            graph: GraphId::observed_json(&graph_a),
+            snapshot: SnapshotId::observed_json(&snapshot),
+            scope: ScopeId::observed_json(&scope),
+        };
+        let freshness = Freshness {
+            verdict: match value_text(&observed, "freshness_verdict")? {
+                "FRESH" => FreshnessVerdict::Fresh,
+                "DIRTY_KNOWN" => FreshnessVerdict::DirtyKnown,
+                "STALE" => FreshnessVerdict::Stale,
+                "UNKNOWN" => FreshnessVerdict::Unknown,
+                _ => return Err("unsupported frozen freshness verdict".into()),
+            },
+            reasons: observed["freshness_reasons"]
+                .as_array()
+                .ok_or("missing freshness reasons")?
+                .iter()
+                .map(|v| {
+                    v.as_str()
+                        .map(str::to_string)
+                        .ok_or("invalid freshness reason")
+                })
+                .collect::<Result<Vec<_>, _>>()?,
+            seal: if boolean(&observed, "seal_present")? {
+                Some(FreshnessSeal {
+                    repository_facts: if changed("sealed_facts_hash")? {
+                        facts_id_b.clone()
+                    } else {
+                        facts_id_a.clone()
+                    },
+                    indexed_facts: if changed("indexed_facts_hash")? {
+                        facts_id_b.clone()
+                    } else {
+                        facts_id_a.clone()
+                    },
+                    analysis_input: if changed("sealed_input_hash")? {
+                        input_id_b.clone()
+                    } else {
+                        input_id_a.clone()
+                    },
+                    indexed_input: if changed("indexed_input_hash")? {
+                        input_id_b.clone()
+                    } else {
+                        input_id_a.clone()
+                    },
+                })
+            } else {
+                None
+            },
+        };
+        let fresh_base = Freshness {
+            verdict: FreshnessVerdict::Fresh,
+            reasons: vec![],
+            seal: Some(FreshnessSeal {
+                repository_facts: facts_id_a.clone(),
+                indexed_facts: facts_id_a.clone(),
+                analysis_input: input_id_a.clone(),
+                indexed_input: input_id_a.clone(),
+            }),
+        };
+        let batch = wire::Batch {
+            schema_version: 1,
+            case_id: "controlled-receiver-guard".into(),
+            request_id: value_text(variant, "id")?.into(),
+            snapshot_id: bindings.snapshot.as_str().into(),
+            scope_id: bindings.scope.as_str().into(),
+            profile: value_text(&original, "expected_profile")?.into(),
+            producer_artifact_id: bindings.artifact.as_str().into(),
+            input_manifest_id: input_id_a.as_str().into(),
+            capture_id: bindings.capture.as_str().into(),
+            facts_id: facts_id_a.as_str().into(),
+            graph_id: bindings.graph.as_str().into(),
+            complete: boolean(execution, "complete_valid_artifact")?,
+            terminal: wire::Terminal::Complete,
+            subjects: vec![wire::SubjectReport {
+                subject_id: path.clone(),
+                selection: wire::Selection::Selected,
+                outcome: Some(wire::AnalysisOutcome::Analyzed),
+                coverage: vec![],
+            }],
+            facts: facts_a.clone(),
+            diagnostics: vec![],
+            input_observations: vec![],
+            producer_claimed_ownership: Some(producer_claimed_ownership),
+        };
+        let stdout = serde_json::to_string(&batch).map_err(|e| e.to_string())?;
+        let outcome = process::Outcome {
+            kind: if boolean(execution, "terminal_success")? {
+                "success"
+            } else if boolean(execution, "late_or_cancelled")? {
+                "cancelled"
+            } else {
+                "nonzero"
+            }
+            .into(),
+            exit_code: Some(if boolean(execution, "terminal_success")? {
+                0
+            } else {
+                1
+            }),
+            duration_ms: 1,
+            stdout_bytes: stdout.len() as u64,
+            stderr_bytes: 0,
+            stdout_hash: sha(stdout.as_bytes()),
+            stderr_hash: sha(b""),
+            stdout,
+            stderr: String::new(),
+        };
+        let expected = Expected {
+            case_id: "controlled-receiver-guard".into(),
+            request: RequestId::new(value_text(variant, "id")?).map_err(|e| format!("{e:?}"))?,
+            bindings,
+            profile: value_text(&original, "expected_profile")?.into(),
+            subjects: vec![ExpectedSubject {
+                id: SubjectId::new(path.clone()).map_err(|e| format!("{e:?}"))?,
+                selection: wire::Selection::Selected,
+                source: Some(SourceExtent {
+                    path: path.clone(),
+                    utf16_length: source.encode_utf16().count() as u64,
+                    line_count: source.bytes().filter(|b| *b == b'\n').count() as u32 + 1,
+                }),
+                fact_kinds: BTreeSet::new(),
+                ranged_fact_kinds: BTreeSet::new(),
+                pathless_fact_kinds: BTreeSet::new(),
+                absence_allowed_kinds: BTreeSet::new(),
+            }],
+            terminal: ExpectedTerminal::Analyzed,
+            deadline: if boolean(execution, "late_or_cancelled")? {
+                Instant::now() - Duration::from_millis(1)
+            } else {
+                Instant::now() + Duration::from_secs(20)
+            },
+            max_duration_ms: 20_000,
+            output_cap: 8_388_608,
+        };
+        let receiver =
+            Receiver::new(expected).map_err(|e| format!("invalid controlled expected: {e:?}"))?;
+        let post_receipt = value_text(variant, "id")?.starts_with("post-receipt-");
+        let facts_changed = changed("actual_observed_facts_hash")?;
+        let capture_changed = changed("observed_capture_identity")?
+            || changed("observed_root")?
+            || !boolean(execution, "input_capture_bound")?;
+        let artifact_variant: &[u8] = if boolean(execution, "artifact_matches_observed_process")? {
+            artifact_bytes
+        } else {
+            b"controlled foreign artifact bytes"
+        };
+        let state = ObservedState {
+            artifact_bytes: artifact_variant,
+            input_manifest: if changed("consumed_input_hash")? {
+                &input_b
+            } else {
+                &input_a
+            },
+            capture: if capture_changed {
+                &capture_b
+            } else {
+                &capture_a
+            },
+            facts: if facts_changed { &facts_b } else { &facts_a },
+            graph: if facts_changed { &graph_b } else { &graph_a },
+            snapshot: &snapshot,
+            scope: &scope,
+            profile: value_text(&observed, "observed_profile")?,
+            freshness: &freshness,
+            binding_valid: boolean(&observed, "binding_valid")?,
+            build_complete: boolean(&observed, "build_complete")?,
+            check_changed: boolean(&observed, "check_changed")?,
+            request_current: boolean(execution, "matching_request")?,
+        };
+        let before = ObservedState {
+            artifact_bytes,
+            input_manifest: &input_a,
+            capture: &capture_a,
+            facts: &facts_a,
+            graph: &graph_a,
+            snapshot: &snapshot,
+            scope: &scope,
+            profile: value_text(&original, "expected_profile")?,
+            freshness: &fresh_base,
+            binding_valid: true,
+            build_complete: true,
+            check_changed: false,
+            request_current: true,
+        };
+        let result = receiver
+            .receive(&outcome, if post_receipt { &before } else { &state })
+            .and_then(|receipt| receiver.context(Some(&receipt), &state).map(|_| ()));
+        let available = result.is_ok();
+        let expected_available = boolean(variant, "consumer_owned_context_available")?;
+        Ok(
+            json!({"producer_claimed_ownership":producer_claimed_ownership,"available":available,"expected_available":expected_available,"pass":available==expected_available,"observed_rejection":result.err().map(|e|format!("{e:?}")),"phase":if post_receipt{"revalidate_after_receipt"}else{"receive_and_context"}}),
+        )
+    };
+    let results = [replay(true), replay(false)];
+    let mut observations = vec![];
+    let mut pass = true;
+    for result in results {
+        match result {
+            Ok(v) => {
+                pass &= v["pass"] == true;
+                observations.push(v);
+            }
+            Err(error) => {
+                pass = false;
+                observations.push(
+                    json!({"state":"NOT_EXECUTABLE_GUARD_MAPPING","error":error,"pass":false}),
+                );
+            }
+        }
+    }
+    json!({"state":if pass{"PASS_CONTROLLED_RECEIVER_GUARD_ONLY"}else{"NONPASS_CONTROLLED_RECEIVER_GUARD"},"pass":pass,"observations":observations,"proof_scope":"controlled receiver guard, synthetic structure-valid carrier, actual frozen artifact bytes; not actual producer stdout/process attestation or semantic parity","global_admission_inferred":false,"opaque_graph_owner_discharge_performed":false})
+}
+#[test]
+fn comparator_absence_marker_does_not_accept_null_or_present_value() {
+    let expected = json!({"signatureOnly":{"$field_absent":true}});
+    assert!(projected_eq(&json!({"name":"adapterDevAbsent"}), &expected));
+    assert!(!projected_eq(&json!({"signatureOnly":null}), &expected));
+    assert!(!projected_eq(&json!({"signatureOnly":false}), &expected));
+}
+#[test]
+fn comparator_indexed_absence_checks_real_binding_field() {
+    let e = json!([{"index":0,"fields":["runtimeUsed"]}]);
+    assert!(
+        compare(
+            &json!([{"relPath":"adapterDevTarget.ts"}]),
+            &e,
+            "indexed_field_absences"
+        )
+        .unwrap()
+    );
+    assert!(
+        !compare(
+            &json!([{"relPath":"adapterDevTarget.ts","runtimeUsed":false}]),
+            &e,
+            "indexed_field_absences"
+        )
+        .unwrap()
+    );
+}
+#[test]
+fn comparator_explicit_filter_preserves_only_declared_output_scope() {
+    let observed = json!({"items":[{"owner":"adapterDevA","name":"expected"},{"owner":"adapterDevB","name":"outside-projection"}]});
+    let c = json!({"target":["items"],"actual_filter":{"owner":"adapterDevA"},"mode":"unordered_projected_eq","actual_transform":"none","expected":[{"name":"expected"}]});
+    assert_eq!(evaluate(&observed, &c)["state"], "PASS_PROJECTED_PROPERTY");
+}
+#[test]
+fn comparator_component_projection_rejects_missing_unsupported_observation() {
+    let checks = json!([
+        {"target":["subjects",{"path":"adapterDev.ts"},"semanticObservation","executed"],"expected":true,"mode":"eq","actual_transform":"none"},
+        {"target":["subjects",{"path":"adapterDev.ts"},"semanticObservation","reasons"],"expected":{"contains":["DEV_REASON"]},"mode":"reason_constraints","actual_transform":"none"}
+    ]);
+    assert!(validate_component_checks(checks.as_array().unwrap()).is_err());
+    let mut complete = checks.as_array().unwrap().clone();
+    complete[1]["operation_binding"] = json!({"status":"VERIFIED_SOURCE_OPERATION","target":complete[1]["target"],"baseline_operation":"DEV semantic component","authority":"independently authored DEV"});
+    complete.push(json!({"target":["subjects",{"path":"adapterDev.ts"},"semanticObservation","unsupported"],"expected":[],"mode":"eq","actual_transform":"none"}));
+    assert!(validate_component_checks(&complete).is_ok());
+    let observed = json!({"subjects":[{"path":"adapterDev.ts","semanticObservation":{"executed":true,"reasons":["DEV_REASON"],"unsupported":["DEV_NOT_IMPLEMENTED"]}}]});
+    assert!(
+        complete
+            .iter()
+            .any(|c| evaluate(&observed, c)["state"] != "PASS_PROJECTED_PROPERTY")
+    );
+}
+#[test]
+fn comparator_same_label_different_input_is_rejected_before_projection() {
+    let a = json!({"id":"development-shared-label","cwd":"/dev","sdk_directory":"/sdk/lib","case_sensitive":true,"files":{"/dev/adapterBinding.ts":"export const adapterBinding = 827;"},"utf16_files":{},"raw_files":{},"disabled":[]});
+    let mut b = a.clone();
+    b["files"]["/dev/adapterBinding.ts"] = json!("export const adapterBinding = 829;");
+    let sdk =
+        json!({"version":"development-sdk-only","archive_sha256":"development-archive","files":{}});
+    let input = json!({"domain":"T00-logical-input-v2","project":[{"location":{"domain":"repository","path":"adapterBinding.ts"},"representation":"text","text":"export const adapterBinding = 827;"}],"sdk":{"domain":"T00-logical-sdk-v2","version":"development-sdk-only","archive_sha256":"development-archive","files":[]}});
+    assert_eq!(verifier_logical_input(&a, &sdk).unwrap(), input);
+    let observed = json!({"request":a["id"],"request_id":identity::digest(&a),"input_manifest_id":identity::digest(&input),"producer_artifact_id":"sha256:development-artifact","complete":true,"global_admission_inferred":false});
+    assert!(observation_bound_to_request(&observed, &a, &sdk, "development-artifact").is_ok());
+    assert!(observation_bound_to_request(&observed, &b, &sdk, "development-artifact").is_err());
+}
+
+#[test]
+fn comparator_post_capture_setup_changes_physical_bytes_and_preserves_request() {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let root = std::env::temp_dir().join(format!("semctx-adapter-owned-dev-{stamp}"));
+    fs::create_dir_all(&root).unwrap();
+    let root = root.canonicalize().unwrap();
+    let source = "export const adapterCapture = 177;";
+    let request = materialize(
+        &json!({"files":{"adapterCapture.ts":source},"roots":["adapterCapture.ts"]}),
+        &root,
+        true,
+    )
+    .unwrap();
+    let request_path = root.join("request.json");
+    save(&request_path, &request).unwrap();
+    let original = fs::read(&request_path).unwrap();
+    let mutation = json!({"adapterCapture.ts":"export const adapterCapture = 179;"});
+    let proof = apply_physical_post_capture(&request, &mutation, &root, &request_path).unwrap();
+    assert_eq!(proof[0]["physical_differs_from_retained"], true);
+    assert_eq!(fs::read(&request_path).unwrap(), original);
+    assert_eq!(read_json(&request_path).unwrap(), request);
+    assert!(
+        apply_physical_post_capture(
+            &request,
+            &json!({"../foreign.ts":"foreign"}),
+            &root,
+            &request_path
+        )
+        .is_err()
+    );
+    fs::remove_dir_all(root).unwrap();
+}
+
+fn validate_reason_routing(check: &Value) -> Result<(), String> {
+    let target = check["target"]
+        .as_array()
+        .ok_or("invalid credited target")?;
+    let test_integrity = check["actual_transform"]
+        .as_str()
+        .is_some_and(|name| name.starts_with("qualified_test_integrity_reasons:"));
+    if target.last().and_then(Value::as_str) != Some("reasons") && !test_integrity {
+        return Ok(());
+    }
+    let binding = check
+        .get("operation_binding")
+        .ok_or("reason projection has no source operation binding")?;
+    if binding["status"] != "VERIFIED_SOURCE_OPERATION"
+        || binding["target"] != check["target"]
+        || binding
+            .get("baseline_operation")
+            .and_then(Value::as_str)
+            .is_none_or(str::is_empty)
+        || binding.get("authority").is_none_or(Value::is_null)
+        || (test_integrity && binding["baseline_operation"] != "getQualifiedCallIntegrityReasons")
+    {
+        return Err("reason projection does not match its verified source operation".into());
+    }
+    Ok(())
+}
+fn validate_component_checks(checks: &[Value]) -> Result<(), String> {
+    for check in checks {
+        validate_reason_routing(check)?;
+        let target = check["target"]
+            .as_array()
+            .ok_or("invalid credited target")?;
+        let component_index = target.iter().position(|s| {
+            [
+                "semanticObservation",
+                "sourceParsingObservation",
+                "moduleConfigurationObservations",
+                "javascriptObservation",
+                "sourceFileObservation",
+                "retainedScopeSyntaxObservation",
+            ]
+            .contains(&s.as_str().unwrap_or(""))
+        });
+        let Some(component_index) = component_index else {
+            continue;
+        };
+        if matches!(
+            target.last().and_then(Value::as_str),
+            Some("executed" | "unsupported")
+        ) {
+            continue;
+        }
+        let component_end = component_index
+            + 1
+            + usize::from(target[component_index] == "moduleConfigurationObservations");
+        if component_end > target.len() {
+            return Err("component mode is missing".into());
+        }
+        let prefix = &target[..component_end];
+        let observation = check
+            .get("observation")
+            .and_then(Value::as_u64)
+            .unwrap_or(0);
+        for (field, expected) in [("executed", json!(true)), ("unsupported", json!([]))] {
+            let mut path = prefix.to_vec();
+            path.push(json!(field));
+            if !checks.iter().any(|c| {
+                c["target"] == json!(path)
+                    && c["mode"] == "eq"
+                    && c["expected"] == expected
+                    && c.get("observation").and_then(Value::as_u64).unwrap_or(0) == observation
+            }) {
+                return Err(format!(
+                    "component projection lacks {field} completeness check"
+                ));
+            }
+        }
+    }
+    Ok(())
+}
+fn verifier_absolute_key(path: &str, sensitive: bool) -> Result<String, String> {
+    let path = path.replace('\\', "/");
+    if path.starts_with("//") {
+        return Err("UNC identity requires a separately verified native path recipe".into());
+    }
+    let (prefix, rest) = if let Some(rest) = path.strip_prefix('/') {
+        ("/".to_string(), rest)
+    } else if path.as_bytes().get(1) == Some(&b':') && path.as_bytes().get(2) == Some(&b'/') {
+        (path[..3].to_string(), &path[3..])
+    } else {
+        return Err("identity descriptor path must be absolute".into());
+    };
+    let mut parts = vec![];
+    for part in rest.split('/') {
+        match part {
+            "" | "." => {}
+            ".." => {
+                if parts.pop().is_none() {
+                    return Err("identity path escapes its native root".into());
+                }
+            }
+            _ => parts.push(part),
+        }
+    }
+    let key = format!("{prefix}{}", parts.join("/"));
+    Ok(if sensitive { key } else { key.to_lowercase() })
+}
+fn verifier_location(
+    root: &str,
+    path: &str,
+    sensitive: bool,
+    domain: &str,
+) -> Result<(String, Value), String> {
+    let root = verifier_absolute_key(root, sensitive)?;
+    let path = verifier_absolute_key(path, sensitive)?;
+    let relative = if path == root {
+        Some("")
+    } else {
+        path.strip_prefix(&format!("{}/", root.trim_end_matches('/')))
+    };
+    let location = match relative {
+        Some(relative) => json!({"domain":domain,"path":relative}),
+        None => json!({"domain":"external","path":path}),
+    };
+    Ok((path, location))
+}
+fn verifier_logical_input(request: &Value, sdk: &Value) -> Result<Value, String> {
+    let sensitive = request["case_sensitive"]
+        .as_bool()
+        .ok_or("missing native case sensitivity")?;
+    let root = value_text(request, "cwd")?;
+    let mut seen = BTreeSet::new();
+    let mut project = vec![];
+    for (field, representation, payload) in [
+        ("files", "text", "text"),
+        ("utf16_files", "utf16", "units"),
+        ("raw_files", "raw", "bytes"),
+    ] {
+        for (path, value) in request[field]
+            .as_object()
+            .ok_or("missing explicit input representation")?
+        {
+            let (key, location) = verifier_location(root, path, sensitive, "repository")?;
+            if !seen.insert(key) {
+                return Err("duplicate canonical captured input key".into());
+            }
+            let mut entry = json!({"location":location,"representation":representation});
+            if field == "raw_files" {
+                entry["bytes"] = value.get("bytes").ok_or("missing raw input bytes")?.clone();
+                entry["profile"] = value
+                    .get("profile")
+                    .ok_or("missing raw decoding profile")?
+                    .clone();
+            } else {
+                entry[payload] = value.clone();
+            }
+            project.push(entry);
+        }
+    }
+    project.sort_by_key(identity::canonical_json);
+    let sdk_root = value_text(request, "sdk_directory")?;
+    let mut sdk_files = vec![];
+    for (path, text) in sdk["files"].as_object().ok_or("missing SDK file map")? {
+        let (key, location) = verifier_location(sdk_root, path, sensitive, "sdk")?;
+        if !seen.insert(key) {
+            return Err("captured project/SDK canonical key collision".into());
+        }
+        sdk_files.push(json!({"location":location,"text":text}));
+    }
+    sdk_files.sort_by_key(identity::canonical_json);
+    Ok(
+        json!({"domain":"T00-logical-input-v2","project":project,"sdk":{"domain":"T00-logical-sdk-v2","version":sdk.get("version").ok_or("missing SDK version")?,"archive_sha256":sdk.get("archive_sha256").ok_or("missing SDK archive identity")?,"files":sdk_files}}),
+    )
+}
+fn observation_bound_to_request(
+    observed: &Value,
+    request: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    use semctx_r0_probe::receiver::InputId;
+    let input = verifier_logical_input(request, sdk)?;
+    let request_id = identity::digest(request);
+    let input_id = InputId::observed_json(&input);
+    if observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["request"] != request["id"]
+        || observed["request_id"] != request_id
+        || observed["input_manifest_id"] != input_id.as_str()
+        || observed["complete"] != true
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("native observation not bound to exact request/input/artifact".into());
+    }
+    Ok(
+        json!({"request_id":request_id,"input_manifest_id":input_id.as_str(),"artifact_sha256":artifact_sha,"descriptor_contract":"native Request DTO with every default explicit; independently encoded T00-logical-input-v2 project/SDK descriptor; request digest remains physical"}),
+    )
+}
+fn apply_physical_post_capture(
+    request: &Value,
+    mutations: &Value,
+    root: &Path,
+    request_path: &Path,
+) -> Result<Value, String> {
+    let before_request = fs::read(request_path).map_err(|e| e.to_string())?;
+    let root_canonical = root.canonicalize().map_err(|e| e.to_string())?;
+    let mut proof = vec![];
+    for (path, text) in mutations
+        .as_object()
+        .ok_or("invalid live-source mutation map")?
+    {
+        if !safe_relative(path) {
+            return Err("physical mutation escapes retained root".into());
+        }
+        let target = root.join(path);
+        let canonical = target.canonicalize().map_err(|e| e.to_string())?;
+        if !canonical.starts_with(&root_canonical) || canonical == request_path {
+            return Err("physical mutation target is outside captured source root".into());
+        }
+        let key = canonical.to_string_lossy().replace('\\', "/");
+        let retained = request["files"]
+            .get(&key)
+            .and_then(Value::as_str)
+            .ok_or("physical mutation must target captured source")?;
+        let physical_before = fs::read(&canonical).map_err(|e| e.to_string())?;
+        if physical_before != retained.as_bytes() {
+            return Err("physical source differs before declared post-capture mutation".into());
+        }
+        let changed = text.as_str().ok_or("non-string physical mutation")?;
+        if changed == retained {
+            return Err("post-capture mutation does not create required differing bytes".into());
+        }
+        fs::write(&canonical, changed.as_bytes()).map_err(|e| e.to_string())?;
+        let physical_after = fs::read(&canonical).map_err(|e| e.to_string())?;
+        if physical_after != changed.as_bytes() {
+            return Err("physical post-capture bytes differ from declared setup".into());
+        }
+        proof.push(json!({"path":path,"retained_sha256":sha(retained.as_bytes()),"physical_before_sha256":sha(&physical_before),"physical_after_sha256":sha(&physical_after),"physical_differs_from_retained":true}));
+    }
+    let after_request = fs::read(request_path).map_err(|e| e.to_string())?;
+    if after_request != before_request
+        || serde_json::from_slice::<Value>(&after_request).map_err(|e| e.to_string())? != *request
+    {
+        return Err("retained request changed during physical setup".into());
+    }
+    Ok(Value::Array(proof))
+}
+#[test]
+fn comparator_products_do_not_pass_with_identical_rows_and_unimplemented_context() {
+    let request = json!({"cwd":"/dev","roots":["/dev/adapterProducts.ts"]});
+    let recipe = json!({"checks":[{"target":["raw_extraction","symbols"]}]});
+    let actual = json!({"raw_extraction":{"symbols":[{"name":"adapterProducts","kind":"function"}]},"subjects":[{"path":"adapterProducts.ts","outcome":"analyzed","unimplemented":[]}]});
+    assert!(native_product_capability(&actual, &request, &recipe).is_ok());
+    let mut unsupported = actual.clone();
+    unsupported["subjects"][0]["unimplemented"] = json!(["DEV_NATIVE_CONTEXT_UNIMPLEMENTED"]);
+    assert!(native_product_capability(&unsupported, &request, &recipe).is_err());
+    let mut unknown = actual.clone();
+    unknown["subjects"][0]["outcome"] = json!("unknown");
+    assert!(native_product_capability(&unknown, &request, &recipe).is_err());
+    let mut malformed = actual.clone();
+    malformed["subjects"][0]["outcome"] = json!("malformed-state");
+    assert!(native_product_capability(&malformed, &request, &recipe).is_err());
+    let mut failed = actual.clone();
+    failed["subjects"][0]["outcome"] = json!("failed");
+    assert!(native_product_capability(&failed, &request, &recipe).is_err());
+    let recovery_recipe = json!({"checks":[{"target":["outlines","adapterProducts.ts","outline","hasSyntaxErrors"],"expected":true}]});
+    assert!(native_product_capability(&failed, &request, &recovery_recipe).is_ok());
+    assert!(native_product_capability(&unknown, &request, &recovery_recipe).is_err());
+    let mut refused = actual;
+    refused["subjects"][0]["outcome"] = json!("unsupported");
+    assert!(native_product_capability(&refused, &request, &recipe).is_ok());
+}
+
+fn native_product_capability(
+    observed: &Value,
+    request: &Value,
+    recipe: &Value,
+) -> Result<Value, String> {
+    let checks = recipe["checks"]
+        .as_array()
+        .ok_or("missing product checks")?;
+    let mut whole_program = false;
+    let mut paths = BTreeSet::new();
+    let mut explicit_syntax_recovery = BTreeSet::new();
+    for check in checks {
+        let target = check["target"].as_array().ok_or("missing product target")?;
+        match target.first().and_then(Value::as_str) {
+            Some("raw_extraction" | "assembly" | "calls") => whole_program = true,
+            Some("outlines") => {
+                if target.last().and_then(Value::as_str) == Some("hasSyntaxErrors")
+                    && check["expected"] == true
+                {
+                    explicit_syntax_recovery.insert(
+                        target
+                            .get(1)
+                            .and_then(Value::as_str)
+                            .ok_or("missing recovered outline path")?
+                            .to_string(),
+                    );
+                }
+                paths.insert(
+                    target
+                        .get(1)
+                        .and_then(Value::as_str)
+                        .ok_or("missing outline product path")?
+                        .to_string(),
+                );
+            }
+            Some("subjects") if target.get(2).and_then(Value::as_str) == Some("javascript") => {
+                paths.insert(
+                    target
+                        .get(1)
+                        .and_then(|v| v.get("path"))
+                        .and_then(Value::as_str)
+                        .ok_or("missing javascript product path")?
+                        .to_string(),
+                );
+            }
+            _ => (),
+        }
+    }
+    if whole_program {
+        let cwd = value_text(request, "cwd")?;
+        let prefix = format!("{cwd}/");
+        for root in request["roots"]
+            .as_array()
+            .ok_or("missing materialized roots")?
+        {
+            let path = root
+                .as_str()
+                .ok_or("invalid materialized root")?
+                .strip_prefix(&prefix)
+                .ok_or("root outside exact materialized capture")?;
+            if ![".d.ts", ".d.mts", ".d.cts"]
+                .iter()
+                .any(|suffix| path.ends_with(suffix))
+            {
+                paths.insert(path.into());
+            }
+        }
+    }
+    if paths.is_empty() {
+        return Ok(json!({"state":"NO_NATIVE_PRODUCT_PROJECTION_CREDITED"}));
+    }
+    let subjects = observed["subjects"]
+        .as_array()
+        .ok_or("missing native product subjects")?;
+    for path in &paths {
+        let matching = subjects
+            .iter()
+            .filter(|s| s["path"].as_str() == Some(path))
+            .collect::<Vec<_>>();
+        if matching.len() != 1 {
+            return Err(format!(
+                "native product subject cardinality differs for {path}"
+            ));
+        }
+        let subject = matching[0];
+        let unimplemented = subject["unimplemented"]
+            .as_array()
+            .ok_or("missing native product capability status")?;
+        if !unimplemented.is_empty() {
+            return Err(format!("native product context unimplemented for {path}"));
+        }
+        match value_text(subject, "outcome")? {
+            "analyzed" | "unsupported" | "disabled" | "not_applicable" => (),
+            "failed" if !whole_program && explicit_syntax_recovery.contains(path) => (),
+            "unknown" | "failed" => {
+                return Err(format!(
+                    "unknown or failed native product outcome for {path}"
+                ));
+            }
+            _ => return Err(format!("malformed native product outcome for {path}")),
+        }
+    }
+    Ok(
+        json!({"state":"NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE","paths":paths,"requires_global_analyzed":false}),
+    )
+}
+
+#[test]
+fn comparator_reason_routing_rejects_empty_wrong_component_and_missing_authority() {
+    let target = json!(["subjects",{"path":"adapterRouting.ts"},"semanticObservation","reasons"]);
+    let binding = json!({"target":target,"baseline_operation":"inspectSemanticDependencies","authority":"independent DEV component contract","status":"VERIFIED_SOURCE_OPERATION"});
+    let check = json!({"target":target,"mode":"reason_constraints","expected":{"exact_set":[]},"actual_transform":"none","operation_binding":binding});
+    let mut checks = vec![check.clone()];
+    for (field, value) in [("executed", json!(true)), ("unsupported", json!([]))] {
+        checks.push(json!({"target":["subjects",{"path":"adapterRouting.ts"},"semanticObservation",field],"mode":"eq","expected":value,"actual_transform":"none"}));
+    }
+    assert!(validate_component_checks(&checks).is_ok());
+    let mut poison = checks.clone();
+    for c in &mut poison {
+        let tail = c["target"].as_array().unwrap().last().unwrap().clone();
+        c["target"] = json!(["subjects",{"path":"adapterRouting.ts"},"moduleConfigurationObservations","retainedWithoutSource",tail]);
+    }
+    assert!(validate_component_checks(&poison).is_err());
+    let mut javascript_poison = checks.clone();
+    for c in &mut javascript_poison {
+        let tail = c["target"].as_array().unwrap().last().unwrap().clone();
+        c["target"] = json!(["subjects",{"path":"adapterRouting.ts"},"javascriptObservation",tail]);
+    }
+    assert!(validate_component_checks(&javascript_poison).is_err());
+    let mut missing = checks;
+    missing[0]
+        .as_object_mut()
+        .unwrap()
+        .remove("operation_binding");
+    assert!(validate_component_checks(&missing).is_err());
+}
+
+#[test]
+fn comparator_graph_projection_uses_actual_endpoint_nodes_and_rejects_orphans() {
+    let graph = json!({"nodes":[{"id":"dev-f","kind":"function","filePath":"devGraph.ts"},{"id":"dev-t","kind":"test","filePath":"devGraph.test.ts"}],"symbols":[{"id":"dev-f","name":"devGraph","scope":[]}],"edges":[{"kind":"tested_by","from":"dev-f","to":"dev-t"}]});
+    let expected = json!([{"kind":"tested_by","from":{"path":"devGraph.ts","symbol_path":"devGraph"},"to":{"path":"devGraph.test.ts","test_node":true}}]);
+    assert_eq!(
+        transform(&graph, "logical_coverage_edges").unwrap(),
+        expected
+    );
+    let mut poison = graph.clone();
+    poison["edges"][0]["to"] = json!("missing-node");
+    assert!(transform(&poison, "logical_coverage_edges").is_err());
+    let mut poison = graph;
+    poison["nodes"][0]["id"] = json!("changed-id");
+    assert!(transform(&poison, "logical_coverage_edges").is_err());
+}
+#[test]
+fn comparator_prefix_count_and_projection_filters_observe_extra_rows() {
+    assert!(
+        compare(
+            &json!([{"id":"dev:x#1"},{"id":"dev:x#2"}]),
+            &json!({"prefix":"dev:x#","count":2}),
+            "prefix_count"
+        )
+        .unwrap()
+    );
+    assert!(
+        !compare(
+            &json!([{"id":"dev:x#1"}]),
+            &json!({"prefix":"dev:x#","count":2}),
+            "prefix_count"
+        )
+        .unwrap()
+    );
+    assert!(
+        compare(
+            &json!([{}]),
+            &json!({"prefix":"dev:x#","count":0}),
+            "prefix_count"
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn comparator_coupled_relations_use_two_actual_observations_and_exact_cardinality() {
+    let relation = json!({"left_observation":0,"right_observation":1,"target":["rows"],"transform":"pluck:digest","expected_equal":[true,false]});
+    let a = json!({"rows":[{"digest":"dev-a"},{"digest":"dev-b"}]});
+    let b = json!({"rows":[{"digest":"dev-a"},{"digest":"dev-c"}]});
+    assert_eq!(
+        evaluate_relation(&[a.clone(), b.clone()], &relation)["state"],
+        "PASS_PROJECTED_PROPERTY"
+    );
+    assert_ne!(
+        evaluate_relation(&[a.clone(), a.clone()], &relation)["state"],
+        "PASS_PROJECTED_PROPERTY"
+    );
+    assert_ne!(
+        evaluate_relation(std::slice::from_ref(&a), &relation)["state"],
+        "PASS_PROJECTED_PROPERTY"
+    );
+    let short = json!({"rows":[{"digest":"dev-a"}]});
+    assert_ne!(
+        evaluate_relation(&[a, short], &relation)["state"],
+        "PASS_PROJECTED_PROPERTY"
+    );
+}
+
+#[test]
+fn comparator_primitive_binding_rejects_swapped_descriptor_artifact_and_incapacity() {
+    let request = json!({"operation":"decode","bytes":[65,66],"profile":"compiler_system","offsets_utf16":[0,2]});
+    let observed = json!({"operation":"decode","executed":true,"unsupported":[],"producer_artifact_id":"sha256:dev-native-artifact","request_descriptor_id":identity::digest(&request)});
+    assert!(primitive_bound_to_request(&observed, &request, "dev-native-artifact").is_ok());
+    let mut swapped = request.clone();
+    swapped["bytes"] = json!([65, 67]);
+    assert!(primitive_bound_to_request(&observed, &swapped, "dev-native-artifact").is_err());
+    let mut poison = observed.clone();
+    poison["unsupported"] = json!(["DEV_MISSING_NATIVE_OPERATION"]);
+    assert!(primitive_bound_to_request(&poison, &request, "dev-native-artifact").is_err());
+    assert!(primitive_bound_to_request(&observed, &request, "dev-other-artifact").is_err());
+}
+
+#[test]
+fn comparator_config_diagnostic_projection_retains_unexpected_18003_and_rejects_malformed_codes() {
+    let valid = json!([
+        "SOURCE_CONFIGURATION_INVALID:5023:raw wording",
+        "SOURCE_GLOBAL_SCRIPT_UNSUPPORTED"
+    ]);
+    assert_eq!(
+        transform(&valid, "configuration_diagnostic_projection").unwrap(),
+        json!([{"reason":"SOURCE_CONFIGURATION_INVALID","code":5023}])
+    );
+    let extra = json!(["SOURCE_CONFIGURATION_INVALID:18003:no inputs"]);
+    assert!(
+        !compare(
+            &transform(&extra, "configuration_diagnostic_projection").unwrap(),
+            &json!([]),
+            "unordered_projected_eq"
+        )
+        .unwrap()
+    );
+    assert!(
+        transform(
+            &json!(["SOURCE_CONFIGURATION_INVALID:wrong:message"]),
+            "configuration_diagnostic_projection"
+        )
+        .is_err()
+    );
+    assert!(
+        transform(
+            &json!(["SOURCE_CONFIGURATION_INVALID:5023"]),
+            "configuration_diagnostic_projection"
+        )
+        .is_err()
+    );
+    assert!(transform(&json!([null]), "configuration_diagnostic_projection").is_err());
+}
+
+#[test]
+fn comparator_worker_refusal_and_descriptor_binding_do_not_promote_useful_success() {
+    let request = json!({"schemaVersion":9,"jobId":"dev-worker"});
+    let sdk = json!({"version":"dev-sdk-only"});
+    let observed = json!({"schemaVersion":1,"jobId":"unbound","ok":false,"extraction_started":false,"request_descriptor_id":identity::digest(&request),"producer_artifact_id":"sha256:dev-worker-artifact"});
+    assert!(
+        worker_bound_to_request(&observed, &request, &sdk, "dev-worker-artifact", true).is_ok()
+    );
+    assert!(
+        worker_bound_to_request(&observed, &request, &sdk, "dev-worker-artifact", false).is_err()
+    );
+    let mut poison = observed.clone();
+    poison["extraction_started"] = json!(true);
+    assert!(worker_bound_to_request(&poison, &request, &sdk, "dev-worker-artifact", true).is_err());
+    assert!(
+        worker_bound_to_request(&observed, &json!({}), &sdk, "dev-worker-artifact", true).is_err()
+    );
+}
+
+#[test]
+fn comparator_nonreason_component_flag_needs_execution_and_no_unsupported() {
+    let check = json!({"target":["subjects",{"path":"devParsingFlag.mjs"},"javascriptObservation","parseFailed"],"expected":false,"mode":"eq","actual_transform":"none"});
+    assert!(validate_component_checks(std::slice::from_ref(&check)).is_err());
+    let mut complete = vec![check];
+    for (field, value) in [("executed", json!(true)), ("unsupported", json!([]))] {
+        complete.push(json!({"target":["subjects",{"path":"devParsingFlag.mjs"},"javascriptObservation",field],"expected":value,"mode":"eq","actual_transform":"none"}));
+    }
+    assert!(validate_component_checks(&complete).is_ok());
+    let mut other_observation = complete.clone();
+    other_observation[0]["observation"] = json!(1);
+    assert!(validate_component_checks(&other_observation).is_err());
+    let observed = json!({"subjects":[{"path":"devParsingFlag.mjs","javascriptObservation":{"parseFailed":false,"executed":false,"unsupported":["DEV_NOT_IMPLEMENTED"]}}]});
+    assert!(
+        complete
+            .iter()
+            .any(|c| evaluate(&observed, c)["state"] != "PASS_PROJECTED_PROPERTY")
+    );
+}
+
+#[test]
+fn comparator_logical_binding_preserves_relocation_but_rejects_aliases_and_sdk_changes() {
+    let sdk = json!({"version":"development-sdk","archive_sha256":"development-archive","files":{"/sdk/lib/dev.d.ts":"declare const development: number;"}});
+    let a = json!({"cwd":"/alpha","sdk_directory":"/sdk/lib","case_sensitive":false,"files":{"/alpha/SOURCE.ts":"export const development = 907;"},"utf16_files":{},"raw_files":{}});
+    let mut b = a.clone();
+    b["cwd"] = json!("/beta");
+    b["files"] = json!({"/beta/source.ts":"export const development = 907;"});
+    let logical = verifier_logical_input(&a, &sdk).unwrap();
+    assert_eq!(logical, verifier_logical_input(&b, &sdk).unwrap());
+    assert_ne!(identity::digest(&a), identity::digest(&b));
+    let mut alias = a.clone();
+    alias["utf16_files"] = json!({"/ALPHA/dir/../source.ts":[1]});
+    assert!(verifier_logical_input(&alias, &sdk).is_err());
+    let mut collision = a.clone();
+    collision["files"]["/sdk/lib/dev.d.ts"] = json!("collision");
+    assert!(verifier_logical_input(&collision, &sdk).is_err());
+    for field in ["version", "archive_sha256"] {
+        let mut changed = sdk.clone();
+        changed[field] = json!("foreign");
+        assert_ne!(logical, verifier_logical_input(&a, &changed).unwrap());
+    }
+    let mut changed = sdk.clone();
+    changed["files"]["/sdk/lib/dev.d.ts"] = json!("different");
+    assert_ne!(logical, verifier_logical_input(&a, &changed).unwrap());
+    assert!(verifier_absolute_key("//server/share/file.ts", true).is_err());
+}
+
+#[test]
+fn comparator_worker_identical_facts_cannot_mask_unknown_frontend_or_missing_roots() {
+    let request = json!({"rootAbsPaths":["/dev/workerCapability.ts"]});
+    let good = json!({"extraction":{"symbols":[]},"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/workerCapability.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[],"resolutionErrors":{}}});
+    assert!(worker_frontend_capability(&good, &request, true).is_ok());
+    for (field, value) in [
+        ("executed", json!(false)),
+        ("unsupported", json!(["DEV_UNKNOWN"])),
+        (
+            "workspaceIssues",
+            json!([{"path":"/dev/x","kind":"unsupported","detail":"DEV_UNKNOWN"}]),
+        ),
+        ("resolutionErrors", json!({"/dev/x":"DEV_UNKNOWN"})),
+        ("roots", json!([])),
+    ] {
+        let mut poison = good.clone();
+        poison["frontendCapabilityObservation"][field] = value;
+        assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    }
+    let mut poison = good.clone();
+    poison["frontendCapabilityObservation"]["roots"][0]["parseDiagnosticCodes"] = json!([1134]);
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut poison = good.clone();
+    poison["frontendCapabilityObservation"]["roots"][0]["loaded"] = json!(false);
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+}
+
+#[test]
+fn comparator_system_result_binding_rejects_same_values_with_unexecuted_or_wrong_query() {
+    let request = json!({"files":{"/dev/system.ts":"retained development"},"queries":[{"operation":"file_exists","path":"/dev/system.ts"}]});
+    let good = json!({"request_descriptor_id":identity::digest(&request),"requestDescriptorId":identity::digest(&request),"producer_artifact_id":"sha256:development-system","executed":true,"unsupported":[],"probes":[],"results":[{"operation":"file_exists","path":"/dev/system.ts","executed":true,"unsupported":[],"refusals":[],"value":true}]});
+    assert!(system_complete_binding(&good, &request, "development-system").is_ok());
+    for (field, value) in [
+        ("executed", json!(false)),
+        ("unsupported", json!(["DEV_UNKNOWN"])),
+        ("refusals", json!(["DEV_REFUSED"])),
+        ("path", json!("/dev/foreign.ts")),
+        ("operation", json!("directory_exists")),
+    ] {
+        let mut poison = good.clone();
+        poison["results"][0][field] = value;
+        assert!(system_complete_binding(&poison, &request, "development-system").is_err());
+    }
+    let mut poison = good.clone();
+    poison["request_descriptor_id"] = json!("sha256:foreign");
+    assert!(system_complete_binding(&poison, &request, "development-system").is_err());
+    let mut poison = good.clone();
+    poison["results"] = json!([]);
+    assert!(system_complete_binding(&poison, &request, "development-system").is_err());
+}
+
+#[test]
+fn comparator_system_malformed_stdout_is_unit_nonpass_without_retry_or_fallback() {
+    let malformed = system_observation_json("not a native JSON observation").unwrap_err();
+    assert_eq!(malformed["pass"], false);
+    assert_eq!(malformed["state"], "MALFORMED_SYSTEM_NATIVE_OBSERVATION");
+    assert!(system_observation_json("{}").is_ok());
+    assert!(system_complete_binding(&json!({}), &json!({}), "development-system").is_err());
+}
+
+fn repair_units(ids: &[&str]) {
+    let recipe_path =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"));
+    let fixture = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("repair fixture"),
+    ))
+    .unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join(format!("units-{}", ids[0].split("::").next().unwrap()));
+    assert!(!out.exists(), "repair evidence must be fresh");
+    fs::create_dir_all(&out).unwrap();
+    let recipes = read_json(&recipe_path).unwrap();
+    verify_sources(Path::new(fixture["cases_path"].as_str().unwrap()), &recipes).unwrap();
+    let artifact = Path::new(fixture["artifact_path"].as_str().unwrap());
+    let helper = Path::new(fixture["helper_path"].as_str().unwrap());
+    let sdk_path = Path::new(fixture["sdk_path"].as_str().unwrap());
+    let artifact_sha = fixture["artifact_sha256"].as_str().unwrap();
+    let helper_sha = fixture["helper_sha256"].as_str().unwrap();
+    exact_hash(artifact, artifact_sha).unwrap();
+    exact_hash(helper, helper_sha).unwrap();
+    exact_hash(sdk_path, fixture["sdk_sha256"].as_str().unwrap()).unwrap();
+    let sdk = read_json(sdk_path).unwrap();
+    let mut results = vec![];
+    for (index, id) in ids.iter().enumerate() {
+        let recipe = recipes["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["unit_id"] == *id)
+            .expect("existing frozen unit");
+        assert!(
+            recipe["gaps"].as_array().unwrap().is_empty(),
+            "focused replay requires a fully mapped recipe: {id}"
+        );
+        let dir = out.join(format!("unit-{index:03}"));
+        let result = match recipe["surface"].as_str().unwrap() {
+            "qualified_flow_cli" => qualified_flow_replay::run(recipe, &dir, &fixture),
+            "reader_error_component" => reader_error_replay::run(recipe, &dir),
+            "workspace_system_cli" => workspace_system_replay::run(recipe, &dir, &fixture),
+            "retained_runtime_cli" => retained_runtime_replay::run(recipe, &dir, &fixture),
+            "repository_eligibility_cli" => repository_replay::run_eligibility(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                artifact_sha,
+                helper_sha,
+            ),
+            "ambiguous_exports_cli" => ambiguous_exports_replay::run(recipe, &dir, &fixture),
+            "source_confinement_cli" => source_confinement_replay::run(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                sdk_path,
+                artifact_sha,
+                helper_sha,
+            ),
+            "legacy_identity_cli" => legacy_identity_replay::run(recipe, &dir, &fixture),
+            "repository_discovery_cli" => {
+                repository_replay::run(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+            }
+            "native_transport_cli" => run_transport_recipe(recipe, &dir, &fixture),
+            "parallel_cli" => parallel_replay::run(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "raw_cli" => run_raw_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "worker_consumer_cli" => {
+                run_consumer_recipe(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+            }
+            "worker_cli" => run_worker_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "process_fault_cli" => run_process_fault_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "missing_retained_test_cli" => run_missing_retained_test_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "retained_discovery_cli" => run_retained_discovery_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "controlled_assembly_cli" => run_controlled_assembly_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "configured_query_cli" => run_configured_query_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            ),
+            "primitive_cli" => {
+                run_primitive_recipe(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+            }
+            other => panic!("unsupported repair unit surface {other}"),
+        }
+        .unwrap_or_else(|error| json!({"pass":false,"error":error}));
+        results.push(json!({"unit_id":id,"result":result}));
+    }
+    save(&out.join("repair-results.json"), &json!(results)).unwrap();
+    assert!(
+        results.iter().all(|r| r["result"]["pass"] == true),
+        "repair observations: {}",
+        serde_json::to_string(&results).unwrap()
+    );
+}
+
+#[test]
+fn gap_workspace_system_reads_preserve_link_precedence_and_outside_boundary() {
+    repair_units(&[
+        "ORD-WORKSPACE-SYSTEM-READS::variant-01",
+        "ORD-WORKSPACE-SYSTEM-READS::variant-02",
+    ]);
+}
+
+#[test]
+fn repair_role_context_preserves_canonical_test_owners() {
+    repair_units(&[
+        "P07-namespace-real-owner::base",
+        "V2-E04-default-through-barrel-test-owner::base",
+    ]);
+}
+
+#[test]
+fn gap_components_compare_source_markers_javascript_variant_and_real_emission() {
+    repair_units(&[
+        "N21-actual-sdk-map-callback::base",
+        "P16-explicit-esm-boundary::base",
+        "V2-F04-augmentation-is-distinct-from-module-marker::base",
+        "N17b-classic-factory-is-real-generated-call::base",
+        "N17c-importhelpers-es5-actual-emission::base",
+    ]);
+}
+
+#[test]
+fn gap_existing_components_compare_empty_configuration_unmodeled_caller_and_comment_digest() {
+    repair_units(&[
+        "V2-F01-empty-config-no-input-diagnostic::base",
+        "V2-C03-object-literal-caller-unmodeled::base",
+        "P09-outline-logical-set::digest-relation-01",
+        "P09-outline-logical-set::digest-relation-02",
+    ]);
+}
+
+#[test]
+fn gap_retained_outside_configuration_uses_the_declared_sibling_capture() {
+    repair_units(&["V2-F02-outside-inherited-config::base"]);
+}
+
+#[test]
+fn gap_ordinary_configuration_relations_and_conditional_exports_use_actual_native_links() {
+    repair_units(&[
+        "N02-legacy-ignores-config::base",
+        "V2-E08-ordinary-conditional-package-exports::base",
+    ]);
+}
+
+#[test]
+fn gap_retained_callable_components_use_native_initializer_coordinates() {
+    repair_units(&[
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-01",
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-02",
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-03",
+        "ORD-CALLABLE-TYPE-ORIGIN::variant-04",
+        "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+        "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+    ]);
+}
+
+#[test]
+fn gap_syntactic_relative_imports_use_the_native_primitive() {
+    repair_units(&[
+        "P26-independent-relative-comparator::base",
+        "N26-comparator-does-not-guess-dynamic-or-bare::base",
+    ]);
+}
+
+#[test]
+fn comparator_materialized_sibling_capture_preserves_bytes_and_refuses_escape_or_collision() {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let test_root = std::env::temp_dir().join(format!("semctx-sibling-capture-dev-{stamp}"));
+    let envelope = test_root.join("input-envelope");
+    let root = envelope.join("workspace");
+    fs::create_dir_all(&root).unwrap();
+    #[cfg(unix)]
+    let root = {
+        let alias = test_root.join("envelope-alias");
+        std::os::unix::fs::symlink(&envelope, &alias).unwrap();
+        alias.join("workspace")
+    };
+    let source = "export const siblingCaptureDev = 229;";
+    let outside = "{\"compilerOptions\":{\"module\":\"ESNext\"}}";
+    let template = json!({"files":{"main.ts":source},"roots":["main.ts"],"outside_root_retained_files":{"../adjacent.json":outside}});
+    let request = materialize(&template, &root, true).unwrap();
+    let path = envelope.join("adjacent.json");
+    assert_eq!(fs::read_to_string(&path).unwrap(), outside);
+    let key = std::path::absolute(root.parent().unwrap().join("adjacent.json"))
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    assert_eq!(request["files"][&key], outside);
+    assert_eq!(fs::read_to_string(&key).unwrap(), outside);
+    assert!(request.get("outside_root_retained_files").is_none());
+    let mut conflicting = template.clone();
+    conflicting["outside_root_retained_files"]["../adjacent.json"] = json!("changed");
+    assert!(materialize(&conflicting, &root, true).is_err());
+    assert_eq!(fs::read_to_string(&path).unwrap(), outside);
+    for invalid in [
+        "../../escaped.json",
+        "../nested/file.json",
+        "/absolute.json",
+        "outside.json",
+        "..\\outside.json",
+        "../.",
+        "../workspace",
+    ] {
+        let mut bad = template.clone();
+        bad["outside_root_retained_files"] = json!({invalid:"foreign"});
+        assert!(materialize(&bad, &root, true).is_err(), "{invalid}");
+    }
+    for malformed in [json!([]), json!({"../other.json":null})] {
+        let mut bad = template.clone();
+        bad["outside_root_retained_files"] = malformed;
+        assert!(materialize(&bad, &root, true).is_err());
+    }
+    assert!(!envelope.parent().unwrap().join("escaped.json").exists());
+    fs::remove_dir_all(test_root).unwrap();
+}
+
+#[test]
+fn repair_worker_mutations_start_from_an_accepted_emit_subset() {
+    repair_units(&[
+        "N13-malformed-worker-evidence::mutation-01",
+        "N13-malformed-worker-evidence::mutation-02",
+        "N13-malformed-worker-evidence::mutation-03",
+    ]);
+}
+
+#[test]
+fn repair_version_arbitrations_preserve_raw_failures_and_frozen_expectations() {
+    let fixture = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("repair fixture"),
+    ))
+    .unwrap();
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"),
+    ))
+    .unwrap();
+    verify_sources(Path::new(fixture["cases_path"].as_str().unwrap()), &recipes).unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join("version-arbitrations");
+    assert!(!out.exists(), "repair evidence must be fresh");
+    fs::create_dir_all(&out).unwrap();
+    let artifact = Path::new(fixture["artifact_path"].as_str().unwrap());
+    let helper = Path::new(fixture["helper_path"].as_str().unwrap());
+    let sdk_path = Path::new(fixture["sdk_path"].as_str().unwrap());
+    let artifact_sha = fixture["artifact_sha256"].as_str().unwrap();
+    let helper_sha = fixture["helper_sha256"].as_str().unwrap();
+    exact_hash(sdk_path, fixture["sdk_sha256"].as_str().unwrap()).unwrap();
+    let sdk = read_json(sdk_path).unwrap();
+    let mut results = vec![];
+    for (index, (id, arbitration)) in [
+        (
+            "N17c-importhelpers-es5-actual-emission::base",
+            "T00-ARB-003",
+        ),
+        ("ORD-DIALECT-CAPABILITY::base", "T00-ARB-004"),
+        ("ENC::UTF16LE-lone-high-surrogate::ordinary", "T00-ARB-002"),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let recipe = recipes["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .chain(recipes["support_recipes"].as_array().unwrap())
+            .find(|r| r["unit_id"] == id || r["support_id"] == id)
+            .unwrap();
+        let before = recipe.clone();
+        let dir = out.join(format!("case-{index:03}"));
+        let result = if recipe["surface"] == "raw_cli" {
+            run_raw_recipe(
+                recipe,
+                &dir,
+                artifact,
+                helper,
+                (sdk_path, &sdk),
+                artifact_sha,
+                helper_sha,
+            )
+        } else {
+            run_primitive_recipe(recipe, &dir, artifact, helper, artifact_sha, helper_sha)
+        }
+        .unwrap();
+        assert_eq!(*recipe, before);
+        let observation_dir = if recipe["surface"] == "raw_cli" {
+            dir.clone()
+        } else {
+            dir.join("observation-000")
+        };
+        let process = read_json(&observation_dir.join("process-outcome.json")).unwrap();
+        let observed: Value = serde_json::from_str(process["stdout"].as_str().unwrap()).unwrap();
+        assert!(version_arbitration(recipe, std::slice::from_ref(&observed), false).is_null());
+        assert!(version_arbitration(recipe, &[], true).is_null());
+        assert!(version_arbitration(recipe, &[observed.clone(), observed.clone()], true).is_null());
+        for field in [
+            "unit_id",
+            "support_id",
+            "frozen_unit_sha256",
+            "source_canonical_sha256",
+            "requests",
+            "primitive_requests",
+            "checks",
+            "relations",
+            "gaps",
+            "physical_live_after_capture",
+        ] {
+            let mut poison = recipe.clone();
+            poison[field] = json!("foreign or missing contract");
+            assert!(
+                version_arbitration(&poison, std::slice::from_ref(&observed), true).is_null(),
+                "{id}/{field}"
+            );
+        }
+        let mut missing_check = recipe.clone();
+        missing_check["checks"].as_array_mut().unwrap().pop();
+        assert!(
+            version_arbitration(&missing_check, std::slice::from_ref(&observed), true).is_null()
+        );
+        let mut extra_check = recipe.clone();
+        extra_check["checks"]
+            .as_array_mut()
+            .unwrap()
+            .push(json!({"target":[],"expected":true,"mode":"eq","actual_transform":"none"}));
+        assert!(version_arbitration(&extra_check, std::slice::from_ref(&observed), true).is_null());
+        let poisons = if index == 0 {
+            vec![
+                ("/native_compiler_version", json!("7.2.0-dev")),
+                ("/sdk_version", json!("7.1.0-dev")),
+                ("/engine_revision", json!("foreign")),
+                (
+                    "/subjects/0/runtimeConfiguration/unsupported",
+                    json!(["unsupported"]),
+                ),
+                (
+                    "/subjects/0/runtimeConfiguration/emission/observation/output_text",
+                    json!("import { __awaiter } from 'tslib'; export const changed = 1;"),
+                ),
+            ]
+        } else if index == 1 {
+            vec![
+                ("/native_compiler_version", json!("7.2.0-dev")),
+                ("/sdk_version", json!("7.1.0-dev")),
+                ("/engine_revision", json!("foreign")),
+                (
+                    "/subjects/0/capabilityScope/dialectVersion",
+                    json!("7.2.0-dev"),
+                ),
+                ("/subjects/0/sourceFileObservation/executed", json!(false)),
+                ("/subjects", json!([])),
+            ]
+        } else {
+            vec![
+                ("/decoded_utf16_units", json!([55358])),
+                (
+                    "/source_parsing_observation/has_syntax_errors",
+                    json!(false),
+                ),
+                ("/source_parsing_observation/executed", json!(false)),
+                (
+                    "/source_parsing_observation/unsupported",
+                    json!(["unsupported"]),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics/0/code",
+                    json!(1491),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics/0/end_utf16",
+                    json!(1),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics/0/message",
+                    json!("foreign"),
+                ),
+                (
+                    "/source_parsing_observation/diagnostics",
+                    json!([{"code":1490},{"code":1127}]),
+                ),
+            ]
+        };
+        for (path, value) in poisons {
+            let mut poison = observed.clone();
+            *poison.pointer_mut(path).unwrap() = value;
+            assert!(
+                version_arbitration(recipe, &[poison], true).is_null(),
+                "{id}/{path}"
+            );
+        }
+        results.push(json!({"id":id,"arbitration":arbitration,"result":result}));
+    }
+    save(&out.join("results.json"), &json!(results)).unwrap();
+    for result in results {
+        assert_eq!(result["result"]["pass"], false);
+        assert!(
+            result["result"]["state"]
+                .as_str()
+                .unwrap()
+                .starts_with("NONPASS")
+        );
+        assert_eq!(
+            result["result"]["version_arbitration"]["id"], result["arbitration"],
+            "{}",
+            result["id"]
+        );
+        assert_eq!(
+            result["result"]["version_arbitration"]["qualification_credit"],
+            0
+        );
+    }
+}
+
+#[test]
+fn repair_default_declaration_rejects_the_frozen_default_expression_reason() {
+    let id = "V2-E05-anonymous-default-nested-owner::base";
+    repair_units(&[id, "PUBLIC-PATHE-03-original-index-qualified-refusal::base"]);
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").unwrap(),
+    ))
+    .unwrap();
+    let recipe = recipes["recipes"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|recipe| recipe["unit_id"] == id)
+        .unwrap();
+    let dir = PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").unwrap())
+        .join("units-V2-E05-anonymous-default-nested-owner/unit-000");
+    let outcome = read_json(&dir.join("process-outcome.json")).unwrap();
+    let observed: Value = serde_json::from_str(outcome["stdout"].as_str().unwrap()).unwrap();
+    for (field, value) in [
+        ("reasons", json!(["SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED"])),
+        ("executed", json!(false)),
+        ("unsupported", json!(["DEV_COMPONENT_UNAVAILABLE"])),
+    ] {
+        let mut poison = observed.clone();
+        let subject = poison["subjects"]
+            .as_array_mut()
+            .unwrap()
+            .iter_mut()
+            .find(|subject| subject["path"] == "default.mjs")
+            .unwrap();
+        subject["moduleConfigurationObservations"]["retainedWithoutSource"][field] = value;
+        assert!(
+            recipe["checks"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|check| evaluate(&poison, check)["state"] != "PASS_PROJECTED_PROPERTY"),
+            "frozen default-declaration comparison accepts {field}"
+        );
+    }
+    let mut other_reason = observed;
+    let subject = other_reason["subjects"]
+        .as_array_mut()
+        .unwrap()
+        .iter_mut()
+        .find(|subject| subject["path"] == "default.mjs")
+        .unwrap();
+    subject["moduleConfigurationObservations"]["retainedWithoutSource"]["reasons"] =
+        json!(["DEV_UNRELATED_REASON"]);
+    assert!(
+        recipe["checks"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|check| evaluate(&other_reason, check)["state"] == "PASS_PROJECTED_PROPERTY")
+    );
+}
+
+#[test]
+fn repair_encoding_coordinates_submit_only_utf16_offsets() {
+    let fixture = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("repair fixture"),
+    ))
+    .unwrap();
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"),
+    ))
+    .unwrap();
+    verify_sources(Path::new(fixture["cases_path"].as_str().unwrap()), &recipes).unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join("encoding");
+    assert!(!out.exists(), "repair evidence must be fresh");
+    fs::create_dir_all(&out).unwrap();
+    let artifact = Path::new(fixture["artifact_path"].as_str().unwrap());
+    let helper = Path::new(fixture["helper_path"].as_str().unwrap());
+    let artifact_sha = fixture["artifact_sha256"].as_str().unwrap();
+    let helper_sha = fixture["helper_sha256"].as_str().unwrap();
+    exact_hash(artifact, artifact_sha).unwrap();
+    exact_hash(helper, helper_sha).unwrap();
+    let mut results = vec![];
+    for (index, id) in [
+        "ENC::R02-retained-bom::retained",
+        "ENC::R06-combined-retained-raw-text::ordinary",
+        "ENC::R06-combined-retained-raw-text::retained",
+    ]
+    .iter()
+    .enumerate()
+    {
+        let recipe = recipes["support_recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["support_id"] == *id)
+            .expect("existing frozen support");
+        let result = run_primitive_recipe(
+            recipe,
+            &out.join(format!("support-{index:03}")),
+            artifact,
+            helper,
+            artifact_sha,
+            helper_sha,
+        )
+        .unwrap_or_else(|error| json!({"pass":false,"error":error}));
+        results.push(json!({"support_id":id,"result":result}));
+    }
+    save(&out.join("repair-results.json"), &json!(results)).unwrap();
+    assert!(
+        results.iter().all(|r| r["result"]["pass"] == true),
+        "encoding repairs: {}",
+        serde_json::to_string(&results).unwrap()
+    );
+}
+
+#[test]
+fn comparator_worker_capability_accepts_only_bound_negative_ancestor_directory_probes() {
+    let request =
+        json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
+    let issue = json!({"path":"/dev/outer/node_modules/@types","kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"});
+    let probe = json!({"path":"/dev/outer/node_modules/@types","operation":"directory_exists","found":false,"content_id":null});
+    let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[issue],"resolutionErrors":{}},"compiler_probes":[probe]});
+    assert!(worker_frontend_capability(&good, &request, true).is_ok());
+    for sensitive in [false, true] {
+        let mut with_capability = good.clone();
+        with_capability["compiler_probes"]
+            .as_array_mut()
+            .unwrap()
+            .push(
+                json!({"path":"","operation":"case_sensitive","found":sensitive,"content_id":null}),
+            );
+        assert!(worker_frontend_capability(&with_capability, &request, sensitive).is_ok());
+        for (field, value) in [
+            ("operation", json!("read_file")),
+            ("found", json!(null)),
+            ("content_id", json!("sha256:forged")),
+        ] {
+            let mut poison = with_capability.clone();
+            poison["compiler_probes"][1][field] = value;
+            assert!(worker_frontend_capability(&poison, &request, sensitive).is_err());
+        }
+    }
+    for path in [
+        "/dev/outer",
+        "/dev",
+        "/",
+        "/node_modules/@types",
+        "/dev/node_modules/@types",
+    ] {
+        let mut variant = good.clone();
+        variant["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] = json!(path);
+        variant["compiler_probes"][0]["path"] = json!(path);
+        assert!(
+            worker_frontend_capability(&variant, &request, true).is_ok(),
+            "allowed discovery directory {path}"
+        );
+    }
+    for (field, value) in [
+        ("kind", json!("unsupported")),
+        ("kind", json!(null)),
+        ("detail", json!("UNKNOWN")),
+        ("detail", json!("WORKSPACE_NESTED_REPOSITORY")),
+        ("path", json!("/dev/outer/workspace/main.ts")),
+        ("path", json!("/dev/outer/workspace-adjacent")),
+        ("path", json!("/unrelated")),
+        ("path", json!("/dev/outer/../outer")),
+        ("path", json!("/dev/outer/@types")),
+    ] {
+        let mut poison = good.clone();
+        poison["frontendCapabilityObservation"]["workspaceIssues"][0][field] = value;
+        assert!(
+            worker_frontend_capability(&poison, &request, true).is_err(),
+            "unapproved issue field {field}"
+        );
+    }
+    for (field, value) in [
+        ("operation", json!("read_file")),
+        ("operation", json!("file_exists")),
+        ("found", json!(true)),
+        ("content_id", json!("sha256:forged")),
+    ] {
+        let mut poison = good.clone();
+        poison["compiler_probes"][0][field] = value;
+        assert!(
+            worker_frontend_capability(&poison, &request, true).is_err(),
+            "unsafe probe field {field}"
+        );
+    }
+    let mut poison = good.clone();
+    poison["compiler_probes"][0]
+        .as_object_mut()
+        .unwrap()
+        .remove("content_id");
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut poison = good.clone();
+    poison["compiler_probes"] = json!([]);
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut poison = good.clone();
+    poison["compiler_probes"].as_array_mut().unwrap().push(json!({"path":"/dev/outer/node_modules/@types","operation":"read_file","found":true,"content_id":"sha256:outside"}));
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut poison = good.clone();
+    poison["frontendCapabilityObservation"]["workspaceIssues"].as_array_mut().unwrap().push(json!({"path":"/dev/outer/workspace/main.ts","kind":"refusal","detail":"WORKSPACE_NESTED_REPOSITORY"}));
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut poison = good.clone();
+    poison["frontendCapabilityObservation"]["workspaceIssues"][0]["unsupported"] = json!(true);
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    for (field, value) in [
+        ("executed", json!(false)),
+        ("unsupported", json!(["UNKNOWN"])),
+        (
+            "resolutionErrors",
+            json!({"/dev/outer/workspace/main.ts":"UNKNOWN"}),
+        ),
+        ("roots", json!([])),
+        ("workspaceIssues", json!(null)),
+    ] {
+        let mut poison = good.clone();
+        poison["frontendCapabilityObservation"][field] = value;
+        assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    }
+    let mut poison = good.clone();
+    poison["frontendCapabilityObservation"]["roots"][0]["loaded"] = json!(false);
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut poison = good.clone();
+    poison["frontendCapabilityObservation"]["roots"][0]["parseDiagnosticCodes"] = json!([1134]);
+    assert!(worker_frontend_capability(&poison, &request, true).is_err());
+    let mut malformed_request = request.clone();
+    malformed_request
+        .as_object_mut()
+        .unwrap()
+        .remove("repoRoot");
+    assert!(worker_frontend_capability(&good, &malformed_request, true).is_err());
+    malformed_request["repoRoot"] = json!("relative/workspace");
+    assert!(worker_frontend_capability(&good, &malformed_request, true).is_err());
+}
+
+#[test]
+fn repair_worker_facts_and_emit_subset_preserve_complete_native_context() {
+    repair_units(&[
+        "P13-worker-preserves-facts::base",
+        "ORD-WORKER-EMIT-SUBSET::base",
+    ]);
+}
+
+#[test]
+fn comparator_worker_boundary_probe_aliases_cannot_hide_nonnegative_operations() {
+    let request =
+        json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
+    let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[{"path":"/dev/outer/node_modules/@types","kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"}],"resolutionErrors":{}},"compiler_probes":[{"path":"/dev/outer/node_modules/@types","operation":"directory_exists","found":false,"content_id":null}]});
+    for path in [
+        "/dev/outer/node_modules/./@types",
+        "/dev/outer/node_modules/foo/../@types",
+        "\\dev\\outer\\node_modules\\@types",
+        "/dev/outer/node_modules/@types/",
+    ] {
+        for (operation, found) in [("read_file", false), ("directory_exists", true)] {
+            let mut poison = good.clone();
+            poison["compiler_probes"]
+                .as_array_mut()
+                .unwrap()
+                .push(json!({"path":path,"operation":operation,"found":found,"content_id":null}));
+            assert!(
+                worker_frontend_capability(&poison, &request, true).is_err(),
+                "aliased {operation} must remain visible: {path}"
+            );
+        }
+        let mut equivalent = good.clone();
+        equivalent["compiler_probes"][0]["path"] = json!(path);
+        assert!(
+            worker_frontend_capability(&equivalent, &request, true).is_ok(),
+            "equivalent negative directory probe: {path}"
+        );
+        equivalent["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] = json!(path);
+        assert!(
+            worker_frontend_capability(&equivalent, &request, true).is_ok(),
+            "equivalent bound refusal: {path}"
+        );
+    }
+    for path in [
+        json!(null),
+        json!(42),
+        json!("relative/path"),
+        json!("/../../escape"),
+    ] {
+        let mut poison = good.clone();
+        poison["compiler_probes"].as_array_mut().unwrap().push(
+            json!({"path":path,"operation":"directory_exists","found":false,"content_id":null}),
+        );
+        assert!(
+            worker_frontend_capability(&poison, &request, true).is_err(),
+            "malformed probe path"
+        );
+    }
+}
+
+#[test]
+fn comparator_worker_case_insensitive_probe_aliases_cannot_hide_nonnegative_operations() {
+    let request =
+        json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
+    let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[{"path":"/dev/outer/node_modules/@types","kind":"refusal","detail":"WORKSPACE_PATH_OUTSIDE_ROOT"}],"resolutionErrors":{}},"compiler_probes":[{"path":"","operation":"case_sensitive","found":false,"content_id":null},{"path":"/dev/outer/node_modules/@types","operation":"directory_exists","found":false,"content_id":null}]});
+    assert!(worker_frontend_capability(&good, &request, false).is_ok());
+    for (operation, found) in [("read_file", false), ("directory_exists", true)] {
+        let mut poison = good.clone();
+        poison["compiler_probes"].as_array_mut().unwrap().push(
+            json!({"path":"/DEV/OUTER/node_modules/@types","operation":operation,"found":found,"content_id":null}),
+        );
+        assert!(
+            worker_frontend_capability(&poison, &request, false).is_err(),
+            "case-insensitive alias {operation} must remain visible"
+        );
+    }
+    let mut equivalent = good.clone();
+    equivalent["compiler_probes"][1]["path"] = json!("/DEV/OUTER/node_modules/part/../@TYPES");
+    equivalent["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] =
+        json!("/Dev/Outer/node_modules/./@Types/");
+    assert!(worker_frontend_capability(&equivalent, &request, false).is_ok());
+    let mut mixed_case_root = request.clone();
+    mixed_case_root["repoRoot"] = json!("/Dev/Outer/workspace");
+    assert!(worker_frontend_capability(&equivalent, &mixed_case_root, false).is_ok());
+    for sensitive in [false, true] {
+        let mut native = good.clone();
+        native["compiler_probes"][0]["found"] = json!(sensitive);
+        assert!(worker_frontend_capability(&native, &request, sensitive).is_ok());
+        assert!(worker_frontend_capability(&native, &request, !sensitive).is_err());
+        let mut malformed = native.clone();
+        malformed["compiler_probes"][0]["path"] = json!("/unrelated/capability");
+        assert!(worker_frontend_capability(&malformed, &request, sensitive).is_err());
+        let mut contradictory = native.clone();
+        contradictory["compiler_probes"].as_array_mut().unwrap().push(
+            json!({"path":"","operation":"case_sensitive","found":!sensitive,"content_id":null}),
+        );
+        assert!(worker_frontend_capability(&contradictory, &request, sensitive).is_err());
+        let mut distinct = native.clone();
+        distinct["compiler_probes"][1]["path"] = json!("/DEV/OUTER/node_modules/@types");
+        assert_eq!(
+            worker_frontend_capability(&distinct, &request, sensitive).is_ok(),
+            !sensitive
+        );
+    }
+    let drive_request = json!({"repoRoot":"C:/Dev/Outer/workspace","rootAbsPaths":["C:/Dev/Outer/workspace/main.ts"]});
+    let mut drive = good.clone();
+    drive["frontendCapabilityObservation"]["roots"][0]["path"] =
+        drive_request["rootAbsPaths"][0].clone();
+    drive["frontendCapabilityObservation"]["workspaceIssues"][0]["path"] =
+        json!("C:/Dev/Outer/node_modules/@types");
+    drive["compiler_probes"][1]["path"] = json!("c:\\DEV\\OUTER\\node_modules\\.\\@TYPES");
+    assert!(worker_frontend_capability(&drive, &drive_request, false).is_ok());
+    drive["compiler_probes"].as_array_mut().unwrap().push(
+        json!({"path":"C:/DEV/OUTER/node_modules/part/../@types","operation":"read_file","found":false,"content_id":null}),
+    );
+    assert!(worker_frontend_capability(&drive, &drive_request, false).is_err());
+}
+
+#[test]
+fn comparator_worker_case_metadata_is_checked_without_workspace_refusals() {
+    let request =
+        json!({"repoRoot":"/dev/outer/workspace","rootAbsPaths":["/dev/outer/workspace/main.ts"]});
+    let good = json!({"frontendCapabilityObservation":{"executed":true,"roots":[{"path":"/dev/outer/workspace/main.ts","loaded":true,"parseDiagnosticCodes":[]}],"unsupported":[],"workspaceIssues":[],"resolutionErrors":{}},"compiler_probes":[{"path":"","operation":"case_sensitive","found":true,"content_id":null}]});
+    assert!(worker_frontend_capability(&good, &request, true).is_ok());
+    for (field, value) in [
+        ("found", json!(false)),
+        ("found", json!(null)),
+        ("path", json!("/unrelated/capability")),
+        ("content_id", json!("sha256:foreign")),
+    ] {
+        let mut malformed = good.clone();
+        malformed["compiler_probes"][0][field] = value;
+        assert!(worker_frontend_capability(&malformed, &request, true).is_err());
+    }
+    let mut contradictory = good.clone();
+    contradictory["compiler_probes"]
+        .as_array_mut()
+        .unwrap()
+        .push(json!({"path":"","operation":"case_sensitive","found":false,"content_id":null}));
+    assert!(worker_frontend_capability(&contradictory, &request, true).is_err());
+    for value in [json!(null), json!({})] {
+        let mut malformed = good.clone();
+        malformed["compiler_probes"] = value;
+        assert!(worker_frontend_capability(&malformed, &request, true).is_err());
+    }
+}
+
+#[test]
+fn gap_explicit_configured_resolution_keeps_workspace_and_registry_distinct() {
+    repair_units(&[
+        "P11-workspace-config-link::base",
+        "N11-registry-range-is-not-workspace::base",
+    ]);
+}
+
+#[test]
+fn comparator_configured_query_refuses_missing_or_substituted_component_evidence() {
+    let sdk = json!({"files":{}});
+    let request = json!({"root":"/repo","case_sensitive":true,"files":{"/repo/source.ts":"authored","/repo/leaf.ts":"leaf"},"directories":["/repo/.git"],"containing_file":"/repo/source.ts","specifier":"./leaf"});
+    let observed = json!({
+        "request_descriptor_id":identity::digest(&request),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:dev-artifact",
+        "executed":true,"unsupported":[],"containing_file":"/repo/source.ts","specifier":"./leaf","resolutionMode":"omitted",
+        "configuration":{"executed":true,"unsupported":[],"reasons":[]},"native_diagnostics":[],"native_error":null,
+        "resolutionObservations":{"errors":{}},"global_admission_inferred":false,
+        "resolved_file_name":"/repo/leaf.ts","resolved_relative_path":"leaf.ts",
+        "capturedDirectories":[{"path":"/repo/.git","found":true}],"probes":[{"operation":"directory_exists","path":"/repo/.git","found":true}]
+    });
+    assert!(configured_query_complete_binding(&observed, &request, &sdk, "dev-artifact").is_ok());
+    for field in [
+        "request_descriptor_id",
+        "sdk_input_id",
+        "producer_artifact_id",
+        "executed",
+        "unsupported",
+        "containing_file",
+        "specifier",
+        "resolutionMode",
+        "configuration",
+        "native_diagnostics",
+        "native_error",
+        "resolutionObservations",
+        "global_admission_inferred",
+        "resolved_file_name",
+        "resolved_relative_path",
+        "capturedDirectories",
+        "probes",
+    ] {
+        let mut altered = observed.clone();
+        altered.as_object_mut().unwrap().remove(field);
+        assert!(
+            configured_query_complete_binding(&altered, &request, &sdk, "dev-artifact").is_err(),
+            "missing {field}"
+        );
+    }
+    for (pointer, replacement) in [
+        ("/configuration/executed", json!(false)),
+        ("/configuration/unsupported", json!(["not observed"])),
+        ("/configuration/reasons", json!([7])),
+        ("/native_error", json!("native failure")),
+        ("/resolutionObservations/errors", json!({"source":"failed"})),
+        ("/resolved_file_name", json!("/outside.ts")),
+        ("/resolved_file_name", json!("/repo/uncaptured.ts")),
+        ("/resolved_relative_path", json!("source.ts")),
+        ("/capturedDirectories/0/found", json!(false)),
+        ("/probes/0/found", json!(false)),
+        ("/probes/0/operation", json!("read_file")),
+        ("/probes/0/path", json!("/outside/.git")),
+    ] {
+        let mut altered = observed.clone();
+        *altered.pointer_mut(pointer).unwrap() = replacement;
+        assert!(
+            configured_query_complete_binding(&altered, &request, &sdk, "dev-artifact").is_err(),
+            "{pointer}"
+        );
+    }
+    let mut unresolved = observed.clone();
+    unresolved["resolved_file_name"] = Value::Null;
+    unresolved["resolved_relative_path"] = Value::Null;
+    assert!(configured_query_complete_binding(&unresolved, &request, &sdk, "dev-artifact").is_ok());
+    unresolved["resolved_relative_path"] = json!("leaf.ts");
+    assert!(
+        configured_query_complete_binding(&unresolved, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut aliased = request.clone();
+    aliased["directories"] = json!(["/repo/phantom/../.git"]);
+    let mut actual = observed.clone();
+    actual["request_descriptor_id"] = json!(identity::digest(&aliased));
+    actual["capturedDirectories"][0]["path"] = aliased["directories"][0].clone();
+    assert!(configured_query_complete_binding(&actual, &aliased, &sdk, "dev-artifact").is_ok());
+    let mut descriptor = request.clone();
+    descriptor["directories"] = json!([]);
+    assert!(
+        configured_query_complete_binding(&observed, &descriptor, &sdk, "dev-artifact").is_err()
+    );
+}
+
+#[test]
+fn gap_real_native_process_deadline_and_capture_limit() {
+    repair_units(&["T-timeout::base", "T-output-limit::base"]);
+}
+
+#[test]
+fn gap_static_binding_control_uses_actual_qualified_assembly() {
+    repair_units(&["QDYN-01-static-binding-control::base"]);
+}
+
+#[test]
+fn gap_opaque_callback_ownership_uses_actual_graph_lifecycle() {
+    repair_units(&["P23-opaque-inline-call-has-graph-owner::base"]);
+}
+
+#[test]
+fn gap_unselected_intermediate_uses_actual_loaded_module_components() {
+    repair_units(&["N12-unselected-intermediate-connects::base"]);
+}
+
+#[test]
+fn gap_parallel_equivalence_uses_actual_native_workers_and_direct_bytes() {
+    repair_units(&["P12-parallel-equivalence::base"]);
+}
+
+#[test]
+fn comparator_opaque_ownership_requires_actual_graph_ids_and_call_coordinates() {
+    let graph = json!({
+        "nodes":[
+            {"id":"caller","kind":"function","filePath":"dev.ts"},
+            {"id":"callee","kind":"function","filePath":"dev.ts"}
+        ],
+        "symbols":[
+            {"id":"caller","scope":[],"name":"run"},
+            {"id":"callee","scope":[],"name":"leaf"}
+        ],
+        "edges":[{"kind":"calls","from":"caller","to":"callee"}]
+    });
+    let mut removed = graph.clone();
+    removed["edges"] = json!([]);
+    let observed = json!({"assembly":graph,"subjects":[{
+        "path":"dev.ts","opaqueCallbackOwnership":{
+            "executed":true,"unsupported":[],
+            "observationScope":"native_module_configuration_graph_ownership",
+            "globalAdmissionInferred":false,
+            "graphBeforeEdgeRemovalId":identity::digest(&graph),
+            "graphAfterEdgeRemovalId":identity::digest(&removed)
+        }
+    }]});
+    assert_eq!(
+        transform(&observed, "opaque_ownership_graph_binding:dev.ts").unwrap(),
+        json!(true)
+    );
+    assert_eq!(
+        transform(&graph, "logical_call_edges").unwrap(),
+        json!([{"kind":"calls","from":{"path":"dev.ts","symbol_path":"run"},"to":{"path":"dev.ts","symbol_path":"leaf"}}])
+    );
+    for (pointer, value) in [
+        ("/assembly/nodes", Value::Null),
+        ("/assembly/edges", Value::Null),
+        ("/subjects/0/opaqueCallbackOwnership/executed", json!(false)),
+        (
+            "/subjects/0/opaqueCallbackOwnership/unsupported",
+            json!(["missing"]),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/globalAdmissionInferred",
+            json!(true),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/observationScope",
+            json!("other"),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/graphBeforeEdgeRemovalId",
+            json!("foreign"),
+        ),
+        (
+            "/subjects/0/opaqueCallbackOwnership/graphAfterEdgeRemovalId",
+            identity::digest(&graph).into(),
+        ),
+    ] {
+        let mut bad = observed.clone();
+        *bad.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            transform(&bad, "opaque_ownership_graph_binding:dev.ts").is_err(),
+            "{pointer}"
+        );
+    }
+    for field in [
+        "graphBeforeEdgeRemovalId",
+        "graphAfterEdgeRemovalId",
+        "executed",
+        "unsupported",
+        "observationScope",
+        "globalAdmissionInferred",
+    ] {
+        let mut bad = observed.clone();
+        bad["subjects"][0]["opaqueCallbackOwnership"]
+            .as_object_mut()
+            .unwrap()
+            .remove(field);
+        assert!(
+            transform(&bad, "opaque_ownership_graph_binding:dev.ts").is_err(),
+            "{field}"
+        );
+    }
+    let mut duplicate = observed.clone();
+    duplicate["subjects"]
+        .as_array_mut()
+        .unwrap()
+        .push(observed["subjects"][0].clone());
+    assert!(transform(&duplicate, "opaque_ownership_graph_binding:dev.ts").is_err());
+    assert!(transform(&observed, "opaque_ownership_graph_binding:other.ts").is_err());
+    assert!(transform(&observed, "opaque_ownership_graph_binding:").is_err());
+    let mut dangling = graph.clone();
+    dangling["edges"][0]["to"] = json!("missing");
+    assert!(transform(&dangling, "logical_call_edges").is_err());
+    dangling = graph.clone();
+    dangling["symbols"] = json!([]);
+    assert!(transform(&dangling, "logical_call_edges").is_err());
+}
+
+#[test]
+fn comparator_qualified_test_integrity_requires_complete_map_and_actual_test_owner() {
+    let graph = json!({"nodes":[{"kind":"test","filePath":"dev.test.ts"}],"integrityReasons":{}});
+    let target = json!(["assembly"]);
+    let check = json!({"target":target,"expected":{"excludes":["DEV_DYNAMIC_UNPROVEN"]},"mode":"reason_constraints","actual_transform":"qualified_test_integrity_reasons:dev.test.ts","operation_binding":{"status":"VERIFIED_SOURCE_OPERATION","target":target,"baseline_operation":"getQualifiedCallIntegrityReasons","authority":{"source":"native assembly complete reason map"}}});
+    assert_eq!(
+        evaluate(&json!({"assembly":graph}), &check)["state"],
+        "PASS_PROJECTED_PROPERTY"
+    );
+    let mut bad = graph.clone();
+    bad["integrityReasons"]["dev.test.ts"] = json!(["DEV_DYNAMIC_UNPROVEN"]);
+    assert_eq!(
+        evaluate(&json!({"assembly":bad}), &check)["state"],
+        "MISMATCH"
+    );
+    for bad in [
+        json!({"nodes":graph["nodes"]}),
+        json!({"nodes":graph["nodes"],"integrityReasons":null}),
+        json!({"nodes":graph["nodes"],"integrityReasons":{"dev.test.ts":null}}),
+        json!({"nodes":graph["nodes"],"integrityReasons":{"other.ts":[7]}}),
+        json!({"nodes":[],"integrityReasons":{}}),
+        json!({"nodes":[{"kind":"module","filePath":"dev.test.ts"}],"integrityReasons":{}}),
+        json!({"nodes":[graph["nodes"][0],graph["nodes"][0]],"integrityReasons":{}}),
+    ] {
+        assert_eq!(
+            evaluate(&json!({"assembly":bad}), &check)["state"],
+            "UNKNOWN_UNMAPPED_OR_MALFORMED"
+        );
+    }
+    let mut unbound = check.clone();
+    unbound.as_object_mut().unwrap().remove("operation_binding");
+    assert_eq!(
+        evaluate(&json!({"assembly":graph}), &unbound)["state"],
+        "UNKNOWN_UNMAPPED_OR_MALFORMED"
+    );
+    let mut misbound = check.clone();
+    misbound["operation_binding"]["baseline_operation"] = json!("inspectModuleConfiguration");
+    assert_eq!(
+        evaluate(&json!({"assembly":graph}), &misbound)["state"],
+        "UNKNOWN_UNMAPPED_OR_MALFORMED"
+    );
+    assert!(transform(&graph, "qualified_test_integrity_reasons:").is_err());
+}
+
+#[test]
+fn comparator_process_limits_never_fall_back_from_explicit_invalid_budgets() {
+    assert_eq!(
+        raw_execution_limits(&json!({})).unwrap(),
+        (20_000, 8_388_608)
+    );
+    assert_eq!(
+        raw_execution_limits(&json!({"execution_limits":{"timeout_ms":1,"output_cap":64}}))
+            .unwrap(),
+        (1, 64)
+    );
+    for limits in [
+        Value::Null,
+        json!({}),
+        json!({"timeout_ms":1}),
+        json!({"timeout_ms":1,"output_cap":64,"extra":true}),
+        json!({"timeout_ms":0,"output_cap":64}),
+        json!({"timeout_ms":20001,"output_cap":64}),
+        json!({"timeout_ms":1.5,"output_cap":64}),
+        json!({"timeout_ms":"1","output_cap":64}),
+        json!({"timeout_ms":1,"output_cap":0}),
+        json!({"timeout_ms":1,"output_cap":8388609}),
+        json!({"timeout_ms":1,"output_cap":-1}),
+    ] {
+        assert!(raw_execution_limits(&json!({"execution_limits":limits})).is_err());
+    }
+}
+
+#[test]
+fn comparator_process_fault_requires_actual_bound_capture_and_healthy_controls() {
+    let captured = json!({"kind":"timeout","exit_code":null,"duration_ms":12,"stdout":"partial","stderr":"","stdout_bytes":7,"stderr_bytes":0,"stdout_hash":sha(b"partial"),"stderr_hash":sha(b"")});
+    let rejected = json!({"state":"PROCESS_FAILURE_OR_CONTROLLED_REFUSAL_REQUIRES_DISTINCT_EXPECTATION","pass":false,"outcome_kind":"timeout","process_outcome_id":identity::digest(&captured)});
+    let observed = project_process_fault("timeout", (1, 64), &rejected, &captured).unwrap();
+    assert_eq!(observed["qualification_success"], false);
+    for field in [
+        "kind",
+        "exit_code",
+        "duration_ms",
+        "stdout",
+        "stderr",
+        "stdout_bytes",
+        "stderr_bytes",
+        "stdout_hash",
+        "stderr_hash",
+    ] {
+        let mut altered = captured.clone();
+        altered.as_object_mut().unwrap().remove(field);
+        assert!(
+            project_process_fault("timeout", (1, 64), &rejected, &altered).is_err(),
+            "missing {field}"
+        );
+    }
+    for (field, value) in [
+        ("kind", json!("success")),
+        ("stdout", json!("substituted")),
+        ("duration_ms", json!(13)),
+        ("exit_code", json!(3)),
+    ] {
+        let mut altered = captured.clone();
+        altered[field] = value;
+        assert!(
+            project_process_fault("timeout", (1, 64), &rejected, &altered).is_err(),
+            "unbound {field}"
+        );
+    }
+    for (field, value) in [
+        ("duration_ms", json!(0)),
+        ("stdout_bytes", json!(1)),
+        ("stdout_bytes", json!(8)),
+        ("stderr_bytes", json!(1)),
+        ("stdout_hash", json!("not-a-hash")),
+        ("stdout_hash", json!(sha(b"different"))),
+    ] {
+        let mut altered = captured.clone();
+        altered[field] = value;
+        let mut rebound = rejected.clone();
+        rebound["process_outcome_id"] = json!(identity::digest(&altered));
+        assert!(
+            project_process_fault("timeout", (1, 64), &rebound, &altered).is_err(),
+            "inconsistent {field}"
+        );
+    }
+    assert!(project_process_fault("capture_error", (1, 64), &rejected, &captured).is_err());
+    let mut limited = captured.clone();
+    limited["kind"] = json!("output_limit");
+    limited["stdout_bytes"] = json!(100);
+    limited["stdout_hash"] = json!(sha(&[b'x'; 100]));
+    let mut bounded = rejected.clone();
+    bounded["outcome_kind"] = json!("output_limit");
+    bounded["process_outcome_id"] = json!(identity::digest(&limited));
+    assert!(project_process_fault("output_limit", (20000, 7), &bounded, &limited).is_ok());
+    assert!(project_process_fault("output_limit", (20000, 6), &bounded, &limited).is_err());
+    assert!(project_process_fault("output_limit", (20000, 100), &bounded, &limited).is_err());
+    let check = json!({"target":["qualification_success"],"expected":false,"mode":"eq","expected_origin":"/assertions/qualification_success","actual_transform":"none"});
+    let recipe = json!({"checks":[check]});
+    let good = json!({"state":"PASS_FROZEN_PROJECTED_UNIT","pass":true});
+    assert_eq!(
+        evaluate_process_fault_unit(&recipe, &observed, &good, &good).unwrap()["pass"],
+        true
+    );
+    for bad in [
+        json!({}),
+        json!({"pass":false,"state":"PASS_FROZEN_PROJECTED_UNIT"}),
+        json!({"pass":true,"state":"NONPASS_PROJECTED_UNIT"}),
+    ] {
+        assert_eq!(
+            evaluate_process_fault_unit(&recipe, &observed, &bad, &good).unwrap()["pass"],
+            false
+        );
+        assert_eq!(
+            evaluate_process_fault_unit(&recipe, &observed, &good, &bad).unwrap()["pass"],
+            false
+        );
+    }
+    assert_eq!(
+        evaluate_process_fault_unit(&json!({"checks":[]}), &observed, &good, &good).unwrap()["pass"],
+        false
+    );
+}
+
+fn controlled_assembly_complete_binding(
+    observed: &Value,
+    request: &Value,
+    sdk: &Value,
+    artifact_sha: &str,
+) -> Result<Value, String> {
+    let descriptor = request.as_object().ok_or("missing private descriptor")?;
+    let control = request["control"]
+        .as_object()
+        .ok_or("missing private control")?;
+    if descriptor.len() != 2
+        || !descriptor.contains_key("analysis")
+        || !descriptor.contains_key("control")
+        || control.len() != 4
+        || !control.contains_key("bindingTargets")
+        || request["analysis"]["retained"] != true
+        || request["analysis"]["qualified"] != true
+        || sdk["files"]
+            .as_object()
+            .is_none_or(|files| files.is_empty())
+        || request["analysis"]["raw_files"] != json!({})
+        || request["analysis"]["utf16_files"] != json!({})
+    {
+        return Err("private control descriptor or native context is incomplete".into());
+    }
+    let source = value_text(&request["control"], "fromRelPath")?;
+    let specifier = value_text(&request["control"], "moduleSpecifier")?;
+    let line = request["control"]["line"]
+        .as_u64()
+        .filter(|line| *line > 0 && *line <= u32::MAX as u64)
+        .ok_or("invalid private import line")?;
+    if !safe_relative(source) || specifier.is_empty() {
+        return Err("invalid private import selector".into());
+    }
+    let targets = request["control"]["bindingTargets"]
+        .as_array()
+        .ok_or("missing defined binding array")?;
+    for target in targets {
+        if target.as_object().is_none_or(|object| object.len() != 2)
+            || !target
+                .get("relPath")
+                .and_then(Value::as_str)
+                .is_some_and(safe_relative)
+            || target
+                .get("symbolPath")
+                .and_then(Value::as_str)
+                .is_none_or(str::is_empty)
+        {
+            return Err("invalid supplied native binding coordinate".into());
+        }
+    }
+    if observed["request_descriptor_id"] != identity::digest(request)
+        || observed["sdk_input_id"] != identity::digest(sdk)
+        || observed["producer_artifact_id"] != json!(format!("sha256:{artifact_sha}"))
+        || observed["state"] != "CONTROLLED_ASSEMBLY_OBSERVED"
+        || observed["executed"] != true
+        || observed["unsupported"] != json!([])
+        || observed["control_scope"] != "PRIVATE_SUPPLIED_EXTRACTION_ONLY"
+        || observed["public_extractor_reachability_claimed"] != false
+        || observed["global_admission_inferred"] != false
+    {
+        return Err("private assembly observation is incomplete or unbound".into());
+    }
+    let native = &observed["native_analysis"];
+    let analysis = &request["analysis"];
+    let binding = observation_bound_to_request(native, analysis, sdk, artifact_sha)?;
+    let capability = native_product_capability(
+        native,
+        analysis,
+        &json!({"checks":[{"target":["raw_extraction"]}]}),
+    )?;
+    let reads = join_successful_reads(native, analysis, sdk)?;
+    let extraction = native
+        .get("raw_extraction")
+        .filter(|value| value.is_object())
+        .ok_or("missing original native extraction")?;
+    let imports = extraction["imports"]
+        .as_array()
+        .ok_or("missing original native imports")?;
+    let selected = imports
+        .iter()
+        .enumerate()
+        .filter(|(_, import)| {
+            import["fromRelPath"] == source
+                && import["moduleSpecifier"] == specifier
+                && import["line"] == line
+        })
+        .collect::<Vec<_>>();
+    if selected.len() != 1 {
+        return Err("private selector does not identify one original native import".into());
+    }
+    let (index, original) = selected[0];
+    let mut expected = extraction.clone();
+    expected["imports"][index]
+        .as_object_mut()
+        .ok_or("invalid original import")?
+        .insert("bindingTargets".into(), json!(targets));
+    if observed["native_extraction_id"] != identity::digest(extraction)
+        || observed["controlled_extraction_id"] != identity::digest(&expected)
+        || observed["native_original_import"] != *original
+        || observed["controlled_import"] != expected["imports"][index]
+        || observed["controlled_extraction"] != expected
+    {
+        return Err("private extraction differs beyond the exact supplied array".into());
+    }
+    let dynamic = observed["dynamic_imports"]
+        .as_array()
+        .ok_or("missing actual dynamic scan")?;
+    if dynamic.iter().any(|tuple| {
+        tuple.as_array().is_none_or(|tuple| {
+            tuple.len() != 3
+                || !tuple[0].is_string()
+                || tuple[1].as_u64().is_none()
+                || !tuple[2].is_string()
+        })
+    }) || dynamic
+        .iter()
+        .filter(|tuple| **tuple == json!([source, line, specifier]))
+        .count()
+        != 1
+    {
+        return Err("private import lacks one actual strict dynamic tuple".into());
+    }
+    transform(
+        &native["assembly"],
+        &format!("qualified_test_integrity_reasons:{source}"),
+    )?;
+    transform(
+        &observed["assembly"],
+        &format!("qualified_test_integrity_reasons:{source}"),
+    )?;
+    for field in ["nodes", "symbols"] {
+        if !native["assembly"][field].is_array()
+            || observed["assembly"][field] != native["assembly"][field]
+        {
+            return Err("controlled graph changes native node or symbol coordinates".into());
+        }
+    }
+    transform(&observed["assembly"], "logical_coverage_edges")?;
+    Ok(
+        json!({"state":"BOUND_PRIVATE_SUPPLIED_EXTRACTION_COMPONENT","native_binding":binding,"native_capability":capability,"reported_reads":reads,"public_extractor_reachability_claimed":false,"global_admission_inferred":false}),
+    )
+}
+
+#[test]
+fn comparator_controlled_assembly_binds_the_original_and_exact_supplied_array() {
+    let analysis = json!({"id":"private-consumer-dev","cwd":"/dev","sdk_directory":"/sdk/lib","case_sensitive":true,"roots":["/dev/factory.ts","/dev/probe.test.ts"],"files":{"/dev/factory.ts":"export function sample(){return 83;}","/dev/probe.test.ts":"export async function check(){return import('./factory');}"},"utf16_files":{},"raw_files":{},"disabled":[],"retained":true,"qualified":true});
+    let request = json!({"analysis":analysis,"control":{"fromRelPath":"probe.test.ts","moduleSpecifier":"./factory","line":1,"bindingTargets":[{"relPath":"factory.ts","symbolPath":"sample"}]}});
+    let sdk = json!({"version":"development-sdk","archive_sha256":"dev","files":{"/sdk/lib/lib.d.ts":"interface Object {}"}});
+    let import = json!({"fromRelPath":"probe.test.ts","moduleSpecifier":"./factory","resolvedRelPath":"factory.ts","names":[],"line":1});
+    let extraction = json!({"symbols":[],"imports":[import],"calls":[],"markers":[]});
+    let graph = json!({"nodes":[{"id":"dev-test","kind":"test","filePath":"probe.test.ts"},{"id":"dev-symbol","kind":"function","filePath":"factory.ts"}],"symbols":[{"id":"dev-symbol","relPath":"factory.ts","name":"sample","scope":[]}],"edges":[],"integrityReasons":{}});
+    let native = json!({"request":analysis["id"],"request_id":identity::digest(&analysis),"input_manifest_id":identity::digest(&verifier_logical_input(&analysis,&sdk).unwrap()),"producer_artifact_id":"sha256:dev-artifact","complete":true,"global_admission_inferred":false,"raw_extraction":extraction,"assembly":graph,"capture_probes":[],"subjects":[{"path":"factory.ts","outcome":"analyzed","unimplemented":[]},{"path":"probe.test.ts","outcome":"analyzed","unimplemented":[]}]});
+    let mut controlled = extraction.clone();
+    controlled["imports"][0]["bindingTargets"] = request["control"]["bindingTargets"].clone();
+    let observed = json!({"state":"CONTROLLED_ASSEMBLY_OBSERVED","executed":true,"unsupported":[],"request_descriptor_id":identity::digest(&request),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:dev-artifact","control_scope":"PRIVATE_SUPPLIED_EXTRACTION_ONLY","public_extractor_reachability_claimed":false,"global_admission_inferred":false,"native_analysis":native,"native_original_import":import,"controlled_import":controlled["imports"][0],"native_extraction_id":identity::digest(&extraction),"controlled_extraction_id":identity::digest(&controlled),"controlled_extraction":controlled,"dynamic_imports":[["probe.test.ts",1,"./factory"]],"assembly":graph});
+    assert!(
+        controlled_assembly_complete_binding(&observed, &request, &sdk, "dev-artifact").is_ok()
+    );
+    for field in [
+        "request_descriptor_id",
+        "sdk_input_id",
+        "producer_artifact_id",
+        "native_extraction_id",
+        "controlled_extraction_id",
+        "control_scope",
+    ] {
+        let mut changed = observed.clone();
+        changed[field] = json!("wrong");
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{field}"
+        );
+    }
+    for field in [
+        "executed",
+        "public_extractor_reachability_claimed",
+        "global_admission_inferred",
+    ] {
+        let mut changed = observed.clone();
+        changed[field] = json!(!changed[field].as_bool().unwrap());
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{field}"
+        );
+    }
+    let mut changed = observed.clone();
+    changed["controlled_extraction"]["calls"] = json!([{"invented":true}]);
+    changed["controlled_extraction_id"] =
+        json!(identity::digest(&changed["controlled_extraction"]));
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["controlled_extraction"]["imports"][0]["bindingTargets"] = json!([]);
+    changed["controlled_import"] = changed["controlled_extraction"]["imports"][0].clone();
+    changed["controlled_extraction_id"] =
+        json!(identity::digest(&changed["controlled_extraction"]));
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    for field in ["dynamic_imports", "unsupported"] {
+        let mut changed = observed.clone();
+        changed[field] = if field == "dynamic_imports" {
+            json!([])
+        } else {
+            json!(["not complete"])
+        };
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{field}"
+        );
+    }
+    let mut changed = observed.clone();
+    changed["native_original_import"]["names"] = json!(["forged"]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["native_analysis"]["request_id"] = json!("swapped");
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["assembly"]["symbols"] = json!([]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    for path in [
+        vec!["native_analysis", "complete"],
+        vec!["native_analysis", "global_admission_inferred"],
+        vec!["native_analysis", "assembly", "integrityReasons"],
+        vec!["assembly", "integrityReasons"],
+        vec!["assembly", "edges"],
+    ] {
+        let mut changed = observed.clone();
+        let mut value = &mut changed;
+        for part in &path[..path.len() - 1] {
+            value = &mut value[*part];
+        }
+        value[path[path.len() - 1]] = Value::Null;
+        assert!(
+            controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err(),
+            "{path:?}"
+        );
+    }
+    let mut changed = observed.clone();
+    changed["native_analysis"]["raw_extraction"]["imports"] = json!([import, import]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["native_analysis"]["subjects"][0]["unimplemented"] = json!(["DEV_UNIMPLEMENTED"]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    let mut changed = observed.clone();
+    changed["native_analysis"]["capture_probes"] = json!([{"operation":"read_file","found":true,"path":"/dev/unknown.ts","content_id":"sha256:forged"}]);
+    assert!(
+        controlled_assembly_complete_binding(&changed, &request, &sdk, "dev-artifact").is_err()
+    );
+    for (parent, key, value) in [
+        ("control", "unexpected", json!(true)),
+        ("control", "line", json!(0)),
+        ("control", "fromRelPath", json!("other.test.ts")),
+        ("analysis", "retained", json!(false)),
+        ("analysis", "qualified", json!(false)),
+        ("analysis", "raw_files", json!({"/dev/factory.ts":{}})),
+        ("analysis", "utf16_files", json!({"/dev/factory.ts":[65]})),
+    ] {
+        let mut bad = request.clone();
+        bad[parent][key] = value;
+        let mut changed = observed.clone();
+        changed["request_descriptor_id"] = json!(identity::digest(&bad));
+        assert!(
+            controlled_assembly_complete_binding(&changed, &bad, &sdk, "dev-artifact").is_err(),
+            "{parent}.{key}"
+        );
+    }
+    let mut bad = request.clone();
+    bad["control"]["bindingTargets"][0]["runtimeUsed"] = json!(true);
+    let mut changed = observed.clone();
+    changed["request_descriptor_id"] = json!(identity::digest(&bad));
+    assert!(controlled_assembly_complete_binding(&changed, &bad, &sdk, "dev-artifact").is_err());
+    let mut empty_request = request.clone();
+    empty_request["control"]["bindingTargets"] = json!([]);
+    let mut empty = observed.clone();
+    empty["request_descriptor_id"] = json!(identity::digest(&empty_request));
+    empty["controlled_extraction"]["imports"][0]["bindingTargets"] = json!([]);
+    empty["controlled_import"] = empty["controlled_extraction"]["imports"][0].clone();
+    empty["controlled_extraction_id"] = json!(identity::digest(&empty["controlled_extraction"]));
+    assert!(
+        controlled_assembly_complete_binding(&empty, &empty_request, &sdk, "dev-artifact").is_ok()
+    );
+    for value in [Value::Null, json!("invalid"), json!([{}])] {
+        let mut bad = empty_request.clone();
+        bad["control"]["bindingTargets"] = value;
+        let mut rebound = empty.clone();
+        rebound["request_descriptor_id"] = json!(identity::digest(&bad));
+        assert!(
+            controlled_assembly_complete_binding(&rebound, &bad, &sdk, "dev-artifact").is_err()
+        );
+    }
+}
+
+#[test]
+fn gap_private_defined_bindings_use_the_real_native_consumer() {
+    repair_units(&[
+        "QDYN-06-defined-bindingTargets-private-consumer-control::variant-01",
+        "QDYN-06-defined-bindingTargets-private-consumer-control::variant-02",
+    ]);
+}
+
+#[test]
+fn comparator_controlled_process_failure_and_malformed_stdout_cannot_be_success() {
+    let success = process::Outcome {
+        kind: "success".into(),
+        exit_code: Some(0),
+        duration_ms: 1,
+        stdout: "{\"executed\":true}".into(),
+        stderr: String::new(),
+        stdout_bytes: 17,
+        stderr_bytes: 0,
+        stdout_hash: identity::digest_bytes(b"{\"executed\":true}"),
+        stderr_hash: identity::digest_bytes(b""),
+    };
+    assert_eq!(
+        controlled_assembly_observation(&success).unwrap(),
+        json!({"executed":true})
+    );
+    for (kind, code) in [
+        ("nonzero", Some(7)),
+        ("nonzero", Some(0)),
+        ("timeout", None),
+        ("output_limit", Some(0)),
+        ("cancelled", None),
+        ("capture_error", None),
+        ("unknown", Some(0)),
+        ("success", Some(1)),
+        ("success", None),
+    ] {
+        let mut outcome = success.clone();
+        outcome.kind = kind.into();
+        outcome.exit_code = code;
+        let refusal = controlled_assembly_observation(&outcome).unwrap_err();
+        assert_eq!(refusal["state"], "CONTROLLED_ASSEMBLY_PROCESS_NONPASS");
+        assert_eq!(refusal["pass"], false);
+    }
+    for stdout in [
+        "not-json",
+        "",
+        "{\"executed\":true} trailing",
+        "{\"executed\":",
+    ] {
+        let mut outcome = success.clone();
+        outcome.stdout = stdout.into();
+        outcome.stdout_bytes = stdout.len() as u64;
+        outcome.stdout_hash = identity::digest_bytes(stdout.as_bytes());
+        let refusal = controlled_assembly_observation(&outcome).unwrap_err();
+        assert_eq!(
+            refusal["state"],
+            "CONTROLLED_ASSEMBLY_MALFORMED_OBSERVATION"
+        );
+        assert_eq!(refusal["pass"], false);
+        assert!(!refusal["error"].as_str().unwrap().is_empty());
+    }
+}
+
+#[test]
+fn gap_controlled_system_keys_preserve_alias_and_counter_relation() {
+    repair_units(&["ORD-CANONICAL-IDENTITY-PAIR::base"]);
+}
+
+#[test]
+fn gap_retained_discovery_binds_capture_and_metadata() {
+    repair_units(&[
+        "N01-snapshot-metadata-mismatch::base",
+        "P01-retained-source::analyze-snapshot-consistent",
+    ]);
+}
+
+#[test]
+fn gap_retained_runtime_propagates_snapshot_rejection_and_keeps_captured_analysis() {
+    repair_units(&[
+        "P01-retained-source::plane-a-runtime-consistent",
+        "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch",
+    ]);
+}
+
+#[test]
+fn gap_reader_error_uses_real_kernel_failure_and_preserves_partial_capture() {
+    repair_units(&["T-reader-error::base"]);
+}
+
+#[test]
+fn gap_native_dialect_preserves_frozen_ts5_expectation() {
+    repair_units(&["ORD-DIALECT-CAPABILITY::base"]);
+}
+
+#[test]
+fn comparator_native_dialect_requires_real_nonempty_capability_and_compiler_identity() {
+    let good = json!({"native_compiler_version":"5.9.3","subjects":[{"path":"development.ts","selection":"selected","outcome":"analyzed","sourceFileObservation":{"executed":true,"unsupported":[]},"capabilityScope":{"language":"typescript","dialectVersion":"5.9.3"}}]});
+    assert_eq!(
+        transform(&good, "native_capability_dialect_versions").unwrap(),
+        json!(["5.9.3"])
+    );
+    for (field, value) in [
+        ("selection", json!("excluded")),
+        ("outcome", json!("unsupported")),
+        ("sourceFileObservation", json!({})),
+        (
+            "capabilityScope",
+            json!({"language":"typescript","dialectVersion":"sdk-only"}),
+        ),
+    ] {
+        let mut changed = good.clone();
+        changed["subjects"][0][field] = value;
+        assert!(transform(&changed, "native_capability_dialect_versions").is_err());
+    }
+    for subjects in [
+        json!([]),
+        Value::Null,
+        json!([good["subjects"][0], good["subjects"][0]]),
+    ] {
+        let mut changed = good.clone();
+        changed["subjects"] = subjects;
+        assert!(transform(&changed, "native_capability_dialect_versions").is_err());
+    }
+    let mut native_ts7 = good.clone();
+    native_ts7["native_compiler_version"] = json!("7.1.0-dev");
+    native_ts7["subjects"][0]["capabilityScope"]["dialectVersion"] = json!("7.1.0-dev");
+    let check = json!({"target":[],"mode":"eq","expected":["5.9.3"],"actual_transform":"native_capability_dialect_versions"});
+    assert_eq!(evaluate(&native_ts7, &check)["state"], "MISMATCH");
+}
+
+#[test]
+fn comparator_retained_discovery_refusal_requires_exact_binding_and_no_native_result() {
+    let descriptor = json!({"analysis":{"id":"guardDev"},"discovered_sources":[]});
+    let sdk = json!({"version":"guard-sdk-dev"});
+    let good = json!({"state":"RETAINED_DISCOVERY_REFUSED","executed":false,"snapshot_guard_passed":false,"unsupported":["SOURCE_SNAPSHOT_MISMATCH: guard.ts"],"global_admission_inferred":false,"request_descriptor_id":identity::digest(&descriptor),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:guard-artifact-dev"});
+    assert!(
+        retained_discovery_complete_binding(&good, &descriptor, &sdk, "guard-artifact-dev").is_ok()
+    );
+    for (field, value) in [
+        ("request_descriptor_id", json!("sha256:other")),
+        ("sdk_input_id", json!("sha256:other")),
+        ("producer_artifact_id", json!("sha256:other")),
+        ("global_admission_inferred", json!(true)),
+        ("state", json!("RETAINED_DISCOVERY_OBSERVED")),
+        ("snapshot_guard_passed", json!(true)),
+        ("executed", Value::Null),
+        ("executed", json!(true)),
+        ("unsupported", json!([])),
+        ("unsupported", Value::Null),
+        ("unsupported", json!([""])),
+        ("unsupported", json!([false])),
+        ("unsupported", json!(["one", "two"])),
+        ("native_analysis", Value::Null),
+        ("native_analysis", json!({})),
+    ] {
+        let mut changed = good.clone();
+        changed[field] = value;
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "{field}:{changed}"
+        );
+    }
+    for field in [
+        "state",
+        "executed",
+        "snapshot_guard_passed",
+        "unsupported",
+        "global_admission_inferred",
+        "request_descriptor_id",
+        "sdk_input_id",
+        "producer_artifact_id",
+    ] {
+        let mut changed = good.clone();
+        changed.as_object_mut().unwrap().remove(field);
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "missing {field}"
+        );
+    }
+    assert!(
+        retained_discovery_complete_binding(
+            &good,
+            &json!({"analysis":{"id":"other"}}),
+            &sdk,
+            "guard-artifact-dev"
+        )
+        .is_err()
+    );
+    assert!(
+        retained_discovery_complete_binding(
+            &good,
+            &descriptor,
+            &json!({"version":"other"}),
+            "guard-artifact-dev"
+        )
+        .is_err()
+    );
+    assert!(
+        retained_discovery_complete_binding(&good, &descriptor, &sdk, "other-artifact").is_err()
+    );
+}
+
+#[test]
+fn comparator_retained_discovery_analysis_requires_native_input_capability_and_reads() {
+    let analysis = json!({"id":"guardNativeDev","cwd":"/dev","sdk_directory":"/sdk/lib","case_sensitive":true,"roots":["/dev/guard.ts"],"files":{"/dev/guard.ts":"export const guardDev=103;"},"utf16_files":{},"raw_files":{}});
+    let descriptor = json!({"analysis":analysis,"discovered_sources":[{"relPath":"guard.ts","content":"export const guardDev=103;"}]});
+    let sdk = json!({"version":"guard-sdk-dev","archive_sha256":"guard-archive-dev","files":{}});
+    let native = json!({"request":analysis["id"],"request_id":identity::digest(&analysis),"input_manifest_id":identity::digest(&verifier_logical_input(&analysis,&sdk).unwrap()),"producer_artifact_id":"sha256:guard-artifact-dev","complete":true,"global_admission_inferred":false,"subjects":[{"path":"guard.ts","outcome":"analyzed","unimplemented":[]}],"capture_probes":[]});
+    let good = json!({"state":"RETAINED_DISCOVERY_OBSERVED","executed":true,"snapshot_guard_passed":true,"unsupported":[],"global_admission_inferred":false,"request_descriptor_id":identity::digest(&descriptor),"sdk_input_id":identity::digest(&sdk),"producer_artifact_id":"sha256:guard-artifact-dev","native_analysis":native});
+    assert!(
+        retained_discovery_complete_binding(&good, &descriptor, &sdk, "guard-artifact-dev").is_ok()
+    );
+    for (pointer, value) in [
+        ("/state", json!("RETAINED_DISCOVERY_REFUSED")),
+        ("/snapshot_guard_passed", json!(false)),
+        ("/unsupported", json!(["missing native context"])),
+        ("/native_analysis/request_id", json!("sha256:other")),
+        ("/native_analysis/input_manifest_id", json!("sha256:other")),
+        (
+            "/native_analysis/producer_artifact_id",
+            json!("sha256:other"),
+        ),
+        ("/native_analysis/complete", json!(false)),
+        ("/native_analysis/global_admission_inferred", json!(true)),
+        ("/native_analysis/subjects", json!([])),
+        ("/native_analysis/subjects/0/outcome", json!("unknown")),
+        (
+            "/native_analysis/subjects/0/unimplemented",
+            json!(["native context absent"]),
+        ),
+        (
+            "/native_analysis/capture_probes",
+            json!([{"operation":"read_file","path":"/outside/foreign.ts","found":true,"content_id":"sha256:foreign"}]),
+        ),
+    ] {
+        let mut changed = good.clone();
+        *changed.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "{pointer}:{changed}"
+        );
+    }
+    for field in ["native_analysis", "snapshot_guard_passed", "unsupported"] {
+        let mut changed = good.clone();
+        changed.as_object_mut().unwrap().remove(field);
+        assert!(
+            retained_discovery_complete_binding(&changed, &descriptor, &sdk, "guard-artifact-dev")
+                .is_err(),
+            "missing {field}"
+        );
+    }
+}
+
+#[test]
+fn comparator_retained_discovery_process_errors_and_malformed_output_stay_nonpass() {
+    let success = process::Outcome {
+        kind: "success".into(),
+        exit_code: Some(0),
+        duration_ms: 1,
+        stdout: "{}".into(),
+        stderr: String::new(),
+        stdout_bytes: 2,
+        stderr_bytes: 0,
+        stdout_hash: identity::digest_bytes(b"{}"),
+        stderr_hash: identity::digest_bytes(b""),
+    };
+    assert_eq!(retained_discovery_observation(&success).unwrap(), json!({}));
+    for (kind, code) in [
+        ("nonzero", Some(7)),
+        ("nonzero", Some(0)),
+        ("timeout", None),
+        ("output_limit", Some(0)),
+        ("cancelled", None),
+        ("capture_error", None),
+        ("unknown", Some(0)),
+        ("success", Some(1)),
+        ("success", None),
+    ] {
+        let mut changed = success.clone();
+        changed.kind = kind.into();
+        changed.exit_code = code;
+        let result = retained_discovery_observation(&changed).unwrap_err();
+        assert_eq!(result["pass"], false);
+        assert_eq!(result["state"], "RETAINED_DISCOVERY_PROCESS_NONPASS");
+    }
+    for stdout in ["", "not-json", "{} trailing", "{"] {
+        let mut changed = success.clone();
+        changed.stdout = stdout.into();
+        changed.stdout_bytes = stdout.len() as u64;
+        changed.stdout_hash = identity::digest_bytes(stdout.as_bytes());
+        let result = retained_discovery_observation(&changed).unwrap_err();
+        assert_eq!(result["pass"], false);
+        assert_eq!(result["state"], "RETAINED_DISCOVERY_MALFORMED_OBSERVATION");
+    }
+}
+
+#[test]
+fn gap_missing_retained_test_pairs_public_refusal_and_private_scan() {
+    repair_units(&["QDYN-07-missing-retained-test-text-public-refusal::base"]);
+}
+
+#[test]
+fn comparator_missing_test_components_require_the_same_capture_and_test_owner() {
+    let public = json!({"analysis":{"cwd":"/dev","files":{"/dev/source.ts":"export const sourceDev=109;"},"roles":{"source.ts":"source","probe.test.ts":"test"}},"discovered_sources":[{"relPath":"probe.test.ts","content":"import('./source');"}]});
+    let private = json!({"operation":"test_dynamic_imports","retained_texts":{"source.ts":"export const sourceDev=109;"},"test_paths":["probe.test.ts"]});
+    assert!(missing_test_capture_binding(&public, &private).is_ok());
+    for (field, value) in [
+        ("operation", json!("other")),
+        ("test_paths", json!([])),
+        ("test_paths", json!(["other.test.ts"])),
+        ("retained_texts", json!({})),
+        ("retained_texts", json!({"source.ts":"changed"})),
+        (
+            "retained_texts",
+            json!({"source.ts":"export const sourceDev=109;","probe.test.ts":"import('./source');"}),
+        ),
+    ] {
+        let mut changed = private.clone();
+        changed[field] = value;
+        assert!(
+            missing_test_capture_binding(&public, &changed).is_err(),
+            "{field}"
+        );
+    }
+    for (pointer, value) in [
+        ("/analysis/files", json!({"/outside/source.ts":"foreign"})),
+        (
+            "/analysis/files",
+            json!({"/dev/probe.test.ts":"import('./source');"}),
+        ),
+        ("/analysis/roles", json!({})),
+        ("/discovered_sources", json!([])),
+        (
+            "/discovered_sources",
+            json!([{"relPath":"probe.test.ts","content":"import('./source');"},{"relPath":"probe.test.ts","content":"import('./source');"}]),
+        ),
+    ] {
+        let mut changed = public.clone();
+        *changed.pointer_mut(pointer).unwrap() = value;
+        assert!(
+            missing_test_capture_binding(&changed, &private).is_err(),
+            "{pointer}"
+        );
+    }
+}
+
+#[test]
+fn comparator_omitted_capture_keeps_physical_bytes_and_private_setup_refuses_escapes() {
+    let root = std::env::temp_dir().join(format!(
+        "missing-test-setup-{}-{}",
+        std::process::id(),
+        SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .unwrap()
+            .as_nanos()
+    ));
+    fs::create_dir(&root).unwrap();
+    let public = root.join("public");
+    let private = root.join("private");
+    fs::create_dir(&public).unwrap();
+    fs::create_dir(&private).unwrap();
+    let physical = public.join("probe.test.ts");
+    fs::write(&physical, "import('./owned');").unwrap();
+    let cwd = public
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    let original = json!({"cwd":cwd,"files":{format!("{cwd}/probe.test.ts"):"import('./owned');"}});
+    let mut changed = original.clone();
+    let proof = retained_omissions(&mut changed, &json!(["probe.test.ts"]), &public).unwrap();
+    assert_eq!(changed["files"], json!({}));
+    assert_eq!(fs::read_to_string(&physical).unwrap(), "import('./owned');");
+    assert_eq!(proof[0]["physical_file_retained"], true);
+    let copied = copy_private_scan_sources(
+        &public,
+        &private,
+        &json!({"probe.test.ts":"unused caller text"}),
+    )
+    .unwrap();
+    assert_eq!(
+        fs::read_to_string(private.join("probe.test.ts")).unwrap(),
+        "import('./owned');"
+    );
+    assert_eq!(
+        copied[0]["source_sha256"],
+        copied[0]["private_physical_sha256"]
+    );
+    for path in [
+        "../escape.test.ts",
+        "/absolute.test.ts",
+        "./probe.test.ts",
+        "nested/../probe.test.ts",
+        "nested//probe.test.ts",
+        "C:probe.test.ts",
+        "nested\\probe.test.ts",
+        "probe\0.test.ts",
+    ] {
+        assert!(!portable_capture_path(path));
+        assert!(retained_omissions(&mut original.clone(), &json!([path]), &public).is_err());
+        assert!(copy_private_scan_sources(&public, &private, &json!({path:""})).is_err());
+    }
+    for path in ["descriptor.json", "Descriptor.JSON"] {
+        assert!(copy_private_scan_sources(&public, &private, &json!({path:""})).is_err());
+    }
+    for omitted in [
+        Value::Null,
+        json!({}),
+        json!([false]),
+        json!(["missing.test.ts"]),
+        json!(["probe.test.ts", "probe.test.ts"]),
+    ] {
+        assert!(retained_omissions(&mut original.clone(), &omitted, &public).is_err());
+    }
+    assert!(copy_private_scan_sources(&public, &private, &Value::Null).is_err());
+    assert!(copy_private_scan_sources(&public, &private, &json!({"missing.test.ts":""})).is_err());
+    fs::write(&physical, "changed physical source").unwrap();
+    assert!(retained_omissions(&mut original.clone(), &json!(["probe.test.ts"]), &public).is_err());
+    fs::remove_file(&physical).unwrap();
+    assert!(retained_omissions(&mut original.clone(), &json!(["probe.test.ts"]), &public).is_err());
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn gap_real_native_refusal_truncation_and_owned_cancellation() {
+    repair_units(&[
+        "T-nonzero::base",
+        "T-invalid-json::base",
+        "T-cancelled::base",
+    ]);
+}
+
+#[test]
+fn gap_native_repository_discovery_language_roles_and_boundary() {
+    repair_units(&[
+        "P08-discovery-language-and-role::base",
+        "N08-disabled-language::base",
+        "P03-confined-relative-source::discovery-confinement",
+        "N03-relative-escape::discovery-confinement",
+    ]);
+}
+
+#[test]
+fn gap_legacy_identity_relocation_byte_mutations_and_crlf_refusal() {
+    repair_units(&[
+        "N25-crlf-implementation-identity-input::base",
+        "P25-byte-identity-relocation::identity-relation-01",
+        "P25-byte-identity-relocation::identity-relation-02",
+        "P25-byte-identity-relocation::identity-relation-03",
+    ]);
+}
+
+#[test]
+fn gap_native_relative_source_escape_refusal_and_positive_control() {
+    repair_units(&[
+        "N03-relative-escape::base",
+        "P03-confined-relative-source::base",
+    ]);
+}
+
+#[test]
+fn gap_retained_dynamic_import_scan_scope_and_unproven_binding() {
+    repair_units(&[
+        "QDYN-02-one-literal-dynamic-refusal::base",
+        "QDYN-02-one-literal-dynamic-refusal::mjs-variant",
+        "QDYN-03-nonliteral-scan-control-scope-refusal::base",
+        "QDYN-04-two-arguments-scan-control-scope-refusal::base",
+        "QDYN-05-unresolved-literal-target::base",
+    ]);
+}
+
+#[test]
+fn gap_retained_scope_import_type_and_external_import_equals() {
+    repair_units(&[
+        "QSCOPE-01-import-type-refusal::base",
+        "QSCOPE-02-external-import-equals-refusal::base",
+    ]);
+}
+
+#[test]
+fn gap_ambiguous_star_exports_refuse_and_named_export_keeps_its_target() {
+    repair_units(&[
+        "V3-E03-ambiguous-stars-arbitrated-refusal::E03-a-then-b",
+        "V3-E03-ambiguous-stars-arbitrated-refusal::E03-b-then-a",
+        "V3-E03-ambiguous-stars-arbitrated-refusal::E03-explicit-named-control",
+    ]);
+}
+
+#[test]
+fn gap_qualified_path_eligibility_preserves_metadata_and_refuses_git_failure() {
+    repair_units(&["ORD-QUALIFIED-ELIGIBILITY::base"]);
+}
+
+#[test]
+fn gap_qualified_scope_closure_drives_admission_and_actual_cli_exit() {
+    repair_units(&[
+        "P19-qualified-inherited-esnext-bundler::base",
+        "N19-excluded-dependent-blocks::base",
+    ]);
+}
+
+#[test]
+fn comparator_retained_scope_syntax_requires_execution_and_complete_observation() {
+    let target =
+        json!(["subjects",{"path":"scopeDev.ts"},"retainedScopeSyntaxObservation","reasons"]);
+    let prefix = [
+        json!("subjects"),
+        json!({"path":"scopeDev.ts"}),
+        json!("retainedScopeSyntaxObservation"),
+    ];
+    let reason = json!({"target":target,"expected":{"contains":["DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:scopeDev.ts"]},"mode":"reason_constraints","actual_transform":"none","operation_binding":{"status":"VERIFIED_SOURCE_OPERATION","target":target,"baseline_operation":"inspectRetainedQualifiedScope ImportType/external import-equals/export-equals AST visitor only","authority":"DEV scope-syntax witness"}});
+    let mut checks = vec![reason.clone()];
+    assert!(validate_component_checks(&checks).is_err());
+    for (field, expected) in [("executed", json!(true)), ("unsupported", json!([]))] {
+        let mut path = prefix.to_vec();
+        path.push(json!(field));
+        checks
+            .push(json!({"target":path,"mode":"eq","expected":expected,"actual_transform":"none"}));
+    }
+    assert!(validate_component_checks(&checks).is_ok());
+    for omitted in [1, 2] {
+        let mut broken = checks.clone();
+        broken.remove(omitted);
+        assert!(validate_component_checks(&broken).is_err());
+    }
+    for field in ["executed", "unsupported"] {
+        let mut broken = checks.clone();
+        broken
+            .iter_mut()
+            .find(|check| check["target"].as_array().unwrap().last() == Some(&json!(field)))
+            .unwrap()["expected"] = json!(null);
+        assert!(validate_component_checks(&broken).is_err());
+    }
+    let mut unbound = checks;
+    unbound[0]
+        .as_object_mut()
+        .unwrap()
+        .remove("operation_binding");
+    assert!(validate_component_checks(&unbound).is_err());
+}
+
+#[test]
+fn gap_identity_supports_use_native_consumers_and_complete_baseline() {
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("support recipes"),
+    ))
+    .unwrap();
+    let fixture = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_FIXTURE").expect("support fixture"),
+    ))
+    .unwrap();
+    verify_sources(
+        Path::new(value_text(&fixture, "cases_path").unwrap()),
+        &recipes,
+    )
+    .unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh support evidence"));
+    assert!(!out.exists());
+    fs::create_dir_all(&out).unwrap();
+    let mut results = vec![];
+    for id in [
+        "IDENTITY::I-relocation",
+        "IDENTITY::I-sdk-supplied-vs-consumed",
+        "IDENTITY::I-request-separation",
+        "IDENTITY::I-capture-mismatch",
+        "IDENTITY::complete-baseline-specimen",
+    ] {
+        let recipe = recipes["support_recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|r| r["support_id"] == id)
+            .expect("frozen identity support still unmapped");
+        let dir = out.join(id.replace("::", "-"));
+        let result = run_support_recipe(recipe, &dir, &fixture, &recipes).unwrap();
+        assert_eq!(result["pass"], true, "{id}: {result}");
+        results.push(json!({"support_id":id,"result":result}));
+    }
+    save(&out.join("support-results.json"), &json!(results)).unwrap();
+}
+
+#[test]
+fn repair_outline_required_absences_reject_extra_native_projection_fields() {
+    let ids = [
+        "P10-complete-outline-links::base",
+        "OL-M15::base",
+        "OL-M22::base",
+        "OL-M16::base",
+        "OL-B01::base",
+        "OL-C00::base",
+        "OL-M01::base",
+        "OL-M09::base",
+        "OL-M10::base",
+    ];
+    repair_units(&ids);
+    let recipes = read_json(&PathBuf::from(
+        std::env::var_os("SEMCTX_REPAIR_RECIPES").expect("repair recipes"),
+    ))
+    .unwrap();
+    let out =
+        PathBuf::from(std::env::var_os("SEMCTX_REPAIR_EVIDENCE").expect("fresh repair evidence"))
+            .join("units-P10-complete-outline-links");
+    for (index, id) in ids.iter().enumerate() {
+        let recipe = recipes["recipes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|recipe| recipe["unit_id"] == *id)
+            .unwrap();
+        let outcome: process::Outcome = serde_json::from_value(
+            read_json(&out.join(format!("unit-{index:03}/process-outcome.json"))).unwrap(),
+        )
+        .unwrap();
+        let original: Value = serde_json::from_str(&outcome.stdout).unwrap();
+        let checks = recipe["checks"].as_array().unwrap();
+        assert!(
+            checks
+                .iter()
+                .all(|check| evaluate(&original, check)["state"] == "PASS_PROJECTED_PROPERTY")
+        );
+        let source = recipe["requests"][0]["roots"][0].as_str().unwrap();
+        let absent: &[(usize, &str)] = match index {
+            0 => &[(0, "whole"), (1, "whole")],
+            3 => &[(0, "importBindings"), (0, "sideEffectImport")],
+            6 | 8 => &[(0, "sideEffectImport")],
+            7 => &[],
+            _ => &[
+                (0, "moduleSpecifier"),
+                (0, "importBindings"),
+                (0, "loadsModule"),
+                (0, "sideEffectImport"),
+            ],
+        };
+        for (entry, field) in absent {
+            let mut poisoned = original.clone();
+            let entries = if index == 0 {
+                &mut poisoned["outlines"][source]["moduleLinks"]
+            } else {
+                &mut poisoned["outlines"][source]["outline"]["statements"]
+            };
+            let object = entries.as_array_mut().unwrap()[*entry]
+                .as_object_mut()
+                .unwrap();
+            assert!(
+                !object.contains_key(*field),
+                "native optional field is present: {id}/{entry}/{field}"
+            );
+            object.insert((*field).to_string(), Value::Null);
+            assert!(
+                checks
+                    .iter()
+                    .any(|check| evaluate(&poisoned, check)["state"] != "PASS_PROJECTED_PROPERTY"),
+                "required absent field accepted by generated recipe: {id}/{entry}/{field}",
+            );
+        }
+    }
+}

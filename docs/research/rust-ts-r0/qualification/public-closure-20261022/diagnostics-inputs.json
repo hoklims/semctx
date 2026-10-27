@@ -1,0 +1,2866 @@
+{
+  "schemaVersion": 1,
+  "obligation_indices": [
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47
+  ],
+  "units": [
+    {
+      "id": "PUBLIC-DIAG-js-exports",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "const local=1; export {local}; export {value as renamed} from \"./dep.js\"; export * as ns from \"./dep.js\"; export * from \"./dep.js\"; export const named=1; export function fn(){}; export class Box{}; export default function(){};"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-defaultclass",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "export default class {}"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-expression",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "export default 1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-destructuring",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "export const {a,b:renamed} = {a:1,b:2}; export const [first] = [1];"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-control",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "const local=1; function fn(){}; class Box{}; export {};"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-syntaxerror",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "export const broken = ;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-dynamic",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "const s=\"./dep.js\"; import(s); import(\"./dep.js\", {}); tag`value`; with ({}) {}; (true ? left : right)();"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-imports",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.js": "import \"./dep.js\"; export {value} from \"./dep.js\"; import(\"./dep.js\"); import \"./missing.js\"; import \"node:fs\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-js-jsx",
+      "path": "main.jsx",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "dep.js": "export const value=1;",
+        "main.jsx": "export const element = <><span/><div>text</div></>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-dependencies",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": \"^1.0.0\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-devDependencies",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"devDependencies\": {\"pkg\": \"^1.0.0\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-peerDependencies",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"peerDependencies\": {\"pkg\": \"^1.0.0\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-optionalDependencies",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"optionalDependencies\": {\"pkg\": \"^1.0.0\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-self",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"name\": \"pkg\", \"dependencies\": {\"pkg\": \"1\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-workspace",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": \"workspace:*\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-file",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": \"file:../pkg\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-link",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": \"link:../pkg\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-missing",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-invalid",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-nonstr",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": 1}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-ancestor",
+      "path": "src/nested/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": \"1\"}}",
+        "src/package.json": "{}",
+        "src/nested/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-nodemodule",
+      "path": "main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "node_modules/pkg/package.json": "{\"main\":\"index.js\"}",
+        "node_modules/pkg/index.js": "export const x=1;",
+        "main.js": "import \"pkg\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-ts",
+      "path": "main.ts",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.ts": "export const value: number = 1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-invalid-ts",
+      "path": "main.ts",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.ts": "export const value = ;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-tsx",
+      "path": "main.tsx",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.tsx": "export const value = <span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-invalid-tsx",
+      "path": "main.tsx",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.tsx": "export const value = ;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-js",
+      "path": "main.js",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.js": "export const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-invalid-js",
+      "path": "main.js",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.js": "export const value = ;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-jsx",
+      "path": "main.jsx",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.jsx": "export const value=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-parse-invalid-jsx",
+      "path": "main.jsx",
+      "operation": "parsing",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.jsx": "export const value = ;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        42,
+        43
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-none-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-none-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-none-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-valid-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-valid-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-valid-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-invalid-json-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{ \"compilerOptions\": ",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-invalid-json-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{ \"compilerOptions\": ",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-invalid-json-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{ \"compilerOptions\": ",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-invalid-option-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"nonsense\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-invalid-option-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"nonsense\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-invalid-option-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"nonsense\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-module-commonjs-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"CommonJS\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-module-commonjs-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"CommonJS\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-module-commonjs-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"CommonJS\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-resolution-node-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Node\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-resolution-node-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Node\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-resolution-node-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Node\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-inherited-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./tsconfig.base.json\"}",
+        "tsconfig.base.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-inherited-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./tsconfig.base.json\"}",
+        "tsconfig.base.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-inherited-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./tsconfig.base.json\"}",
+        "tsconfig.base.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-missing-inherited-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./absent.json\"}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-missing-inherited-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./absent.json\"}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-missing-inherited-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./absent.json\"}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-unused-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-unused-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-unused-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-consumed-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./tsconfig.extra.json\"}",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-consumed-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./tsconfig.extra.json\"}",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-consumed-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"extends\":\"./tsconfig.extra.json\"}",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-without-governing-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-without-governing-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-without-governing-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-governing-invalid-retainedWithSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-governing-invalid-retainedWithoutSource",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-config-named-governing-invalid-ordinaryWithoutSnapshot",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{",
+        "tsconfig.extra.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "main.ts": "export const answer = 42;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-helper-on",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"ES5\", \"importHelpers\": true}}",
+        "main.ts": "export class Child extends Base {}"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        23
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-helper-off",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"ES5\", \"importHelpers\": false}}",
+        "main.ts": "export class Child extends Base {}"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        23
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-helper-none",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"ES5\", \"importHelpers\": true}}",
+        "main.ts": "export const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        23
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-helper-native",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"ES2022\", \"importHelpers\": true}}",
+        "main.ts": "export class Child extends Base {}"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        23
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-helper-async",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"ES2015\", \"importHelpers\": true}}",
+        "main.ts": "export async function load(){ await Promise.resolve(); }"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        23
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-scope-module",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "dep.ts": "export const x=1;",
+        "main.ts": "export const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        40,
+        41
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-scope-script",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "dep.ts": "export const x=1;",
+        "main.ts": "const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        40,
+        41
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-scope-global",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "dep.ts": "export const x=1;",
+        "main.ts": "export {}; declare global { interface Window { marker: string } }"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        40,
+        41
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-scope-augmentation",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\"}}",
+        "dep.ts": "export const x=1;",
+        "main.ts": "export {}; declare module \"./dep\" { const value: number; }"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        40,
+        41
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-automatic-retainedWithSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react-jsx\"}}",
+        "main.tsx": "export const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-automatic-retainedWithoutSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react-jsx\"}}",
+        "main.tsx": "export const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-automatic-ordinaryWithoutSnapshot",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react-jsx\"}}",
+        "main.tsx": "export const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-classic-retainedWithSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "export const element=<><span/><div>text</div></>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-classic-retainedWithoutSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "export const element=<><span/><div>text</div></>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-classic-ordinaryWithoutSnapshot",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "export const element=<><span/><div>text</div></>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-preserve-retainedWithSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"preserve\"}}",
+        "main.tsx": "export const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-preserve-retainedWithoutSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"preserve\"}}",
+        "main.tsx": "export const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-preserve-ordinaryWithoutSnapshot",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"preserve\"}}",
+        "main.tsx": "export const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-classic-pragma-retainedWithSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react-jsx\"}}",
+        "main.tsx": "/** @jsxRuntime classic */\nexport const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-classic-pragma-retainedWithoutSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react-jsx\"}}",
+        "main.tsx": "/** @jsxRuntime classic */\nexport const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-classic-pragma-ordinaryWithoutSnapshot",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react-jsx\"}}",
+        "main.tsx": "/** @jsxRuntime classic */\nexport const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-automatic-pragma-retainedWithSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "/** @jsxRuntime automatic */\nexport const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-automatic-pragma-retainedWithoutSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "/** @jsxRuntime automatic */\nexport const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-automatic-pragma-ordinaryWithoutSnapshot",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "/** @jsxRuntime automatic */\nexport const element=<span/>;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-no-jsx-retainedWithSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "export const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-no-jsx-retainedWithoutSource",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "retainedWithoutSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "export const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-jsx-no-jsx-ordinaryWithoutSnapshot",
+      "path": "main.tsx",
+      "operation": "configuration",
+      "mode": "ordinaryWithoutSnapshot",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"jsx\": \"react\"}}",
+        "main.tsx": "export const value=1;"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        20,
+        21,
+        22,
+        23,
+        167
+      ]
+    },
+    {
+      "id": "PUBLIC-DIAG-package-live-dependencies",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{\"dependencies\": {\"pkg\": \"^1.0.0\"}}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "retained": false
+    },
+    {
+      "id": "PUBLIC-DIAG-package-live-missing",
+      "path": "src/main.js",
+      "operation": "javascript",
+      "mode": "retainedWithSource",
+      "files": {
+        "package.json": "{}",
+        "src/main.js": "import \"pkg/sub\";"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47
+      ],
+      "retained": false
+    },
+    {
+      "id": "PUBLIC-DIAG-helper-scoped",
+      "path": "main.ts",
+      "operation": "configuration",
+      "mode": "retainedWithSource",
+      "files": {
+        "tsconfig.json": "{\"compilerOptions\": {\"module\": \"ESNext\", \"moduleResolution\": \"Bundler\", \"target\": \"ES2015\", \"importHelpers\": true}}",
+        "main.ts": "export class Child extends Base { async method(){ return super.method(); } }"
+      },
+      "origin": "Independent consumer-specific public witness, authored from baseline source predicate before native comparison",
+      "obligation_indices": [
+        12,
+        13,
+        14,
+        23
+      ]
+    }
+  ]
+}

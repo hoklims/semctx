@@ -1,0 +1,333 @@
+import { compareExtraction, compareLeafGraph } from "./t00-ts7-q-boundary-extraction";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, realpath, symlink, writeFile } from "node:fs/promises";
+import { basename, dirname, resolve } from "node:path";
+import { isDeepStrictEqual } from "node:util";
+import type { Context, Evidence, Execution, Json, Observation, Property } from "./t00-ts7-q-boundary-common";
+import { retainedMetadataFromTs7 } from "./t00-ts7-q-boundary-paths";
+import { isolatedEnvironment } from "./t00-ts7-q-boundary-common";
+import { identityObservations } from "./t00-ts7-q-boundary-identity";
+import { liveCanonicalObservation, liveDiscoveryObservations } from "./t00-ts7-q-boundary-live-fs";
+
+const reference = "contract-ts7.md P2 + owner decisions 2026-10-23; consumer-contracts.json finite observable rules";
+const revision = "780dc512d64f40afebffa6a7028207649fb7ed1c";
+const object = (value: unknown): Json => value !== null && typeof value === "object" && !Array.isArray(value) ? value as Json : {};
+const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
+const hash = (value: string | Uint8Array): string => `sha256:${createHash("sha256").update(value).digest("hex")}`;
+const property = (name: string, actual: unknown, expected: unknown, oracle = reference): Property => ({ name, actual: actual ?? null, expected, oracle, pass: isDeepStrictEqual(actual, expected) });
+
+export function dialectProperties(observed: Json, producerId: string): Property[] {
+  const subjects = array(observed.subjects).map(object);
+  const paths = subjects.map(subject => subject.path);
+  return [
+    property("executed-compiler-version", observed.native_compiler_version, "7.1.0-dev"),
+    property("executed-compiler-revision", observed.engine_revision, revision),
+    property("executed-candidate-binding", observed.producer_artifact_id, producerId),
+    property("analyzed-complete", observed.complete, true),
+    property("capability-subjects-nonempty", subjects.length > 0, true),
+    property("capability-subjects-distinct", new Set(paths).size, subjects.length),
+    property("capability-paths-present", paths.every(path => typeof path === "string" && path.length > 0), true),
+    property("all-subjects-native-dialect", subjects.every(subject => object(subject.capabilityScope).dialectVersion === "7.1.0-dev"), true),
+    property("all-subjects-language-present", subjects.every(subject => ["typescript", "javascript"].includes(String(object(subject.capabilityScope).language))), true),
+  ];
+}
+
+export function retainedSystemExecution(execution: Execution): Property {
+  const rows = array(execution.value.results).map(object);
+  return property("system-executed", {
+    executed: execution.value.executed, exitCode: execution.exitCode, unsupported: execution.value.unsupported, reasons: execution.value.reasons,
+    queries: rows.map(row => ({ executed: row.executed, unsupported: row.unsupported, refusals: row.refusals })),
+  }, { executed: true, exitCode: 0, unsupported: [], reasons: [], queries: rows.map(() => ({ executed: true, unsupported: [], refusals: [] })) });
+}
+
+async function materialize(root: string, files: Record<string, string>): Promise<void> {
+  await mkdir(root, { recursive: true });
+  for (const [relative, text] of Object.entries(files)) {
+    const path = resolve(root, relative);
+    if (!path.startsWith(`${root}/`)) throw new Error(`fixture path outside root: ${relative}`);
+    await mkdir(dirname(path), { recursive: true });
+    await writeFile(path, text);
+  }
+}
+
+async function fixtureEvidence(ctx: Context, label: string, files: Record<string, string>): Promise<Evidence> {
+  return ctx.save(`${label}-fixture`, Object.entries(files).map(([path, text]) => ({ path, bytes: Buffer.byteLength(text), sha256: hash(text) })));
+}
+
+function finish(index: number, properties: Property[], evidence: Evidence[], complete: boolean, reason: string): Observation {
+  return { index, properties, evidence, complete, reason };
+}
+
+async function keys(ctx: Context, index: number): Promise<Observation> {
+  const root = resolve(ctx.root, `filesystem-${index}`);
+  await materialize(root, { "Source.ts": "export const key = 1;\n", "Other.ts": "export const key = 2;\n" });
+  await symlink("Source.ts", resolve(root, "alias.ts"));
+  const physical = await realpath(resolve(root, "Source.ts"));
+  const properties: Property[] = [];
+  const evidence: Evidence[] = [await ctx.save(`${index}-filesystem-oracle`, { source: physical, alias: await realpath(resolve(root, "alias.ts")), other: await realpath(resolve(root, "Other.ts")) })];
+  for (const sensitive of [true, false]) {
+    if (index === 136) {
+      for (const [name, path, expectedPath] of [
+        ["ordinary", "Source.ts", resolve(root, "Source.ts")],
+        ["dot-alias", "folder/../Source.ts", resolve(root, "Source.ts")],
+        ["distinct-leaf", "Other.ts", resolve(root, "Other.ts")],
+        ["backslash", "folder\\Source.ts", `${root}/folder/Source.ts`],
+        ["unicode-case", "İΣ.TS", resolve(root, "İΣ.TS")],
+      ]) {
+        const result = await ctx.run(`${index}-${name}-${sensitive}`, "--observe-primitives", { operation: "semantic_key", cwd: root, path, case_sensitive: sensitive });
+        evidence.push(...result.evidence);
+        properties.push(property(`${name}-${sensitive}-exit`, result.exitCode, 0), property(`${name}-${sensitive}`, result.value.key, sensitive ? expectedPath : expectedPath?.toLowerCase(), "native path.resolve + independent contract case projection"));
+      }
+    } else {
+      for (const name of ["Source.ts", "alias.ts", "Other.ts"]) {
+        const path = resolve(root, name);
+        const actualPath = await realpath(path);
+        const result = await ctx.run(`${index}-${name}-${sensitive}`, "--observe-primitives", { operation: "canonical_file_key", path, case_sensitive: sensitive, realpath_results: { [path]: actualPath } });
+        evidence.push(...result.evidence);
+        properties.push(property(`${name}-${sensitive}`, result.value.key, sensitive ? actualPath : actualPath.toLowerCase(), "node:fs realpath + finite canonical key contract"));
+      }
+    }
+  }
+  if (index === 136) {
+    const main = "import { invoke } from './Leaf'; function callback() {} export function main() { invoke(callback); }";
+    const leaf = "export function invoke(callback: () => void) { callback(); }";
+    for (const vector of [
+      { name: "retained", path: "Leaf.ts", main, retained: true, reasons: [] },
+      { name: "dot-alias", path: "folder/../Leaf.ts", main, retained: true, reasons: [] },
+      { name: "backslash-alias", path: "folder\\Leaf.ts", main: main.replace("'./Leaf'", "'./folder/Leaf'"), retained: true, reasons: [] },
+      { name: "different-leaf", path: "Other.ts", main, retained: true, reasons: ["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"] },
+      { name: "ordinary-context", path: "Leaf.ts", main, retained: false, reasons: ["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"] },
+      { name: "native-case", path: "Leaf.ts", main: main.replace("'./Leaf'", "'./leaf'"), retained: true, reasons: ctx.platform === "linux" ? ["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"] : [] },
+    ]) {
+      const files = { "main.ts": vector.main, [vector.path]: leaf };
+      const input = ctx.analysis(files, { retained: vector.retained, qualified: vector.retained, roots: [resolve(ctx.root, "main.ts")] });
+      const actual = await ctx.run("136-context-" + vector.name, "", input);
+      const oracleFiles = Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(ctx.root, path).replaceAll("\\", "/"), text]));
+      const oracle = await ctx.extractionOracle("136-context-" + vector.name, { files: oracleFiles, roots: [resolve(ctx.root, "main.ts")], repoRoot: ctx.root, caseSensitive: ctx.platform === "linux", options: input.options });
+      evidence.push(...actual.evidence, ...oracle.evidence);
+      const subject = array(actual.value.subjects).map(object).find(row => row.path === "main.ts");
+      const semantic = object(subject?.semanticObservation);
+      properties.push(property(vector.name + "-owning-operation-executed", { exit: actual.exitCode, complete: actual.value.complete, executed: semantic.executed, unsupported: semantic.unsupported }, { exit: 0, complete: true, executed: true, unsupported: [] }));
+      properties.push(property(vector.name + "-retained-context-usage", semantic.reasons, vector.reasons, "consumer inspectSemanticDependencies: retained internal callable accepts callback; unresolved opaque callable refuses callback"));
+      const expectedLoaded = vector.name === "different-leaf" || vector.name === "native-case" && ctx.platform === "linux" ? ["main.ts"] : ["main.ts", vector.path.replaceAll("\\", "/").replace("folder/../", "")];
+      const nativeKey = (path: string): string => ctx.platform === "linux" ? path : path.toLowerCase();
+      properties.push(property(vector.name + "-independent-context-loaded", array(oracle.value.loadedFiles).filter(path => !String(path).startsWith("/sdk/")).map(path => nativeKey(String(path).replace(ctx.root + "/", ""))).toSorted(), expectedLoaded.map(nativeKey).toSorted(), "pinned TS7 Program source-file membership projected to native-case context keys"));
+    }
+  }
+  return finish(index, properties, evidence, index === 136, index === 136
+    ? "Lexical/native-case keys and semantic retained-context usage pairs execute: callable callback acceptance, opaque refusal, dot/backslash aliases, different leaf and ordinary-context controls; TS7 independently observes context membership."
+    : "Real filesystem alias/target/distinct paths execute. The controlled primitive requires successful supplied realpath mappings and cannot activate the compiler realpath-exception fallback; worker/direct extraction parity and selected-root component continuity are also unexercised.");
+}
+
+async function retained(ctx: Context): Promise<Observation[]> {
+  const root = resolve(ctx.root, "filesystem-retained");
+  await materialize(root, { "src/entry.ts": "export function live() { return 3; }\n", "live-only.ts": "export const transient = true;\n" });
+  const retainedSource = "export function captured() { return 7; }\n";
+  const source = resolve(root, "src/entry.ts");
+  const live = resolve(root, "live-only.ts");
+  const missing = resolve(root, "missing.ts");
+  const sdkFiles = object(ctx.sdk.files);
+  const lib = Object.keys(sdkFiles).find(path => basename(path) === "lib.es5.d.ts");
+  if (!lib || typeof sdkFiles[lib] !== "string") throw new Error("pinned SDK lacks lib.es5.d.ts");
+  const sdkRoot = dirname(lib);
+  const queries = [
+    ["read_file", source], ["read_file", live], ["read_file", missing],
+    ["file_exists", source], ["file_exists", live], ["file_exists", missing],
+    ["directory_exists", resolve(root, "src")], ["directory_exists", root], ["directory_exists", resolve(root, "absent")],
+    ["read_directory", root], ["read_file", lib], ["file_exists", lib], ["directory_exists", sdkRoot],
+    ["read_file", `${sdkRoot}-foreign/lib.es5.d.ts`], ["file_exists", `${sdkRoot}-foreign/lib.es5.d.ts`],
+    ["directory_exists", `${sdkRoot}-foreign`], ["realpath", source],
+  ].map(([operation, path]) => ({ operation, path }));
+  const observed = await ctx.run("216-retained-system-sdk", "--observe-system", {
+    profile: "retained", root, case_sensitive: ctx.platform === "linux", files: { [source]: retainedSource }, sdk_directory: sdkRoot, queries,
+  }, true);
+  const rows = array(observed.value.results).map(object);
+  const value = (index: number) => rows[index]?.value;
+  const executed = retainedSystemExecution(observed);
+  const denominator = property("query-denominator", rows.length, queries.length);
+  const bindings = property("query-bindings", rows.map(row => ({ operation: row.operation, path: row.path })), queries);
+  const reads = [
+    property("retained-source-wins-live", value(0), retainedSource),
+    property("live-only-read-hidden", rows[1]?.found, false),
+    property("missing-read-absent", rows[2]?.found, false),
+    property("explicit-sdk-read", value(10), sdkFiles[lib], "independent pinned TS7 SDK source bytes"),
+    property("sibling-sdk-prefix-denied", rows[13]?.found, false),
+  ];
+  const existence = [
+    property("retained-file-present", value(3), true), property("live-only-file-hidden", value(4), false),
+    property("missing-file-absent", value(5), false), property("explicit-sdk-file-present", value(11), true),
+    property("sibling-sdk-file-denied", value(14), false),
+  ];
+  const directories = [
+    property("retained-parent-present", value(6), true), property("retained-root-present", value(7), true),
+    property("missing-directory-absent", value(8), false), property("explicit-sdk-directory-present", value(12), true),
+    property("sibling-sdk-directory-denied", value(15), false),
+  ];
+  const compilerFiles = { "src/entry.ts": retainedSource };
+  const oracle = await ctx.oracle("216-retained-sdk-consumption", compilerFiles, { args: ["--listFilesOnly"] });
+  const analysis = ctx.analysis(compilerFiles, { cwd: root, roots: [source], files: { [source]: retainedSource } });
+  const expected = await ctx.extractionOracle("216-retained-source", { files: analysis.files, roots: analysis.roots, repoRoot: root, options: analysis.options, retained: true });
+  const analyzed = await ctx.run("219-retained-source-leaf", "", analysis, true);
+  const ordinary = await ctx.run("219-ordinary-source-leaf", "", { ...analysis, retained: false, qualified: false }, true);
+  const runtime = await ctx.run("216-retained-runtime-composition", "--analyze-retained-runtime", { analysis, discovered_sources: [{ relPath: "src/entry.ts", content: retainedSource }] }, true);
+  const assembly = object(analyzed.value.assembly);
+  const evidence = [...observed.evidence, ...oracle.evidence, ...expected.evidence, ...analyzed.evidence, ...ordinary.evidence, ...runtime.evidence, await ctx.save("216-live-vs-retained-inputs", { source, live, liveSource: await readFile(source, "utf8"), retainedSource, sdkFile: lib, sdkSha256: hash(sdkFiles[lib] as string) })];
+  const subjectPaths = array(analyzed.value.subjects).map(subject => object(subject).path);
+  const composition = [
+    property("independent-extraction-oracle-exit", expected.exitCode, 0),
+    property("independent-leaf-symbol-activation", array(expected.value.symbols).map(value => { const symbol = object(value); return { path: symbol.relPath, name: symbol.name, kind: symbol.kind }; }), [{ path: "src/entry.ts", name: "captured", kind: "function" }], "hand-authored source leaf control independent of both extraction outputs"),
+    property("retained-source-analysis-exit", analyzed.exitCode, 0),
+    property("ordinary-source-analysis-exit", ordinary.exitCode, 0),
+    property("runtime-source-analysis-exit", runtime.exitCode, 0),
+    property("runtime-source-analysis-executed", runtime.value.executed, true),
+    property("runtime-source-snapshot-guard", runtime.value.snapshot_guard_passed, true),
+    property("retained-transient-source-hidden", subjectPaths, ["src/entry.ts"]),
+    ...compareExtraction("retained", expected.value, object(analyzed.value.raw_extraction)),
+    ...compareExtraction("ordinary", expected.value, object(ordinary.value.raw_extraction)),
+    ...compareExtraction("runtime", expected.value, object(object(runtime.value.native_analysis).raw_extraction)),
+    ...compareLeafGraph("retained", expected.value, assembly),
+    ...compareLeafGraph("ordinary", expected.value, object(ordinary.value.assembly)),
+    ...compareLeafGraph("runtime", expected.value, object(object(runtime.value.native_analysis).assembly)),
+  ];
+  const independent = [property("independent-sdk-consumed", oracle.exitCode === 0 && oracle.stdout.includes("lib.es5.d.ts"), true, "independent TS7 --listFilesOnly")];
+  return [
+    finish(216, [executed, denominator, bindings, ...reads, ...existence, ...directories, property("retained-directory-enumeration-empty", value(9), []), ...independent, ...composition], evidence, true, "Retained bytes, live-only absence, directory and pinned SDK controls are composed with independent complete leaf extraction/graph in ordinary, qualified and snapshot-runtime paths."),
+    finish(217, [executed, denominator, bindings, ...directories], evidence, true, "Retained ancestors, missing paths, explicit TS7 SDK directory and foreign-prefix negative control execute."),
+    finish(218, [executed, denominator, bindings, ...existence], evidence, true, "Retained file, live-only/missing files and explicit TS7 SDK file with foreign-prefix negative control execute."),
+    finish(219, [executed, denominator, bindings, ...reads, property("actual-source-subject", subjectPaths, ["src/entry.ts"]), property("actual-source-analysis-complete", analyzed.value.complete, true), property("actual-source-assembly-observed", Object.keys(assembly).length > 0, true), ...independent, ...composition], evidence, true, "Retained/live bytes and SDK content controls are composed with independent complete leaf extraction and graph in ordinary, qualified and snapshot-runtime paths."),
+  ];
+}
+
+const discoveryConfig = { version: 1, include: ["**/*"], exclude: [], languages: { typescript: "on", javascript: "on", python: "off", markdown: "off", sql: "off" }, migrationsDirs: [] };
+
+async function discovery(ctx: Context): Promise<Observation[]> {
+  const properties: Property[] = [];
+  const evidence: Evidence[] = [];
+  const vectors = [
+    { name: "inside", files: { "entry.ts": "import { leaf } from './leaf'; export const value = leaf;\n", "leaf.ts": "export const leaf = 7;\n" }, expected: undefined },
+    { name: "missing-inside", files: { "entry.ts": "import './missing';\n" }, expected: undefined },
+    { name: "import-outside", files: { "entry.ts": "import '../outside';\n" }, expected: "IMPORT_OUTSIDE_REPOSITORY" },
+    { name: "reference-outside", files: { "entry.ts": "/// <reference path='../outside.ts' />\nexport {};\n" }, expected: "REFERENCE_OUTSIDE_REPOSITORY" },
+    { name: "bare", files: { "entry.ts": "import 'node:fs'; export {};\n" }, expected: undefined },
+    { name: "dynamic-outside", files: { "entry.ts": "export const load = () => import('../outside');\n" }, expected: "IMPORT_OUTSIDE_REPOSITORY" },
+  ];
+  for (const vector of vectors) {
+    const root = resolve(ctx.root, `filesystem-discovery-${vector.name}`);
+    const files = vector.files as Record<string, string>;
+    await materialize(root, files);
+    const result = await ctx.run(`6-${vector.name}`, "--discover-repository", { repositoryRoot: root, config: discoveryConfig });
+    const oracle = await ctx.oracle(`6-${vector.name}-ts7`, files, { args: ["--traceResolution"] });
+    evidence.push(...result.evidence, ...oracle.evidence, await fixtureEvidence(ctx, `6-${vector.name}`, files));
+    const candidate = array(result.value.candidates).map(object).find(row => row.relPath === "entry.ts");
+    properties.push(property(`${vector.name}-candidate-present`, candidate !== undefined, true));
+    if (vector.expected) {
+      properties.push(property(`${vector.name}-confinement-reason`, candidate?.reason, vector.expected));
+      properties.push(property(`${vector.name}-failed`, candidate?.analysisOutcome, "failed"));
+      properties.push(property(`${vector.name}-not-returned-as-source`, array(result.value.files).some(file => object(file).relPath === "entry.ts"), false));
+    } else {
+      properties.push(property(`${vector.name}-confinement-accepted`, array(result.value.files).some(file => object(file).relPath === "entry.ts"), true));
+    }
+    if (vector.name === "inside") properties.push(property("independent-in-root-resolution", oracle.stdout.includes("leaf.ts") && oracle.stdout.includes("successfully resolved"), true, "independent TS7 --traceResolution"));
+  }
+  const root = resolve(ctx.root, "filesystem-discovery-source-link");
+  const external = resolve(ctx.root, "filesystem-external-source.ts");
+  await writeFile(external, "export const external = 1;\n");
+  await materialize(root, { "inside.ts": "export const inside = 2;\n" });
+  await symlink(external, resolve(root, "outside-link.ts"));
+  const links = await ctx.run("169-outside-source-link", "--discover-repository", { repositoryRoot: root, config: discoveryConfig });
+  evidence.push(...links.evidence, await ctx.save("169-link-oracle", { link: resolve(root, "outside-link.ts"), target: await realpath(resolve(root, "outside-link.ts")), repository: await realpath(root) }));
+  const linkProperties = [property("outside-source-symlink-refused", array(links.value.candidates).map(object).some(row => row.relPath === "outside-link.ts" && row.reason === "SOURCE_LINK_OUTSIDE_REPOSITORY" && row.analysisOutcome === "failed"), true)];
+  const live = await liveDiscoveryObservations(ctx);
+  return live.map(observation => ({ ...observation, properties: [...properties, ...(observation.index === 169 ? linkProperties : []), ...observation.properties], evidence: [...evidence, ...observation.evidence] }));
+}
+
+async function eligibility(ctx: Context): Promise<Observation> {
+  const root = resolve(ctx.root, "filesystem-eligibility");
+  const files = {
+    ".gitignore": "dist/*\n!dist/tracked.ts\n",
+    "dist/tracked.ts": "export const tracked = 1;\n",
+    "dist/ignored.ts": "export const ignored = 1;\n",
+    "dist/tsconfig.json": '{"extends":["./base",7,null,"package-name"],}\n',
+    "dist/base.json": '{"extends":"./leaf"}\n',
+    "dist/leaf.json": '{"extends":"./base"}\n',
+    "dist/tsconfig.invalid.json": '{"extends":123}\n',
+  };
+  await materialize(root, files);
+  const fixtureEnv = isolatedEnvironment(root);
+  const init = Bun.spawnSync(["git", "init", "--quiet", root], { stdout: "pipe", stderr: "pipe", env: fixtureEnv });
+  if (init.exitCode !== 0) throw new Error(`fixture Git init failed: ${init.stderr.toString()}`);
+  const add = Bun.spawnSync(["git", "-C", root, "add", "--", "dist/tracked.ts"], { stdout: "pipe", stderr: "pipe", env: fixtureEnv });
+  if (add.exitCode !== 0) throw new Error(`fixture Git add failed: ${add.stderr.toString()}`);
+  const queries = ["src/ordinary.ts", "node_modules/a.ts", ".git/config", ".semctx/state.json", "dist/ignored.ts", "dist/tracked.ts", "dist/tsconfig.json", "dist/base.json", "dist/leaf.json", "dist/package.json", "dist/.gitignore", "dist/chosen.ts", "dist/excluded.ts", "dist/not-extended.json"];
+  const expected = [true, false, false, false, false, true, true, true, true, true, true, true, false, false];
+  const descriptor = { repositoryRoot: root, processHelper: ctx.helper, include: ["dist/chosen.ts", "dist/excluded.ts"], exclude: ["dist/excluded.ts"], queries };
+  const result = await ctx.run("5-eligibility", "--observe-path-eligibility", descriptor);
+  const absoluteFiles = Object.fromEntries(Object.entries(files).map(([path, text]) => [resolve(root, path), text]));
+  const astOracle = await ctx.extractionOracle("eligibility-configurations", { files: absoluteFiles, roots: [], repoRoot: root });
+  const metadata = retainedMetadataFromTs7(root, Object.keys(absoluteFiles), astOracle.value.configReferences);
+  const noGit = resolve(ctx.root, "filesystem-not-git");
+  await mkdir(noGit, { recursive: true });
+  const negative = await ctx.run("5-git-failure", "--observe-path-eligibility", { ...descriptor, repositoryRoot: noGit });
+  const oracle = await ctx.oracle("5-jsonc-extends-compiler", { "entry.ts": "export {};\n", "tsconfig.base.json": '{"compilerOptions":{"strict":true}}\n' });
+  return finish(5, [
+    property("eligibility-process-exit", result.exitCode, 0),
+    property("git-failure-process-exit", negative.exitCode, 0),
+    property("eligible-finite-vector", result.value.eligible_results, expected),
+    property("eligibility-established", result.value.eligibility_established, true),
+    property("independent-ts7-configuration-graph", result.value.retained_metadata, metadata, "pinned independent TS7 JSONC AST references + consumer metadata closure contract"),
+    property("configuration-closure-activated", metadata, ["dist/base.json", "dist/leaf.json", "dist/tsconfig.invalid.json", "dist/tsconfig.json"], "finite fixture closure including cycle, nonstrings and bare excludes"),
+    property("configuration-complete-read-set", array(result.value.reads).map(row => String(object(row).path)).toSorted(), metadata.map(path => resolve(root, path)).toSorted(), "complete independently derived configuration closure"),
+    property("git-failure-no-eligibility", negative.value.eligibility_established, false),
+    property("git-failure-error", object(negative.value.error).code, "IO_ERROR"),
+    property("git-failure-no-results", negative.value.eligible_results, null),
+    property("independent-compiler-control", oracle.exitCode, 0, "independent pinned TS7 CLI"),
+  ], [...result.evidence, ...negative.evidence, ...oracle.evidence, ...astOracle.evidence, await fixtureEvidence(ctx, "5", files)], true,
+  "Git authored/ignored paths, hard exclusions, selection, complete TS7 JSONC reference closure with cycles/nonstrings/bare controls and IO_ERROR projection are compared independently.");
+}
+
+async function imports(ctx: Context, indices: number[]): Promise<Observation[]> {
+  const source = [
+    "import { a } from './a';", "export { b } from '../b';", "export * from './a';",
+    "import 'bare-package';", "import 'node:fs';", "const first = import('./dynamic');",
+    "const computed = import('./' + 'computed');", "const template = import(`./template`);",
+    "const required = require('./required');", "function nested() { return import('./nested'); }",
+    "const double = import('./dynamic');", "const options = import('./options', {});", "type Only = import('./typeOnly');", "const view = <div />;", "export { a };",
+  ].join("\n");
+  const expected = ["./a", "../b", "./a", "./dynamic", "./nested", "./dynamic", "./options"];
+  const observed = await ctx.run("230-231-relative-specifiers", "--observe-primitives", { operation: "relative_import_specifiers", source, filename: "fixture.tsx" });
+  const oracle = await ctx.oracle("230-231-ts7-parse-resolution", { "fixture.tsx": source, "a.ts": "export const a = 1;\n", "dynamic.ts": "export {};\n", "nested.ts": "export {};\n" }, { jsx: "preserve", args: ["--traceResolution"] });
+  const emptySource = "import 'node:fs'; import equal = require('./equal'); require('./required'); import(`./template`); import(name); import(); type Only = import('./typeOnly'); export {};";
+  const empty = await ctx.run("230-231-no-relative-specifiers", "--observe-primitives", { operation: "relative_import_specifiers", source: emptySource, filename: "empty.tsx" });
+  const astOracle = await ctx.extractionOracle("relative-specifiers", { files: { "/project/fixture.tsx": source, "/project/empty.tsx": emptySource }, roots: ["/project/fixture.tsx", "/project/empty.tsx"], repoRoot: "/project" });
+  const evidence = [...observed.evidence, ...empty.evidence, ...oracle.evidence, ...astOracle.evidence, await ctx.save("230-231-independent-contract-sequence", { source, expected, derivation: "Hand-authored exact finite sequence from the consumer literal AST rule, independent of producer output; Pinned TS7 AST traversal independently supplies the observed sequence; hand-authored fixture control guards its projection." })];
+  return indices.map(index => finish(index, [
+    property("relative-specifiers-process-exit", observed.exitCode, 0),
+    property("empty-specifiers-process-exit", empty.exitCode, 0),
+    property("independent-ast-activation", object(astOracle.value.relativeSpecifiers)["fixture.tsx"], expected, "pinned independent TS7 AST traversal"),
+    property("independent-ast-negative", object(astOracle.value.relativeSpecifiers)["empty.tsx"], [], "pinned independent TS7 AST traversal"),
+    property("exact-relative-literal-sequence", observed.value.specifiers, object(astOracle.value.relativeSpecifiers)["fixture.tsx"], "pinned independent TS7 AST traversal"),
+    property("bare-require-computed-template-excluded", empty.value.specifiers, []),
+    property("compiler-resolves-literal-module", oracle.stdout.includes("a.ts") && oracle.stdout.includes("successfully resolved"), true, "independent pinned TS7 --traceResolution"),
+  ], evidence, true, "Exact independent TS7 AST visitation sequence and empty control cover static imports/reexports, nested and repeated import(), with bare/node:fs/require/computed/template exclusions."));
+}
+
+export async function filesystemObservations(ctx: Context, indices: number[]): Promise<Observation[]> {
+  const observations: Observation[] = [];
+  for (const index of indices) {
+    if ([216, 217, 218, 219].includes(index)) {
+      if (!observations.some(observation => [216, 217, 218, 219].includes(observation.index))) observations.push(...(await retained(ctx)).filter(observation => indices.includes(observation.index)));
+    } else if ([6, 169].includes(index)) {
+      if (!observations.some(observation => [6, 169].includes(observation.index))) observations.push(...(await discovery(ctx)).filter(observation => indices.includes(observation.index)));
+    } else if ([168, 220, 229].includes(index)) {
+      if (!observations.some(observation => [168, 220, 229].includes(observation.index))) observations.push(...await identityObservations(ctx, indices.filter(value => [168, 220, 229].includes(value))));
+    } else if ([230, 231].includes(index)) {
+      if (!observations.some(observation => [230, 231].includes(observation.index))) observations.push(...await imports(ctx, indices.filter(value => [230, 231].includes(value))));
+    } else if (index === 170) {
+      const lexical = await keys(ctx, index);
+      const live = await liveCanonicalObservation(ctx);
+      observations.push({ ...live, properties: [...lexical.properties, ...live.properties], evidence: [...lexical.evidence, ...live.evidence] });
+    } else if (index === 136) observations.push(await keys(ctx, index));
+    else if (index === 5) observations.push(await eligibility(ctx));
+  }
+  return observations.sort((a, b) => a.index - b.index);
+}

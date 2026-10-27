@@ -192,7 +192,7 @@ jobs:
   rust-gates:
     needs: plan
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 60
     strategy:
       fail-fast: false
       matrix:
@@ -202,6 +202,7 @@ jobs:
         shell: bash
     env:
       QUALIFICATION_BIN: tools/qualification/target/release/semctx-qualification${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+      SEMCTX_PROCESS_HELPER: ${{ github.workspace }}/tools/gates/target/debug/semctx-gates${{ matrix.os == 'windows-latest' && '.exe' || '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -217,13 +218,18 @@ jobs:
         run: |
           cargo fmt --manifest-path tools/gates/Cargo.toml --check
           cargo fmt --manifest-path tools/qualification/Cargo.toml --check
+          cargo fmt --manifest-path tools/rust-ts-r0/Cargo.toml --check
           cargo clippy --manifest-path tools/gates/Cargo.toml --locked --all-targets -- -D warnings
           cargo clippy --manifest-path tools/qualification/Cargo.toml --locked --all-targets -- -D warnings
+          cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --all-targets -- -D warnings
       - name: Execute native Rust tests
         run: |
           cargo test --manifest-path tools/gates/Cargo.toml --locked
           cargo test --manifest-path tools/qualification/Cargo.toml --locked
+      - run: bun install --frozen-lockfile
       - name: Discover and execute native product workspaces
+        env:
+          SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
         run: cargo run --manifest-path tools/gates/Cargo.toml --locked -- rust-test --root "$GITHUB_WORKSPACE" > "$RUNNER_TEMP/native-product-tests.json"
       - name: Retain native product discovery and execution
         if: always()
@@ -232,13 +238,36 @@ jobs:
           name: rust-product-tests-${{ matrix.os }}
           path: ${{ runner.temp }}/native-product-tests.json
           if-no-files-found: error
+      - name: Execute all native T00 tests in release
+        env:
+          SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-optimized
+          RUST_TEST_THREADS: "1"
+          GOPORT_LIB_PARSE_SNAPSHOT: "0"
+          GOPORT_LIB_SNAPSHOT: "0"
+        run: cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release
+      - name: Retain the optimized T00 artifact and observations
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: native-r0-optimized-${{ matrix.os }}
+          path: |
+            ${{ runner.temp }}/native-r0-optimized/
+            tools/rust-ts-r0/target/release/semctx-r0-probe${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          if-no-files-found: error
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: '3.13.16'
+      - name: Exercise T00 observer comparators and recipe CLI
+        run: |
+          cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --features qualification-observer --test qualification_replay -- -D warnings
+          cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --features qualification-observer --test qualification_replay comparator_
+          python -m unittest discover -s tools/rust-ts-r0/qualification -p test_prepare_recipes.py
       - name: Require the tested source to remain unchanged
         run: git diff --exit-code HEAD
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: rust-gate-plan
           path: ${{ runner.temp }}/plan
-      - run: bun install --frozen-lockfile
       - name: Build the candidate CLI and the native qualification runner
         run: |
           bun run cli:build

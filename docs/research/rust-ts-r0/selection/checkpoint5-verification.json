@@ -1,0 +1,41 @@
+{
+  "recordedUtc": "2026-10-17T19:42:22.176095+00:00",
+  "environment": "macOS27.0.1ARM64; Bun1.4.3; Rust1.95.0; pinned venv; GIT_CONFIG_GLOBAL unset; CARGO_BUILD_JOBS2; RUST_TEST_THREADS1",
+  "base": "rust/365-coordination",
+  "checks": [
+    {
+      "shard": "1/4",
+      "exitCode": 0,
+      "rawSha256": "e2ebff88cdb89d45f2aca9a1e6ab9be419b5d039645756a0d01e9f09eae94451",
+      "encodedPath": "validation-history/verify-stage5-final-1.log.b64",
+      "encodedSha256": "72c0f2da950c6eb5bf2e79ceea6df1d1549872c2a47f93a9af16e672c5b27aff"
+    },
+    {
+      "shard": "2/4",
+      "exitCode": 0,
+      "rawSha256": "9b3a0559d9b414f116f296f91554e30eb4969b4bc573b303b83b4b0056a3967a",
+      "encodedPath": "validation-history/verify-stage5-final-2.log.b64",
+      "encodedSha256": "74c566e91f17d031ee11c3c15d6083f29d56b3a268eb25db0cf9f0735f8d1cd1"
+    },
+    {
+      "shard": "3/4",
+      "exitCode": 0,
+      "rawSha256": "9b5d1aed6acc414bd2bef292875ac16a0ca68ea24e7812db2f26ed1af6ff3fac",
+      "encodedPath": "validation-history/verify-stage5-final-3.log.b64",
+      "encodedSha256": "8f2c7c7c76555e3c8da4257521988c731e4fa7b9f1b8732db3054f94a51ccd82"
+    },
+    {
+      "shard": "4/4",
+      "exitCode": 0,
+      "rawSha256": "4465405b84ccb9e4b1ecb0b53c632e02a425f135855be34c341a95d1d427260c",
+      "encodedPath": "validation-history/verify-stage5-final-4.log.b64",
+      "encodedSha256": "0e37e1cac2affba1093c8f0ad488b71d924b25c85660920cd18154ca1e1e1d60"
+    }
+  ],
+  "claims": "Canonical four verify:pr shards completed exit0. No remote Windows/Linux qualification implied.",
+  "sourceStability": "No executable source/test/configuration/dependency changes during these final checks. Additional documentary status/evidence records were added and validated after completion; these runs do not claim to target the exact final documentary diff.",
+  "selectedArtifactSha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+  "originalFrozenManifestPreserved": true,
+  "postFreezeValidationDelta": "post-freeze-validation-delta.json",
+  "finalDocumentationChecks": "docs:check, JSON parse and git diff --cached --check repeated before commit."
+}

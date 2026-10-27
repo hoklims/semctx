@@ -1,0 +1,176 @@
+{
+  "status": "official-source-research-only; no composition selected, build, runtime qualification or held-out inspection",
+  "effort": {
+    "started_at_utc": "2026-10-17T08:26:31Z",
+    "ended_at_utc": "2026-10-17T08:31:29.458443+00:00"
+  },
+  "baseline_boundary": "The historical TypeScript 5.9 protocol remains authoritative; a newer parser does not widen accepted input or proof scope.",
+  "upstreams": [
+    {
+      "project": "oxc_semantic",
+      "requested_version": "0.154.0",
+      "requested_commit": "d47efe5cb875e118e845ee6eda15d205ce3b566d",
+      "requested_msrv": "1.97.0",
+      "compatible_release_identified": "0.146.0",
+      "compatible_commit": "0389c4010ef8298728f3e47fff8e2a9106d10045",
+      "compatible_msrv": "1.95.0",
+      "license": "MIT",
+      "coupled_crates": {
+        "oxc_allocator": "0.146.0",
+        "oxc_ast": "0.146.0",
+        "oxc_ast_visit": "0.146.0",
+        "oxc_parser": "0.146.0",
+        "oxc_semantic": "0.146.0",
+        "oxc_span": "0.146.0",
+        "oxc_syntax": "0.146.0"
+      },
+      "version_evidence": "Official semantic Cargo.toml history goes 0.146.0 directly to 0.147.0; the latter requires Rust 1.96.0. No intermediate patch observed. This is source-declared compatibility, not a compiled dependency-closure result.",
+      "sources": [
+        "https://github.com/oxc-project/oxc/blob/0389c4010ef8298728f3e47fff8e2a9106d10045/Cargo.toml#L6",
+        "https://github.com/oxc-project/oxc/blob/0389c4010ef8298728f3e47fff8e2a9106d10045/crates/oxc_semantic/Cargo.toml#L1",
+        "https://github.com/oxc-project/oxc/blob/4e258430cdb290598d9f2aeb2d13be598ec9e8e9/Cargo.toml#L18",
+        "https://github.com/oxc-project/oxc/blob/d47efe5cb875e118e845ee6eda15d205ce3b566d/Cargo.toml#L18"
+      ]
+    },
+    {
+      "project": "oxc_resolver",
+      "version": "11.24.3",
+      "commit": "b6a6125c5556ca1ae0e48b479d203e8f06effd10",
+      "msrv": "1.95.0",
+      "license": "MIT",
+      "sources": [
+        "https://github.com/oxc-project/oxc-resolver/blob/b6a6125c5556ca1ae0e48b479d203e8f06effd10/Cargo.toml#L5"
+      ]
+    },
+    {
+      "project": "dudykr/stc",
+      "commit": "34abe15fab75bd28122be339d739980cd2312d49",
+      "library": "stc_ts_type_checker 0.1.0 (publish=false)",
+      "toolchain_file": "nightly-2023-10-04",
+      "repository_license": "Apache-2.0",
+      "status": "GitHub archive since 2025-03-12; main source commit dated 2023-11-17",
+      "sources": [
+        "https://github.com/dudykr/stc",
+        "https://github.com/dudykr/stc/blob/34abe15fab75bd28122be339d739980cd2312d49/crates/stc_ts_type_checker/src/lib.rs#L51",
+        "https://github.com/dudykr/stc/blob/34abe15fab75bd28122be339d739980cd2312d49/rust-toolchain"
+      ]
+    },
+    {
+      "project": "kaleidawave/ezno",
+      "commit": "8a763a0a1e92317b4822a9ea1cfaaf150b036f12",
+      "root_version": "0.0.23",
+      "checker_version": "0.0.18",
+      "parser_version": "0.1.7",
+      "license": "MIT",
+      "status": "README declares insufficient feature support for existing projects and no TSC parity; no compilation evaluated",
+      "sources": [
+        "https://github.com/kaleidawave/ezno/blob/8a763a0a1e92317b4822a9ea1cfaaf150b036f12/README.md#L4",
+        "https://github.com/kaleidawave/ezno/blob/8a763a0a1e92317b4822a9ea1cfaaf150b036f12/checker/Cargo.toml#L1",
+        "https://github.com/kaleidawave/ezno/blob/8a763a0a1e92317b4822a9ea1cfaaf150b036f12/checker/src/lib.rs#L365"
+      ]
+    },
+    {
+      "project": "SWC migration documentation",
+      "document_commit": "14b46562d1ad2f4742cf4ca70965dadc9d652e88",
+      "finding": "Official document says file-by-file transpilation, incomplete imported type/value discrimination, and no type checking. This does not assess the separate STC checker.",
+      "source": "https://github.com/swc-project/website/blob/14b46562d1ad2f4742cf4ca70965dadc9d652e88/apps/website/docs/docs/migrating-from-tsc.md#L78"
+    }
+  ],
+  "operation_groups": [
+    {
+      "families": [
+        "ordinary-symbol-extraction",
+        "outline-statements",
+        "outline-module-links",
+        "javascript-parsing",
+        "pilot-comparator-annex"
+      ],
+      "available_library_mechanisms": "Oxc AST/parser plus lexical Scoping, declaration/redeclaration IDs, source spans, optional JSDoc, syntax diagnostics and CFG.",
+      "owned_missing_work": "Extraction DTOs, stable identities/ordering, overload projection, source-coordinate contract, source JSDoc association and exact historical diagnostic/discovery behavior."
+    },
+    {
+      "families": [
+        "ordinary-module-resolution",
+        "configuration-eligibility",
+        "workspace-system",
+        "ordinary-confinement"
+      ],
+      "available_library_mechanisms": "Oxc resolver has FileSystem injection; resolve/resolve_file/resolve_with_context, tsconfig discovery/inheritance/references, paths/baseUrl and ESM/CJS package resolution. resolve_dts documents bundler declaration resolution.",
+      "owned_missing_work": "Historical compiler-option policy and selected input universe, confined retained filesystem, Windows canonical identity, source/runtime/declaration companion mapping and failure/refusal translation. Resolver option support is not a full TS CompilerHost/Program replacement."
+    },
+    {
+      "families": [
+        "ordinary-program",
+        "ordinary-canonical-exports",
+        "ordinary-call-endpoints",
+        "ordinary-runtime-bindings",
+        "native-bindings",
+        "qualified-semantic-context",
+        "qualified-sdk-callbacks",
+        "jsdoc-and-default-eligibility",
+        "jsx-and-generated-runtime"
+      ],
+      "available_library_mechanisms": "Oxc binds lexical identifiers, records Type/ValueAsType/Namespace and Read/Write reference flags, declarations and local node identity. STC exposes full dependency checking and module types; Ezno exposes project checking, type stores, exports, expression mappings and source spans.",
+      "owned_missing_work": "For an Oxc-based approach: multi-file canonical export/alias linking; contextual types, overload/generic call endpoint selection and declaration origin; SDK callback semantics, semantic JSDoc imports and generated-runtime policy. The inspected Oxc APIs do not provide these TypeChecker-like operations. STC/Ezno still need an adapter and behavioral qualification; their APIs are not TS Compiler API compatibility claims."
+    },
+    {
+      "families": [
+        "qualified-scope-projection",
+        "qualified-mutation-protocols",
+        "qualified-opaque-ownership",
+        "qualified-runtime-boundaries"
+      ],
+      "available_library_mechanisms": "AST, lexical binding and optional CFG are inputs; the alternative checkers expose richer type/flow data.",
+      "owned_missing_work": "Semctx admission, reflection/mutation/protocol, opaque ownership and external runtime policy remain owned analyses; no upstream evidence inspected establishes those guarantees."
+    },
+    {
+      "families": [
+        "ordinary-discovery",
+        "parallel-preflight",
+        "worker-transport",
+        "producer-compiler-identity"
+      ],
+      "available_library_mechanisms": "Parsing/resolution/lexical references provide dependency candidates; toolchain/crate commit metadata can identify implementations.",
+      "owned_missing_work": "Selected-language/role policy, dependency-connected partitioning, batch/worker DTOs, deterministic serialization, retained source/config identities and refusal states."
+    }
+  ],
+  "concrete_apis": {
+    "oxc_semantic_0.146.0": [
+      "SemanticBuilder::new_compiler().with_build_nodes(true).build(&program)",
+      "Semantic::scoping()/nodes()/symbol_declaration()/symbol_references()",
+      "Scoping::symbol_declarations()/symbol_redeclarations()/find_binding()/get_reference()",
+      "ReferenceFlags::{Read, Write, Type, ValueAsType, Namespace}"
+    ],
+    "oxc_resolver_11.24.3": [
+      "ResolverGeneric::new_with_file_system",
+      "ResolverImpl::resolve/resolve_file/resolve_with_context",
+      "ResolverImpl::resolve_tsconfig/find_tsconfig/resolve_dts"
+    ],
+    "stc": [
+      "Checker::new/check/get_types/take_dts/take_errors",
+      "ModuleTypeData::{vars, types}",
+      "Function::{params, ret_ty, type_params}"
+    ],
+    "ezno": [
+      "check_project(entry_points, type_definition_files, resolver, options, existing_files)",
+      "CheckOutput::{types, modules, diagnostics, module_contents}",
+      "CheckOutput::get_type_at_position_with_span",
+      "SynthesisedModule::{exported, mappings, info}",
+      "TypeCheckOptions::store_type_mappings (default false)"
+    ]
+  },
+  "early_risk_witness_categories_not_selected_cases": [
+    "Cross-file aliases/reexports/star ambiguity/cycles and namespace-member calls must retain one canonical endpoint or the exact refusal; lexical resolution alone cannot establish this.",
+    "Overload/generic/contextual SDK callback signatures through .d.ts and nested type aliases must retain declaration origin and distinguish homonymous local symbols.",
+    "JS semantic JSDoc import types and JSX implicit factory/runtime bindings must preserve the historical TS5.9 interpretation.",
+    "Windows native source/config/package identity, symlinks or junctions and non-ASCII source-coordinate mapping must match the retained universe and output contract.",
+    "Missing/ambiguous/malformed source or config, unsupported constructs, invalid imports and type-uncertain calls must expose explicit omissions/refusals rather than fabricate facts."
+  ],
+  "limits": [
+    "All 26 inventory families remain runtime-pending: source/API availability is not a passing oracle.",
+    "No prototype or composition selected.",
+    "No compile, Windows/Linux execution, semantic comparison, benchmark or transitive-license audit performed.",
+    "Only family names and rust_mechanism fields were read from the baseline draft; no held-out source inspected.",
+    "No conclusion of Rust impossibility follows from this note."
+  ]
+}

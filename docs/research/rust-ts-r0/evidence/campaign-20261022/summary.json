@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "candidateSourceCommit": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
+  "freezeCommit": "764eac76",
+  "recordedUTC": "2026-10-22T06:24:47.604652+00:00",
+  "oracle": "qualification_replay_requires_explicit_optimized_freeze",
+  "oracleLimit": "Successful aggregate accepts only the individually recorded version differences; raw NONPASS and zero arbitration credit are preserved.",
+  "sourceExpectationsChanged": false,
+  "comparisonFields": [
+    "unit_id",
+    "support_id",
+    "state",
+    "pass",
+    "checks",
+    "relations",
+    "gaps",
+    "version_arbitration"
+  ],
+  "equalMacosLinuxProjections": {
+    "units": true,
+    "supports": true
+  },
+  "lanes": {
+    "macos": {
+      "platform": "macos",
+      "architecture": "aarch64",
+      "timestampUnixMs": 1792649980392,
+      "aggregateExit": 0,
+      "units": {
+        "pass": 352,
+        "total": 354
+      },
+      "supports": {
+        "pass": 50,
+        "total": 51
+      },
+      "associatedUnitsAllPassed": 239,
+      "report": {
+        "path": "docs/research/rust-ts-r0/evidence/campaign-20261022/report-macos.json",
+        "bytes": 6364832,
+        "sha256": "0bc6faf4587e3294420b383ea5c541422d247e8dc73a7a1213bafeab7e970d9e"
+      },
+      "rawMemberManifest": {
+        "path": "docs/research/rust-ts-r0/evidence/campaign-20261022/members-macos.json",
+        "bytes": 374476,
+        "sha256": "7004d094e0f73a8b2c5a7dd80e16d5de4e072c29785613c38ad54a5f141aa4e0"
+      },
+      "campaignLog": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/campaign.log",
+        "bytes": 184,
+        "sha256": "bb248aee4bd9117e80a1455606d92cfc2927c3c48369637dd5874f5acffb3d19"
+      },
+      "retainedRaw": {
+        "directory": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign",
+        "selectedMembers": "members-macos.json",
+        "completeExpandedRunRetainedOutsideGit": true
+      },
+      "nonpass": [
+        {
+          "unit_id": "N17c-importhelpers-es5-actual-emission::base",
+          "state": "NONPASS_PROJECTED_UNIT",
+          "version_arbitration": {
+            "id": "T00-ARB-003",
+            "qualification_credit": 0,
+            "recipe_signature": "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353",
+            "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+          }
+        },
+        {
+          "unit_id": "ORD-DIALECT-CAPABILITY::base",
+          "state": "NONPASS_PROJECTED_UNIT",
+          "version_arbitration": {
+            "id": "T00-ARB-004",
+            "qualification_credit": 0,
+            "recipe_signature": "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147",
+            "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+          }
+        },
+        {
+          "support_id": "ENC::UTF16LE-lone-high-surrogate::ordinary",
+          "state": "NONPASS_PRIMITIVE_PROJECTED_UNIT",
+          "version_arbitration": {
+            "id": "T00-ARB-002",
+            "qualification_credit": 0,
+            "recipe_signature": "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed",
+            "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+          }
+        }
+      ]
+    },
+    "linux": {
+      "platform": "linux",
+      "architecture": "aarch64",
+      "timestampUnixMs": 1792649987411,
+      "aggregateExit": 0,
+      "units": {
+        "pass": 352,
+        "total": 354
+      },
+      "supports": {
+        "pass": 50,
+        "total": 51
+      },
+      "associatedUnitsAllPassed": 239,
+      "report": {
+        "path": "docs/research/rust-ts-r0/evidence/campaign-20261022/report-linux.json",
+        "bytes": 6211832,
+        "sha256": "8c2564547f0b6f5504f39c4bb4fcec825a25cf2be731f7d10fdce16b259a60ef"
+      },
+      "rawMemberManifest": {
+        "path": "docs/research/rust-ts-r0/evidence/campaign-20261022/members-linux.json",
+        "bytes": 374473,
+        "sha256": "6b3db1dc8647ae820efb1b92f869118d5d67be173fabe8f2ade3f32a3fabc066"
+      },
+      "campaignLog": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-linux/campaign.log",
+        "bytes": 184,
+        "sha256": "268d735bf0170393dc36e1446ff48b14bc819d7ecf1b0a04816c4acbad58a27e"
+      },
+      "retainedRaw": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-linux/raw-campaign.tar.gz",
+        "bytes": 157481191,
+        "sha256": "a52efbdc7e0f7048d5d7a9de07096014bdcd9239eec8b7bdaaffa7e21fd324cc"
+      },
+      "nonpass": [
+        {
+          "unit_id": "N17c-importhelpers-es5-actual-emission::base",
+          "state": "NONPASS_PROJECTED_UNIT",
+          "version_arbitration": {
+            "id": "T00-ARB-003",
+            "qualification_credit": 0,
+            "recipe_signature": "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353",
+            "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+          }
+        },
+        {
+          "unit_id": "ORD-DIALECT-CAPABILITY::base",
+          "state": "NONPASS_PROJECTED_UNIT",
+          "version_arbitration": {
+            "id": "T00-ARB-004",
+            "qualification_credit": 0,
+            "recipe_signature": "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147",
+            "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+          }
+        },
+        {
+          "support_id": "ENC::UTF16LE-lone-high-surrogate::ordinary",
+          "state": "NONPASS_PRIMITIVE_PROJECTED_UNIT",
+          "version_arbitration": {
+            "id": "T00-ARB-002",
+            "qualification_credit": 0,
+            "recipe_signature": "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed",
+            "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+          }
+        }
+      ]
+    }
+  },
+  "windows": "NOT_EXECUTED_FINAL_CI_MILESTONE_ONLY",
+  "r0Decision": null,
+  "definitiveFreezeCommit": "84c46592",
+  "orchestrationScripts": [
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/freeze-only.py",
+      "bytes": 3559,
+      "sha256": "131d2d078bc44bb08ce0b4964c7fc3068ec47140f426e6d9cd357628d6ddb5cf"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/run-campaign.py",
+      "bytes": 743,
+      "sha256": "e31abe31b9856fe2c90ddd168363dc0fcc43347338a4924a5a864f0d4028a183"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/macos-prepare.sh",
+      "bytes": 1116,
+      "sha256": "c2d24bfcd881eb077ac848639104581473143ed6c0e6d6339a36fddb56843b16"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/linux-prepare.sh",
+      "bytes": 1046,
+      "sha256": "d7123a65be9c26af6b3f958747ef1af6826b9cf489280bd807de74412954fb11"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/collect-campaign.py",
+      "bytes": 1088,
+      "sha256": "17791399a7a3da8338e83f6272e1616605a5eba41d0cd7389eb025d6b4d80547"
+    },
+    {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/write-records.py",
+      "bytes": 20623,
+      "sha256": "8bd00d52da4b0f2127cf516b3d82380f52be4be81fb570df07297a07aeb6166c"
+    }
+  ]
+}

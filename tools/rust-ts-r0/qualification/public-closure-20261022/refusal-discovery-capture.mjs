@@ -1,0 +1,80 @@
+import { validatePublicUnits, rawContextChecks, publicDigest } from "./public-native-context.mjs";
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import os from 'node:os';
+
+const [baseline,freezePath,inputPath,outputRoot] = process.argv.slice(2);
+if (!outputRoot) throw new Error('expected baseline freeze inputs fresh-output-root');
+const hash = value => createHash('sha256').update(value).digest('hex');
+const identity = async path => ({path,sha256:hash(await readFile(path))});
+const canonical = value => JSON.stringify(value,(_key,field) => field && !Array.isArray(field) && typeof field === 'object' ? Object.fromEntries(Object.entries(field).sort(([a],[b]) => a < b ? -1 : a > b ? 1 : 0)) : field);
+const inputs = JSON.parse(await readFile(inputPath));
+validatePublicUnits(inputs);
+const ts = (await import(resolve(baseline,'node_modules/typescript/lib/typescript.js'))).default;
+if (ts.version !== '5.9.3') throw new Error('requires TypeScript 5.9.3');
+const discovery = await import(resolve(baseline,'packages/ts-analyzer/src/discovery.ts'));
+const diagnostics = await import(resolve(baseline,'packages/ts-analyzer/src/javascript-diagnostics.ts'));
+const freeze = JSON.parse(await readFile(freezePath));
+const sdk = JSON.parse(await readFile(freeze.sdk_path));
+const boundPaths = [freeze.artifact_path,freeze.sdk_path,resolve(baseline,'packages/ts-analyzer/src/discovery.ts'),resolve(baseline,'packages/ts-analyzer/src/javascript-diagnostics.ts'),resolve(inputPath),import.meta.path,resolve(import.meta.dir,"public-native-context.mjs")];
+const before = await Promise.all(boundPaths.map(identity));
+if (before[0].sha256 !== freeze.artifact_sha256 || before[1].sha256 !== freeze.sdk_sha256) throw new Error('frozen artifacts differ');
+await mkdir(outputRoot);
+const reports = [];
+for (const input of inputs.units) {
+  const directory = resolve(outputRoot,input.id);
+  const root = resolve(directory,'repository');
+  await mkdir(root,{recursive:true});
+  const files = {};
+  for (const [name,text] of Object.entries(input.files)) { const path=resolve(root,name); await writeFile(path,text); files[path]=text; }
+  for (const [name,text] of Object.entries(input.outside)) await writeFile(resolve(directory,name),text);
+  const config = {version:2,repositoryRoot:root,include:['**/*.js'],exclude:[],languages:{javascript:'on',typescript:'on'},migrationsDirs:[],selectionMode:'explicit-v1'};
+  const expected = discovery.discoverRepository(config);
+  const expectedReasons = input.diagnostic ? diagnostics.inspectJavaScriptSource(resolve(root,'main.js'),input.files['main.js'],root).reasons : undefined;
+  await writeFile(resolve(directory,'typescript-owning-outcome.json'),JSON.stringify({discovery:expected,...(expectedReasons ? {diagnosticReasons:expectedReasons} : {})},null,2)+'\n');
+  const descriptor = {repositoryRoot:root,config:{version:config.version,include:config.include,exclude:config.exclude,languages:config.languages,migrationsDirs:config.migrationsDirs}};
+  const checks = [];
+  const processes = [];
+  const check = (name,actual,expectedValue) => checks.push({name,actual,expected:expectedValue,pass:canonical(actual) === canonical(expectedValue)});
+  const capture = async (name,descriptor,mode) => {
+    const requestPath = resolve(directory,name+'-request.json');
+    await writeFile(requestPath,JSON.stringify(descriptor,null,2)+'\n');
+    const argv = [freeze.artifact_path,...(mode ? [mode] : []),requestPath,...(mode ? [] : [freeze.sdk_path])];
+    const start = performance.now();
+    const result = spawnSync(argv[0],argv.slice(1),{cwd:root,env:{...process.env,GOPORT_LIB_PARSE_SNAPSHOT:'0',GOPORT_LIB_SNAPSHOT:'0'},timeout:40000,maxBuffer:33554432});
+    const stdout = result.stdout ?? Buffer.alloc(0);
+    const stderr = result.stderr ?? Buffer.alloc(0);
+    await writeFile(resolve(directory,name+'-stdout.bin'),stdout);
+    await writeFile(resolve(directory,name+'-stderr.bin'),stderr);
+    const processEvidence = {argv,cwd:root,timeoutMs:40000,outputCapBytes:33554432,durationMs:performance.now()-start,status:result.status,signal:result.signal,error:result.error?.message ?? null,stdout:{bytes:stdout.length,sha256:hash(stdout)},stderr:{bytes:stderr.length,sha256:hash(stderr)},request:await identity(requestPath)};
+    processes.push(processEvidence);
+    check(name+'-process-success',{status:result.status,signal:result.signal,error:processEvidence.error,stderr:stderr.toString()},{status:0,signal:null,error:null,stderr:''});
+    const observed = JSON.parse(stdout);
+    check(name+'-producer-binding',observed.producer_artifact_id,'sha256:'+freeze.artifact_sha256);
+    if (mode) check(name+'-descriptor-binding', observed.request_descriptor_id, publicDigest(descriptor));
+    else for (const [field, pass] of Object.entries(rawContextChecks(observed, descriptor, sdk))) check(name+'-raw-context-'+field, pass, true);
+    return observed;
+  };
+  const observed = await capture('discovery',descriptor,'--discover-repository');
+  check('executed',observed.executed,true);
+  check('unsupported',observed.unsupported,[]);
+  check('complete-owning-discovery-output',{files:observed.files,candidates:observed.candidates},expected);
+  if (input.diagnostic) {
+    const request={id:input.id,cwd:root,sdk_directory:'/sdk/lib',case_sensitive:ts.sys.useCaseSensitiveFileNames,roots:Object.keys(files),files,options:{target:'ES2022',module:'ESNext',moduleResolution:'Bundler',allowJs:true,jsx:'Preserve',skipLibCheck:true,noEmit:true,strict:false},retained:false,qualified:false,roles:{},selection:{},disabled:[],utf16_files:{},raw_files:{}};
+    const analysis = await capture('diagnostic',request);
+    const subject = analysis.subjects.find(subject => subject.path === 'main.js');
+    check('unresolved-owning-diagnostic-reasons',subject.javascriptObservation.reasons,expectedReasons);
+    check('unresolved-discriminator-activated',expectedReasons.some(reason => reason.startsWith('JAVASCRIPT_IMPORT_UNRESOLVED:')),true);
+    check('diagnostic-executed',subject.javascriptObservation.executed,true);
+    check('diagnostic-unsupported',subject.javascriptObservation.unsupported,[]);
+  }
+  await writeFile(resolve(directory,'process-invocations.json'),JSON.stringify(processes,null,2)+'\n');
+  reports.push({id:input.id,pass:checks.every(check => check.pass),checks,processes,rawDirectory:directory,typescriptOutcomeSha256:hash(await readFile(resolve(directory,'typescript-owning-outcome.json')))});
+}
+const after = await Promise.all(boundPaths.map(identity));
+if (canonical(before) !== canonical(after)) throw new Error('bound inputs changed');
+const report = {schemaVersion:1,platform:process.platform,architecture:os.arch(),typescript:ts.version,baseline:'3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b',obligation_indices:[6],freeze:await identity(freezePath),sourceIdentities:before,boundInputsStable:true,units:reports,pass:reports.every(unit => unit.pass),formalR0Qualified:false};
+await writeFile(resolve(outputRoot,'result.json'),JSON.stringify(report,null,2)+'\n');
+process.stdout.write(JSON.stringify({pass:report.pass,units:reports.map(unit => ({id:unit.id,pass:unit.pass,failures:unit.checks.filter(check => !check.pass)}))},null,2)+'\n');

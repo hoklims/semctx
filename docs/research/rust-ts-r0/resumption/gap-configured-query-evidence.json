@@ -1,0 +1,94 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_EXPLICIT_CONFIGURED_COMPONENT_UNITS_PASS_MACOS_DEV_NOT_QUALIFICATION",
+  "sourceHead": "9af217c95d72a76c565ad61b175c960aded79325",
+  "reviewedDiffSha256": "98c60a4d67f9406184ef73c17b8c681c0e9400a836e62f0436de887a8c77c108",
+  "archive": {
+    "path": "gap-configured-query-evidence.tar.gz.b64",
+    "bytes": 3131834,
+    "sha256": "ad61e71c392c9ba63528225c437f36038c0e87bdeeb533aaaf4b9a32967d5c8f",
+    "decodedSha256": "63cc061f85b7be3b7fc958713f6f499658644702abedbe06a808e11f76985a72",
+    "files": 318,
+    "sdkInputDeduplication": {
+      "references": 27,
+      "uniqueRawObjects": 5,
+      "format": "Each sdk.json.reference.json names the original evidence path and exact raw object path, bytes and SHA256. All object bytes are unchanged; materialize the reference to reconstruct the original path."
+    }
+  },
+  "units": [
+    "P11-workspace-config-link::base",
+    "N11-registry-range-is-not-workspace::base"
+  ],
+  "nativeArtifactSha256": "e85cb945de91bf341869bbc8f1df5c5a7524f2be67fdfd45c19e3450a8b4e892",
+  "engineSourceSha256": {
+    "tools/rust-ts-r0/src/main.rs": "4c6c5d98b706703e6a277b2931fba424a2264a7513be0c3832cc64410887f1b9",
+    "tools/rust-ts-r0/src/configured_resolution_observations.rs": "0322d8355e79f27a9bf47fae4ec8fa41f54195e113c3bb5d3c0b480c140c76ef",
+    "tools/rust-ts-r0/src/component_observations.rs": "dc05fa17dd3baf4aee3ee0151636784438bc11abb93b1131b2a2f4ea2916a482",
+    "tools/rust-ts-r0/src/captured_system_observations.rs": "3f571889b2c4fec33cfb4a8ccdf347905ee46a28efd85e73197edaec8112f171",
+    "tools/rust-ts-r0/src/configured_resolver.rs": "f8d4ecad98e9cedb210831bf399ce3a46318a2396d7cd9fa1d48b7796ddc8828",
+    "tools/rust-ts-r0/src/configuration.rs": "f50a77417ed576356542443582564a975b9f4949f8985b55f210f5dbcbd04008"
+  },
+  "recipesSha256": "30b62a268a9265d62e2f3cb8c1f58ea7527418a7dab0b1be0f98c880b64dda77",
+  "nativeResults": "raw/gap-explicit-final-evidence/units-P11-workspace-config-link/repair-results.json",
+  "newProjectedPasses": 2,
+  "existingOutsideRootFrozenControlPasses": 1,
+  "qualificationCredit": 0,
+  "authority": "Frozen two component cases; historical implemented3e94997 ts-symbols.ts227-310, not an ADR. AcceptedADR0037 requires actual native evidence and no weakened expectations.",
+  "mechanism": "Private typed --observe-configured-resolution descriptor, explicit captured containing file/specifier and omitted mode. Actual configured resolver and ordinary inspectModuleConfiguration observation. No frozen import inserted. Exact empty .git directory is physically created, captured and preserved in the workspace profile. Descriptor/SDK/artifact and actual probes are bound. Main Request, batch and worker protocols unchanged.",
+  "ownedCorrections": [
+    "Workspace profile cloning preserves explicitly captured empty directories.",
+    "Normalize file/directory names before parent inventories, avoiding phantom parents from dot/dotdot aliases; compare directory probes canonically.",
+    "Owned workspace matching uses the already supported literal/*/** segment subset. Pinned upstream glob Star consumes a slash before another Slash token for domains/*/*; not a compiler-version arbitration.",
+    "Workspace-only configuration reason exception for false directory_exists on exact strict-ancestor node_modules; other outside probes and physical confinement remain, retained profile unchanged.",
+    "Configuration reason checks carry their actual inspectModuleConfiguration operation binding."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64; Rust1.95.0; Bun1.4.3; Python3.10.22; GIT_CONFIG_GLOBAL unset; GOPORT_LIB_PARSE_SNAPSHOT=0 GOPORT_LIB_SNAPSHOT=0 RUST_TEST_THREADS=1",
+    "nativeBinTests": 192,
+    "nativeLibraryTests": 43,
+    "observerComparators": 34,
+    "recipeCliTests": 7,
+    "formatClippyRuffExitCode": 0,
+    "newFullVerifyPr": false,
+    "scope": "Affected local checks. Four full verify:pr partitions remain bound to63397c7b. Current source Linux/Windows execution pending; not reassigned from prior CI."
+  },
+  "review": {
+    "standards": "/root/gap_batch7_standards",
+    "specProofAdversarial": "/root/gap_batch7_spec_proof",
+    "verdict": "PROOF_ADEQUATE bounded to these private component, capture, matching and refusal mechanisms",
+    "candidateStable": true,
+    "independentNativeReplayPasses": 2,
+    "alteredActualObservationsRejected": 32,
+    "actualCliInputAttacksRefused": 23,
+    "actualOutsideInheritanceAttacksRemainRefused": 3,
+    "nativeProducerFaultsRejectedThenRestored": 5,
+    "reports": [
+      "review/standards/review.txt",
+      "review/standards/independent-checks.json",
+      "review/spec-proof/report.md",
+      "review/spec-proof/producer-mutations.json"
+    ],
+    "mutations": [
+      "Drop empty-directory clone preservation",
+      "Drop canonical directory normalization",
+      "Restore pinned upstream glob operation",
+      "Remove narrow ancestor exception",
+      "Suppress native-error refusal"
+    ],
+    "independentChecks": "192 bin and34 comparators in disposable copy; standards additionally3 capture tests and1 comparator; author library/Python/lints not relabelled independent."
+  },
+  "retainedFailures": [
+    "Initial CLI operation omitted, then lost .git directory, both real assertion failures before correction.",
+    "Initial native replay retained P11 mismatch and missing operation binding, then corrected2PASS.",
+    "Initial scalar-number typesVersions fixture was unresolved; actual error witnesses use scalar string and non-string array element.",
+    "Initial broad configuration exception changed retained-profile observation; restricted to workspace profile. Missing-package test fixture now isolates ancestor node_modules probes with a containing package manifest.",
+    "Independent initial full bin lacked documented RUST_TEST_THREADS=1 and produced shared-AST panics; retained as invalid parallel setup, not supported evidence or flaky retry. Corrected documented serial invocation192PASS.",
+    "Standards reviewer PATH/default-cache setup attempts did not execute tests; retained separate from successful canonical-environment reruns."
+  ],
+  "limits": [
+    "Only two new component mappings;21 mapped of64 initial GAP units,43 static units still GAP.",
+    "No full354-unit campaign,178-obligation review, reserved payload access/execution or R0 decision.",
+    "No whole-product/CLI/admission, complete SDK acquisition or all-SDK consumption claim.",
+    "Additional C1 pass1 remains OPEN; no budget reset or compiler-version waiver for owned defects."
+  ]
+}

@@ -40,3 +40,21 @@ test("semantic Program is shared within the exact retained snapshot and rebuilt 
     inspectModuleConfiguration(first, root, new Map(inputs)); expect(creation).toHaveBeenCalledTimes(2);
   } finally { creation.mockRestore(); rmSync(root, { recursive: true, force: true }); }
 });
+
+for (const [binding, refused] of [
+  ["const style='decimal';", false],
+  ["let style='decimal';", true],
+  ["const decimal='decimal';const style=decimal;", false],
+  ["const style=undefined;", false],
+  ["", true],
+  ["const style={toString(){return 'decimal'}};", true],
+  ["const style=other;const other=style;", true],
+] as const) test(`locale shorthand options follow value provenance: ${binding}`, () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-locale-shorthand-"));
+  try {
+    const path = join(root, "main.ts");
+    const content = `${binding}[1].toLocaleString(undefined,{style});export {};`;
+    const reasons = inspectModuleConfiguration(path, root, new Map([[path, content]]));
+    expect(reasons.includes("SOURCE_COERCION_UNSUPPORTED")).toBe(refused);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});

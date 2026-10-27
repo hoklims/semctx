@@ -1,0 +1,666 @@
+{
+  "schemaVersion": 1,
+  "sourceIdentities": [
+    {
+      "path": "packages/ts-analyzer/src/top-level-outline.ts",
+      "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+    },
+    {
+      "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+    },
+    {
+      "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+      "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+    },
+    {
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+    },
+    {
+      "path": "scripts/pilot/baselines.ts",
+      "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "PUBLIC-symbolsparallel-separate-1",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "main.ts",
+            "other.ts"
+          ],
+          "symbols": [
+            {
+              "name": "alpha",
+              "kind": "function",
+              "relPath": "main.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 1,
+          "used": 1,
+          "mode": "single"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-separate-2",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "main.ts",
+            "other.ts"
+          ],
+          "symbols": [
+            {
+              "name": "alpha",
+              "kind": "function",
+              "relPath": "main.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 2,
+          "mode": "parallel"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-connected-1",
+      "files": {
+        "main.ts": "import { beta } from \"./other\"; export function alpha() { beta(); }\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "other.ts",
+            "main.ts"
+          ],
+          "symbols": [
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "alpha",
+              "kind": "function",
+              "relPath": "main.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "main.ts",
+              "moduleSpecifier": "./other",
+              "resolvedRelPath": "other.ts",
+              "names": [
+                "beta"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": [
+            {
+              "callerRelPath": "main.ts",
+              "callerSymbolPath": "alpha",
+              "calleeName": "beta",
+              "calleeRelPath": "other.ts",
+              "calleeSymbolPath": "beta",
+              "line": 1
+            }
+          ]
+        },
+        "parallelism": {
+          "requested": 1,
+          "used": 1,
+          "mode": "single"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-connected-2",
+      "files": {
+        "main.ts": "import { beta } from \"./other\"; export function alpha() { beta(); }\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "other.ts",
+            "main.ts"
+          ],
+          "symbols": [
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "alpha",
+              "kind": "function",
+              "relPath": "main.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "main.ts",
+              "moduleSpecifier": "./other",
+              "resolvedRelPath": "other.ts",
+              "names": [
+                "beta"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": [
+            {
+              "callerRelPath": "main.ts",
+              "callerSymbolPath": "alpha",
+              "calleeName": "beta",
+              "calleeRelPath": "other.ts",
+              "calleeSymbolPath": "beta",
+              "line": 1
+            }
+          ]
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 1,
+          "mode": "single",
+          "reason": "TypeScript root module graph has one connected component"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-missing-1",
+      "files": {
+        "main.ts": "import { absent } from \"./missing\"; absent(); export {};\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "main.ts",
+            "other.ts"
+          ],
+          "symbols": [
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "main.ts",
+              "moduleSpecifier": "./missing",
+              "names": [
+                "absent"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": [
+            {
+              "callerRelPath": "main.ts",
+              "calleeName": "absent",
+              "line": 1
+            }
+          ]
+        },
+        "parallelism": {
+          "requested": 1,
+          "used": 1,
+          "mode": "single"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-missing-2",
+      "files": {
+        "main.ts": "import { absent } from \"./missing\"; absent(); export {};\n",
+        "other.ts": "export function beta() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "main.ts",
+            "other.ts"
+          ],
+          "symbols": [
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "main.ts",
+              "moduleSpecifier": "./missing",
+              "names": [
+                "absent"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": [
+            {
+              "callerRelPath": "main.ts",
+              "calleeName": "absent",
+              "line": 1
+            }
+          ]
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 2,
+          "mode": "parallel"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-declaration-root-1",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n",
+        "shape.d.ts": "export interface Shape {value: number}\n"
+      },
+      "roots": [
+        "main.ts",
+        "shape.d.ts",
+        "other.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "main.ts",
+            "other.ts"
+          ],
+          "symbols": [
+            {
+              "name": "alpha",
+              "kind": "function",
+              "relPath": "main.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 1,
+          "used": 1,
+          "mode": "single"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-declaration-root-2",
+      "files": {
+        "main.ts": "export function alpha() {}\n",
+        "other.ts": "export function beta() {}\n",
+        "shape.d.ts": "export interface Shape {value: number}\n"
+      },
+      "roots": [
+        "main.ts",
+        "shape.d.ts",
+        "other.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "main.ts",
+            "other.ts"
+          ],
+          "symbols": [
+            {
+              "name": "alpha",
+              "kind": "function",
+              "relPath": "main.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 2,
+          "mode": "parallel"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-dynamic-1",
+      "files": {
+        "main.ts": "import(\"./other\"); export {};\n",
+        "other.ts": "export function beta() {}\n",
+        "third.ts": "export function gamma() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts",
+        "third.ts"
+      ],
+      "workers": 1,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "other.ts",
+            "main.ts",
+            "third.ts"
+          ],
+          "symbols": [
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "gamma",
+              "kind": "function",
+              "relPath": "third.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 1,
+          "used": 1,
+          "mode": "single"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    },
+    {
+      "unit_id": "PUBLIC-symbolsparallel-dynamic-2",
+      "files": {
+        "main.ts": "import(\"./other\"); export {};\n",
+        "other.ts": "export function beta() {}\n",
+        "third.ts": "export function gamma() {}\n"
+      },
+      "roots": [
+        "main.ts",
+        "other.ts",
+        "third.ts"
+      ],
+      "workers": 2,
+      "retained": false,
+      "obligation_indices": [
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "other.ts",
+            "main.ts",
+            "third.ts"
+          ],
+          "symbols": [
+            {
+              "name": "beta",
+              "kind": "function",
+              "relPath": "other.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "gamma",
+              "kind": "function",
+              "relPath": "third.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 2,
+          "mode": "parallel"
+        }
+      },
+      "expected_origin": "typescript-5.9.3",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    }
+  ]
+}

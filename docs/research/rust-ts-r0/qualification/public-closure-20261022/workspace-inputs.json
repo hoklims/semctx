@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "obligationIndices": [
+    223,
+    224,
+    225,
+    226,
+    227,
+    228
+  ],
+  "units": [
+    {
+      "id": "uninstalled-workspace-default",
+      "root": "repository",
+      "configuration": true,
+      "files": {
+        "repository/package.json": "{\"name\":\"root\",\"workspaces\":[\"config\"],\"dependencies\":{\"@public/config\":\"workspace:*\"}}",
+        "repository/.git": "gitdir: public-fixture",
+        "repository/config/package.json": "{\"name\":\"@public/config\"}",
+        "repository/config/base.json": "{\"compilerOptions\":{\"module\":\"ESNext\"}}",
+        "repository/src/specimen.js": "export const answer=42;\n",
+        "repository/tsconfig.json": "{\"extends\":\"@public/config/base.json\"}"
+      },
+      "queries": [
+        {
+          "operation": "file_exists",
+          "path": "repository/node_modules/@public/config/base.json"
+        },
+        {
+          "operation": "read_file",
+          "path": "repository/node_modules/@public/config/base.json"
+        },
+        {
+          "operation": "directory_exists",
+          "path": "repository/node_modules/@public/config/"
+        },
+        {
+          "operation": "realpath",
+          "path": "repository/node_modules/@public/config/base.json"
+        }
+      ]
+    },
+    {
+      "id": "installed-invalid-module",
+      "root": "repository",
+      "configuration": true,
+      "files": {
+        "repository/package.json": "{\"name\":\"root\",\"workspaces\":[\"config\"],\"dependencies\":{\"@public/config\":\"workspace:*\"}}",
+        "repository/.git": "gitdir: public-fixture",
+        "repository/config/package.json": "{\"name\":\"@public/config\"}",
+        "repository/config/base.json": "{\"compilerOptions\":{\"module\":\"ESNext\"}}",
+        "repository/src/specimen.js": "export const answer=42;\n",
+        "repository/tsconfig.json": "{\"extends\":\"@public/config/base.json\"}",
+        "repository/node_modules/@public/config/base.json": "{\"compilerOptions\":{\"module\":\"invalid-public-module\"}}"
+      },
+      "queries": [
+        {
+          "operation": "file_exists",
+          "path": "repository/node_modules/@public/config/base.json"
+        },
+        {
+          "operation": "read_file",
+          "path": "repository/node_modules/@public/config/base.json"
+        },
+        {
+          "operation": "directory_exists",
+          "path": "repository/node_modules/@public/config/"
+        },
+        {
+          "operation": "realpath",
+          "path": "repository/node_modules/@public/config/base.json"
+        }
+      ]
+    },
+    {
+      "id": "above-repository-declaration-blocked",
+      "root": "repository",
+      "files": {
+        "package.json": "{\"workspaces\":[\"repository\",\"config\"]}",
+        "config/package.json": "{\"name\":\"@public/config\"}",
+        "config/base.json": "{\"compilerOptions\":{\"module\":\"CommonJS\"}}",
+        "repository/.git": "gitdir: public-fixture",
+        "repository/package.json": "{\"name\":\"root\",\"dependencies\":{\"@public/config\":\"workspace:*\"}}",
+        "repository/src/specimen.js": "export const answer=42;\n"
+      },
+      "queries": [
+        {
+          "operation": "file_exists",
+          "path": "repository/node_modules/@public/config/base.json"
+        },
+        {
+          "operation": "read_file",
+          "path": "repository/node_modules/@public/config/base.json"
+        },
+        {
+          "operation": "directory_exists",
+          "path": "repository/node_modules/@public/config/"
+        },
+        {
+          "operation": "realpath",
+          "path": "repository/node_modules/@public/config/base.json"
+        }
+      ]
+    }
+  ]
+}

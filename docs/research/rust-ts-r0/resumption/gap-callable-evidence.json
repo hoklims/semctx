@@ -1,0 +1,65 @@
+{
+  "recordVersion": 1,
+  "state": "RETAINED_CALLABLE_COMPONENT_DEV_NOT_QUALIFICATION",
+  "sourceHead": "63397c7b835c737351a9410c28a74c13741a6526",
+  "reviewedDiffSha256": "bde2abbac81d0fc6f5a6996981b2fbf6b4aa3027a76593c11b932c38defc4d9e",
+  "archive": {
+    "path": "gap-callable-evidence.tar.gz.b64",
+    "bytes": 1328968,
+    "sha256": "71ae227d1e70c9adaab2362b07da3b2ebfee50890f837539a1dc0f4ff583776a",
+    "decodedSha256": "54085e56a0b804c8cbb96f7950a75509da17eda2ff42a65fe9a9c9ef78be8954",
+    "files": 250
+  },
+  "units": [
+    "ORD-CALLABLE-TYPE-ORIGIN::variant-01",
+    "ORD-CALLABLE-TYPE-ORIGIN::variant-02",
+    "ORD-CALLABLE-TYPE-ORIGIN::variant-03",
+    "ORD-CALLABLE-TYPE-ORIGIN::variant-04",
+    "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+    "ORD-CALLABLE-DECLARATION-PAIR::variant-02"
+  ],
+  "nativeArtifactSha256": "3a673a26dd8420b5e6058f95ddfaa2a484bdc9c3206d6456bbe44671c896345f",
+  "engineSourceSha256": {
+    "tools/rust-ts-r0/src/main.rs": "48efe06ff2e77f61daae19e885e2e976dc5671ba9e72d41f68706509eb06834b",
+    "tools/rust-ts-r0/src/component_observations.rs": "07791ba6e18e26ff4217b3d4d86566c86f254cdab84428eacf1d736350cccfce",
+    "tools/rust-ts-r0/src/ordinary.rs": "4308ea4b87303bec0a3eced364c7763c8db382e2ab1b8e87e72920961cd3489e"
+  },
+  "nativeArtifactProvenance": "Final source rebuild after test-only addition is byte-identical to the original exercised artifact; original fixture/raw provenance preserved.",
+  "recipesSha256": "876000e69de3dd31d57bd6428f08503610f890e27dc2d918465703d5bd79298b",
+  "nativeResults": "raw/units-ORD-CALLABLE-TYPE-ORIGIN/repair-results.json",
+  "projectedPasses": 6,
+  "qualificationCredit": 0,
+  "mechanism": "Expose actual existing retained_callable_coordinate on named variable initializers with the retained native Program/checker. Explicit undefined/no_initializer states and native context unsupported; no raw-symbol reconstruction or policy rewrite.",
+  "inputInstantiation": "Unspecified consumer path concretely consumer.ts beside exact authored dep.ts; declaration pair uses authored main.ts. Exact source strings preserved.",
+  "checks": {
+    "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22, Ruff0.16.10, GIT_CONFIG_GLOBAL unset",
+    "nativeBinTests": 184,
+    "observerComparators": 33,
+    "recipeCliTests": 7,
+    "nativeFrozenVariants": 6,
+    "formatClippyRuffExitCode": 0,
+    "newVerifyPrFourPartitions": false,
+    "priorFullVerifyPr": "Four partitions at63397c7b; this delta has targeted native/harness checks, not a fresh full verify:pr result. CONTRIBUTING permits affected local checks for iteration; selected exact-head CI remains required before merge."
+  },
+  "review": {
+    "standards": "/root/gap_batch5_standards",
+    "specProof": "/root/gap_batch5_spec_proof",
+    "verdict": "PROOF_ADEQUATE bounded to six private component mappings and error propagation",
+    "initialFinding": "Producer error propagation test missing; initial PROOF_WEAK preserved.",
+    "correction": "Test-only real scalar/non-string typesVersions failures and valid metadata restoration; no producer/harness change during correction.",
+    "evaluatorFaultsRejected": 52,
+    "nativeProducerFaultsRejected": 2,
+    "independentNativeReplayPasses": 6,
+    "reports": [
+      "review/standards/report-post-error-witness.json",
+      "review/spec-proof/report-final.md"
+    ],
+    "candidateStableAfterRefreeze": true
+  },
+  "limits": [
+    "macOS DEV only; subsequent native CI not yet green for this head.",
+    "Zero qualified obligations; no global admission, full354-unit campaign, reserved access or R0 decision.",
+    "Frozen counter explanation is source rationale, not an invented diagnostic field.",
+    "Manual duplicate CI633 cancelled by author in favor of automatic PR run; previousa8f PR run cancelled on head update, not treated as a green result."
+  ]
+}
