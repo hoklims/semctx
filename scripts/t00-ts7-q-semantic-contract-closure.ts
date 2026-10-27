@@ -25,8 +25,13 @@ export function contractCoverage(index: number, projection: Pick<ContractClosure
 
 export function closeContractProjection(index: number, canonicalSites: ContractCoverageInventory["sites"], inventory: ContractCoverageInventory, scenarios: string[], runs: ContractClosureRun[], limitations: { alternative: string; reason: string; neededEvidence: string }[] = []) {
   const gaps = limitations.map(limitation => `${limitation.alternative}:${limitation.reason}; required: ${limitation.neededEvidence}`);
-  const expected = canonicalSites.filter(site => site.index === index);
-  const observedInventory = inventory.sites.filter(site => site.index === index);
+  const excludedSites = canonicalSites.filter(site => index === 49 && site.index === index && (
+    (site.site === "49:2" || site.site === "49:4") && site.expression === "source.fileName"
+    || site.site === "49:5" && site.expression === "source.text"
+  ));
+  const inScope = (site: ContractCoverageInventory["sites"][number]) => site.index === index && !excludedSites.some(excluded => excluded.site === site.site && excluded.expression === site.expression);
+  const expected = canonicalSites.filter(inScope);
+  const observedInventory = inventory.sites.filter(inScope);
   const branches = inventory.branches.filter(branch => branch.index === index);
   if (expected.length === 0 || scenarios.length === 0) gaps.push("EMPTY_CONTRACT_OR_SCENARIOS");
   if (new Set(scenarios).size !== scenarios.length) gaps.push("DUPLICATE_REQUIRED_SCENARIO");
@@ -61,5 +66,5 @@ export function closeContractProjection(index: number, canonicalSites: ContractC
   });
   const failed = runs.some(run => !run.processVerified || (run.projected && !run.exactReasons));
   const status: "passed" | "failed" | "not_run" = failed ? "failed" : gaps.length > 0 ? "not_run" : "passed";
-  return { status, sites, branchDiagnostics, gaps };
+  return { status, sites, branchDiagnostics, gaps, ...(index === 49 ? { excludedSites, scopeSource: "docs/research/rust-ts-r0/contract-ts7.md#owner-scope-decisions-of-2026-10-24" } : {}) };
 }

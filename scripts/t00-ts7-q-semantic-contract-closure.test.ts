@@ -13,6 +13,18 @@ const run = (label: "activate" | "control"): ContractClosureRun => ({
 });
 const close = (runs: ContractClosureRun[], coverage = inventory, required = ["literal-or-unknown"]) => closeContractProjection(62, inventory.sites, coverage, required, runs);
 
+test("the captured-input scope for 49 still requires every other native site", () => {
+  const sites = ["ts", "ts.SymbolFlags.Alias", "source.fileName", "source.referencedFiles", "source.fileName", "source.text", "program.getSourceFile", "program.getTypeChecker", "checker.getSymbolAtLocation", "checker.getExportsOfModule", "exported.flags", "checker.getAliasedSymbol", "exported.getDeclarations", "checker.getTypeOfSymbolAtLocation", "checker.getTypeOfSymbolAtLocation"]
+    .map((expression, position) => ({ index: 49, site: `49:${position}`, expression }));
+  const observed = sites.filter(site => !["49:2", "49:4", "49:5"].includes(site.site));
+  const runs = [run("activate"), run("control")].map(run => ({ ...run, sites: observed, branches: [] }));
+  const close49 = (runs: ContractClosureRun[]) => closeContractProjection(49, sites, { sites, branches: [] }, ["literal-or-unknown"], runs);
+  expect(close49(runs).status).toBe("passed");
+  for (const missing of observed) expect(close49(runs.map(run => ({ ...run, sites: run.sites.filter(site => site.site !== missing.site) }))).status).toBe("not_run");
+  expect(close49([{ ...runs[0]!, witnessVerified: false }, runs[1]!]).status).toBe("not_run");
+  expect(close49([runs[0]!, { ...runs[1]!, exactReasons: false }]).status).toBe("failed");
+});
+
 test("complete native paired observations close the contract while a missing control cannot", () => {
   expect(close([run("activate"), run("control")]).status).toBe("passed");
   expect(close([run("activate")]).status).toBe("not_run");
