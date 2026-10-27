@@ -244,16 +244,11 @@ fn native_application_session_refuses_mutations_before_either_receipt_revalidati
                 "artifact" => {
                     let replacement = fixture.directory.join("replacement");
                     fs::write(&replacement, b"changed native artifact").unwrap();
-                    let replaced = fs::rename(replacement, &session.binary);
                     if cfg!(windows) {
-                        // Windows refuses to replace a running image, so the mutation cannot occur.
-                        assert_eq!(
-                            replaced.unwrap_err().kind(),
-                            std::io::ErrorKind::PermissionDenied
-                        );
-                        continue;
+                        // Windows refuses to overwrite a running image but lets it move aside.
+                        fs::rename(&session.binary, fixture.directory.join("running")).unwrap();
                     }
-                    replaced.unwrap();
+                    fs::rename(replacement, &session.binary).unwrap();
                 }
                 _ => unreachable!(),
             }
