@@ -294,8 +294,8 @@ fn live_admitted(fs: &CaptureFs, root: &str, path: &str) -> bool {
         return false;
     }
     let within = |root: &str, path: &str| {
-        let root = fs.key(root);
-        let path = fs.key(path);
+        let root = fs.key(&native_paths::compiler_path(root));
+        let path = fs.key(&native_paths::compiler_path(path));
         path == root || relative_source_path(&root, &path, fs.sensitive).is_ok()
     };
     within(root, path)

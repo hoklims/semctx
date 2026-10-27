@@ -22,7 +22,7 @@ impl Fixture {
         }
     }
     fn path(&self, path: &str) -> String {
-        self.root.join(path).to_string_lossy().into_owned()
+        native_paths::compiler_path(&self.root.join(path).to_string_lossy())
     }
     fn disk(&self, path: &str, source: &str) {
         let path = self.root.join(path);
