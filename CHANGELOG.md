@@ -9,6 +9,12 @@ GitHub Release advance together through the tag-driven lockstep workflow documen
 
 ## [Unreleased]
 
+### Fixed
+
+- Discovery records a source above 8 MiB as `unsupported` with reason `SOURCE_TOO_LARGE` instead of
+  parsing it. TypeScript keeps one diagnostic per invalid character, and three NUL-filled 67 MB files
+  had taken a build to 91 GB of commit.
+
 ### Changed
 
 - Bun is pinned to 1.4.3 in every CI workflow (CI, release, Pages, documentation links and

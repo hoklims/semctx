@@ -46,7 +46,7 @@ test("qualified setup scope validates actual ignored generated output through MC
   expect(JSON.parse(new TextDecoder().decode(cli.stdout)).scope).toEqual(preflight.scope);
   expect(TOOL_OUTPUT_SCHEMAS.semctx_setup.safeParse(preflight).success).toBe(true);
   const reasonCounts = DISCOVERY_CANDIDATE_REASONS.map((reason) => ({ reason, count: 1 }));
-  expect(reasonCounts).toHaveLength(11);
+  expect(reasonCounts).toHaveLength(12);
   const scope = { ...preflight.scope!, reasonCounts, roots: preflight.scope!.roots.map((entry) => ({ ...entry, reasonCounts })) };
   const schema = TOOL_OUTPUT_SCHEMAS.semctx_setup;
   expect(schema.safeParse({ ...preflight, scope }).success).toBe(true);

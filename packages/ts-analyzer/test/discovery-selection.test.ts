@@ -11,6 +11,7 @@ import {
   createDiscoveryPathExclusion,
   discoverRepository,
   isPathSelected,
+  MAX_SOURCE_BYTES,
 } from "@semantic-context/ts-analyzer";
 
 const roots: string[] = [];
@@ -28,6 +29,23 @@ it("selects Rust only through explicit v2 activation and keeps file roles and ex
   expect(discoverRepository({ ...config, version: 2, selectionMode: "globs-v1", languages: { rust: "off" } }).candidates.find((file) => file.relPath === "src/lib.rs")?.analysisOutcome).toBe("disabled");
   expect(discoverRepository({ ...config, version: 2, selectionMode: "globs-v1", languages: {} }).candidates.find((file) => file.relPath === "src/lib.rs")?.analysisOutcome).toBe("unsupported");
   expect(discoverRepository({ ...createDefaultConfig(root), include: ["**/*.rs"] }).files.some((file) => file.relPath.endsWith(".rs"))).toBe(false);
+});
+it("records an oversized source as unsupported without reading it, in v1 and v2", () => {
+  const root = fixture();
+  writeFileSync(join(root, "src/limit.ts"), " ".repeat(MAX_SOURCE_BYTES));
+  writeFileSync(join(root, "src/value.ts"), Buffer.alloc(MAX_SOURCE_BYTES + 1));
+  for (const config of [globConfig(root), createDefaultConfig(root)]) {
+    const discovery = discoverRepository(config);
+    expect(discovery.files.map((file) => file.relPath)).toContain("src/limit.ts");
+    expect(discovery.files.map((file) => file.relPath)).not.toContain("src/value.ts");
+    expect(discovery.candidates.find((candidate) => candidate.relPath === "src/value.ts")).toEqual({
+      relPath: "src/value.ts",
+      language: "typescript",
+      selectionDecision: "selected",
+      analysisOutcome: "unsupported",
+      reason: "SOURCE_TOO_LARGE",
+    });
+  }
 });
 const itOnPosix = process.platform === "win32" ? it.skip : it;
 

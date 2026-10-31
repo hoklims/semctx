@@ -9,6 +9,7 @@ export { registerOpaqueCallbackOwnership } from "./semantic-dependency-diagnosti
 
 export {
   DISCOVERY_CANDIDATE_REASONS,
+  MAX_SOURCE_BYTES,
   discoverFiles,
   discoverRepository,
   countTypeScriptFiles,
