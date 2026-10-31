@@ -30,6 +30,7 @@ export const DISCOVERY_CANDIDATE_REASONS = [
   "LANGUAGE_DISABLED",
   "LANGUAGE_UNSUPPORTED",
   "READ_FAILED",
+  "SOURCE_TOO_LARGE",
   "IMPORT_OUTSIDE_REPOSITORY",
   "REFERENCE_OUTSIDE_REPOSITORY",
   "SOURCE_LINK_OUTSIDE_REPOSITORY",
@@ -52,6 +53,13 @@ export interface DiscoveryResult {
   files: DiscoveredFile[];
   candidates: DiscoveryCandidate[];
 }
+
+/**
+ * Above this size a file is generated output, not authored source, and the compiler's cost per
+ * byte has no ceiling: TypeScript keeps one diagnostic per invalid character, about 255 MB of
+ * memory per MB of NUL bytes. Three 67 MB evidence files took a build to 91 GB.
+ */
+export const MAX_SOURCE_BYTES = 8 * 1024 * 1024;
 
 const IGNORED_SEGMENTS = new Set([
   "node_modules",
@@ -445,6 +453,10 @@ function discoverLegacyRepository(config: Extract<SemctxConfig, { version: 1 }>)
     }
     let content: string;
     try {
+      if (statSync(absPath).size > MAX_SOURCE_BYTES) {
+        candidates.push({ relPath, language, selectionDecision: "selected", analysisOutcome: "unsupported", reason: "SOURCE_TOO_LARGE" });
+        continue;
+      }
       content = readFileSync(absPath, "utf8");
     } catch {
       candidates.push({ relPath, language, selectionDecision: "selected", analysisOutcome: "failed", reason: "READ_FAILED" });
@@ -541,6 +553,16 @@ export function discoverRepository(config: SemctxConfig, eligibilityConfig: Semc
 
     let content: string;
     try {
+      if (statSync(absPath).size > MAX_SOURCE_BYTES) {
+        candidates.push({
+          relPath,
+          language,
+          selectionDecision: "selected",
+          analysisOutcome: "unsupported",
+          reason: "SOURCE_TOO_LARGE",
+        });
+        continue;
+      }
       content = readFileSync(absPath, "utf8");
     } catch {
       candidates.push({
