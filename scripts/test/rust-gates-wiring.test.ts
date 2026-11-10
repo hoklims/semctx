@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 
-type Step = { name?: string; uses?: string; run?: string; if?: string; "continue-on-error"?: boolean; "working-directory"?: string; with?: Record<string, unknown>; env?: Record<string, string> };
+type Step = { name?: string; uses?: string; run?: string; if?: string; shell?: string; "continue-on-error"?: boolean; "working-directory"?: string; with?: Record<string, unknown>; env?: Record<string, string> };
 type Job = { needs?: string | string[]; if?: string; "continue-on-error"?: boolean; "timeout-minutes"?: number | string; steps?: Step[]; strategy?: { matrix?: { os?: string[] } }; env?: Record<string, string>; defaults?: { run?: { shell?: string } } };
 type Workflow = { jobs: Record<string, Job> };
 
@@ -40,6 +40,7 @@ function wiringProblems(text: string): string[] {
     if (steps.length !== 1) { problems.push(`${name}: exactly one executable step is required`); return; }
     const step = steps[0]!;
     if (step.if !== undefined || (step["continue-on-error"] !== undefined && step["continue-on-error"] !== false)) problems.push(`${name}: conditional execution or ignored failure`);
+    if (step.shell !== undefined && step.shell !== "bash") problems.push(`${name}: shell failure semantics changed`);
     if (step.env?.GATE_BIN !== undefined || step.env?.QUALIFICATION_BIN !== undefined) problems.push(`${name}: verifier executable override`);
     const actual = normalized(step.run);
     if (JSON.stringify(firstLineOnly ? actual.slice(0, 1) : actual) !== JSON.stringify(expected)) problems.push(`${name}: expected invocation is not executed`);
@@ -78,7 +79,7 @@ function wiringProblems(text: string): string[] {
   if (!commands(required).includes("aggregate --root")) problems.push("receipt aggregation is missing");
   if (!commands(required).includes("semctx-qualification verify --reports")) problems.push("qualification admission is missing");
   if (JSON.stringify([...(native.strategy?.matrix?.os ?? [])].sort()) !== JSON.stringify(["macos-15", "ubuntu-latest", "windows-latest"])) problems.push("native OS coverage is incomplete");
-  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}") problems.push("native timeout must match the measured budget: 60 Windows, 65 macOS, 40 Linux");
+  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}") problems.push("native timeout must keep the per-OS budget: 60 Windows, 65 macOS, 40 Linux");
   enforceStep(native, "Exercise T00 observer comparators and recipe CLI", [
     "cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --features qualification-observer --test qualification_replay -- -D warnings",
     "cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --features qualification-observer --test qualification_replay comparator_ -- --skip comparator_native_relation_report_preserves_exact_descriptor_dev",
@@ -201,17 +202,26 @@ describe("Rust gate invocation and admission", () => {
     expect(wiringProblems(inert).length).toBeGreaterThan(0);
   });
 
-  test("rejects a native budget other than the measured per-OS caps", () => {
+  test("rejects a native budget other than the per-OS caps", () => {
     const timeout = "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}";
     expect(source.includes(timeout)).toBe(true);
     for (const replacement of [
       "timeout-minutes: 20",
       "timeout-minutes: 60",
       "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 20 }}",
+      "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || 20 }}",
       "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}",
     ]) {
-      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must match the measured budget: 60 Windows, 65 macOS, 40 Linux");
+      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must keep the per-OS budget: 60 Windows, 65 macOS, 40 Linux");
     }
+  });
+
+  test("skips exactly one test name in the qualification replay target", () => {
+    const skipped = "comparator_native_relation_report_preserves_exact_descriptor_dev";
+    const root = join(import.meta.dir, "../../tools/rust-ts-r0/qualification");
+    const names = readdirSync(root, { recursive: true }).map(String).filter(file => file.endsWith(".rs"))
+      .flatMap(file => [...readFileSync(join(root, file), "utf8").matchAll(/\b(?:fn|mod)\s+(\w+)/g)].map(match => match[1]!));
+    expect(names.filter(name => name.includes(skipped))).toEqual([skipped]);
   });
 
   test("requires the observer comparators to run with both snapshot switches at 0 and only the DEV test skipped", () => {
@@ -220,7 +230,12 @@ describe("Rust gate invocation and admission", () => {
     expect(source.includes(env)).toBe(true);
     const switches = "observer comparators must run with both snapshot switches at 0";
     expect(wiringProblems(source.replace(env, ""))).toContain(switches);
-    expect(wiringProblems(source.replace(env, env.replace('GOPORT_LIB_SNAPSHOT: "0"', 'GOPORT_LIB_SNAPSHOT: "1"')))).toContain(switches);
+    for (const variable of ["GOPORT_LIB_PARSE_SNAPSHOT", "GOPORT_LIB_SNAPSHOT"]) {
+      const line = `          ${variable}: "0"\n`;
+      expect(env.includes(line)).toBe(true);
+      expect(wiringProblems(source.replace(env, env.replace(line, ""))), `${variable} removed`).toContain(switches);
+      expect(wiringProblems(source.replace(env, env.replace(line, `          ${variable}: "1"\n`))), `${variable} not 0`).toContain(switches);
+    }
     const invocation = "Exercise T00 observer comparators and recipe CLI: expected invocation is not executed";
     const skip = " -- --skip comparator_native_relation_report_preserves_exact_descriptor_dev";
     expect(source.includes(skip)).toBe(true);
@@ -229,6 +244,8 @@ describe("Rust gate invocation and admission", () => {
     expect(source.includes(name)).toBe(true);
     expect(wiringProblems(source.replace(name, name + "        if: matrix.os == 'windows-latest'\n")))
       .toContain("Exercise T00 observer comparators and recipe CLI: conditional execution or ignored failure");
+    expect(wiringProblems(source.replace(name, name + "        shell: bash {0}\n")))
+      .toContain("Exercise T00 observer comparators and recipe CLI: shell failure semantics changed");
   });
 
   test("rejects removing the unique Windows milestone candidate guard", () => {

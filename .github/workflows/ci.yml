@@ -192,7 +192,8 @@ jobs:
   rust-gates:
     needs: plan
     runs-on: ${{ matrix.os }}
-    # Measured on da6ebce6 (run 42815998036): Linux and macOS exceeded 20 minutes while still making progress.
+    # Run 42815998036 (da6ebce6): Linux and macOS exceeded 20 minutes while still progressing.
+    # 40 (Linux) and 65 (macOS) are estimated from earlier runs, not yet measured on a full run of this head.
     timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}
     strategy:
       fail-fast: false
