@@ -85,6 +85,10 @@ function wiringProblems(text: string): string[] {
     || (commands(native).match(/python tools\/rust-ts-r0\/qualification\/run_windows_milestone\.py/g) ?? []).length !== 1) {
     problems.push("Windows milestone must remain unique and bound to the authorized candidate");
   }
+  const nativeSteps = native.steps ?? [];
+  const install = nativeSteps.findIndex(step => normalized(step.run).includes("bun install --frozen-lockfile"));
+  const nativeTests = nativeSteps.findIndex(step => step.name === "Execute native Rust tests");
+  if (install === -1 || nativeTests === -1 || install > nativeTests) problems.push("native Rust tests run before the JavaScript workspace is installed");
   const nativeCommands = commands(native);
   if (!nativeCommands.includes("rust-test --root")) problems.push("new native product crates may escape testing");
   for (const crate of ["gates", "qualification"]) {
@@ -161,6 +165,16 @@ describe("Rust gate invocation and admission", () => {
       expect(source.includes(before), `mutant requires an actual enforcement target: ${before}`).toBe(true);
       expect(wiringProblems(source.replace(before, after)).length, before).toBeGreaterThan(0);
     }
+  });
+
+  test("rejects native Rust tests that run before the JavaScript workspace is installed", () => {
+    const install = "      - run: bun install --frozen-lockfile\n";
+    const tests = "      - name: Execute native Rust tests\n";
+    expect(source.includes(install + tests)).toBe(true);
+    const late = source.replace(install + tests, tests).replace("      - name: Discover and execute native product workspaces\n", install + "      - name: Discover and execute native product workspaces\n");
+    expect(late).not.toBe(source);
+    expect(wiringProblems(late)).toContain("native Rust tests run before the JavaScript workspace is installed");
+    expect(wiringProblems(source.replace(install + tests, tests))).toContain("native Rust tests run before the JavaScript workspace is installed");
   });
 
   test("rejects a disabled or inert native qualification verifier", () => {

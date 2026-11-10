@@ -230,6 +230,8 @@ jobs:
           cargo clippy --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked --all-targets -- -D warnings
           cargo clippy --manifest-path tools/t00-ts7-oracle-q-semantic/Cargo.toml --locked --all-targets -- -D warnings
           cargo clippy --manifest-path tools/t00-ts7-oracle-q-syntax/Cargo.toml --locked --all-targets -- -D warnings
+      # The TS7 producer's native_application_runtime tests spawn bun on workspace scripts.
+      - run: bun install --frozen-lockfile
       - name: Execute native Rust tests
         run: |
           cargo test --manifest-path tools/gates/Cargo.toml --locked
@@ -238,7 +240,6 @@ jobs:
           cargo test --manifest-path tools/t00-ts7-oracle-emit-helpers/Cargo.toml --locked
           cargo test --manifest-path tools/t00-ts7-oracle-q-semantic/Cargo.toml --locked
           cargo test --manifest-path tools/t00-ts7-oracle-q-syntax/Cargo.toml --locked
-      - run: bun install --frozen-lockfile
       - name: Discover and execute native product workspaces
         env:
           SEMCTX_NATIVE_EVIDENCE: ${{ runner.temp }}/native-r0-development
