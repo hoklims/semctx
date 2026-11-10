@@ -192,7 +192,8 @@ jobs:
   rust-gates:
     needs: plan
     runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 20 }}
+    # Measured on da6ebce6 (run 42815998036): Linux and macOS exceeded 20 minutes while still making progress.
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}
     strategy:
       fail-fast: false
       matrix:
@@ -271,9 +272,14 @@ jobs:
         with:
           python-version: '3.13.16'
       - name: Exercise T00 observer comparators and recipe CLI
+        # The comparators spawn the release probe, which refuses unless both snapshot switches are 0.
+        # The descriptor DEV test needs a ROOT-supplied fixture and is run by ROOT, not by CI.
+        env:
+          GOPORT_LIB_PARSE_SNAPSHOT: "0"
+          GOPORT_LIB_SNAPSHOT: "0"
         run: |
           cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --features qualification-observer --test qualification_replay -- -D warnings
-          cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --features qualification-observer --test qualification_replay comparator_
+          cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --features qualification-observer --test qualification_replay comparator_ -- --skip comparator_native_relation_report_preserves_exact_descriptor_dev
           python -m unittest discover -s tools/rust-ts-r0/qualification -p 'test_*.py'
           python -m unittest discover -s tools/rust-ts-r0/qualification/supplement -p 'test_*.py'
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1

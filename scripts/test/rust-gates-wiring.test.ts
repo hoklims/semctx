@@ -78,7 +78,15 @@ function wiringProblems(text: string): string[] {
   if (!commands(required).includes("aggregate --root")) problems.push("receipt aggregation is missing");
   if (!commands(required).includes("semctx-qualification verify --reports")) problems.push("qualification admission is missing");
   if (JSON.stringify([...(native.strategy?.matrix?.os ?? [])].sort()) !== JSON.stringify(["macos-15", "ubuntu-latest", "windows-latest"])) problems.push("native OS coverage is incomplete");
-  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || 20 }}") problems.push("native timeout must reserve 60 minutes for Windows and preserve 20 on Linux/macOS");
+  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}") problems.push("native timeout must match the measured budget: 60 Windows, 65 macOS, 40 Linux");
+  enforceStep(native, "Exercise T00 observer comparators and recipe CLI", [
+    "cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --features qualification-observer --test qualification_replay -- -D warnings",
+    "cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --features qualification-observer --test qualification_replay comparator_ -- --skip comparator_native_relation_report_preserves_exact_descriptor_dev",
+    "python -m unittest discover -s tools/rust-ts-r0/qualification -p 'test_*.py'",
+    "python -m unittest discover -s tools/rust-ts-r0/qualification/supplement -p 'test_*.py'",
+  ]);
+  const observer = (native.steps ?? []).find(step => step.name === "Exercise T00 observer comparators and recipe CLI");
+  if (observer?.env?.GOPORT_LIB_PARSE_SNAPSHOT !== "0" || observer?.env?.GOPORT_LIB_SNAPSHOT !== "0") problems.push("observer comparators must run with both snapshot switches at 0");
   const milestone = (native.steps ?? []).filter(step => step.name === "Acquire the ordered T00 Windows milestone");
   const milestoneGuard = "matrix.os == 'windows-latest' && github.event.pull_request.number == 386 && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha";
   if (milestone.length !== 1 || milestone[0]?.if !== milestoneGuard
@@ -193,12 +201,34 @@ describe("Rust gate invocation and admission", () => {
     expect(wiringProblems(inert).length).toBeGreaterThan(0);
   });
 
-  test("rejects an insufficient Windows budget or an extension to every native OS", () => {
-    const timeout = "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 20 }}";
+  test("rejects a native budget other than the measured per-OS caps", () => {
+    const timeout = "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}";
     expect(source.includes(timeout)).toBe(true);
-    for (const replacement of ["timeout-minutes: 20", "timeout-minutes: 60", "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || 20 }}"]) {
-      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must reserve 60 minutes for Windows and preserve 20 on Linux/macOS");
+    for (const replacement of [
+      "timeout-minutes: 20",
+      "timeout-minutes: 60",
+      "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 20 }}",
+      "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}",
+    ]) {
+      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must match the measured budget: 60 Windows, 65 macOS, 40 Linux");
     }
+  });
+
+  test("requires the observer comparators to run with both snapshot switches at 0 and only the DEV test skipped", () => {
+    const name = "      - name: Exercise T00 observer comparators and recipe CLI\n";
+    const env = "        env:\n          GOPORT_LIB_PARSE_SNAPSHOT: \"0\"\n          GOPORT_LIB_SNAPSHOT: \"0\"\n";
+    expect(source.includes(env)).toBe(true);
+    const switches = "observer comparators must run with both snapshot switches at 0";
+    expect(wiringProblems(source.replace(env, ""))).toContain(switches);
+    expect(wiringProblems(source.replace(env, env.replace('GOPORT_LIB_SNAPSHOT: "0"', 'GOPORT_LIB_SNAPSHOT: "1"')))).toContain(switches);
+    const invocation = "Exercise T00 observer comparators and recipe CLI: expected invocation is not executed";
+    const skip = " -- --skip comparator_native_relation_report_preserves_exact_descriptor_dev";
+    expect(source.includes(skip)).toBe(true);
+    expect(wiringProblems(source.replace(skip, " -- --skip comparator_"))).toContain(invocation);
+    expect(wiringProblems(source.replace(skip, ""))).toContain(invocation);
+    expect(source.includes(name)).toBe(true);
+    expect(wiringProblems(source.replace(name, name + "        if: matrix.os == 'windows-latest'\n")))
+      .toContain("Exercise T00 observer comparators and recipe CLI: conditional execution or ignored failure");
   });
 
   test("rejects removing the unique Windows milestone candidate guard", () => {
