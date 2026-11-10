@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-type Step = { name?: string; uses?: string; run?: string; if?: string; "continue-on-error"?: boolean; with?: Record<string, unknown>; env?: Record<string, string> };
+type Step = { name?: string; uses?: string; run?: string; if?: string; "continue-on-error"?: boolean; "working-directory"?: string; with?: Record<string, unknown>; env?: Record<string, string> };
 type Job = { needs?: string | string[]; if?: string; "continue-on-error"?: boolean; "timeout-minutes"?: number | string; steps?: Step[]; strategy?: { matrix?: { os?: string[] } }; env?: Record<string, string>; defaults?: { run?: { shell?: string } } };
 type Workflow = { jobs: Record<string, Job> };
 
@@ -88,7 +88,9 @@ function wiringProblems(text: string): string[] {
   const nativeSteps = native.steps ?? [];
   const install = nativeSteps.findIndex(step => normalized(step.run).includes("bun install --frozen-lockfile"));
   const nativeTests = nativeSteps.findIndex(step => step.name === "Execute native Rust tests");
-  if (install === -1 || nativeTests === -1 || install > nativeTests) problems.push("native Rust tests run before the JavaScript workspace is installed");
+  const installStep = nativeSteps[install];
+  if (install === -1 || nativeTests === -1 || install > nativeTests
+    || installStep?.if !== undefined || installStep?.["working-directory"] !== undefined) problems.push("native Rust tests run before the JavaScript workspace is installed");
   const nativeCommands = commands(native);
   if (!nativeCommands.includes("rust-test --root")) problems.push("new native product crates may escape testing");
   for (const crate of ["gates", "qualification"]) {
@@ -175,6 +177,11 @@ describe("Rust gate invocation and admission", () => {
     expect(late).not.toBe(source);
     expect(wiringProblems(late)).toContain("native Rust tests run before the JavaScript workspace is installed");
     expect(wiringProblems(source.replace(install + tests, tests))).toContain("native Rust tests run before the JavaScript workspace is installed");
+    for (const property of ["        if: matrix.os == 'ubuntu-latest'\n", "        working-directory: apps/cli\n"]) {
+      const weakened = source.replace(install + tests, install + property + tests);
+      expect(weakened).not.toBe(source);
+      expect(wiringProblems(weakened)).toContain("native Rust tests run before the JavaScript workspace is installed");
+    }
   });
 
   test("rejects a disabled or inert native qualification verifier", () => {
