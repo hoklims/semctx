@@ -49,6 +49,7 @@ function wiringProblems(text: string): string[] {
     if (job.if !== undefined) problems.push(`${name}: producer may be skipped`);
     if (job.defaults?.run?.shell !== undefined && job.defaults.run.shell !== "bash") problems.push(`${name}: shell failure semantics changed`);
   }
+  if (native.defaults?.run?.shell !== "bash") problems.push("native: default shell must be bash on every OS");
   enforceStep(plan, "Select required verification lanes", ['tools/gates/target/release/semctx-gates ci-plan --root "$GITHUB_WORKSPACE" --base "$SEMCTX_VERIFY_BASE" --head "$SEMCTX_VERIFY_HEAD" --output "$SEMCTX_PLAN_PATH"'], true);
   enforceStep(gates, "Run selected verification lane", ['"$GATE_BIN" ci-run --root "$GITHUB_WORKSPACE" --plan "$RUNNER_TEMP/plan/gate-plan.json" --lane "$SEMCTX_LANE_INDEX" --receipt "$SEMCTX_RECEIPT"']);
   enforceStep(native, "Execute native Rust tests", [
@@ -218,10 +219,18 @@ describe("Rust gate invocation and admission", () => {
 
   test("skips exactly one test name in the qualification replay target", () => {
     const skipped = "comparator_native_relation_report_preserves_exact_descriptor_dev";
-    const root = join(import.meta.dir, "../../tools/rust-ts-r0/qualification");
-    const names = readdirSync(root, { recursive: true }).map(String).filter(file => file.endsWith(".rs"))
-      .flatMap(file => [...readFileSync(join(root, file), "utf8").matchAll(/\b(?:fn|mod)\s+(\w+)/g)].map(match => match[1]!));
+    // The target also compiles #[path] includes from ../src and ../tests: scan all three trees.
+    const crate = join(import.meta.dir, "../../tools/rust-ts-r0");
+    const names = ["qualification", "src", "tests"].flatMap(tree => readdirSync(join(crate, tree), { recursive: true }).map(String)
+      .filter(file => file.endsWith(".rs"))
+      .flatMap(file => [...readFileSync(join(crate, tree, file), "utf8").matchAll(/\b(?:fn|mod)\s+(?:r#)?(\w+)/g)].map(match => match[1]!)));
     expect(names.filter(name => name.includes(skipped))).toEqual([skipped]);
+  });
+
+  test("keeps bash as the native default shell", () => {
+    const defaults = "    defaults:\n      run:\n        shell: bash\n    env:\n      QUALIFICATION_BIN:";
+    expect(source.split(defaults).length).toBe(2);
+    expect(wiringProblems(source.replace(defaults, "    env:\n      QUALIFICATION_BIN:"))).toContain("native: default shell must be bash on every OS");
   });
 
   test("requires the observer comparators to run with both snapshot switches at 0 and only the DEV test skipped", () => {
