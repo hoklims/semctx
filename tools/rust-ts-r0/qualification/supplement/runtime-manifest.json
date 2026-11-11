@@ -91,8 +91,8 @@
     },
     {
       "path": "test_directory_closure.py",
-      "sha256": "7fc940f37a33eaaf1b984538abd141e20dca73547c9e83d3bd9c6e547746e35c",
-      "bytes": 5905
+      "sha256": "f081abbeab8458f8604163ccba3d042040b8aeabd87b448db1f87876a006c636",
+      "bytes": 9485
     },
     {
       "path": "test_first_binding_dto.py",
