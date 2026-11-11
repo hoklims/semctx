@@ -1,10 +1,22 @@
 import copy
+import os
 from pathlib import Path
 import tempfile
 import unittest
+from unittest import mock
 
 from _supplement_test_paths import FROZEN
+import directory_closure
 import public_runtime as runtime
+
+
+def directory_alias(alias, real):
+    """Reach `real` through `alias`: a junction on Windows, a symlink elsewhere."""
+    if os.name == 'nt':
+        import _winapi
+        _winapi.CreateJunction(str(real), str(alias))
+    else:
+        os.symlink(real, alias, target_is_directory=True)
 
 
 class FrozenDirectoryClosureTests(unittest.TestCase):
@@ -28,6 +40,43 @@ class FrozenDirectoryClosureTests(unittest.TestCase):
                 self.assertEqual(list(expected.iterdir()), [])
                 self.assertEqual(receipt['empty_directories'][0]['kind'], 'directory')
                 self.assertFalse(receipt['empty_directories'][0]['authority']['directory_listing_captured'])
+
+    def test_frozen_empty_directory_walk_stays_inside_an_aliased_case_root(self):
+        # An aliased spelling (8.3 TEMP, junction, linked parent) never equals its
+        # resolved form: the parent walk must stop at the case root, never above it.
+        with tempfile.TemporaryDirectory() as temporary:
+            real = Path(temporary)/'real'
+            real.mkdir()
+            alias = Path(temporary)/'alias'
+            directory_alias(alias, real)
+            try:
+                destination = alias/'case'
+                self.assertNotEqual(destination.resolve(), destination.absolute())
+                owner = destination.absolute()
+
+                class InsideCase(type(Path())):
+                    def inspected(self):
+                        if not self.absolute().is_relative_to(owner):
+                            raise AssertionError('directory closure inspected a path above its case root: ' + str(self))
+
+                    def is_symlink(self):
+                        self.inspected()
+                        return super().is_symlink()
+
+                    def is_dir(self, **kwargs):
+                        self.inspected()
+                        return super().is_dir(**kwargs)
+
+                prepared = self.prepare(3, destination)
+                expected = destination/'fixture-000/repo/.git'
+                with mock.patch.object(directory_closure, 'Path', InsideCase):
+                    receipt = runtime.materialize_physical(prepared)
+                self.assertTrue(expected.is_dir())
+                self.assertEqual(list(expected.iterdir()), [])
+                self.assertEqual(receipt['empty_directories'][0]['kind'], 'directory')
+            finally:
+                # Drop the link itself before the temporary tree is removed.
+                (os.rmdir if os.name == 'nt' else os.unlink)(alias)
 
     def test_missing_foreign_authority_or_directory_refuses_before_writes(self):
         for poison in ['missing', 'hash', 'path', 'capture']:

@@ -86,14 +86,21 @@ def validate(prepared):
 def materialize(prepared):
     paths = validate(prepared)
     destination = Path(prepared['case_root']).resolve()
+    # Walk the target's own spelling up to the case root's spelling: a resolved
+    # root never equals an aliased lexical parent (e.g. an 8.3 or junction TEMP).
+    owner = Path(prepared['case_root']).absolute()
     records = []
     for path in paths:
         target = Path(path)
         if not target.resolve().is_relative_to(destination) or target.resolve() == destination:
             raise ValueError('DIRECTORY_SETUP_ESCAPES_CASE')
         current = target.parent
-        while current != destination:
-            if current.is_symlink() or not current.is_dir():
+        if owner.is_symlink() or not owner.is_dir() or getattr(owner.lstat(), 'st_file_attributes', 0) & 0x400:
+            raise ValueError('DIRECTORY_SETUP_CASE_NOT_OWNED_DIRECTORY')
+        while current != owner:
+            if not current.is_relative_to(owner):
+                raise ValueError('DIRECTORY_SETUP_PARENT_ESCAPES_CASE')
+            if current.is_symlink() or not current.is_dir() or getattr(current.lstat(), 'st_file_attributes', 0) & 0x400:
                 raise ValueError('DIRECTORY_SETUP_PARENT_NOT_OWNED_DIRECTORY')
             current = current.parent
         target.mkdir(parents=False, exist_ok=False)

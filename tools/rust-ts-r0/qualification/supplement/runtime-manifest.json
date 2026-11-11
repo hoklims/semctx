@@ -11,8 +11,8 @@
     },
     {
       "path": "directory_closure.py",
-      "sha256": "3b911e8225fdbd442a9be44f007b57986b3fe16f6ac5ee289dfdfeaa83aaed71",
-      "bytes": 12112
+      "sha256": "d0bd207ad6f123547559cf6049c5a2c85918b8ff583f58eb4d5cd77bde403c61",
+      "bytes": 12687
     },
     {
       "path": "full_admission_adapter.py",
@@ -91,8 +91,8 @@
     },
     {
       "path": "test_directory_closure.py",
-      "sha256": "a853d614948375d3021c1b197002466d6452b7797f357bd646b644f83ea07a68",
-      "bytes": 3707
+      "sha256": "7fc940f37a33eaaf1b984538abd141e20dca73547c9e83d3bd9c6e547746e35c",
+      "bytes": 5905
     },
     {
       "path": "test_first_binding_dto.py",
