@@ -31,6 +31,21 @@ fn nul_paths(stdout: &str) -> Result<Vec<String>, String> {
         .collect()
 }
 
+#[cfg(unix)]
+fn git_file_mode(metadata: &fs::Metadata) -> &'static str {
+    use std::os::unix::fs::PermissionsExt;
+    if metadata.permissions().mode() & 0o111 == 0 {
+        "100644"
+    } else {
+        "100755"
+    }
+}
+
+#[cfg(not(unix))]
+fn git_file_mode(_metadata: &fs::Metadata) -> &'static str {
+    "100644"
+}
+
 /// Exact baseline freshness record shape for ordinary tracked and untracked
 /// files. Renames, submodules and conflict records remain explicit UNKNOWNs.
 fn status_entries(root: &Path, stdout: &str) -> Result<(String, Vec<Value>), String> {
@@ -91,17 +106,7 @@ fn status_entries(root: &Path, stdout: &str) -> Result<(String, Vec<Value>), Str
                     if !metadata.is_file() {
                         return Err("non-file Git working state".into());
                     }
-                    #[cfg(unix)]
-                    let mode = {
-                        use std::os::unix::fs::PermissionsExt;
-                        if metadata.permissions().mode() & 0o111 == 0 {
-                            "100644"
-                        } else {
-                            "100755"
-                        }
-                    };
-                    #[cfg(not(unix))]
-                    let mode = "100644";
+                    let mode = git_file_mode(&metadata);
                     let bytes = fs::read(&physical).map_err(|e| e.to_string())?;
                     json!({"path":path,"kind":"file","mode":mode,"contentHash":domain_hash("working-file-content",&bytes)})
                 }
