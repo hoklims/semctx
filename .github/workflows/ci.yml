@@ -193,8 +193,9 @@ jobs:
     needs: plan
     runs-on: ${{ matrix.os }}
     # Run 42815998036 (da6ebce6): Linux and macOS exceeded 20 minutes while still progressing.
-    # 40 (Linux) and 65 (macOS) are estimated from earlier runs, not yet measured on a full run of this head.
-    timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}
+    # Run 42925366244 (cb176402): Windows needed 50 minutes to reach step 13 and was cancelled at 60.
+    # 40 (Linux), 65 (macOS) and 75 (Windows) are estimates, not yet measured on a full run of this head.
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 75 || matrix.os == 'macos-15' && 65 || 40 }}
     strategy:
       fail-fast: false
       matrix:

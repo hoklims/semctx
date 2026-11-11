@@ -80,7 +80,7 @@ function wiringProblems(text: string): string[] {
   if (!commands(required).includes("aggregate --root")) problems.push("receipt aggregation is missing");
   if (!commands(required).includes("semctx-qualification verify --reports")) problems.push("qualification admission is missing");
   if (JSON.stringify([...(native.strategy?.matrix?.os ?? [])].sort()) !== JSON.stringify(["macos-15", "ubuntu-latest", "windows-latest"])) problems.push("native OS coverage is incomplete");
-  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}") problems.push("native timeout must keep the per-OS budget: 60 Windows, 65 macOS, 40 Linux");
+  if (native["timeout-minutes"] !== "${{ matrix.os == 'windows-latest' && 75 || matrix.os == 'macos-15' && 65 || 40 }}") problems.push("native timeout must keep the per-OS budget: 75 Windows, 65 macOS, 40 Linux");
   enforceStep(native, "Exercise T00 observer comparators and recipe CLI", [
     "cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --features qualification-observer --test qualification_replay -- -D warnings",
     "cargo test --manifest-path tools/rust-ts-r0/Cargo.toml --locked --release --features qualification-observer --test qualification_replay comparator_ -- --skip comparator_native_relation_report_preserves_exact_descriptor_dev",
@@ -204,16 +204,18 @@ describe("Rust gate invocation and admission", () => {
   });
 
   test("rejects a native budget other than the per-OS caps", () => {
-    const timeout = "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}";
+    const timeout = "timeout-minutes: ${{ matrix.os == 'windows-latest' && 75 || matrix.os == 'macos-15' && 65 || 40 }}";
     expect(source.includes(timeout)).toBe(true);
     for (const replacement of [
       "timeout-minutes: 20",
       "timeout-minutes: 60",
+      "timeout-minutes: 75",
       "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || 20 }}",
+      "timeout-minutes: ${{ matrix.os == 'windows-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}",
       "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || 20 }}",
-      "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 60 || matrix.os == 'macos-15' && 65 || 40 }}",
+      "timeout-minutes: ${{ matrix.os == 'ubuntu-latest' && 75 || matrix.os == 'macos-15' && 65 || 40 }}",
     ]) {
-      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must keep the per-OS budget: 60 Windows, 65 macOS, 40 Linux");
+      expect(wiringProblems(source.replace(timeout, replacement))).toContain("native timeout must keep the per-OS budget: 75 Windows, 65 macOS, 40 Linux");
     }
   });
 
