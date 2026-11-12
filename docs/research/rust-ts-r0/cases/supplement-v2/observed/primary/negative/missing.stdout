@@ -1,0 +1,1 @@
+{"id":"negative-missing","status":"UNKNOWN","passed":0,"expectedTests":1,"error":"PUBLIC_WITNESS_FILE_MISSING:packages/ts-analyzer/test/ABSENT-T00.test.ts"}

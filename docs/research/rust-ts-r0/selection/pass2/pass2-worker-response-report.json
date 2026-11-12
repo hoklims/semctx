@@ -1,0 +1,138 @@
+{
+  "status": "OWNED_SCRATCH_READY_FOR_ROOT_INTEGRATION_AND_REVIEW",
+  "author": "/root/pass2_api_gap_inventory",
+  "started_utc": "2026-10-17T19:50:06+00:00",
+  "finished_utc": "2026-10-17T19:58:22.809840+00:00",
+  "effort_seconds": 496.81,
+  "cap_seconds": 1800,
+  "only_owned_file": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/worker_response.rs",
+  "source_sha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f",
+  "repo_index_or_github_edits": false,
+  "comments_added": [],
+  "dependencies_added": false,
+  "reserved_access": false,
+  "qualification_queries": 0,
+  "authority": [
+    {
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "lines": "943-1017",
+      "status": "implemented historical response guard; original1251-1339 coordinates corrected by exact lookup"
+    },
+    {
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "lines": "925-936",
+      "status": "caller rejects valid worker failure; consumes valid successful raw extraction"
+    },
+    {
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/core/src/ids.ts",
+      "lines": "10-12",
+      "status": "normalizePath replaces backslash then removes one leading ./"
+    }
+  ],
+  "signature": "pub fn consume(descriptor: &serde_json::Value) -> serde_json::Value",
+  "integration": "worker_observations child uses super::parse_request SSOT. Root owns module/wrapper and --consume-worker FILE.json CLI. Root fixed request schema to f64 to admit1.0 as historical Number1.",
+  "descriptor": {
+    "request": "actual WorkerRequest",
+    "response": "actual raw worker JSON, not ReceiverGraphPayload"
+  },
+  "states": {
+    "success": "valid:true,accepted:true,worker_failed:false,extraction:exact raw JSON with extras preserved",
+    "worker_failure": "valid:true,accepted:false,worker_failed:true,error:index worker failed: <original error string>",
+    "malformed_response": "valid:false,accepted:false,worker_failed:false,error:index worker returned a malformed extraction DTO",
+    "malformed_request": "valid:false,accepted:false,worker_failed:false,error:malformed extraction request"
+  },
+  "guards": [
+    "Schema1, exact jobId and boolean ok; valid okfalse still fails consumer.",
+    "Four required arrays, exact unique modules from native lexical relative(repoRoot,emitPaths) normalized by historical normalizePath.",
+    "Source symbol/import/call membership in explicit emit set.",
+    "Historical symbol-kind and marker-tag enums; required strings/booleans/arrays and positive integer lines/end>=start.",
+    "Optional fields distinguish missing and null; unknown extras ignored.",
+    "Optional resolved/callee/binding paths match historical canonical relative predicate."
+  ],
+  "limits": [
+    "No extra UTF16 validation absent from baseline.",
+    "Owned source paths use emit membership, not extra inRepository restriction. A caller explicitly requesting outside emit can own that path here; repository confinement is another boundary.",
+    "Canonical target paths allow historical dot, dot-slash and trailing slash.",
+    "Guard does not prove native production, artifact authenticity, capture coherence or freshness; root/qualifier must bind actual artifact/Outcome and full descriptor.",
+    "Native lexical resolution uses process CWD but no repository reads, SDK inputs, realpath or canonicalize. Empty path is normalized to dot before Rust absolute to match Node.resolve."
+  ],
+  "automated_bypasses": [
+    "wrong schema/job/ok type",
+    "missing/duplicate/foreign modules",
+    "forged ownership",
+    "unknown symbol kinds and malformed scope/name/exported",
+    "zero/fractional/negative/reversed lines",
+    "marker tag/slug/statement malformed",
+    "optional explicit null",
+    "malformed bindingTarget and optional runtimeUsed/unmodeledReason",
+    "empty/absolute/drive/backslash/parent/noncanonical targets",
+    "missing required extraction arrays",
+    "valid failure versus accepted successful extraction",
+    "duplicate request emits collapse as set",
+    "empty emit and empty arrays",
+    "ignored extras including UTF16 props",
+    "relative/CWD and nonexistent lexical paths"
+  ],
+  "verification": {
+    "environment": {
+      "os": "Darwin",
+      "machine": "arm64",
+      "rust": "1.95.0",
+      "GIT_CONFIG_GLOBAL": "unset",
+      "CARGO_BUILD_JOBS": 2,
+      "RUST_TEST_THREADS": 1,
+      "GOPORT_LIB_PARSE_SNAPSHOT": 0,
+      "GOPORT_LIB_SNAPSHOT": 0
+    },
+    "targeted_tests": "7 PASS; source-authored DEV cases, no qualification golden.",
+    "test_log": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-final-dev.log",
+    "stub_red": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-red.log",
+    "empty_cwd_regression": "Observed RED, independently confirmed Bun1.4.3 relative(empty,unused/../worker-development.ts)=worker-development.ts, then owned normalization fix GREEN.",
+    "rustfmt_owned": "PASS --check skip_children=true",
+    "clippy_bin": "NOT_GREEN: current shared scratch has unconnected FS/consumer CLI dead-code and captured_system_observations.rs407 excessive nesting. No suppressions or edits to others.",
+    "clippy_log": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-clippy-bin.log",
+    "windows_linux": "not exercised locally; require native GHA"
+  },
+  "independent_review": "Fresh adversarial guard review needed after this agent releases its slot; self-authored tests are not independent review.",
+  "logs": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-clippy-bin.log",
+      "sha256": "9bc6f55a06289dbd40c8631d1b61d03f1f32edf4bc93be51d3790b619e477671",
+      "result": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-complete-dev.log",
+      "sha256": "dbb49535c0241a5936b3b05f9d4586cef976ae7174178036dc171a15ba84b0b3",
+      "result": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-final-dev.log",
+      "sha256": "444cc38bdaf609f1e57598fa3e0ec1405d7465d263e4fd516c425138457efc90",
+      "result": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-green.log",
+      "sha256": "3f52a0806ec144c441dc35575ab931237578b33e7feebd9bc87d1df8e7a6caa7",
+      "result": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-red.log",
+      "sha256": "2e4014a81d71cbed3fd12c85adb6c8e6e7a27c65e934eaa0ce8936d5e873d85b",
+      "result": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-relative-cwd.log",
+      "sha256": "7beb20ee924699bb91c2eea15ac6a5fb7d26322506cb7746722d69e54a101aeb",
+      "result": "FAIL_OR_RED",
+      "filename_not_authority": true
+    }
+  ]
+}

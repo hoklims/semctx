@@ -1,0 +1,17 @@
+{
+  "environment": "macOS ARM64 Python3 standard library; publication integrity only",
+  "archiveMembers": 155,
+  "originalFilesChecked": 104,
+  "gitObjectSourcesChecked": 48,
+  "frozenPass1Sources": 39,
+  "frozenPass2Sources": 44,
+  "allMappedBytesHashesMatch": true,
+  "safeRelativeRegularMembers": true,
+  "gzipMtimeZero": true,
+  "recompressionIdentical": true,
+  "runningCanonicalLogsExcluded": true,
+  "reservedInputsRead": false,
+  "nativeQueries": 0,
+  "reproductionCommandsExecuted": false,
+  "rebuiltBinaryHashEqualityClaim": false
+}

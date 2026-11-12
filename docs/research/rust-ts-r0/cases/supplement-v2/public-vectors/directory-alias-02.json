@@ -1,0 +1,159 @@
+{
+  "schemaVersion": 1,
+  "id": "directory-alias-02",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "still rejects genuinely escaping missing paths under a directory alias",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+  },
+  "rawStream": {
+    "file": "directory-alias.operations.jsonl",
+    "sha256": "17e9eaae260c184083bca4f8c2fcfe43de4ee13714be1e74ecf0426d6e03bf66"
+  },
+  "pathNormalization": {
+    "roots": [
+      {
+        "raw": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-missing-import-alias-VcQG8F",
+        "token": "$FIXTURE/0"
+      }
+    ],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 7,
+      "parent": null,
+      "baselineFunction": "discoverRepository",
+      "request": {
+        "operation": "repository.discover",
+        "arguments": [
+          {
+            "version": 2,
+            "repositoryRoot": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-missing-import-alias-VcQG8F\\alias",
+            "include": [
+              "**/*.mjs"
+            ],
+            "exclude": [],
+            "docsDirs": [
+              "docs"
+            ],
+            "migrationsDirs": [
+              "migrations"
+            ],
+            "testGlobs": [
+              "**/*.{test,spec}.{ts,tsx,mts,cts}",
+              "test/**/*.{ts,tsx,mts,cts,py}",
+              "tests/**/*.{ts,tsx,mts,cts,py}",
+              "**/test_*.py",
+              "**/*_test.py"
+            ],
+            "semanticProvider": "none",
+            "blockingRules": [
+              {
+                "id": "invariant-needs-test",
+                "description": "A change touching an invariant-constrained symbol must be covered by a test.",
+                "when": "invariant_touched_without_test",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "critical-contract-needs-test",
+                "description": "A change to a critical exported contract (tagged `critical`/`security`) must be covered by a test.",
+                "when": "critical_contract_changed_without_test",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "security-needs-verification",
+                "description": "A security-surface change needs an explicit verification.",
+                "when": "security_surface_without_verification",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "contract-needs-test",
+                "description": "A change to an exported contract should be covered by a contract test.",
+                "when": "contract_changed_without_test",
+                "severity": "warn",
+                "tier": "advisory"
+              },
+              {
+                "id": "contradiction-unresolved",
+                "description": "An unresolved contradiction in touched sources should be surfaced.",
+                "when": "contradiction_unresolved",
+                "severity": "warn",
+                "tier": "advisory"
+              }
+            ],
+            "selectionMode": "globs-v1",
+            "languages": {
+              "javascript": "on"
+            }
+          }
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-missing-import-alias-VcQG8F",
+            "path": "alias",
+            "symlink": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-missing-import-alias-VcQG8F\\physical"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-missing-import-alias-VcQG8F",
+            "path": "physical/script.mjs",
+            "size": 61,
+            "sha256": "af4bf06554317fa2e8515dacad9a1bec398831e4b75c4c5fafe9ba5c23baaa98",
+            "bytesBase64": "ZXhwb3J0IHsgbWlzc2luZyB9IGZyb20gJy4uL291dHNpZGUvbm90LWNyZWF0ZWQvbWlzc2luZy5tanMnOw==",
+            "materializedBlob": "fixture-blobs/af4bf06554317fa2e8515dacad9a1bec398831e4b75c4c5fafe9ba5c23baaa98"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "files": [],
+          "candidates": [
+            {
+              "relPath": "script.mjs",
+              "language": "javascript",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            }
+          ]
+        }
+      },
+      "normalizedProjection": {
+        "candidates": [
+          {
+            "relPath": "script.mjs",
+            "selectionDecision": "selected",
+            "analysisOutcome": "failed",
+            "reason": "IMPORT_OUTSIDE_REPOSITORY"
+          }
+        ],
+        "files": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": []
+}

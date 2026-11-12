@@ -1,0 +1,623 @@
+"""Lossless TAR-stream deduplication. Original gzip bytes are never reconstructed.
+
+Parts contain independently compressed content-addressed blobs. The manifest
+orders those blobs back into the exact original uncompressed TAR byte stream,
+including PAX headers, padding and link metadata. No captured content is parsed
+or rewritten. Tree extraction is an explicit Linux-only operation.
+"""
+import argparse
+import gzip
+import hashlib
+import io
+import json
+import lzma
+import os
+import re
+import shutil
+import stat
+import sys
+import tarfile
+import tempfile
+from contextlib import contextmanager
+from decimal import Decimal
+from pathlib import Path, PurePosixPath
+
+CHUNK = 1024 * 1024
+MAX_MANIFEST = 64 * CHUNK
+MAX_MEMBERS = 500_000
+FORMAT = 'public-capture-cas-tar-v1'
+HEX = re.compile('[0-9a-f]{64}')
+
+
+def require(value, message):
+    if not value:
+        raise ValueError(message)
+
+
+def digest_file(path):
+    with open_regular(path) as source:
+        return hashlib.file_digest(source, 'sha256').hexdigest()
+
+
+def open_regular(path):
+    path = Path(path)
+    before = path.lstat()
+    require(stat.S_ISREG(before.st_mode), 'regular non-symlink file required: ' + str(path))
+    fd = os.open(path, os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0))
+    current = os.fstat(fd)
+    if not stat.S_ISREG(current.st_mode) or (before.st_dev, before.st_ino) != (current.st_dev, current.st_ino):
+        os.close(fd)
+        raise ValueError('file identity changed while opening: ' + str(path))
+    return os.fdopen(fd, 'rb')
+
+
+def safe_name(name):
+    require(isinstance(name, str) and name and '\\' not in name and ':' not in name and '\x00' not in name,
+            'unsafe member name')
+    require(not name.startswith('/') and all(p not in ('', '.', '..') for p in name.split('/')),
+            'noncanonical relative member name')
+    return PurePosixPath(name)
+
+
+def internal_link(name, target, captured_links):
+    require(isinstance(target, str) and target and not target.startswith('/')
+            and '\\' not in target and ':' not in target and '\x00' not in target, 'unsafe link target')
+    parts = list(PurePosixPath(name).parent.parts)
+    for part in target.split('/'):
+        if part in ('', '.'):
+            continue
+        if part == '..':
+            require(parts, 'link escapes capture root')
+            parts.pop()
+        else:
+            parts.append(part)
+            # Check each prefix before a later '..' can cancel it lexically.
+            # Kernel traversal follows a symlink first, so lexical cancellation
+            # alone cannot prove confinement. Refuse chains instead of resolving
+            # or rewriting the captured link graph.
+            require('/'.join(parts) not in captured_links, 'link target traverses a captured link')
+    return '/'.join(parts)
+
+
+class Tape:
+    """Capture at most the parser lookahead plus one payload chunk."""
+    def __init__(self, source):
+        self.source, self.data, self.base, self.position = source, bytearray(), 0, 0
+        self.digest = hashlib.sha256()
+        self.peak_buffer = 0
+
+    def read(self, size=-1):
+        require(0 <= size <= CHUNK, 'unbounded raw TAR read refused')
+        data = self.source.read(size)
+        self.data.extend(data)
+        self.position += len(data)
+        self.digest.update(data)
+        self.peak_buffer = max(self.peak_buffer, len(self.data))
+        return data
+
+    def take(self, end):
+        size = end - self.base
+        require(0 <= size <= len(self.data), 'raw TAR cursor differs')
+        result = bytes(self.data[:size])
+        del self.data[:size]
+        self.base = end
+        return result
+
+
+class BlobStore:
+    def __init__(self, folder, large_codec):
+        self.folder, self.rows, self.large_codec = folder, {}, large_codec
+        self.path = folder / 'working-blobs.bin'
+        self.file = self.path.open('xb+')
+
+    def put(self, source, expected_size):
+        digest, size = hashlib.sha256(), 0
+        # Hash before compression so duplicate SDK/binary payloads cost no second
+        # XZ pass. At most one2MiB spool and one preset6 encoder are live.
+        with tempfile.SpooledTemporaryFile(max_size=2 * CHUNK, dir=self.folder) as retained:
+            while chunk := source.read(CHUNK):
+                digest.update(chunk)
+                size += len(chunk)
+                require(size <= expected_size, 'blob exceeds declared size')
+                retained.write(chunk)
+            require(size == expected_size, 'blob payload truncated')
+            key = digest.hexdigest()
+            if key in self.rows:
+                require(self.rows[key]['bytes'] == size, 'content identity size conflict')
+                return key
+            retained.seek(0)
+            codec = self.large_codec if size >= 256 * 1024 else 'gzip6'
+            offset = self.file.tell()
+            encoded_digest = hashlib.sha256()
+            encoder = lzma.LZMACompressor(format=lzma.FORMAT_XZ, preset=6) if codec == 'xz6' else None
+            if encoder:
+                while chunk := retained.read(CHUNK):
+                    data = encoder.compress(chunk)
+                    self.file.write(data)
+                    encoded_digest.update(data)
+                data = encoder.flush()
+                self.file.write(data)
+                encoded_digest.update(data)
+            else:
+                with tempfile.SpooledTemporaryFile(max_size=2 * CHUNK, dir=self.folder) as compressed:
+                    with gzip.GzipFile(fileobj=compressed, mode='wb', filename='', mtime=0, compresslevel=6) as target:
+                        shutil.copyfileobj(retained, target, CHUNK)
+                    compressed.seek(0)
+                    while chunk := compressed.read(CHUNK):
+                        self.file.write(chunk)
+                        encoded_digest.update(chunk)
+            compressed_size = self.file.tell() - offset
+            self.rows[key] = {'sha256': key, 'bytes': size, 'compressed_bytes': compressed_size,
+                              'compressed_sha256': encoded_digest.hexdigest(), 'codec': codec,
+                              'working_offset': offset}
+            return key
+
+    def put_bytes(self, data):
+        return self.put(io.BytesIO(data), len(data))
+
+    def close(self):
+        self.file.close()
+
+
+class Payload:
+    def __init__(self, source, tape, offset):
+        self.source, self.tape, self.offset = source, tape, offset
+
+    def read(self, size):
+        data = self.source.read(size)
+        self.offset += len(data)
+        require(self.tape.take(self.offset) == data, 'parsed payload differs from original TAR bytes')
+        return data
+
+
+class PartWriter:
+    def __init__(self, folder, limit):
+        self.folder, self.limit, self.file, self.rows = folder, limit, None, []
+        self.offset, self.size, self.digest = 0, 0, None
+
+    def finish(self):
+        if self.file is not None:
+            self.file.close()
+            self.rows.append({'name': self.file.name.rsplit(os.sep, 1)[-1], 'bytes': self.size,
+                              'sha256': self.digest.hexdigest()})
+            self.file = None
+
+    def write(self, data):
+        while data:
+            if self.file is None:
+                self.file = (self.folder / f'capture.part{len(self.rows)+1:04d}').open('xb')
+                self.size, self.digest = 0, hashlib.sha256()
+            count = min(len(data), self.limit - self.size)
+            piece, data = data[:count], data[count:]
+            self.file.write(piece)
+            self.digest.update(piece)
+            self.size += count
+            self.offset += count
+            if self.size == self.limit:
+                self.finish()
+
+
+def pack(archive_path, output, expected_sha256, part_bytes=24 * CHUNK, large_codec='xz6'):
+    archive_path, output = Path(archive_path), Path(output)
+    require(not output.exists(), 'fresh pack output required')
+    require(CHUNK <= part_bytes <= 24 * CHUNK, 'part bound must be 1..24 MiB')
+    require(large_codec in ('gzip6', 'xz6'), 'unsupported large blob codec')
+    before = digest_file(archive_path)
+    require(before == expected_sha256, 'source archive SHA256 differs')
+    output.mkdir(parents=True)
+    store, segments = BlobStore(output, large_codec), []
+    count, regular_bytes = 0, 0
+    try:
+        with open_regular(archive_path) as original, gzip.GzipFile(fileobj=original, mode='rb') as raw:
+            tape = Tape(raw)
+            names, members = set(), []
+            with tarfile.open(fileobj=tape, mode='r|', bufsize=10_240) as source:
+                for member in source:
+                    count += 1
+                    require(count <= MAX_MEMBERS, 'member bound exceeded')
+                    safe_name(member.name)
+                    require(member.name not in names, 'duplicate archive member')
+                    names.add(member.name)
+                    members.append(member)
+                    require(member.isfile() or member.isdir() or member.issym() or member.islnk(), 'unsupported TAR member type')
+                    require(member.isfile() or member.size == 0, 'nonfile payload unsupported')
+                    # Link targets are archive DATA, never opened. Captures
+                    # intentionally contain unsafe-link refusal fixtures. Keep
+                    # their original headers; tree extraction has its own strict
+                    # preflight and refuses them rather than rewriting targets.
+                    segments.append(store.put_bytes(tape.take(member.offset_data)))
+                    if member.isfile():
+                        regular_bytes += member.size
+                        with source.extractfile(member) as payload:
+                            segments.append(store.put(Payload(payload, tape, member.offset_data), member.size))
+            tail = tape.take(tape.position)
+            require(not any(tail), 'nonzero bytes after TAR end markers')
+            if tail:
+                segments.append(store.put_bytes(tail))
+            while chunk := tape.read(CHUNK):
+                tail = tape.take(tape.position)
+                require(chunk == tail and not any(tail), 'nonzero bytes after TAR end markers')
+                segments.append(store.put_bytes(tail))
+            tar_identity = {'sha256': tape.digest.hexdigest(), 'bytes': tape.position}
+        validate_container_paths(members)
+        try:
+            validate_members(members)
+            tree_policy = {'structural_metadata_preflight': True, 'native_extraction_not_run': True}
+        except ValueError as error:
+            tree_policy = {'structural_metadata_preflight': False, 'refusal': str(error),
+                           'exact_tar_restore_only': True, 'native_extraction_not_run': True}
+        require(digest_file(archive_path) == before, 'source archive changed')
+        store.file.flush()
+        parts = PartWriter(output, part_bytes)
+        blobs = []
+        for key, row in sorted(store.rows.items()):
+            store.file.seek(row['working_offset'])
+            blobs.append({k: v for k, v in row.items() if k != 'working_offset'} | {'offset': parts.offset})
+            remaining = row['compressed_bytes']
+            while remaining:
+                chunk = store.file.read(min(CHUNK, remaining))
+                require(chunk, 'working blob truncated')
+                parts.write(chunk)
+                remaining -= len(chunk)
+        parts.finish()
+        mapping = {row['sha256']: i for i, row in enumerate(blobs)}
+        manifest = {'schema_version': 1, 'format': FORMAT,
+                    'source_archive': {'sha256': before, 'bytes': archive_path.stat().st_size},
+                    'tar': tar_identity, 'blobs': blobs, 'segments': [mapping[key] for key in segments],
+                    'parts': parts.rows, 'member_count': count, 'regular_bytes': regular_bytes,
+                    'max_part_bytes': part_bytes, 'tree_restoration_policy': tree_policy}
+        encoded = json.dumps(manifest, sort_keys=True, separators=(',', ':'), ensure_ascii=True).encode()
+        require(len(encoded) <= MAX_MANIFEST, 'manifest bound exceeded')
+        manifest_path = output / 'manifest.json.gz'
+        with manifest_path.open('xb') as target, gzip.GzipFile(fileobj=target, mode='wb', filename='', mtime=0, compresslevel=9) as target_gz:
+            target_gz.write(encoded)
+        receipt = {'schema_version': 1, 'format': FORMAT, 'manifest_sha256': digest_file(manifest_path),
+                   'manifest_bytes': manifest_path.stat().st_size, 'source_archive': manifest['source_archive'],
+                   'tar': tar_identity, 'parts': parts.rows, 'unique_blobs': len(blobs),
+                   'member_count': count, 'regular_bytes': regular_bytes,
+                   'unique_regular_and_metadata_bytes': sum(row['bytes'] for row in blobs),
+                   'packed_blob_bytes': parts.offset, 'peak_raw_buffer_bytes': tape.peak_buffer,
+                   'large_blob_codec': large_codec, 'large_blob_threshold_bytes': 256 * 1024,
+                   'tree_restoration_policy': tree_policy,
+                   'original_gzip_reconstructed': False, 'native_queries': 0, 'qualification_credit': 0}
+        (output / 'pack.json').write_text(json.dumps(receipt, indent=2)+'\n', encoding='utf-8')
+        store.close()
+        store.path.unlink()
+        return receipt
+    except BaseException:
+        store.close()
+        raise
+
+
+def strict_int(value, minimum=0):
+    require(type(value) is int and value >= minimum, 'invalid integer field')
+    return value
+
+
+def load_package(folder, expected_manifest_sha256):
+    selected = Path(folder).absolute()
+    require(selected.is_dir() and not selected.is_symlink()
+            and not (hasattr(selected, 'is_junction') and selected.is_junction()), 'package directory required without link alias')
+    folder = selected.resolve()
+    path = folder / 'manifest.json.gz'
+    require(digest_file(path) == expected_manifest_sha256, 'manifest SHA256 differs')
+    with open_regular(path) as raw, gzip.GzipFile(fileobj=raw) as source:
+        data = source.read(MAX_MANIFEST+1)
+        require(len(data) <= MAX_MANIFEST, 'manifest bound exceeded')
+    manifest = json.loads(data)
+    require(manifest['schema_version'] == 1 and type(manifest['schema_version']) is int
+            and manifest['format'] == FORMAT, 'unsupported pack schema')
+    strict_int(manifest['member_count'])
+    require(manifest['member_count'] <= MAX_MEMBERS, 'member bound exceeded')
+    for row in [manifest['tar'], manifest['source_archive']]:
+        require(isinstance(row['sha256'], str) and HEX.fullmatch(row['sha256']), 'invalid digest')
+        strict_int(row['bytes'])
+    limit = strict_int(manifest['max_part_bytes'], 1)
+    require(limit <= 24 * CHUNK, 'part bound exceeded')
+    total = 0
+    for index, part in enumerate(manifest['parts'], 1):
+        require(part['name'] == f'capture.part{index:04d}', 'noncanonical part name')
+        size = strict_int(part['bytes'], 1)
+        require(size <= limit and (index == len(manifest['parts']) or size == limit), 'invalid part size')
+        source = folder / part['name']
+        require(source.lstat().st_size == size and digest_file(source) == part['sha256'], 'part missing or changed')
+        total += size
+    cursor, seen = 0, set()
+    for row in manifest['blobs']:
+        require(row['codec'] in ('gzip6', 'xz6'), 'unsupported blob codec')
+        require(isinstance(row['sha256'], str) and HEX.fullmatch(row['sha256']) and row['sha256'] not in seen, 'invalid/duplicate blob')
+        seen.add(row['sha256'])
+        require(isinstance(row['compressed_sha256'], str) and HEX.fullmatch(row['compressed_sha256']), 'invalid compressed digest')
+        require(strict_int(row['offset']) == cursor, 'blob range gap or overlap')
+        cursor += strict_int(row['compressed_bytes'], 1)
+        strict_int(row['bytes'])
+    require(cursor == total, 'blob/part byte coverage differs')
+    require(all(type(i) is int and 0 <= i < len(manifest['blobs']) for i in manifest['segments']), 'invalid segment index')
+    require(sum(manifest['blobs'][i]['bytes'] for i in manifest['segments']) == manifest['tar']['bytes'], 'TAR size differs')
+    return folder, manifest
+
+
+class PartRange(io.RawIOBase):
+    def __init__(self, folder, manifest, offset, size):
+        self.folder, self.parts = folder, manifest['parts']
+        self.offset, self.remaining, self.file = offset, size, None
+        self.index, self.part_start = 0, 0
+        while self.index < len(self.parts) and self.part_start + self.parts[self.index]['bytes'] <= offset:
+            self.part_start += self.parts[self.index]['bytes']
+            self.index += 1
+        self.digest = hashlib.sha256()
+
+    def readable(self):
+        return True
+
+    def read(self, size=-1):
+        if size < 0:
+            size = self.remaining
+        size = min(size, self.remaining, CHUNK)
+        output = bytearray()
+        while len(output) < size:
+            if self.file is None:
+                self.file = open_regular(self.folder / self.parts[self.index]['name'])
+                self.file.seek(self.offset - self.part_start)
+            count = min(size-len(output), self.parts[self.index]['bytes']-(self.offset-self.part_start))
+            data = self.file.read(count)
+            require(len(data) == count, 'part truncated during read')
+            output.extend(data)
+            self.offset += count
+            self.remaining -= count
+            if self.offset == self.part_start + self.parts[self.index]['bytes']:
+                self.file.close()
+                self.file = None
+                self.part_start += self.parts[self.index]['bytes']
+                self.index += 1
+        self.digest.update(output)
+        return bytes(output)
+
+    def close(self):
+        if self.file:
+            self.file.close()
+        super().close()
+
+
+def blob_chunks(folder, manifest, row):
+    digest, size = hashlib.sha256(), 0
+    with PartRange(folder, manifest, row['offset'], row['compressed_bytes']) as encoded:
+        if row['codec'] == 'gzip6':
+            with gzip.GzipFile(fileobj=encoded) as raw:
+                while chunk := raw.read(CHUNK):
+                    digest.update(chunk)
+                    size += len(chunk)
+                    require(size <= row['bytes'], 'expanded blob exceeds declared size')
+                    yield chunk
+        else:
+            decoder = lzma.LZMADecompressor(format=lzma.FORMAT_XZ, memlimit=128 * CHUNK)
+            while not decoder.eof:
+                data = encoded.read(CHUNK) if decoder.needs_input else b''
+                require(data or not decoder.needs_input, 'truncated XZ blob')
+                chunk = decoder.decompress(data, max_length=CHUNK)
+                digest.update(chunk)
+                size += len(chunk)
+                require(size <= row['bytes'], 'expanded blob exceeds declared size')
+                if chunk:
+                    yield chunk
+            require(not decoder.unused_data, 'trailing bytes after XZ blob')
+        require(encoded.remaining == 0 and encoded.digest.hexdigest() == row['compressed_sha256'], 'compressed blob identity differs')
+    require(size == row['bytes'] and digest.hexdigest() == row['sha256'], 'blob content identity differs')
+
+
+def verify(folder, expected_manifest_sha256, output=None):
+    folder, manifest = load_package(folder, expected_manifest_sha256)
+    # Verify each unique blob before creating any reconstruction output.
+    for row in manifest['blobs']:
+        for _ in blob_chunks(folder, manifest, row):
+            pass
+    digest, size = hashlib.sha256(), 0
+    destination = None
+    if output is not None:
+        output = Path(output)
+        require(not output.exists() and not output.is_symlink(), 'fresh TAR output required')
+        # Validate the complete order, not only each independent blob, before
+        # creating the requested reconstruction file.
+        pre_digest, pre_size = hashlib.sha256(), 0
+        for index in manifest['segments']:
+            for chunk in blob_chunks(folder, manifest, manifest['blobs'][index]):
+                pre_digest.update(chunk)
+                pre_size += len(chunk)
+        require(pre_size == manifest['tar']['bytes'] and pre_digest.hexdigest() == manifest['tar']['sha256'],
+                'reconstructed TAR differs before output creation')
+        destination = output.open('xb')
+    try:
+        for index in manifest['segments']:
+            for chunk in blob_chunks(folder, manifest, manifest['blobs'][index]):
+                digest.update(chunk)
+                size += len(chunk)
+                if destination:
+                    destination.write(chunk)
+        require(size == manifest['tar']['bytes'] and digest.hexdigest() == manifest['tar']['sha256'], 'reconstructed TAR differs')
+    finally:
+        if destination:
+            destination.close()
+    return {'format': FORMAT, 'manifest_sha256': expected_manifest_sha256, 'tar': manifest['tar'],
+            'unique_blobs_verified': len(manifest['blobs']), 'member_count': manifest['member_count'],
+            'restored_tar': str(output) if output is not None else None,
+            'native_queries': 0, 'qualification_credit': 0}
+
+
+def validate_container_paths(members):
+    """No member name traverses a link; target strings remain untouched data."""
+    by_name = {member.name: member for member in members}
+    require(len(by_name) == len(members), 'duplicate member')
+    for name in by_name:
+        safe_name(name)
+        for parent in PurePosixPath(name).parents:
+            if str(parent) == '.':
+                break
+            require(str(parent) in by_name and by_name[str(parent)].isdir(),
+                    'missing or non-directory member ancestor')
+
+
+def validate_members(members, windows=False):
+    require(len(members) <= MAX_MEMBERS, 'member bound exceeded')
+    by_name, folded = {}, {}
+    for member in members:
+        safe_name(member.name)
+        require(member.name not in by_name, 'duplicate member')
+        require(member.isfile() or member.isdir() or member.issym() or member.islnk(), 'unsupported member type')
+        require(member.isfile() or member.size == 0, 'nonfile payload unsupported')
+        require(type(member.mode) is int and 0 <= member.mode <= 0o7777, 'invalid native mode')
+        require(not member.mode & 0o7000, 'privileged native mode refused')
+        native_mtime_ns(member)
+        if windows:
+            require(not member.issym() and not member.islnk() and not member.mode & 0o111,
+                    'native links/executable modes cannot be restored by Windows extractor')
+            key = member.name.casefold()
+            require(key not in folded, 'case-insensitive member collision')
+            folded[key] = member.name
+        by_name[member.name] = member
+    captured_links = {name for name, member in by_name.items() if member.issym() or member.islnk()}
+    for name, member in by_name.items():
+        for parent in PurePosixPath(name).parents:
+            if str(parent) == '.':
+                break
+            require(str(parent) in by_name and by_name[str(parent)].isdir(), 'missing or non-directory member ancestor')
+        if member.issym():
+            internal_link(name, member.linkname, captured_links)
+        if member.islnk():
+            target = by_name.get(str(safe_name(member.linkname)))
+            require(target is not None and target.isfile(), 'hardlink must name a captured regular file')
+            require((member.mode, member.uid, member.gid, native_mtime_ns(member)) ==
+                    (target.mode, target.uid, target.gid, native_mtime_ns(target)),
+                    'hardlink metadata conflicts with its captured inode')
+    return by_name
+
+
+def native_mtime_ns(member):
+    value = Decimal(str(member.pax_headers.get('mtime', member.mtime))) * 1_000_000_000
+    require(value.is_finite() and value == value.to_integral_value()
+            and -(2**63) <= value < 2**63, 'native timestamp cannot be represented exactly')
+    return int(value)
+
+
+@contextmanager
+def parent_fd(root_fd, name):
+    parts = safe_name(name).parts
+    fd = os.dup(root_fd)
+    try:
+        for part in parts[:-1]:
+            child = os.open(part, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=fd)
+            os.close(fd)
+            fd = child
+        yield fd, parts[-1]
+    finally:
+        os.close(fd)
+
+
+def extract_native(tar_path, output, expected_tar_sha256):
+    require(sys.platform.startswith('linux'), 'native tree extraction requires Linux; restore-tar preserves bytes on other hosts')
+    tar_path, output = Path(tar_path), Path(output)
+    require(not output.exists() and not output.is_symlink(), 'fresh native extraction directory required')
+    require(digest_file(tar_path) == expected_tar_sha256, 'TAR identity differs before extraction')
+    with open_regular(tar_path) as raw, tarfile.open(fileobj=raw, mode='r:') as archive:
+        members = archive.getmembers()
+        by_name = validate_members(members)
+        require(all(not m.issym() or m.mode == 0o777 for m in members), 'native symlink mode cannot be represented')
+        require(all(m.uid == os.getuid() and m.gid == os.getgid() for m in members), 'native uid/gid differs; no implicit ownership conversion')
+        # Preflight the actual destination filesystem before creating its tree.
+        parent = output.parent.resolve(strict=True)
+        with tempfile.TemporaryDirectory(prefix='.capture-case-probe-', dir=parent) as probe:
+            a, b = Path(probe)/'A', Path(probe)/'a'
+            a.write_bytes(b'A')
+            require(not b.exists(), 'case-sensitive native destination required')
+        output.mkdir(mode=0o700)
+        root_fd = os.open(output, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+        regular = []
+        try:
+            for member in sorted((m for m in members if m.isdir()), key=lambda m: len(PurePosixPath(m.name).parts)):
+                with parent_fd(root_fd, member.name) as (fd, name):
+                    os.mkdir(name, mode=0o700, dir_fd=fd)
+            for member in members:
+                if member.isfile():
+                    digest = hashlib.sha256()
+                    with parent_fd(root_fd, member.name) as (fd, name):
+                        created = os.open(name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                                          0o600, dir_fd=fd)
+                        with archive.extractfile(member) as source, os.fdopen(created, 'wb') as target:
+                            while chunk := source.read(CHUNK):
+                                digest.update(chunk)
+                                target.write(chunk)
+                    regular.append((member.name, digest.hexdigest()))
+            # Links are last; all parent opens use directory descriptors and
+            # O_NOFOLLOW, including subsequent metadata/readback operations.
+            for member in members:
+                with parent_fd(root_fd, member.name) as (fd, name):
+                    if member.islnk():
+                        with parent_fd(root_fd, member.linkname) as (source_fd, source_name):
+                            os.link(source_name, name, src_dir_fd=source_fd, dst_dir_fd=fd, follow_symlinks=False)
+                    elif member.issym():
+                        os.symlink(member.linkname, name, dir_fd=fd)
+            for name, expected in regular:
+                with parent_fd(root_fd, name) as (fd, filename):
+                    opened = os.open(filename, os.O_RDONLY | os.O_NOFOLLOW, dir_fd=fd)
+                    with os.fdopen(opened, 'rb') as actual:
+                        require(hashlib.file_digest(actual, 'sha256').hexdigest() == expected, 'extracted file changed')
+            directories = sorted((m for m in members if m.isdir()),
+                                 key=lambda m: len(PurePosixPath(m.name).parts), reverse=True)
+            for member in [m for m in members if not m.isdir()] + directories:
+                with parent_fd(root_fd, member.name) as (fd, name):
+                    timestamp = native_mtime_ns(member)
+                    if member.issym():
+                        os.utime(name, ns=(timestamp, timestamp), dir_fd=fd, follow_symlinks=False)
+                    else:
+                        flags = os.O_RDONLY | os.O_NOFOLLOW | (os.O_DIRECTORY if member.isdir() else 0)
+                        opened = os.open(name, flags, dir_fd=fd)
+                        try:
+                            os.fchmod(opened, member.mode)
+                            os.utime(opened, ns=(timestamp, timestamp))
+                        finally:
+                            os.close(opened)
+                    observed = os.stat(name, dir_fd=fd, follow_symlinks=False)
+                    require(stat.S_IMODE(observed.st_mode) == member.mode and observed.st_mtime_ns == timestamp
+                            and observed.st_uid == member.uid and observed.st_gid == member.gid,
+                            'extracted native metadata differs')
+                    if member.issym():
+                        require(stat.S_ISLNK(observed.st_mode) and os.readlink(name, dir_fd=fd) == member.linkname,
+                                'extracted link identity differs')
+        finally:
+            os.close(root_fd)
+        require(digest_file(tar_path) == expected_tar_sha256, 'TAR changed during extraction')
+    return {'native_tree': str(output), 'tar_sha256': expected_tar_sha256, 'members': len(by_name),
+            'regular_files_verified': len(regular), 'uid_gid_preserved': True,
+            'native_queries': 0, 'qualification_credit': 0}
+
+
+def main():
+    p = argparse.ArgumentParser(description=__doc__)
+    sub = p.add_subparsers(dest='command', required=True)
+    q = sub.add_parser('pack')
+    q.add_argument('--archive', type=Path, required=True)
+    q.add_argument('--archive-sha256', required=True)
+    q.add_argument('--output', type=Path, required=True)
+    q.add_argument('--part-bytes', type=int, default=24 * CHUNK)
+    q.add_argument('--large-codec', choices=['gzip6', 'xz6'], default='xz6')
+    for name in ('verify', 'restore-tar'):
+        q = sub.add_parser(name)
+        q.add_argument('--package', type=Path, required=True)
+        q.add_argument('--manifest-sha256', required=True)
+        if name == 'restore-tar':
+            q.add_argument('--output', type=Path, required=True)
+    q = sub.add_parser('extract-native')
+    q.add_argument('--tar', type=Path, required=True)
+    q.add_argument('--tar-sha256', required=True)
+    q.add_argument('--output', type=Path, required=True)
+    args = p.parse_args()
+    if args.command == 'pack':
+        result = pack(args.archive, args.output, args.archive_sha256, args.part_bytes, args.large_codec)
+    elif args.command == 'extract-native':
+        result = extract_native(args.tar, args.output, args.tar_sha256)
+    else:
+        result = verify(args.package, args.manifest_sha256, getattr(args, 'output', None))
+    print(json.dumps(result, sort_keys=True))
+
+
+if __name__ == '__main__':
+    main()

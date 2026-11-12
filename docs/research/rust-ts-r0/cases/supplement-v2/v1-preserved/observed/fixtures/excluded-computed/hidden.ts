@@ -1,0 +1,1 @@
+const path = './main'; import(path);

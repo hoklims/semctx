@@ -1,0 +1,794 @@
+{
+  "schema_version": 1,
+  "author": "/root/step1_spec_review",
+  "task": "independent final stage3 expectation freeze review; preselection only",
+  "started_utc": "2026-10-17T15:45:07Z",
+  "finished_utc": "2026-10-17T15:50:00.882007Z",
+  "budget_seconds": 360,
+  "extension_authorized_seconds": 120,
+  "environment": "macOS local read-only source/JSON/hash inspection; no compiler, producer, native runtime or GitHub execution",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "verdict": "CONDITIONAL_EXPECTATION_FREEZE_READY_AFTER_EXACT_ADOPTION_BELOW; current immutable V3 still has six empty obligation bindings and incomplete source index",
+  "authority": "Previously inspected issue hoklims/semctx#365 section2.2/2.3: each required usage needs relevant positive/control and countercase, 100% frozen expected observations, three prospective separated sets; no exhaustive AST branch requirement. E03 owner-approved Rust-only correction remains separate from baseline behavior.",
+  "input_hashes": [
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/candidate-manifest.v3.json",
+      "sha256": "247f57fa27d3b105a5fb7d44fe87657366911bb5de7a863a1dc56505e05824f6",
+      "bytes": 2379799
+    },
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/obligation-case-associations.v3.json",
+      "sha256": "bdcc7e390e68d4788e2bda3c536a8baf9652e0571887a6fdca741f0d345b3999",
+      "bytes": 3172091
+    },
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/qualification-input-index.v3.json",
+      "sha256": "8689fabb1885e0811b7eddc480f5ee2ed074cd07683d94052dea8d852356e109",
+      "bytes": 416532
+    },
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/development-disjointness.v3.json",
+      "sha256": "cc37f327df17665d8cc5a99c8105e4dc4e15bea2d9942dc27365029a69580efa",
+      "bytes": 20904
+    },
+    {
+      "path": "/private/tmp/semctx-t00-stage3-freeze-20261017/artifact-hashes.v3.json",
+      "sha256": "a6498a38084ee32cc89401a4871d2700e530b0e76d6ce38e147a28142cf188e5",
+      "bytes": 1295
+    },
+    {
+      "path": "/private/tmp/semctx-t00-development-20261017/development-cases.json",
+      "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+      "bytes": 56848
+    },
+    {
+      "path": "/private/tmp/semctx-t00-development-20261017/manifest.json",
+      "sha256": "9ae30a6df837da14188f29df77b954e504d2c2e5ad3143982b970980fbaa5061",
+      "bytes": 18224
+    },
+    {
+      "path": "/private/tmp/semctx-t00-development-20261017/disjointness.json",
+      "sha256": "087ac822ca2d0fca0144c3711603e378857aac9d361466c963e77c19e42e98de",
+      "bytes": 12157
+    },
+    {
+      "path": "/private/tmp/semctx-t00-holdout-20261017/PUBLIC-FREEZE-RECEIPT.json",
+      "sha256": "822dcfd4bd14767a6f2483890040b1c613e04944c1d9f464da12472e4c6b144a",
+      "bytes": 9598
+    }
+  ],
+  "verified_counts": {
+    "canonical_obligations": 240,
+    "authored_qualification_records": 268,
+    "qualification_scenario_units_current": 349,
+    "qualification_scenario_units_after_suggested_addition": 354,
+    "qualification_support_units": 51,
+    "separate_development_records": 10,
+    "separate_development_variants": 17,
+    "historical_development_references_not_execution_controls": 111,
+    "rows_with_existing_nonempty_execution_bindings": 234,
+    "rows_with_empty_execution_bindings": 6,
+    "missing_referenced_execution_unit_ids": 0,
+    "initial_development_allowed_qualification_records": 0,
+    "native_qualification_credited": 0
+  },
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "material metadata/consumer-observation adoption before freeze",
+      "source": "obligation-case-associations.v3.json /obligations matching exact IDs in suggested_bindings",
+      "fact": "Six rows have empty qualification_execution_unit_ids/execution_unit_ids despite minimum_pair_state claiming a proposed controllable pair. Two already have direct sufficient authored pairs; SDK helper needs dependency-context association; three consumer paths need five explicit same-bytes observations. Historical DEVREF references do not discharge these empty execution bindings.",
+      "resolution": "Adopt suggested_bindings plus the five additional execution units, keeping all old expected projections unchanged and the count 349->354 explicit. No new fixture bytes or bootstrap input."
+    },
+    {
+      "id": "F2",
+      "severity": "material source-index completeness correction before claiming exhaustive disjointness index",
+      "source": "qualification-input-index.v3.json primary source entries for ORD-OUTLINE-ENUM-NAMESPACE and ORD-OUTLINE-EVALUATION",
+      "fact": "31 explicitly authored source strings are omitted: five enum/namespace variants and26 outline evaluation variants. Existing419 entries are not exhaustive for all268 record specifications.",
+      "resolution": "Add exact normalized source entries below or narrow the index claim. Independent wider string comparison found no development collision even with these omitted sources; no new validation gate required."
+    }
+  ],
+  "suggested_bindings": [
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assertsnapshotinputs-c112c2b6f5",
+      "consumer": "assertSnapshotInputs",
+      "positive_qualification_unit_ids": [
+        "P01-retained-source::analyze-snapshot-consistent"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N01-snapshot-metadata-mismatch::base"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "Existing N01 already calls analyzeRepository. Existing P01 directly calls extraction, so an explicit same-bytes analyze consumer observation is required to exercise the snapshot guard; no new fixture.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-discovery-ts-escapeddependencyreason-54c513873b",
+      "consumer": "escapedDependencyReason",
+      "positive_qualification_unit_ids": [
+        "P03-confined-relative-source::discovery-confinement"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N03-relative-escape::discovery-confinement"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "Existing P03/N03 operate extraction; explicit discovery projections distinguish selected in-root source from failed escaping import at the owning consumer without treating extraction as discovery proof.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-canonicaltypescriptfilekey-c3dd471648",
+      "consumer": "canonicalTypeScriptFileKey",
+      "positive_qualification_unit_ids": [
+        "ORD-CANONICAL-IDENTITY-PAIR::base"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "ORD-CANONICAL-IDENTITY-PAIR::base"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "One existing three-query record already states alias==target and other source distinct; no new path API or extra syntax required.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-typescriptlibrarydirectory-e9855a4e4f",
+      "consumer": "typeScriptLibraryDirectory",
+      "positive_qualification_unit_ids": [
+        "V3-SDK-01-01::base"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "V3-SDK-01-05::base"
+      ],
+      "support_unit_ids": [
+        "IDENTITY::base-sdk"
+      ],
+      "sufficiency_scope": "SDK-directory helper is dependency context for a default-library-sensitive product predicate. SDK Object.assign protocol mutation versus local Object shadow control requires the pinned SDK provenance; associate exact SDK closure and identity, no public directory-string output required.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-analyzer-identity-ts-analyzeridentity-530b120929",
+      "consumer": "analyzerIdentity",
+      "positive_qualification_unit_ids": [
+        "P25-byte-identity-relocation::identity-relation-01",
+        "P25-byte-identity-relocation::identity-relation-02",
+        "P25-byte-identity-relocation::identity-relation-03"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N25-crlf-implementation-identity-input::base"
+      ],
+      "support_unit_ids": [
+        "IDENTITY::base-capture",
+        "IDENTITY::base-producer",
+        "IDENTITY::base-sdk",
+        "IDENTITY::base-inputRequest",
+        "IDENTITY::I-source-byte",
+        "IDENTITY::I-config-absence",
+        "IDENTITY::I-directory-members",
+        "IDENTITY::I-case-semantics",
+        "IDENTITY::I-repository-binding",
+        "IDENTITY::I-artifact-byte",
+        "IDENTITY::I-producer-revision",
+        "IDENTITY::I-sdk-byte",
+        "IDENTITY::I-request-id",
+        "IDENTITY::I-scope-selection",
+        "IDENTITY::I-options",
+        "IDENTITY::I-relocation",
+        "IDENTITY::I-sdk-supplied-vs-consumed",
+        "IDENTITY::I-request-separation",
+        "IDENTITY::I-capture-mismatch",
+        "IDENTITY::complete-baseline-specimen"
+      ],
+      "sufficiency_scope": "Existing complete 290-path/101-compiler recipe, relocation/byte relations and CRLF rejection; minimal identity support vectors remain separate from a whole T02 service port.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6",
+      "consumer": null,
+      "positive_qualification_unit_ids": [
+        "P01-retained-source::plane-a-runtime-consistent"
+      ],
+      "relevant_counter_qualification_unit_ids": [
+        "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch"
+      ],
+      "support_unit_ids": [],
+      "sufficiency_scope": "Indirect orchestration retains the analysis transport success/error boundary. QRECEIPT twenty receiver guards remain separate ownership boundary controls; no full Plane-A service port prerequisite.",
+      "historical_DEVREF_role": "source only; never executed control or sole golden"
+    }
+  ],
+  "additional_execution_units": [
+    {
+      "unit_id": "P01-retained-source::analyze-snapshot-consistent",
+      "case_id": "P01-retained-source",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "P01-retained-source",
+        "files": "input_scope.files",
+        "snapshot": "same authored retained map",
+        "discovered_file_content": "exact retained entry.ts bytes; live transient bytes remain present as authored",
+        "configuration": "same pinned fixture defaults/profile"
+      },
+      "operation": "analyzeRepository with the authored retained snapshot and DiscoveredFile content constructed from the retained capture, not post-capture live bytes",
+      "assertions": {
+        "snapshot_guard_passes": true,
+        "SOURCE_SNAPSHOT_MISMATCH": false,
+        "successful_extraction_projection": "reuse existing P01 retained leaf projection; no transient symbol"
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 103,
+          "end_line": 108,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "P03-confined-relative-source::discovery-confinement",
+      "case_id": "P03-confined-relative-source",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "P03-confined-relative-source",
+        "files": "input_scope.files",
+        "outside_files": "none",
+        "configuration": "pinned normal discovery fixture defaults, both paths source-eligible"
+      },
+      "operation": "bounded discovery of src/main.ts and leaf.ts under the existing native root with TypeScript enabled and no selecting exclusion",
+      "assertions": {
+        "candidate_projection_contains": {
+          "relPath": "src/main.ts",
+          "selectionDecision": "selected",
+          "reason": "SELECTED"
+        },
+        "analysisOutcome": "absent before analysis, not invented as success",
+        "outside_repository_failure": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 263,
+          "end_line": 283,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 439,
+          "end_line": 450,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "N03-relative-escape::discovery-confinement",
+      "case_id": "N03-relative-escape",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "N03-relative-escape",
+        "files": "input_scope.files",
+        "outside_files": "input_scope.setup outside_repository_files unchanged",
+        "configuration": "pinned normal discovery fixture defaults; src/main.ts source-eligible"
+      },
+      "operation": "bounded discovery of src/main.ts under the same fixture discovery rules",
+      "assertions": {
+        "candidate_projection_contains": {
+          "relPath": "src/main.ts",
+          "selectionDecision": "selected",
+          "analysisOutcome": "failed",
+          "reason": "IMPORT_OUTSIDE_REPOSITORY"
+        },
+        "selected_discovered_files_contains_main": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 263,
+          "end_line": 283,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/discovery.ts",
+          "line": 439,
+          "end_line": 448,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "P01-retained-source::plane-a-runtime-consistent",
+      "case_id": "P01-retained-source",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "P01-retained-source",
+        "files": "input_scope.files",
+        "discovery": "same retained-consistent discovery as analyze-snapshot-consistent",
+        "snapshot": "same retained map",
+        "configuration": "same P01 fixture defaults; no whole qualified admission implied"
+      },
+      "operation": "analyzePlaneARuntimeAsync with identical retained DiscoveredFile metadata/content, retained compiler inputs and existing worker selection; observe the analysis transport boundary only",
+      "assertions": {
+        "snapshot_mismatch_error": false,
+        "retained_leaf_analysis_projection_preserved": true,
+        "transient_symbol_forbidden": true,
+        "global_qualified_admission_inferred": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/plane-a-runtime.ts",
+          "line": 134,
+          "end_line": 148,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 116,
+          "end_line": 125,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    },
+    {
+      "unit_id": "N01-snapshot-metadata-mismatch::plane-a-runtime-mismatch",
+      "case_id": "N01-snapshot-metadata-mismatch",
+      "purpose_set": "qualification-validation",
+      "kind": "additional-consumer-projection-same-authored-bytes",
+      "input_reference": {
+        "case": "N01-snapshot-metadata-mismatch",
+        "files": "input_scope.files",
+        "discovery": "input_scope.setup.discovery_content_override",
+        "snapshot": "same retained map",
+        "configuration": "same fixture defaults/profile"
+      },
+      "operation": "analyzePlaneARuntimeAsync with the unchanged authored retained snapshot and mismatching discovery override; observe propagated rejection",
+      "assertions": {
+        "rejects": true,
+        "error_contains": "SOURCE_SNAPSHOT_MISMATCH: entry.ts",
+        "successful_runtime_result": false
+      },
+      "source_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/app-services/src/plane-a-runtime.ts",
+          "line": 134,
+          "end_line": 148,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 116,
+          "end_line": 125,
+          "status": "implemented baseline source, not newly executed"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 411,
+          "end_line": 419,
+          "status": "implemented baseline source, not newly executed"
+        }
+      ],
+      "new_fixture_bytes": false,
+      "execution_state": "not_executed"
+    }
+  ],
+  "missing_primary_source_entries": [
+    {
+      "case_id": "ORD-OUTLINE-ENUM-NAMESPACE",
+      "manifest_pointer": "/records/237/input_scope/variants/0",
+      "input_pointer": "/input_scope/variants/0",
+      "relPath": "src/x.ts",
+      "text": "enum E { a = run() }",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 20,
+      "sha256": "9c85f760d938810c1661d5173654dd0b3cc8f8d4c0c7a5f3ac1b9e2d3728d838"
+    },
+    {
+      "case_id": "ORD-OUTLINE-ENUM-NAMESPACE",
+      "manifest_pointer": "/records/237/input_scope/variants/1",
+      "input_pointer": "/input_scope/variants/1",
+      "relPath": "src/x.ts",
+      "text": "enum E { a = 1 }",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 16,
+      "sha256": "d66bbd111ba9e342b3d4708bb8187e3b0e8f4c39cd71cd019bbb8d40cbc8fcfd"
+    },
+    {
+      "case_id": "ORD-OUTLINE-ENUM-NAMESPACE",
+      "manifest_pointer": "/records/237/input_scope/variants/2",
+      "input_pointer": "/input_scope/variants/2",
+      "relPath": "src/x.ts",
+      "text": "namespace N { run(); }",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 22,
+      "sha256": "53d9372d99116dcab2fa50cb29ab3ab9b048cbc0fe6f4e8b33773f83813bab74"
+    },
+    {
+      "case_id": "ORD-OUTLINE-ENUM-NAMESPACE",
+      "manifest_pointer": "/records/237/input_scope/variants/3",
+      "input_pointer": "/input_scope/variants/3",
+      "relPath": "src/x.ts",
+      "text": "namespace N {}",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 14,
+      "sha256": "3820ae3e909c4ffe98c24384b6029cf4290b08f3cb421262133879e334451b1c"
+    },
+    {
+      "case_id": "ORD-OUTLINE-ENUM-NAMESPACE",
+      "manifest_pointer": "/records/237/input_scope/variants/4",
+      "input_pointer": "/input_scope/variants/4",
+      "relPath": "src/x.ts",
+      "text": "interface I { field: unknown; method(): void; }",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 47,
+      "sha256": "d9e61f29d6fbb6d1afb924089f0077ffb06940660a41ac0159daadefc4129149"
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/0",
+      "input_pointer": "/input_scope/assignment_variants/0",
+      "relPath": null,
+      "text": "const value = (counter = 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 28,
+      "sha256": "9b9d085d200379e76cb4169e0d8376045f24c206910d0c70813ff2a21c5327ab",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/0",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/1",
+      "input_pointer": "/input_scope/assignment_variants/1",
+      "relPath": null,
+      "text": "const value = (counter += 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "9097d9fad43813f7c0532716dffde97ea8bc9fa8b89c57c5e8d3b95fcfaff80f",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/1",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/2",
+      "input_pointer": "/input_scope/assignment_variants/2",
+      "relPath": null,
+      "text": "const value = (counter -= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "15d3fff104a2a406278c7289e02bbbf014bdfb24258435a75d87a95c5fe8efd4",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/2",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/3",
+      "input_pointer": "/input_scope/assignment_variants/3",
+      "relPath": null,
+      "text": "const value = (counter *= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "3c9de71857bafe80b0fd5dea3cbf25ab7201f35e821e8de513eb9209b9b58852",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/3",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/4",
+      "input_pointer": "/input_scope/assignment_variants/4",
+      "relPath": null,
+      "text": "const value = (counter **= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 30,
+      "sha256": "f5fad8ce0178e3754f91c8c39d53ae21e5bb9adc956c1cfcc05844c7940bfca5",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/4",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/5",
+      "input_pointer": "/input_scope/assignment_variants/5",
+      "relPath": null,
+      "text": "const value = (counter /= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "2463703462e6a0ffb43c926c2052a43e1aa379fcb4f93d1d23d227eb69f49bb6",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/5",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/6",
+      "input_pointer": "/input_scope/assignment_variants/6",
+      "relPath": null,
+      "text": "const value = (counter %= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "297cdd27ca1367ea19b20a8700844ac2bea73a0b9a4ddd0727e1113582fd7262",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/6",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/7",
+      "input_pointer": "/input_scope/assignment_variants/7",
+      "relPath": null,
+      "text": "const value = (counter <<= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 30,
+      "sha256": "628db44a5906cfcb7715bb81e10c6572c2bb103e5b2b60e3335d0c97bd69e371",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/7",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/8",
+      "input_pointer": "/input_scope/assignment_variants/8",
+      "relPath": null,
+      "text": "const value = (counter >>= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 30,
+      "sha256": "d21f1308f216147bdb1ec742388d94bb2c4e948944b1b3305f553af3506eafdb",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/8",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/9",
+      "input_pointer": "/input_scope/assignment_variants/9",
+      "relPath": null,
+      "text": "const value = (counter >>>= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 31,
+      "sha256": "21d8198dd03e5f62653ae1404edac60562a66f381aadcbb69a3067b0572b8525",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/9",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/10",
+      "input_pointer": "/input_scope/assignment_variants/10",
+      "relPath": null,
+      "text": "const value = (counter &= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "3d393df1a0baee8898aaba0e64350a3e47a230f4a4374e50206f0361ff7d38df",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/10",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/11",
+      "input_pointer": "/input_scope/assignment_variants/11",
+      "relPath": null,
+      "text": "const value = (counter |= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "965b3f1a6bd500fad80f04f452d81aa43ce1260128c3813d43af295c26794fce",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/11",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/12",
+      "input_pointer": "/input_scope/assignment_variants/12",
+      "relPath": null,
+      "text": "const value = (counter ^= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 29,
+      "sha256": "8d7ff07535a2210641f067a20db14e23ccf478b5f5b6fe0235021a17a477c4bc",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/12",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/13",
+      "input_pointer": "/input_scope/assignment_variants/13",
+      "relPath": null,
+      "text": "const value = (counter ||= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 30,
+      "sha256": "530ed6f290e1af444f1bae4fae565b1b6ac5312a49dbc1df215f29eb5300fe35",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/13",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/14",
+      "input_pointer": "/input_scope/assignment_variants/14",
+      "relPath": null,
+      "text": "const value = (counter &&= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 30,
+      "sha256": "efa7799b5ae55fdcc368aa146c2917ebd4422cd3a7c6a81b11e52c4c2fc7d818",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/14",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/assignment_variants/15",
+      "input_pointer": "/input_scope/assignment_variants/15",
+      "relPath": null,
+      "text": "const value = (counter ??= 1);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 30,
+      "sha256": "863225d0ca931eec212684b48c4c514fc554b16112c40aa5b6f1606289ef3a8c",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/assignment_variants/15",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/0",
+      "input_pointer": "/input_scope/other_variants/0",
+      "relPath": null,
+      "text": "const value = counter + 1;",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 26,
+      "sha256": "827dc376b67b608dd1d077700e137862f5a89602ab0b2a2b33e0d2999ce6cac7",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/0",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/1",
+      "input_pointer": "/input_scope/other_variants/1",
+      "relPath": null,
+      "text": "const value = counter++;",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 24,
+      "sha256": "0b9e280048ec08275a5b0103794045d1675332490abce46e943ddcebd4826c75",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/1",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/2",
+      "input_pointer": "/input_scope/other_variants/2",
+      "relPath": null,
+      "text": "const value = --counter;",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 24,
+      "sha256": "f9ff1388313f632749ef8192c76c10eeb656f7a94ea214c1b330eeedf97d15b5",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/2",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/3",
+      "input_pointer": "/input_scope/other_variants/3",
+      "relPath": null,
+      "text": "const value = new Model();",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 26,
+      "sha256": "fd76550784a602c27f4b92bf1f1216913ce46ffd2c45ec569f5e2245f5339c12",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/3",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/4",
+      "input_pointer": "/input_scope/other_variants/4",
+      "relPath": null,
+      "text": "const value = tag`text`;",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 24,
+      "sha256": "8f174115b7279c72d685ce6e282165869eca232f0f978c760d1aa521691155c6",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/4",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/5",
+      "input_pointer": "/input_scope/other_variants/5",
+      "relPath": null,
+      "text": "const value = await task;",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 25,
+      "sha256": "8bfc63a90bb064ea567b57e2d8fb8822f3383284a5f47846201ffe04911dd608",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/5",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/6",
+      "input_pointer": "/input_scope/other_variants/6",
+      "relPath": null,
+      "text": "const value = delete object.key;",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 32,
+      "sha256": "7a91666846d5914b1d708abe8863ca2b3074d2cf3484abbf8cd136d83c950e37",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/6",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/7",
+      "input_pointer": "/input_scope/other_variants/7",
+      "relPath": null,
+      "text": "const value = { nested: run() };",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 32,
+      "sha256": "3c2c6c428bbcd5227501024043ffafe65802ce033a10b8118174e7203489934d",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/7",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/8",
+      "input_pointer": "/input_scope/other_variants/8",
+      "relPath": null,
+      "text": "const value = { nested: function() { run(); } };",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 48,
+      "sha256": "9a0d0af1825c26e247ff6b3562bd6b0ed9bbf12152f1ee855fc7da005b19d02e",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/8",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    },
+    {
+      "case_id": "ORD-OUTLINE-EVALUATION",
+      "manifest_pointer": "/records/238/input_scope/other_variants/9",
+      "input_pointer": "/input_scope/other_variants/9",
+      "relPath": null,
+      "text": "const value = (1 as typeof run);",
+      "encoding": "UTF-8 exact string, no added LF/BOM",
+      "byte_count": 32,
+      "sha256": "a54756ba3cdb4c978e533bce2659f7502b20f8a73d3a68795a0be77528f06099",
+      "logical_source_label": "ORD-OUTLINE-EVALUATION/input_scope/other_variants/9",
+      "materialization_note": "Original input specifies source text variants without a file path; preserve that scope rather than inventing a repository path."
+    }
+  ],
+  "disjointness_evidence": {
+    "independent_reviewer": "/root/step1_spec_review/final_disjointness_check",
+    "scope": "five designated aggregate/development JSON files; exact17 development payloads/base64 lengths/manifests checked against419 indexed qualification source entries, then all2272 strings recursively in qualification input_scope including omitted31 source snippets",
+    "byte_collisions_found": 0,
+    "qualification_record_overlap_with_development_case_ids": 0,
+    "shared_sdk_allowed": true,
+    "limits": "No composite recipe filesystem materialization, compiler/native execution, or reserved content access; source-string disjointness only, not semantic non-overlap proof."
+  },
+  "overlay_review": {
+    "E03": "Three actual execution units explicitly use annex private code SOURCE_EXPORT_AMBIGUOUS, neither invented a/b edge, refused ambiguity in either star order, named-b control target and no global admission inferred. Baseline history unchanged.",
+    "receipt": "20 existing QRECEIPT units; matching fixture SHA labels and receiver-owned checks remain controlled targets, producer claim nonauthoritative, actual artifact identity/process observation stage5 later. No current ownership/admission guarantee.",
+    "source_identity": "Current annex/ordinary/qualified input hashes match previously corrected reviewed payloads; 12encoding vectors include lone U16 parser1127 only as SDK decoder/parser support, not an owned product error or Rust impossibility.",
+    "exclusions": "Additional combinations uncredited; no underlying required baseline usage/rule waived; no wholeT02 identity/WeakMap/SQLite service or universal parity prerequisite; no native Windows/Linux proof."
+  },
+  "set_separation": {
+    "qualification": "268 exclusive records with initial_development_input_allowed false;349 units all qualification-validation; prospective purpose allocation before any candidate as declared in immutable metadata",
+    "development": "10 separate fresh records17variants; SDK shared only under explicit dependency allowance",
+    "historical": "No DEVREF execution unit exists;111 are source/assertion references only",
+    "reserved": "Only PUBLIC-FREEZE-RECEIPT.json read; custody/private contents untouched; receipt records21compositioncases22variants/two distinct repositories, bounded projections and readiness gaps. No complete project or full denominator closure credited."
+  },
+  "limits": [
+    "Review verifies expectation specifications and final allocation wiring; no native compatibility/parity or execution coverage established.",
+    "The remaining234 populated obligation bindings are not an assertion of universal branch coverage; prior independent source reviews and current bounded per-usage pair/projection scope retained.",
+    "All required usages/properties remain in denominator240; uncredited extra combinations do not become a new gate.",
+    "Current V3 inputs were not edited. Mechanical adoption and resulting hashes/354 unit count must be recorded by root before freeze."
+  ]
+}

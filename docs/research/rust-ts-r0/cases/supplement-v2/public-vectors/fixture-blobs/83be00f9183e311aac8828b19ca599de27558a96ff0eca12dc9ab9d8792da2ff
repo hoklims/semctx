@@ -1,0 +1,1 @@
+{"name":"@fixture/config","exports":{"./tsconfig/node.json":"./tsconfig/node.json"}}

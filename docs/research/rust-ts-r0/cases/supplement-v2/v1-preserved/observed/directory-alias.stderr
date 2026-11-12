@@ -1,0 +1,10 @@
+
+packages\ts-analyzer\test\discovery-missing-import-alias.test.ts:
+(pass) keeps missing in-repository imports selected when the repository root has a directory alias [459.31ms]
+(pass) still rejects genuinely escaping missing paths under a directory alias [8.22ms]
+(pass) still rejects missing targets below an existing external directory symlink [24.38ms]
+
+ 3 pass
+ 0 fail
+ 5 expect() calls
+Ran 3 tests across 1 file. [650.00ms]

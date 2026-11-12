@@ -1,0 +1,112 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_FROZEN_WORKSPACE_SYSTEM_COMPONENT_LIMITED_PASSES_MACOS_REVIEWED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/workspace_system_claim_auditor",
+  "claimLedger": "gap-workspace-system-claim-audit.md",
+  "authority": {
+    "frozenUnits": "cases/qualification/scenarios.json#/execution_units/284 and285:ORD-WORKSPACE-SYSTEM-READS::variant-01/02; allocation/input-index.json#/qualification_records/244, reusing P11 bytes.",
+    "architecture": "Accepted ADR0035/0037; component observations and integrity remain separate from qualification/admission.",
+    "historicalSource": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b:packages/ts-analyzer/src/workspace-links.ts; byte-identical primary copy SHA2562fd5a793412ddcb5301724c016bbbf00c03f460d38e8a247266eb1081e249c3e."
+  },
+  "sourceAnchor": {
+    "base": "623c8676e6debd9f93e12e851958496760131aa1",
+    "files": {
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "5b3feecb482dcb60a9c42337491fc8f109bf7230b283043ad524fe68e31999dd",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "8ec1c64e78469af2a520a5fed505e51b13f66ab2544a61b288e167d22726bcb8",
+      "tools/rust-ts-r0/qualification/repository_replay.rs": "3dbd0450f14c44b9270f6f0dbf77d9b038eba3ab2e9e517ee191503463a46f11",
+      "tools/rust-ts-r0/qualification/workspace_system_replay.rs": "ca36c7ee3a7336d482e8ac6aeb3e58573e4fdff26abcd554b2b3b899f848c2b7"
+    },
+    "patchSha256": "04b6fdd6d1918d00862ec810cb95589547b6b0952a62c0a452b46c3da58ae929",
+    "scope": "Four qualification files only; concurrent src/main.rs/native_program.rs, their Program/memory behavior and future rebuilt product are outside this anchor and verdict."
+  },
+  "artifacts": {
+    "producerSha256": "9f67f55fe6199e6cf2f4726b3e175589a6e374ec3424ecfe8b7883ef70f5cca5",
+    "observerSha256": "118be09e2c115a0c20a81c0fe9943b637fe3623f26c123bea24faa6da8420c1e",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "fixtureSha256": "ba25d328fcf0c25c3ebca0f09abc26799c8336d09fc206fb4c17ef73bda483a4",
+    "canonicalRecipeSha256": "f0f3907617b01f160e4b13d6af73314aad5a7253dd6c1e4359cb6823af1e01e9",
+    "provenance": "Immutable named artifacts and before/after hashes only; no independent source→binary reconstruction or SDK consumption guarantee."
+  },
+  "focusedReplay": {
+    "oracle": "gap_workspace_system_reads_preserve_link_precedence_and_outside_boundary",
+    "frozenAssertionsPerUnit": 12,
+    "projectedChecksPerUnit": 17,
+    "totalProjectedChecks": 34,
+    "nativeContexts": 4,
+    "nativeQueriesPerContext": 9,
+    "units": [
+      {"unitId": "ORD-WORKSPACE-SYSTEM-READS::variant-01", "checks": 17, "contexts": 2, "state": "PASS_FROZEN_WORKSPACE_SYSTEM_COMPONENT", "resultSha256": "2696aae98e9fa954855e6b81b31e26a6067129da0d5add99353ca4452a783ce6"},
+      {"unitId": "ORD-WORKSPACE-SYSTEM-READS::variant-02", "checks": 17, "contexts": 2, "state": "PASS_FROZEN_WORKSPACE_SYSTEM_COMPONENT", "resultSha256": "26c9f5e05207e9a692b5bc5189b545e4ba656c6d79d43fa78274444ffdfa0cd4"}
+    ],
+    "counting": "Five boundary fields are checked in each context; variant01 runs uninstalled→installed, variant02 reverses that order.",
+    "uninstalled": "Actual CaptureFs workspace System reads physical P11 bytes, sees virtual parent and canonicalizes the virtual file to tooling/config/tsconfig/node.json.",
+    "installed": "The two credited installed properties read the captured installed bytes and keep its own realpath; no installed fileExists/directoryExists property credit inferred.",
+    "outside": "Physically present outside file plus outside directory; file excluded from canonical capture. Four operations plus additional true-directory probe refuse with exact WORKSPACE_PATH_OUTSIDE_ROOT and exact issues; outside read has a unique negative probe.",
+    "binding": "Both descriptor IDs,producer,orderedninequeries,completeprocess,physicalpath/bytes/digest/UTF16 and joined reported successful-read probe; outside negative probe validated.",
+    "resolverInputs": "resolver_inputs_physical/outside are replay projections from validated causal reads/probes, not a separate native resolver.inputs cache/store observation.",
+    "replayFlags": "Replay adds global_admission_inferred=false and all_os_reads_observed_claimed=false. The native JSON omits the former; do not attribute an explicit false attestation to the producer.",
+    "resultsSha256": "fc5639192ebc7e879acb6a73bf462ace19f3d949193b5453f3414321772ee21d"
+  },
+  "oracles": {
+    "environment": "macOS27.0.1 ARM64,Bun1.4.3; GIT_CONFIG_GLOBAL absent,GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1; no SEMCTX_T00_SNAPSHOTS.",
+    "localChecks": "2targetedcomparators,60totalcomparators,8Python tests,Clippy,Ruff and eligibility carryover PASS; independent STANDARDS rustfmt/diff-check green within four files. No full verify:pr/currentcandidateCI.",
+    "spec": "Baseline2units pass; real installed-byte and workspace-link removal mutations fail; byte-identical restorations pass. Historical primary System agrees on9operation/path/value triplets in each of4contexts=36results.",
+    "adversarial": "Only final qualified-env-exact lot retained:17attempts,44observer nativecaptures+3direct nativecalls+2Bun historicalprocesses; no confirmed bypass. Two exploratory lots excluded. Altering one expectation in04–13 causes exactly one failed check;14–15 expose no live fallback in those two exact omissions.",
+    "windows": "WindowsGNU cargo check x86_64-pc-windows-gnu PASS on Darwin only; Linux/Windows runtime unexercised."
+  },
+  "trustBoundary": {
+    "canonicalRecipe": "Exact canonical recipe hash independently rechecked for this document. Focused verify_sources does not authenticate recipe policy/check inventory; no self-authenticating runner claim.",
+    "nativeOmissions": "No fallback observed when physical P11 or installation was omitted in the two direct controls; no universal no-fallback/race guarantee.",
+    "notEstablished": "Public assembly/admission,globalqualification,full354,reserved,atomic/coherentcapture,allOSreads,universalSystem/cacheidentity or entirecurrentworktree/Programmemory behavior."
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 58,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 57,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+    "residualStaticGapUnits": 6,
+    "recipesWithoutKnownGaps": 348,
+    "unitDenominator": 354,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "PENDING; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+    "R0": "UNDECIDED",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Cumulative checkpoints across distinct artifacts; static preparation is not one current campaign."
+  },
+  "limits": [
+    "No new mapping credit for eligibility carryover; its single earlier unit remains separate.",
+    "No budget/CI decision:8fdc continuation and existing CI/publication constraints unchanged.",
+    "No reserved payload read/executed by these documentary tasks; no global access-history claim.",
+    "Compact selected hashes/projections only; temporary raw evidence may expire, no archive."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "workspace-system-source-anchor-v1.json": "12f0cdf053a900fb9036459db243ff31b146442c398e1df5819205e4e6ce310b",
+    "workspace-system-source-v1.patch": "04b6fdd6d1918d00862ec810cb95589547b6b0952a62c0a452b46c3da58ae929",
+    "workspace-system-recipes-v1/replay-recipes.json": "f0f3907617b01f160e4b13d6af73314aad5a7253dd6c1e4359cb6823af1e01e9",
+    "workspace-system-recipes-v1/preparation-summary.json": "6cc9005057bf1e7e0476c12ab5ef6521386f102dad8836ed48dcfec379bd3e97",
+    "workspace-system-spec-proof-v1.md": "e838d3fa73a8f5dc050381a2daab1f7e7af2bdd8995bd5f875b2b8b037d7cfbb",
+    "workspace-system-standards-v1.md": "e2cf42ccccad3fe667227bda204a6d53ed2b0ec1a562ef97641a6b69c96645dc",
+    "workspace-system-adversarial-v1.md": "e4783c401162087562f5980f548cbdfa484fcc97e90774bc4cb8ce1db787462f",
+    "workspace-system-mapping-green-v2.log": "3824af510d373134b300ca4ebad9f722bbb0e1e34b131645b9e425d638b767d2",
+    "workspace-system-comparators-v2.log": "6f0b86ad4dbe7088c103c678c39e7413ec988b7ea050ed65738852242e535bea",
+    "workspace-system-all-comparators-v1.log": "0627df658bcd976433553e646b5ed27f4d2aa52ecd0484206f2b7dfc606f6de8",
+    "workspace-system-clippy-v1.log": "a30ac2a14fb3365bfdd101cb0f0b9535d556828444b79b01e67fc899c4185b2f",
+    "workspace-system-windows-crosscheck-v1.log": "ddccda8a392da8af9bfca13f37299f5cb75c1ac9d5aa28eb3ff680b02289cbbb",
+    "workspace-system-python-v1.log": "da34098504514e7b91d1d070cc22190114765de5fd42ae9424edc05b7bdac9d3",
+    "workspace-system-ruff-v2.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "workspace-system-carryover-eligibility.log": "915acaa0138546b41fa00188b31d9d79f93d416228e8c552ae8338aa0650ad26",
+    "workspace-system-spec-proof-before-v1.json": "44d409a3b1421cb9950162d12f84b675f3701ef8dd009c0abfa488acd92c4e7e",
+    "workspace-system-spec-proof-after-v1.json": "39037e8e3873f05a8405d5d1fa7eaeed7a85a608c1f316226ec47675f7009082",
+    "workspace-system-spec-proof-execution-v1/historical-comparison.json": "336eee9ed5aba19e01d73c3cdab70f07b2779db04f4ff654d3728369592b6834",
+    "workspace-system-adversarial-v1/qualified-env-exact/campaign-summary.json": "33747bb00b8ba7ed77c7970af76a1a37798aaf96df99c1c24b3ae792aef690c5",
+    "workspace-system-adversarial-v1/qualified-env-exact/native-controls.json": "845bb856109bb4081a919f1f8f7772736aae9959b2e79b4111ded1c08bc067bd"
+  }
+}

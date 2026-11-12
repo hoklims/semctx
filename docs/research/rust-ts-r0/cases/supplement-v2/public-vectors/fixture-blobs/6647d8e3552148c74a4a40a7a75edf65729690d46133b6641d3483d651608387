@@ -1,0 +1,1 @@
+import * as api from './lib.mjs'; const { helper } = api.obj; expect(helper).toBeDefined();

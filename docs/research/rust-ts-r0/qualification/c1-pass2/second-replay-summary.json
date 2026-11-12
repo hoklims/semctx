@@ -1,0 +1,5024 @@
+{
+  "schema_version": 1,
+  "status": "C1_PASS2_QUALIFICATION_INCOMPLETE_NONPASS",
+  "campaign": {
+    "started_utc": "2026-10-17T20:29:50.139446+00:00",
+    "finished_report_utc": "2026-10-17T20:32:00.157000+00:00",
+    "elapsed_seconds": 130.017554,
+    "runner_exit_code": 101,
+    "invocations": 1,
+    "retry_count": 0,
+    "candidate_rebuilt": false,
+    "reserved_access": false,
+    "platform": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "scope": "macOS ARM64 only; native Windows/Linux not exercised"
+  },
+  "denominators": {
+    "obligations": 240,
+    "records": 268,
+    "supports": 51,
+    "units": 354
+  },
+  "unit_counts": {
+    "GAP": 64,
+    "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 283,
+    "NONPASS_OBSERVED": 7
+  },
+  "unit_states": {
+    "NOT_EXECUTABLE_EXPLICIT_GAPS": 64,
+    "PASS_FROZEN_PROJECTED_UNIT": 253,
+    "NONPASS_PROJECTED_UNIT": 2,
+    "NONPASS_NATIVE_RAW_CONSUMER_CONTROL": 3,
+    "NONPASS_NATIVE_WORKER_PROJECTED_UNIT": 2,
+    "PASS_FROZEN_CAPTURED_SYSTEM_COMPONENT": 1,
+    "PASS_FROZEN_NATIVE_WORKER_PROJECTED_UNIT": 5,
+    "PASS_CONTROLLED_RECEIVER_GUARD_ONLY": 20,
+    "PASS_FROZEN_PRIMITIVE_PROJECTED_UNIT": 4
+  },
+  "support_counts": {
+    "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 42,
+    "NONPASS_OBSERVED": 4,
+    "GAP": 5
+  },
+  "support_states": {
+    "PASS_FROZEN_PRIMITIVE_PROJECTED_UNIT": 19,
+    "PRIMITIVE_PROCESS_NONPASS": 3,
+    "NONPASS_PRIMITIVE_PROJECTED_UNIT": 1,
+    "PASS_FROZEN_PROJECTED_UNIT": 6,
+    "PASS_FIXED_IDENTITY_DESCRIPTOR": 4,
+    "PASS_FIXED_MUTATED_IDENTITY_DIGEST": 11,
+    "NOT_EXECUTABLE_SUPPORT_API_OR_MAPPING_GAP": 5,
+    "PASS_FIXED_SHA256_PRIMITIVE": 2
+  },
+  "obligation_counts": {
+    "GAP": 54,
+    "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 178,
+    "NONPASS_OBSERVED": 8
+  },
+  "obligations": [
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-inspectretainedqualifiedscope-bd751ded9d",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-inspectretainedqualifiedscope-visit-04b87875b6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assemblerepository-6ce629281c",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 9
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assemblerepository-visit-29bc606f63",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 9
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assertsnapshotinputs-c112c2b6f5",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-discovery-ts-createqualifiedpatheligibility-34b5ccf114",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-discovery-ts-escapeddependencyreason-54c513873b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hassemanticjsdocimport-3072815d34",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hassemanticjsdocimport-visit-249931dfd0",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hassemanticjsdocimport-visitdoc-82df49928d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hasunsupporteddefaultexpression-9f5389335c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hasunsupporteddefaultexpression-cal-91d884d1da",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectimportedruntimehelpers-28fdd45ef7",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectimportedruntimehelpers-callb-f5054798c5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectimportedruntimehelpers-callb-547b133b32",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-5e3eda13a6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-callback-24-d0ac8d43e4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-callback-29-88784073d1",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-isdeclarede-18f3561a09",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-visit-d99ce9ad30",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjsxruntimeboundary-c6b77f683f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjsxruntimeboundary-callback--3eab9541f5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjsxruntimeboundary-visit-26217b99b8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-85815f5af7",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-68ee556fec",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-32604b33d1",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-2c85cf784f",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-readfile-ef9362fff6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-645cf79c58",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-callbac-6ebe0ed018",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-callbac-3b73886143",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-callbac-ad44cc8120",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-findmod-83aa82d20e",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-isimpor-add2ce4bd3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-isnodem-9dd41ca935",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-isnodep-4506acf9a2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-origin-b145b21705",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-safenam-90aa1bb9ef",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-staticn-753e90361a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-visit-0f8432408d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectqualifiedmodulescope-7ee16295ee",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectqualifiedmodulescope-visit-6edec9d108",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectsourceparsing-77d5a6d4cb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectsourceparsing-callback-336-32172632bc",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-d0f99d2f4b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-a9112ffbd4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-6deb8cb77a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-f7746cfe22",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunmodeledinvocations-visit-2110525dff",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 6
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-cf54e48930",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6f9e80e4bd",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-94aaf19f03",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9f46fde1d9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c74645a0d7",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-adea108af8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-3093f51a0a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-1636c13e6f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2902b9cd1a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-b26cfc59d3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-81798ed515",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c12fefd1ef",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-f1eafa34bf",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-eef3ce89ac",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2a2fbe0952",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e0738e476e",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6136c4e53b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2b904e8a56",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8e54625619",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-76bfe07fba",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9cf6060641",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8183520e54",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-0049cc6aeb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-ba896a915c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-31fc45d836",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc9e45d4da",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-016ff860d6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-11b7179a64",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8f53518e6d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6732afcf32",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8f5feb10ae",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-17111bfab8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-1025232e15",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-19d401182a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-5f0b7ed090",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-b7227c826b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-248f377bb9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-afb0554c24",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c59ed52a2d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-078c82bd6c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-d051ce69f2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-005a440065",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-228caabce2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-7ce1650891",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c942b3e51c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-a89ff2dd55",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fb3557c2e4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8d9e972b12",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c13444db99",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-7e77092355",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c77bd960b6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-3ff7802121",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-a33b6a8683",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-64939da151",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-07d7946988",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-eca1c5be74",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e84ff2a6e7",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-ad9332fcd2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9412420bd9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2eb5759761",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-220c734077",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-541741b659",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e1d1776bd6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-bf27f646d3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2f26bd761c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-49f7ed022f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc22f30bc4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-d65f95a8c9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6e7b64ed9a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fbc914bada",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-50b5d680a9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8535a73103",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-378d1705f5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9a0dde3e97",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6ff7431bef",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc046ebdd3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9748143214",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-87be196249",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-67641b2308",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c75330e406",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-dcfbc8cf8c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e2d30a418f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9a69370e98",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9608b6f244",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-4d491c2735",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-794f90cbfc",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-33a3fb5b2a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-key-131c1fcb59",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-module-b2d3123b11",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 28
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-bindingnames-edafe22e53",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-732578b356",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 17
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-297-aa8fb35d4c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-303-1841c36108",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-305-0015a1aed0",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-describestatement-e39ff48cbc",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 11
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-describestatement-named-ed955c3ec9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-expressionexecutes-757ae12eb6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 27
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-expressionexecutes-callback-288-6ff8ba0cd8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 26
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-hasmodifier-41b99da69c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-hasmodifier-callback-89-9d18473089",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-importdetails-3a3f671705",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 20
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-ismembername-f7f9a94c35",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 12
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-leadingcommentstart-4264069511",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-lineof-0b94b882aa",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-290c49f289",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 24
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-callback-345-442515a84c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-callback-353-1f45a0381a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinemodulelinks-5155a7c1a3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinemodulelinks-literal-f51edb1766",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinemodulelinks-visit-53d381b308",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinetoplevel-e997044d63",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-referencedidentifiers-18c11a48d4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-referencedidentifiers-visit-fe8120d6b1",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-scriptkindfor-4cf7804c6b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-statementexecutes-7cfeb5636c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 34
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-statementexecutes-callback-321-2c6b414fc6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-statementexecutes-callback-332-e50f93696c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 27
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-structuraldigest-visit-fcd1703efb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-compiler-options-469a3ad01e",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-dialect-version-a301ccdca0",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-assertconfinedtypescriptsources-c9ea0125fa",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-canonicaltypescriptfilekey-c3dd471648",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-67dc915614",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-171-61dd1124fe",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-172-197ebbbd27",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-173-b82e64d228",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-180-a0436dd435",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-enclosingscopeof-6b95a75b4c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-extracttypescript-9b06e8acec",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-extracttypescript-recordsymbol-870fa4f6ba",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-extracttypescript-visit-b9ca21a547",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-hasobjectliteralmemberancestor-5df9d090be",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-importednames-bd2e680f90",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 6
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-isexported-6a0b5012eb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-isfunctionlike-b3bb41d221",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-ismodeledcallcallee-cc03fc5100",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 6
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-leadingjsdoc-58ef0bf980",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-lineof-7aabac826f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-literalmodulespecifiers-24288eb58a",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-literalmodulespecifiers-visit-942e55d8e4",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-nameofcallee-85bd499d83",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-namespacememberreferences-add-51d8f2c30b",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-namespacememberreferences-visit-32bca5fede",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-9a779575ba",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-callback-732-1b412a6696",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-callback-735-fee21a59f6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-callback-762-125bbc5421",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-visit-149cc4f783",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolvecalltarget-49d1e2989b",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 8,
+        "NONPASS_OBSERVED": 1,
+        "GAP": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-39c3d332ed",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-callback-275-f9a575b09b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-callback-278-be8946fb2b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-directoryexists-1ffbdba51c",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-fileexists-3c237ffbb2",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-readfile-9895662a49",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-realpath-89c966e6ff",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolvetypescriptmodule-b83ac7a50b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedcallablecoordinate-13c825d160",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedcallablecoordinate-callback-1228-9e3ef03cc8",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedcallablecoordinate-callback-1232-1b70e3ed86",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedfunctionownercoordinate-e0eefa272f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-574d894c20",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-callback-779-0856ce2426",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-callback-780-852b2c92e5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-callback-784-ab3344a529",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-runtimereferencesymbols-visit-c4c01cfc9d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-scopenameof-e9f52469d8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-c1c525f129",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-directoryexists-ee83d1d5c8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-fileexists-5ecaa00d92",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-readfile-f4dc7533c6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-typescriptlibrarydirectory-e9855a4e4f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-unwrapstaticexpression-5c6cae09a3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-valueimportbindings-541861f16d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-alloweddirect-ceb2971cc0",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-directoryexists-a6359f415b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-fileexists-9b56596c2d",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-installed-a300cbc97c",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-readfile-1d37d86969",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-realpath-98c5b9c944",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-analyzer-identity-ts-analyzeridentity-530b120929",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-pilot-baselines-ts-extractrelativeimportspecifiers-95b94116e6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-pilot-baselines-ts-extractrelativeimportspecifiers-visit-087252e9e7",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-bindopaquecallbackgraph-44b96ab139",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 22,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-qualifiedadmission-5e3c15f48a",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-scope-token-revalidation-and-opaque-ow-b3c8039572",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 22,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-verify-ts-immutable-base-capture-inspectretainedqualifiedsco-ee99401afd",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-verify-ts-verify-qualifiedadmission-08496630a9",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-verify-ts-verify-admission-arguments-bindopaquecallbackgraph-d6d3e9c98f",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 22,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-index-worker-ts-worker-extraction-entrypoint-d1cb292fa7",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "NONPASS_OBSERVED": 5,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    }
+  ],
+  "families": [
+    {
+      "family_id": "configuration-eligibility",
+      "obligations": {
+        "GAP": 7,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 4
+      },
+      "associated_unique_units": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "total_obligations": 11,
+      "total_associated_unique_units": 14,
+      "qualified": false
+    },
+    {
+      "family_id": "javascript-parsing",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 3,
+      "qualified": false
+    },
+    {
+      "family_id": "jsdoc-and-default-eligibility",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 10,
+      "qualified": false
+    },
+    {
+      "family_id": "jsx-and-generated-runtime",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 16
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 16,
+      "qualified": false
+    },
+    {
+      "family_id": "native-bindings",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 12
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "total_obligations": 12,
+      "total_associated_unique_units": 2,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-call-endpoints",
+      "obligations": {
+        "GAP": 4,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 4,
+        "NONPASS_OBSERVED": 2
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 14,
+        "GAP": 9,
+        "NONPASS_OBSERVED": 2
+      },
+      "total_obligations": 10,
+      "total_associated_unique_units": 25,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-canonical-exports",
+      "obligations": {
+        "NONPASS_OBSERVED": 4
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 9,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "total_obligations": 4,
+      "total_associated_unique_units": 14,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-confinement",
+      "obligations": {
+        "GAP": 3,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 1
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4,
+        "GAP": 4
+      },
+      "total_obligations": 4,
+      "total_associated_unique_units": 8,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-discovery",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 3
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 3,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-module-resolution",
+      "obligations": {
+        "GAP": 9
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3,
+        "GAP": 2
+      },
+      "total_obligations": 9,
+      "total_associated_unique_units": 5,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-program",
+      "obligations": {
+        "GAP": 2,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 11
+      },
+      "associated_unique_units": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "total_obligations": 13,
+      "total_associated_unique_units": 9,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-runtime-bindings",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 3,
+        "NONPASS_OBSERVED": 2
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "NONPASS_OBSERVED": 1
+      },
+      "total_obligations": 5,
+      "total_associated_unique_units": 8,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-symbol-extraction",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 6,
+        "NONPASS_OBSERVED": 3
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 8,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "total_obligations": 9,
+      "total_associated_unique_units": 13,
+      "qualified": false
+    },
+    {
+      "family_id": "outline-module-links",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 3
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "total_obligations": 3,
+      "total_associated_unique_units": 1,
+      "qualified": false
+    },
+    {
+      "family_id": "outline-statements",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 25,
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 94,
+        "GAP": 1
+      },
+      "total_obligations": 27,
+      "total_associated_unique_units": 95,
+      "qualified": false
+    },
+    {
+      "family_id": "parallel-preflight",
+      "obligations": {
+        "GAP": 7,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 4
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 2
+      },
+      "total_obligations": 11,
+      "total_associated_unique_units": 3,
+      "qualified": false
+    },
+    {
+      "family_id": "pilot-comparator-annex",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 1
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 1,
+      "qualified": false
+    },
+    {
+      "family_id": "producer-compiler-identity",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 5
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 5,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-mutation-protocols",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 24
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 28
+      },
+      "total_obligations": 24,
+      "total_associated_unique_units": 28,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-opaque-ownership",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 10,
+        "GAP": 3
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 36,
+        "GAP": 1
+      },
+      "total_obligations": 13,
+      "total_associated_unique_units": 37,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-runtime-boundaries",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 17
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 14
+      },
+      "total_obligations": 17,
+      "total_associated_unique_units": 14,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-scope-projection",
+      "obligations": {
+        "GAP": 5
+      },
+      "associated_unique_units": {
+        "GAP": 7
+      },
+      "total_obligations": 5,
+      "total_associated_unique_units": 7,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-sdk-callbacks",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 7,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-semantic-context",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 36
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 11
+      },
+      "total_obligations": 36,
+      "total_associated_unique_units": 11,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-test-dynamic-import-binding",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 9
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 9,
+      "qualified": false
+    },
+    {
+      "family_id": "worker-transport",
+      "obligations": {
+        "NONPASS_OBSERVED": 1
+      },
+      "associated_unique_units": {
+        "NONPASS_OBSERVED": 5,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "total_obligations": 1,
+      "total_associated_unique_units": 10,
+      "qualified": false
+    },
+    {
+      "family_id": "workspace-system",
+      "obligations": {
+        "GAP": 6
+      },
+      "associated_unique_units": {
+        "GAP": 2
+      },
+      "total_obligations": 6,
+      "total_associated_unique_units": 2,
+      "qualified": false
+    }
+  ],
+  "family_count": 27,
+  "unit_family_association_note": "Family counts inherit frozen per-obligation associations; a unit can belong to several families. Counts are not additive. Static associations and all-associated PASS are not completed qualification.",
+  "unassociated_units": [
+    "N02-legacy-ignores-config::base",
+    "N04-colliding-symbol-coordinates::base",
+    "N05-legacy-export-clause-flag::base",
+    "N07-shadow-is-not-runtime-import::base",
+    "N07b-real-value-keeps-unmodeled-coordinate::base",
+    "N08-disabled-language::base",
+    "N09-outline-syntax-error::base",
+    "N10-computed-link-keeps-null::base",
+    "N11-registry-range-is-not-workspace::base",
+    "N14-javascript-parse-recovery-not-success::base",
+    "N16-cts-not-esm-by-export::base",
+    "N17-jsx-automatic-selected::base",
+    "N17b-classic-factory-is-real-generated-call::base",
+    "N17c-importhelpers-es5-actual-emission::base",
+    "N20-real-function-prototype-helper::base",
+    "N21-actual-sdk-map-callback::base",
+    "N21b-sdk-alias-retains-origin::base",
+    "N22-real-prototype-mutation::base",
+    "N22b-native-promise-still-calls-executor::base",
+    "N24-actual-sdk-script-insertion::base",
+    "N26-comparator-does-not-guess-dynamic-or-bare::base",
+    "OL-B05::base",
+    "OL-M25::base",
+    "OL-M26::base",
+    "ORD-CALLABLE-DECLARATION-PAIR::variant-01",
+    "ORD-CALLABLE-DECLARATION-PAIR::variant-02",
+    "ORD-FUNCTION-VARIABLE-PAIR::variant-01",
+    "ORD-FUNCTION-VARIABLE-PAIR::variant-02",
+    "ORD-LINK-NO-ARG::base",
+    "P03-confined-relative-source::base",
+    "P04b-overload-declarations-stay-one-logical-symbol::base",
+    "P05-export-clause-canonical-target::base",
+    "P08-discovery-language-and-role::base",
+    "P11-workspace-config-link::base",
+    "P14-valid-javascript-parse::base",
+    "P16-explicit-esm-boundary::base",
+    "P17-jsx-preserve::base",
+    "P17c-importhelpers-modern-no-helper-emission::base",
+    "P20-own-methods-are-not-function-prototype::base",
+    "P21-local-sdk-shaped-callback-method::base",
+    "P22-local-prototype-mutator-homonym::base",
+    "P24-local-wasm-homonym-full-reasons::base",
+    "PUBLIC-PATHE-01-ordinary-small-complete-symbol-projection::base",
+    "PUBLIC-PATHE-02-ordinary-cross-file-owners::base",
+    "PUBLIC-PATHE-04-original-utils-qualified-refusal::base",
+    "PUBLIC-YOCTO-01-ordinary-classes-and-owner-boundaries::base",
+    "PUBLIC-YOCTO-02-original-implementation-qualified-refusal::base",
+    "PUBLIC-YOCTO-03-declaration-root-does-not-emit-runtime-module::base",
+    "T-cancelled::base",
+    "T-invalid-json::base",
+    "T-nonzero::base",
+    "T-output-limit::base",
+    "T-reader-error::base",
+    "T-timeout::base",
+    "V2-C04-sdk-namespace-constructor-alias::base",
+    "V2-C05-sdk-shaped-local-constructor::base",
+    "V2-G07-sdk-callback-dictionary::base",
+    "V2-G08-sdk-dictionary-closed-data::base",
+    "V2-G09-own-constructor-name-dictionary::base",
+    "V2-G10-generic-sdk-mapper-signature::base",
+    "V2-G11-constrained-sdk-generic-literal-input::base",
+    "V2-G12-constrained-sdk-generic-unknown-input::base",
+    "V2-G13-rest-sdk-array-factory::base",
+    "V2-G14-rest-numeric-consumed-coordinate::base",
+    "V2-G15-fixed-numeric-ignores-extra-coordinate::base",
+    "V3-SDK-01-03::base",
+    "V3-SDK-01-04::base",
+    "V3-SDK-01-06::base",
+    "V3-SDK-02-03::base",
+    "V3-SDK-02-04::base",
+    "V3-SDK-02-06::base",
+    "V3-SDK-02-07::base",
+    "V3-SDK-02-08::base",
+    "V3-SDK-02-09::base",
+    "V3-SDK-03-03::base",
+    "V3-SDK-03-05::base",
+    "V3-SDK-04-03::base",
+    "V3-SDK-05-03::base",
+    "V3-SDK-05-05::base",
+    "V3-SDK-05-06::base",
+    "V3-SDK-05-07::base",
+    "V3-SDK-06-03::base",
+    "V3-SDK-06-04::base",
+    "V3-SDK-07-03::base",
+    "V3-SDK-08-03::base",
+    "V3-SDK-09-03::base",
+    "V3-SDK-12-05::base",
+    "V3-SDK-12-06::base",
+    "V3-SDK-12-07::base",
+    "V3-SDK-13-03::base",
+    "V3-SDK-13-05::base"
+  ],
+  "process_count": 318,
+  "process_kinds": {
+    "success": 315,
+    "nonzero": 3
+  },
+  "outcomes": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-000/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 2311,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-001/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 2311,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-002/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 2311,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-003/observation-000/process-outcome.json",
+      "kind": "nonzero",
+      "exit_code": 1,
+      "duration_ms": 15,
+      "stdout_bytes": 0,
+      "stderr_bytes": 42
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-004/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 104,
+      "stdout_bytes": 2314,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-005/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 106,
+      "stdout_bytes": 2314,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-006/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 100,
+      "stdout_bytes": 2615,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-007/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 2615,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-008/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 109,
+      "stdout_bytes": 2995,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-009/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 2995,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-010/observation-000/process-outcome.json",
+      "kind": "nonzero",
+      "exit_code": 1,
+      "duration_ms": 12,
+      "stdout_bytes": 0,
+      "stderr_bytes": 42
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-011/observation-000/process-outcome.json",
+      "kind": "nonzero",
+      "exit_code": 1,
+      "duration_ms": 15,
+      "stdout_bytes": 0,
+      "stderr_bytes": 42
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-012/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1840,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-013/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1617,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-014/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1840,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-015/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 108,
+      "stdout_bytes": 1617,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-016/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1353,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-017/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1353,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-018/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1505,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-019/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1840,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-020/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1317,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-021/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1348,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-022/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 1074,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-023/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 187,
+      "stdout_bytes": 124672,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-024/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 122556,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-025/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 121404,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-026/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 122808,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-027/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 122838,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/support-028/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 124474,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 884,
+      "stdout_bytes": 68020,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-002/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125557,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-003/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 203,
+      "stdout_bytes": 269797,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-005/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 125943,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-006/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 124762,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-007/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 126745,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-008/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 127960,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-009/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 207,
+      "stdout_bytes": 272186,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-010/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 126868,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-011/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 208,
+      "stdout_bytes": 276022,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-012/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 126847,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-013/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125548,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-022/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 206,
+      "stdout_bytes": 270584,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-023/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 124921,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-024/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 121880,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-027/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 138238,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-029/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 146019,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-030/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 231,
+      "stdout_bytes": 431183,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-031/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 206,
+      "stdout_bytes": 277696,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-033/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 122428,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-034/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 123077,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-035/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 124430,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-038/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 200,
+      "stdout_bytes": 103512,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-040/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64269,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-041/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 172,
+      "stdout_bytes": 65121,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-044/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-044/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-045/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 101,
+      "stdout_bytes": 309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-045/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 104,
+      "stdout_bytes": 309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-046/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 101,
+      "stdout_bytes": 309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-046/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 99,
+      "stdout_bytes": 309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-047/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 124567,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-048/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 132722,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-049/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 126574,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-050/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 126026,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-051/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 127305,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-052/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125406,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-056/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 64887,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-058/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 66579,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-058/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 66578,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-059/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 86332,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-062/direct-control/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 201,
+      "stdout_bytes": 101156,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-062/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 156,
+      "stdout_bytes": 32564,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-063/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125183,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-064/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 126309,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-065/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 127779,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-066/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125550,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-071/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 257,
+      "stdout_bytes": 708530,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-072/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 257,
+      "stdout_bytes": 693741,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-076/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 233,
+      "stdout_bytes": 465881,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-077/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 204,
+      "stdout_bytes": 277845,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-078/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 203,
+      "stdout_bytes": 279953,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-079/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 136995,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-081/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 126487,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-082/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 127063,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-083/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 126544,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-084/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 124502,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-085/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 124504,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-086/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 124341,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-087/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 124176,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-088/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 125826,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-089/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 124770,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-090/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 127514,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-091/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 126566,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-092/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125293,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-093/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 125534,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-094/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 125163,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-095/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 126408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-096/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 126327,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-097/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 127489,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-098/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 127968,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-100/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 124953,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-101/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 126033,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-102/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 134786,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-103/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 122449,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-104/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 122419,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-105/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 134783,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-106/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 134779,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-107/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 204,
+      "stdout_bytes": 261971,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-108/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 205,
+      "stdout_bytes": 262662,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-109/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 122391,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-110/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 129800,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-111/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 126920,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-112/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 123995,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-113/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 121244,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-114/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 124254,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-117/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125547,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-119/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 201,
+      "stdout_bytes": 258425,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-120/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125580,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-121/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125481,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-122/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 125583,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-123/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125650,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-124/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 125491,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-125/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 125630,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-126/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 126265,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-127/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 125197,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-128/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 126555,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-129/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 126623,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-130/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 126476,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-131/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 126301,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-132/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125317,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-133/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 126306,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-134/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125346,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-135/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 126344,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-136/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125258,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-137/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 126623,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-138/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 126458,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-139/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 126367,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-140/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 126101,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-141/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125388,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-142/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125614,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-143/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 125493,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-144/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 131242,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-145/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 132525,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-146/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 131665,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-147/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125475,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-148/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 131431,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-149/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 132505,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-150/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 131241,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-151/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 125241,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-152/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 125139,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-153/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125469,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-154/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 126224,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-155/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 125360,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-156/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 125258,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-157/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125669,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-158/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 125495,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-159/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 125262,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-160/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 125501,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-161/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 125535,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-162/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 126457,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-163/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 126469,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-164/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 126452,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-165/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125313,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-166/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125501,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-167/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125590,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-168/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 125501,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-169/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 125284,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-170/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 126352,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-171/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 126471,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-172/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125593,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-173/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125651,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-174/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125401,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-175/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 125400,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-176/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 127896,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-177/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 127271,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-178/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 128097,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-179/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 125489,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-180/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 184,
+      "stdout_bytes": 127863,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-181/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64040,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-182/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64103,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-183/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64120,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-184/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 64055,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-185/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 64039,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-186/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 64860,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-187/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64825,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-188/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64824,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-189/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 65123,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-190/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 65124,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-191/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 64825,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-192/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 65135,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-193/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 64831,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-194/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64835,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-195/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 65156,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-196/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 64863,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-197/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64860,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-198/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 64860,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-199/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 64868,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-200/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 65135,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-201/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 64868,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-202/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 65135,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-203/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 65420,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-204/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 65124,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-205/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 65124,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-206/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 65132,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-207/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 65153,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-208/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 64825,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-209/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 68539,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-210/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 68574,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-211/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 68592,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-212/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 68543,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-213/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 68551,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-214/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 172,
+      "stdout_bytes": 68543,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-215/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 68528,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-216/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 68621,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-217/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 68500,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-218/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 68478,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-219/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 68479,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-220/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 68544,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-221/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 68463,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-222/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 68452,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-223/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 64035,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-224/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 68388,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-225/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 68389,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-226/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 172,
+      "stdout_bytes": 68399,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-227/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 68386,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-228/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 68381,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-229/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 68392,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-230/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64004,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-231/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 68396,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-232/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 68382,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-233/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 68386,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-234/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 172,
+      "stdout_bytes": 68382,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-235/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 65124,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-236/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 65123,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-237/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 121989,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-238/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 218,
+      "stdout_bytes": 320253,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-239/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 184,
+      "stdout_bytes": 145944,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-240/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 191,
+      "stdout_bytes": 171807,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-241/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 123406,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-242/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 123410,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-243/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 148,
+      "stdout_bytes": 28504,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-244/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 64718,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-245/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 64724,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-246/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 63988,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-247/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 172,
+      "stdout_bytes": 64944,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-248/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 64683,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-249/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 64217,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-250/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 63956,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-251/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 185,
+      "stdout_bytes": 64718,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-252/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 184,
+      "stdout_bytes": 63197,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-253/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 187,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-254/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-255/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 183,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-256/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-257/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-258/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-259/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-260/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-261/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-262/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-263/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-264/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-265/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 63197,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-266/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 63197,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-267/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 63197,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-268/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 63227,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-269/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-270/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 63226,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-271/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 173,
+      "stdout_bytes": 63228,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-272/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 63193,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-273/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 63220,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-274/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 63196,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-275/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 63498,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-276/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 176,
+      "stdout_bytes": 63499,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-277/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 63194,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-278/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 64061,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-279/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 64833,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-280/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 183,
+      "stdout_bytes": 65920,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-280/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 65917,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-281/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 65653,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-281/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 174,
+      "stdout_bytes": 65652,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-282/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 64271,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-283/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 104,
+      "stdout_bytes": 3584,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-291/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 137914,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-292/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 137949,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-293/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 137967,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-294/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 181,
+      "stdout_bytes": 137926,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-295/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 137918,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-296/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 180,
+      "stdout_bytes": 68585,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-297/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 202,
+      "stdout_bytes": 269772,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-298/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 310,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-299/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 101,
+      "stdout_bytes": 310,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-300/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 99,
+      "stdout_bytes": 310,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-301/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 310,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-302/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 310,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-303/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 155,
+      "stdout_bytes": 32379,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-306/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 63583,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-307/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 178,
+      "stdout_bytes": 62816,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-319/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 179,
+      "stdout_bytes": 127388,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-320/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 175,
+      "stdout_bytes": 128638,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-321/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 177,
+      "stdout_bytes": 128178,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-322/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 182,
+      "stdout_bytes": 128792,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-345/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-345/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 107,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-345/observation-002/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-345/observation-003/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-346/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 102,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-346/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 104,
+      "stdout_bytes": 407,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-346/observation-002/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 106,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-346/observation-003/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-347/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 102,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-347/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 107,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-347/observation-002/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 105,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-347/observation-003/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-348/observation-000/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 106,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-348/observation-001/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 103,
+      "stdout_bytes": 408,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-348/observation-002/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 104,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/unit-348/observation-003/process-outcome.json",
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 104,
+      "stdout_bytes": 409,
+      "stderr_bytes": 0
+    }
+  ],
+  "native_process_success_is_semantic_pass": false,
+  "report_ref": {
+    "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/report.json",
+    "sha256": "6cbabcfd91b0a2b278b107e9e9bc7486753f33a4783e74baef993956e2a05fd8"
+  },
+  "identity_after": {
+    "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/second-replay-identity-after.json",
+    "sha256": "3fd225097cf9b37e02f99c840b9e09a79133891862b8647691fe29b759ea167a",
+    "status": "PASS",
+    "unchanged": 170,
+    "total": 170
+  },
+  "qualification": false,
+  "R0": false,
+  "READY_TS_NATIVE": false,
+  "frozen_expected_bytes_changed": false,
+  "observer_bytes_changed": false,
+  "passes_remaining_for_C1": 0,
+  "observed_nonpasses_never_reclassified_as_pass": true
+}

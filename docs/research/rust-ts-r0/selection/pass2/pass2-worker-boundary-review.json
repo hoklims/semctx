@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/pass2_oracle_delta_review",
+  "recorded_utc": "2026-10-17T20:17:39.350151+00:00",
+  "verdict": "PROOF_WEAK",
+  "scope": "Independent source rereview of worker boundary corrections plus tightly scoped raw-configuration-discovery regression fix. No producer query, Cargo invocation or qualification/reserved access by reviewer.",
+  "source_bindings": {
+    "worker_observations.rs": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/worker_observations.rs",
+      "sha256": "a8402188d8dc38d2bae9bf8484f8508a51d9952f8d1a11da6a767ead071facba"
+    },
+    "worker_response.rs": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/worker_response.rs",
+      "sha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f"
+    },
+    "main.rs": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/main.rs",
+      "sha256": "a73d573cdccea38588b1ff9097550d662c9f8f745a7a3bcd099d0a976974e98c"
+    },
+    "configuration.rs": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/configuration.rs",
+      "sha256": "7ba5ce64b25ab3e7117084713d5459202f8684eac6811b3630f79ade272554bf"
+    }
+  },
+  "baseline": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "paths": [
+      "packages/ts-analyzer/src/index-worker.ts",
+      "packages/ts-analyzer/src/ts-symbols.ts:943-1017"
+    ],
+    "read_with": "git show exact baseline, never current modified TS source"
+  },
+  "findings": [
+    {
+      "id": "WORKER_REPOSITORY_ID_INCLUDES_SDK",
+      "severity": "P2",
+      "location": "worker_observations.rs::extract before SDK insertion",
+      "mechanism": "Initial source calculated captured_repository_input_id from files after SDK entries were inserted, so the named repository identity varied with SDK contents.",
+      "status": "CORRECTED_SOURCE; identity computed from repository-only files before SDK insertion. Owned DEV test checks exact independently authored repository descriptor digest; author GREEN4/4 log inspected."
+    },
+    {
+      "id": "WORKER_WINDOWS_CANONICAL_PATH_ENCODING",
+      "severity": "P2",
+      "location": "worker_observations.rs::read_repository canonical_path field",
+      "mechanism": "canonical_path is serialized directly from native PathBuf; on Windows this uses backslashes. The prepared independent worker read join expects canonicalized path with slash replacement. All Windows worker provenance joins would reject despite otherwise matching bytes.",
+      "status": "CORRECTED_SOURCE; canonical_path explicitly slash-normalized like path. Native Windows runtime remains NOT_RUN."
+    },
+    {
+      "id": "WORKER_DUPLICATE_ROOT_EXTRACTION",
+      "severity": "P2",
+      "location": "worker_observations.rs::extract for path in root_abs_paths",
+      "mechanism": "Protocol allows duplicate root paths. Producer extracts once per list entry, duplicating modules and facts; baseline iterates unique program source files filtered through rootSet. Duplicated modules are then rejected by the actual response consumer.",
+      "status": "CORRECTED_SOURCE; extracted_roots deduplicates fs.key(path), and actual duplicate-root extraction is compared with single-root extraction. Relevant RED duplication log and subsequent author GREEN4/4 inspected."
+    },
+    {
+      "id": "WORKER_RELATIVE_ROOT_PARITY",
+      "severity": "P2",
+      "location": "worker_observations.rs::extract relative_source_path root validation",
+      "mechanism": "Baseline request shape accepts relative path strings and resolves them through native cwd. Producer relative_source_path normalizes a relative root directly to slash-rooted key, refusing a cwd-relative file inside the repository. Independent consumer already supports relative native job paths.",
+      "status": "CORRECTED_SOURCE; absolute_worker_path maps empty string to dot, uses native absolute plus TS normalize_path, and is called by repository root, roots and emit. DEV includes empty helper equals current cwd assertion. Prior nonempty relative RED/GREEN retained. Final integrated execution is pending."
+    }
+  ],
+  "positive_static_observations": [
+    "Malformed worker request is parsed before SDK read in additional_observation; malformed_request and run share parse_request. Request carrier and current executable are still read, so no absence-of-all-OS-reads claim is made.",
+    "Malformed schema returns unbound job, ok=false, extraction_started=false before repository/compiler access. Well-formed requests failing SDK/repository/setup return bound job with extraction_started tracking whether compiler invocation began.",
+    "Consumer mode reads no SDK and uses lexical native path operations without repository filesystem reads.",
+    "Response shape, ownership, canonical optional target validation, marker/kind/line checks, optional-null refusal, exact unique emit modules, and well-formed worker-failure distinction match inspected baseline. Baseline quirks are preserved, including ignored extra fields and outside emit ownership; structural acceptance is not confinement or authorization.",
+    "Worker raw bytes and decoded text hashes are recorded from actual sequential filesystem reads; explicit capture claim denies atomic live acquisition. Compiler reads are separately reported as probes; no supplied-SDK-equals-consumed claim.",
+    "New frontendCapabilityObservation records actual requested roots loaded/parse diagnostics, workspace issues and resolution errors rather than introducing an invented complete boolean. Final integrated check remains pending."
+  ],
+  "execution": {
+    "new_tests_run_by_reviewer": false,
+    "author_evidence_read": true,
+    "provenance": "Root executed DEV commands; this independent reviewer inspected raw logs and source. No concurrent Cargo was launched.",
+    "author_worker_result": "4 passed, 0 failed, 168 filtered, 4.42s; tests cover malformed-before-extraction, missing repository, useful subset/duplicate/SDK split/missing-root capability, and nonempty relative root paths.",
+    "red_witnesses": [
+      "duplicate-root produced doubled calls/imports/modules/symbols",
+      "relative root was incorrectly refused outside repository",
+      "new capability test initially saw missing executed field"
+    ],
+    "files": {
+      "pass2-worker-duplicate-red.log": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-duplicate-red.log",
+        "sha256": "2854d6c48002f70118ee7da4137c40c7e1d325c70a1bd4d9d7a4d9c2b3329a6c"
+      },
+      "pass2-worker-relative-red.log": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-relative-red.log",
+        "sha256": "5f9c19c929505be3409386634b364ae6dcece209164ae4bfc6128c9c204430e7"
+      },
+      "pass2-worker-capability-red.log": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capability-red.log",
+        "sha256": "9098938be840b124ecbe9971514c38e77895d632fe9783ec21219686e10c4a9c"
+      },
+      "pass2-worker-boundary-final-green.log": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-boundary-final-green.log",
+        "sha256": "7d8c40eddfdbb4cff65bf8b9eb0c6c1b3d329d3edae5c3259009440d8c33d8bc"
+      },
+      "pass2-worker-response-green.log": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-response-green.log",
+        "sha256": "3f52a0806ec144c441dc35575ab931237578b33e7feebd9bc87d1df8e7a6caa7"
+      }
+    }
+  },
+  "limits": [
+    "Final source is changing; this report is an intermediate defect inventory, not final acceptance.",
+    "Native Windows/Linux not exercised.",
+    "No qualification query, reserved-corpus read, producer edit, expectation edit, tracked write, commit, push or publication performed.",
+    "No whole worker orchestration parallelism, cancellation, T02 acquisition, R0 or READY_TS_NATIVE claim evaluated."
+  ],
+  "environment": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "prior_report_sha256": "5177297084f35cf7a7d198eab344514d20c05dc494e675b56777dba5260ebec2",
+  "residual_findings": [],
+  "new_capability_review": {
+    "source": "worker_observations.rs::extract frontendCapabilityObservation",
+    "observed_fields": [
+      "actual per-root loaded state",
+      "actual source parse diagnostic codes",
+      "WORKER_SOURCE_NOT_LOADED reasons",
+      "actual workspace issues",
+      "actual configured resolution errors"
+    ],
+    "conclusion": "No invented complete boolean introduced. Observation executed means compiler/frontier was reached; useful semantic credit still requires independent loaded/diagnostic/unsupported and provenance checks.",
+    "limitation": "Not a completeness proof for arbitrary host SDK configuration, acquisition lifecycle, compiler semantic diagnostics, or all filesystem behavior."
+  },
+  "verdict_reason": "All four original findings corrected in inspected source, with no certain new defect in empty-root or raw configuration-discovery delta. Exact final integrated execution and native Windows/Linux evidence remain pending.",
+  "source_stability": "Final source hashes recorded after read; root continues unrelated compilation/format work, so these hashes must be rebound for final candidate qualification.",
+  "final_delta_review": {
+    "recorded_utc": "2026-10-17T20:17:39.350651+00:00",
+    "empty_worker_root": {
+      "finding": "No certain defect remains in inspected empty/nonempty lexical worker path normalization.",
+      "source": "worker_observations.rs absolute_worker_path and its repository/root/emit consumers; relative DEV test adds empty-cwd assertion.",
+      "execution": "Not run by this reviewer; all-target release author run ongoing."
+    },
+    "configuration_discovery": {
+      "baseline_commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "baseline_source": "packages/ts-analyzer/src/javascript-diagnostics.ts:363-419",
+      "finding": "No certain defect in this bounded delta. Baseline findConfigFile probes raw system before workspaceLinkedSystem; candidate now probes captured raw key presence before applying the retained containment refusal and wrapped read boundary.",
+      "actual_path": "configuration::inspect uses files.contains_key(fs.key(candidate)), records configuration_discovery_file_exists, tests contained(config) before fs.read_file(config); ConfigurationFs::read_file retains repository confinement for inheritance.",
+      "claim_limit": "The presence probe is an observation over caller-supplied captured metadata. It neither reads an outside config content nor accesses ambient OS; it does not establish live filesystem absence or atomic capture.",
+      "negative_witness": "Root reports unchanged preexisting outside-configuration test failed in previous full release run. Final corrected full release run is ongoing; no GREEN credited here."
+    }
+  }
+}

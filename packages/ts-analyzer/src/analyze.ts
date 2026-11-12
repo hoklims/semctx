@@ -1,5 +1,5 @@
+import { legacyTypeScriptAnalysisCompiler, type TypeScriptAnalysisCompiler } from "./analysis-compiler";
 import { readFileSync } from "node:fs";
-import ts from "typescript";
 import { basename } from "node:path";
 import {
   repositoryId,
@@ -36,26 +36,19 @@ import {
   type FactBatchV1,
   type ImportEdgeOccurrence,
   type PlaneASidecarV1,
-  type ProducerIdentity,
   type UnresolvedReference,
 } from "@semantic-context/plane-a-internal";
 import { discoverFiles, sourceLanguage, type DiscoveredFile } from "./discovery";
 import {
-  extractTypeScript,
-  extractTypeScriptParallel,
   pathMappingInputs,
-  TYPESCRIPT_DIALECT_VERSION,
   type IndexWorkerSelection,
   type TsExtraction,
   type TypeScriptExtractionOptions,
   type TypeScriptParallelism,
   type CompilerInputSnapshot,
-  retainedCompilerSystem,
 } from "./ts-symbols";
 import { groupSymbols } from "./symbol-grouping";
-import { inspectJavaScriptSource } from "./javascript-diagnostics";
 import { createWorkspaceLinkResolver } from "./workspace-links";
-import { registerOpaqueCallbackOwnership } from "./semantic-dependency-diagnostics";
 import {
   degradeDivergentMarkerNodes,
   detectMarkerDivergence,
@@ -84,15 +77,6 @@ export function getQualifiedCallIntegrityReasons(analysis: AnalysisResult): Read
 
 type GraphBuilder = DeterministicGraphAssembler;
 
-const TYPESCRIPT_PRODUCER: ProducerIdentity = {
-  identity: "@semantic-context/ts-analyzer",
-  version: "0.1.0",
-};
-const JAVASCRIPT_PRODUCER: ProducerIdentity = {
-  identity: "@semantic-context/ts-analyzer/javascript",
-  version: "0.1.0",
-};
-
 const PLANE_A_FACT_SCHEMA = {
   schemaVersion: 1,
   facts: ["node", "edge"],
@@ -103,17 +87,36 @@ const SYMBOL_EDGE_EVIDENCE = (relPath: string, line: number, kind: EvidenceRef["
   { filePath: relPath, startLine: line, sourceKind: kind },
 ];
 
+export function createRepositoryAnalyzer(compiler: TypeScriptAnalysisCompiler) {
+  return {
+    compiler,
+    analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[], compilerInputs?: CompilerInputSnapshot): AnalysisResult {
+      return analyzeRepositoryWithCompiler(compiler, config, discoveredFiles, compilerInputs);
+    },
+    analyzeRepositoryAsync(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[], workers: IndexWorkerSelection = "auto", compilerInputs?: CompilerInputSnapshot): Promise<AsyncAnalysisResult> {
+      return analyzeRepositoryAsyncWithCompiler(compiler, config, discoveredFiles, workers, compilerInputs);
+    },
+    assembleRepository(config: SemctxConfig, files: readonly DiscoveredFile[], extraction: TsExtraction, compilerInputs?: CompilerInputSnapshot): AnalysisResult {
+      return assembleRepositoryWithCompiler(compiler, config, files, extraction, compilerInputs);
+    },
+  };
+}
+
 export function analyzeRepository(config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[], compilerInputs?: CompilerInputSnapshot): AnalysisResult {
+  return analyzeRepositoryWithCompiler(legacyTypeScriptAnalysisCompiler, config, discoveredFiles, compilerInputs);
+}
+
+function analyzeRepositoryWithCompiler(compiler: TypeScriptAnalysisCompiler, config: SemctxConfig, discoveredFiles?: readonly DiscoveredFile[], compilerInputs?: CompilerInputSnapshot): AnalysisResult {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const tsFiles = files.filter(isTypeScriptSource);
-  assertSnapshotInputs(tsFiles, compilerInputs, config);
-  const extraction = extractTypeScript(
+  assertSnapshotInputs(compiler, tsFiles, compilerInputs, config);
+  const extraction = compiler.extract(
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
     compilerInputs,
     TYPESCRIPT_EXTRACTION_OPTIONS,
   );
-  return assembleRepository(config, files, extraction, compilerInputs);
+  return assembleRepositoryWithCompiler(compiler, config, files, extraction, compilerInputs);
 }
 
 export async function analyzeRepositoryAsync(
@@ -122,10 +125,20 @@ export async function analyzeRepositoryAsync(
   workers: IndexWorkerSelection = "auto",
   compilerInputs?: CompilerInputSnapshot,
 ): Promise<AsyncAnalysisResult> {
+  return analyzeRepositoryAsyncWithCompiler(legacyTypeScriptAnalysisCompiler, config, discoveredFiles, workers, compilerInputs);
+}
+
+async function analyzeRepositoryAsyncWithCompiler(
+  compiler: TypeScriptAnalysisCompiler,
+  config: SemctxConfig,
+  discoveredFiles?: readonly DiscoveredFile[],
+  workers: IndexWorkerSelection = "auto",
+  compilerInputs?: CompilerInputSnapshot,
+): Promise<AsyncAnalysisResult> {
   const files = discoveredFiles === undefined ? discoverFiles(config) : [...discoveredFiles];
   const tsFiles = files.filter(isTypeScriptSource);
-  assertSnapshotInputs(tsFiles, compilerInputs, config);
-  const result = await extractTypeScriptParallel(
+  assertSnapshotInputs(compiler, tsFiles, compilerInputs, config);
+  const result = await compiler.extractParallel(
     tsFiles.map((file) => file.absPath),
     config.repositoryRoot,
     workers,
@@ -133,13 +146,23 @@ export async function analyzeRepositoryAsync(
     TYPESCRIPT_EXTRACTION_OPTIONS,
   );
   return {
-    analysis: assembleRepository(config, files, result.extraction, compilerInputs),
+    analysis: assembleRepositoryWithCompiler(compiler, config, files, result.extraction, compilerInputs),
     parallelism: result.parallelism,
   };
 }
 
 /** Pure deterministic assembly seam shared by the synchronous and worker-backed extractors. */
 export function assembleRepository(
+  config: SemctxConfig,
+  files: readonly DiscoveredFile[],
+  extraction: TsExtraction,
+  compilerInputs?: CompilerInputSnapshot,
+): AnalysisResult {
+  return assembleRepositoryWithCompiler(legacyTypeScriptAnalysisCompiler, config, files, extraction, compilerInputs);
+}
+
+function assembleRepositoryWithCompiler(
+  compiler: TypeScriptAnalysisCompiler,
   config: SemctxConfig,
   files: readonly DiscoveredFile[],
   extraction: TsExtraction,
@@ -169,7 +192,7 @@ export function assembleRepository(
     const isTest = file.role === "test";
     const id = isTest ? testId(file.relPath) : moduleId(file.relPath);
     nodeIdByRel.set(file.relPath, id);
-    const javascriptFacts = file.language === "javascript" ? inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks) : undefined;
+    const javascriptFacts = file.language === "javascript" ? compiler.inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks) : undefined;
     builder.node({
       id,
       kind: isTest ? "test" : "module",
@@ -260,18 +283,9 @@ export function assembleRepository(
   // an approximate call edge is worse than a missing one.
   const callReasons = new Map<string, string[]>();
   const checkLocalCalls = config.version === 2 && config.selectionMode === "qualified-static-v1" && config.analysisProfile === "public-monorepo-static-v1";
-  const dynamicTestImports = new Set<string>();
-  if (checkLocalCalls && compilerInputs !== undefined) for (const file of tsFiles.filter(file => file.role === "test")) {
-    const text = compilerInputs.get(file.absPath);
-    if (text === undefined) continue;
-    const source = ts.createSourceFile(file.absPath, text, ts.ScriptTarget.Latest, true);
-    const visit = (node: ts.Node): void => {
-      if (ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword && node.arguments.length === 1
-        && ts.isStringLiteral(node.arguments[0]!)) dynamicTestImports.add(`${file.relPath}:${source.getLineAndCharacterOfPosition(node.getStart()).line + 1}:${node.arguments[0]!.text}`);
-      ts.forEachChild(node, visit);
-    };
-    visit(source);
-  }
+  const dynamicTestImports = checkLocalCalls && compilerInputs !== undefined
+    ? compiler.dynamicTestImports(tsFiles, compilerInputs)
+    : new Set<string>();
   const modeledModules = new Set(extraction.modules);
   const checkCoordinate = (callerPath: string, role: "CALLER" | "CALLEE", path: string | undefined, coordinate: string | undefined): void => {
     if (!checkLocalCalls || path === undefined || coordinate === undefined || !modeledModules.has(path)) return;
@@ -378,11 +392,11 @@ export function assembleRepository(
   degradeDivergentMarkerNodes(builder.nodes.values(), markerDivergences);
 
   const analysis = builder.build();
-  if (checkLocalCalls && compilerInputs !== undefined) registerOpaqueCallbackOwnership(compilerInputs, analysis.graph, config.repositoryRoot);
+  if (checkLocalCalls && compilerInputs !== undefined) compiler.registerOpaqueCallbackOwnership(compilerInputs, analysis.graph, config.repositoryRoot);
   if (checkLocalCalls) qualifiedCallReasons.set(analysis, callReasons);
   return attachPlaneASidecar(
     analysis,
-    buildTypeScriptSidecar(config, analyzedFiles, builder, repoNodeId, compilerInputs),
+    buildTypeScriptSidecar(compiler, config, analyzedFiles, builder, repoNodeId, compilerInputs),
   );
 }
 
@@ -436,18 +450,18 @@ export function pathMappingFreshnessInputs(
   return pathMappingInputs(files.filter(isTypeScriptSource).map(file => file.absPath), config.repositoryRoot);
 }
 
-function assertSnapshotInputs(files: readonly DiscoveredFile[], compilerInputs: CompilerInputSnapshot | undefined, config: SemctxConfig): void {
+function assertSnapshotInputs(compiler: TypeScriptAnalysisCompiler, files: readonly DiscoveredFile[], compilerInputs: CompilerInputSnapshot | undefined, config: SemctxConfig): void {
   if (String(config.version === 2 ? config.selectionMode : "") === "qualified-static-v1" && compilerInputs === undefined) {
     throw new Error("SOURCE_SNAPSHOT_REQUIRED: qualified analysis requires retained source and configuration inputs");
   }
   if (compilerInputs === undefined) return;
-  const system = retainedCompilerSystem(compilerInputs);
   for (const file of files) {
-    if (system.readFile(file.absPath) !== file.content) throw new Error(`SOURCE_SNAPSHOT_MISMATCH: ${file.relPath}`);
+    if (compiler.readRetained(compilerInputs, file.absPath) !== file.content) throw new Error(`SOURCE_SNAPSHOT_MISMATCH: ${file.relPath}`);
   }
 }
 
 function buildTypeScriptSidecar(
+  compiler: TypeScriptAnalysisCompiler,
   config: SemctxConfig,
   files: readonly DiscoveredFile[],
   builder: DeterministicGraphAssembler,
@@ -487,13 +501,13 @@ function buildTypeScriptSidecar(
     {
       factSchemaDigest,
       producerConfigurationDigest,
-      producerVersion: TYPESCRIPT_PRODUCER.version,
+      producerVersion: compiler.producerIdentity("typescript").version,
       sourceDigest,
     },
     {
       factSchemaDigest: digestCanonical(PLANE_A_FACT_SCHEMA),
       producerConfigurationDigest: digestCanonical(config),
-      producerVersion: TYPESCRIPT_PRODUCER.version,
+      producerVersion: compiler.producerIdentity("typescript").version,
       sourceDigest: digestCanonical(currentSourceInputs),
     },
   );
@@ -528,11 +542,11 @@ function buildTypeScriptSidecar(
       (file.language ?? sourceLanguage(file.relPath)) === language);
     const languagePaths = languageFiles.map((file) => file.relPath).sort();
     const javascriptDiagnostics = language === "javascript"
-      ? languageFiles.map(file => inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks))
+      ? languageFiles.map(file => compiler.inspectJavaScriptSource(file.absPath, file.content, config.repositoryRoot, compilerInputs, workspaceLinks))
       : [];
     const analysisReasons = [...new Set(javascriptDiagnostics.flatMap(result => result.reasons))].sort();
     const parsingFailed = javascriptDiagnostics.some(result => result.parseFailed);
-    const producer = language === "javascript" ? JAVASCRIPT_PRODUCER : TYPESCRIPT_PRODUCER;
+    const producer = compiler.producerIdentity(language === "javascript" ? "javascript" : "typescript");
     const languageSourceDigest = digestCanonical(sourceInputs.filter((input) =>
       languagePaths.includes(input.relPath)));
     const languageScope: ArtifactScope = {
@@ -542,7 +556,7 @@ function buildTypeScriptSidecar(
       selectedPaths: languagePaths,
       language,
       ...(language === "typescript" || language === "javascript"
-        ? { dialectVersion: TYPESCRIPT_DIALECT_VERSION }
+        ? { dialectVersion: compiler.dialectVersion }
         : {}),
     };
     const factKinds = [...new Set(languageFacts.map((fact) => fact.kind))].sort();
@@ -554,8 +568,8 @@ function buildTypeScriptSidecar(
       producerConfigurationDigest,
       factSchemaDigest,
       evidenceContract: "source-lines-v1",
-      resolutionSemantics: language === "javascript" ? "javascript-static-esm-v1" : language === "typescript"
-        ? "typescript-static-v1"
+      resolutionSemantics: language === "javascript" || language === "typescript"
+        ? compiler.resolutionSemantics(language)
         : "structural-source-v1",
       soundnessClaim: "best-effort-static",
       completenessClaim: analysisReasons.length > 0 ? "partial" : "producer-declared",

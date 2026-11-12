@@ -14,6 +14,7 @@ fn main() {
             eprintln!("fixture stderr");
         }
         Some("nonzero") => std::process::exit(7),
+        Some("batch-proxy") => batch_proxy(),
         #[cfg(windows)]
         Some("native-crash-code") => {
             // SAFETY: Win32 ExitProcess accepts the intentional fixture NTSTATUS and never returns.
@@ -81,6 +82,8 @@ fn main() {
         }
         Some("sleep") => thread::sleep(Duration::from_secs(30)),
         Some("cancel-supervisor") => cancel_supervisor(),
+        Some("cancel-outcome-supervisor") => cancel_outcome_supervisor(),
+        Some("owned-tree-ready") => owned_tree_ready(),
         Some("grandchild") => {
             let mut child = Command::new(std::env::current_exe().unwrap())
                 .arg("sleep")
@@ -209,6 +212,68 @@ fn cancel_supervisor() {
     println!("{}", result.kind);
 }
 
+fn cancel_outcome_supervisor() {
+    semctx_gates::process::install_cancellation();
+    let helper = std::env::args().nth(2).unwrap();
+    let token = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let scratch = std::env::temp_dir().join(format!(
+        "semctx-owned-cancel-{}-{token}",
+        std::process::id()
+    ));
+    std::fs::create_dir(&scratch).unwrap();
+    let marker = scratch.join("ready");
+    let readiness = marker.clone();
+    let trigger = thread::spawn(move || {
+        let start = std::time::Instant::now();
+        let observation = loop {
+            match std::fs::read_to_string(&readiness) {
+                Ok(pid) => break pid
+                    .parse::<u32>()
+                    .ok()
+                    .filter(|pid| *pid > 0)
+                    .map(|pid| serde_json::json!({"ready":true,"descendant_pid":pid}))
+                    .unwrap_or(
+                        serde_json::json!({"ready":false,"error":"invalid owned descendant PID"}),
+                    ),
+                Err(error)
+                    if error.kind() == std::io::ErrorKind::NotFound
+                        && start.elapsed() < Duration::from_secs(3) =>
+                {
+                    thread::sleep(Duration::from_millis(5))
+                }
+                Err(error) => break serde_json::json!({"ready":false,"error":error.to_string()}),
+            }
+        };
+        semctx_gates::process::request_cancellation();
+        observation
+    });
+    let argv = vec![
+        std::env::current_exe()
+            .unwrap()
+            .to_string_lossy()
+            .into_owned(),
+        "owned-tree-ready".into(),
+        marker.to_string_lossy().into_owned(),
+    ];
+    let outcome = semctx_gates::process::run_with_helper(
+        &argv,
+        &scratch,
+        5000,
+        1024,
+        std::path::Path::new(&helper),
+    )
+    .unwrap();
+    let trigger = trigger.join().unwrap();
+    std::fs::remove_dir_all(&scratch).unwrap();
+    println!(
+        "{}",
+        serde_json::json!({"outcome":outcome,"trigger":trigger})
+    );
+}
+
 fn verification_tool_stub() -> bool {
     let executable = std::env::current_exe().unwrap();
     let name = executable.file_stem().unwrap().to_str().unwrap();
@@ -228,4 +293,65 @@ fn verification_tool_stub() -> bool {
         std::process::exit(7);
     }
     true
+}
+
+fn batch_proxy() {
+    let args = std::env::args().collect::<Vec<_>>();
+    assert_eq!(args.len(), 8);
+    let helper = std::path::Path::new(&args[2]);
+    let producer = std::path::Path::new(&args[3]);
+    let request = std::path::Path::new(&args[4]);
+    let sdk = std::path::Path::new(&args[5]);
+    let paths = [producer, helper, request, sdk];
+    let hashes = || {
+        paths
+            .iter()
+            .map(|p| semctx_gates::digest(std::fs::read(p).unwrap()))
+            .collect::<Vec<_>>()
+    };
+    let before = hashes();
+    let argv = vec![
+        args[3].clone(),
+        "--batch".into(),
+        args[4].clone(),
+        args[5].clone(),
+    ];
+    let cwd = std::env::current_dir().unwrap();
+    let outcome =
+        semctx_gates::process::run_with_helper(&argv, &cwd, 20_000, 8_388_608, helper).unwrap();
+    let after = hashes();
+    std::fs::write(&args[6], serde_json::to_vec_pretty(&serde_json::json!({"argv":argv,"cwd":cwd,"paths":paths,"before":before,"after":after,"outcome":outcome})).unwrap()).unwrap();
+    assert_eq!(before, after);
+    assert_eq!(outcome.kind, "success");
+    assert_eq!(outcome.exit_code, Some(0));
+    let batch: serde_json::Value = serde_json::from_str(&outcome.stdout).unwrap();
+    assert_eq!(batch["terminal"], "refused");
+    let (forwarded, exit) = match args[7].as_str() {
+        "complete-3" => (outcome.stdout.as_str(), 3),
+        "truncated-0" => (outcome.stdout.trim_end().strip_suffix('}').unwrap(), 0),
+        "truncated-3" => (outcome.stdout.trim_end().strip_suffix('}').unwrap(), 3),
+        "empty-3" => ("", 3),
+        _ => panic!("unknown batch proxy mode"),
+    };
+    std::io::stdout().write_all(forwarded.as_bytes()).unwrap();
+    std::io::stdout().flush().unwrap();
+    std::process::exit(exit);
+}
+
+fn owned_tree_ready() {
+    let mut child = Command::new(std::env::current_exe().unwrap())
+        .arg("sleep")
+        .spawn()
+        .unwrap();
+    assert!(child.try_wait().unwrap().is_none());
+    println!(
+        "{}",
+        serde_json::json!({"parent_pid":std::process::id(),"descendant_pid":child.id()})
+    );
+    std::io::stdout().flush().unwrap();
+    let marker = std::path::PathBuf::from(std::env::args().nth(2).unwrap());
+    let pending = marker.with_extension("pending");
+    std::fs::write(&pending, child.id().to_string()).unwrap();
+    std::fs::rename(pending, marker).unwrap();
+    let _ = child.wait();
 }

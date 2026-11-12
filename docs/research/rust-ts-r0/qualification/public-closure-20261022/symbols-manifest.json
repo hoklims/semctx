@@ -1,0 +1,4745 @@
+{
+  "schema_version": 1,
+  "oracle": {
+    "typescript_version": "5.9.3",
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "sourceIdentities": [
+      {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+      },
+      {
+        "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+        "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+      },
+      {
+        "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+        "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+      },
+      {
+        "path": "packages/ts-analyzer/src/ts-symbols.ts",
+        "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+      },
+      {
+        "path": "scripts/pilot/baselines.ts",
+        "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+      }
+    ],
+    "inputs_sha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774",
+    "activation_trace_sha256": "0cf412d997e2b3ffa837acc500535d72a5f86d50d3cc7ea25cddc52dbed32a59"
+  },
+  "units": [
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "outer",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 2,
+            "endLine": 2,
+            "exported": true,
+            "signatureOnly": true,
+            "jsdoc": "/** public coordinate probe */",
+            "markers": []
+          },
+          {
+            "name": "outer",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 3,
+            "endLine": 6,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "inner",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [
+              "outer"
+            ],
+            "startLine": 4,
+            "endLine": 4,
+            "exported": false,
+            "markers": []
+          },
+          {
+            "name": "Owner",
+            "kind": "class",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 7,
+            "endLine": 7,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "Shape",
+            "kind": "interface",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 8,
+            "endLine": 8,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "Alias",
+            "kind": "type",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 9,
+            "endLine": 9,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "Flag",
+            "kind": "enum",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 10,
+            "endLine": 10,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "local",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [
+              "Box"
+            ],
+            "startLine": 11,
+            "endLine": 11,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "arrow",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 12,
+            "endLine": 12,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "callerSymbolPath": "outer",
+            "calleeName": "inner",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "outer.inner",
+            "line": 5
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerSymbolPath": "Owner",
+            "calleeName": "outer",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "outer",
+            "line": 7
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerSymbolPath": "arrow",
+            "calleeName": "outer",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "outer",
+            "line": 12
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declarations-active",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declarations-active",
+          "files": {
+            "main.ts": "/** public coordinate probe */\nexport function outer(value: number): number;\nexport function outer(value: number) {\n function inner() { return value; }\n return inner();\n}\nexport class Owner { method() { return outer(1); } }\nexport interface Shape { value: number }\nexport type Alias = Shape;\nexport enum Flag { Ready }\nnamespace Box { export function local() {} }\nexport const arrow = () => outer(2), plain = 7;\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "Flag",
+                "kind": "enum",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 10,
+                "endLine": 10,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "local",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [
+                  "Box"
+                ],
+                "startLine": 11,
+                "endLine": 11,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "arrow",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 12,
+                "endLine": 12,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "outer",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 2,
+                "endLine": 2,
+                "exported": true,
+                "signatureOnly": true,
+                "jsdoc": "/** public coordinate probe */",
+                "markers": []
+              },
+              {
+                "name": "inner",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [
+                  "outer"
+                ],
+                "startLine": 4,
+                "endLine": 4,
+                "exported": false,
+                "markers": []
+              },
+              {
+                "name": "outer",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 3,
+                "endLine": 6,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "Owner",
+                "kind": "class",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 7,
+                "endLine": 7,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "Shape",
+                "kind": "interface",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 8,
+                "endLine": 8,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "Alias",
+                "kind": "type",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 9,
+                "endLine": 9,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "outer",
+                "calleeName": "inner",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "outer.inner",
+                "line": 5
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "Owner",
+                "calleeName": "outer",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "outer",
+                "line": 7
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "arrow",
+                "calleeName": "outer",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "outer",
+                "line": 12
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        178,
+        179
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "privateFn",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 3,
+            "endLine": 3,
+            "exported": false,
+            "markers": []
+          }
+        ],
+        "imports": [],
+        "calls": []
+      },
+      "unit_id": "PUBLIC-symbols-declarations-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declarations-control",
+          "files": {
+            "main.ts": "\n\nfunction privateFn() { return 0; }\nconst plain = 7;\nconst {value} = {value: 1};\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "privateFn",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 3,
+                "endLine": 3,
+                "exported": false,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": []
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        178,
+        179
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "dep.ts",
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "defaultFn",
+            "kind": "function",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "exported",
+            "kind": "function",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 2,
+            "endLine": 2,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "unused",
+            "kind": "function",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 3,
+            "endLine": 3,
+            "exported": true,
+            "markers": []
+          },
+          {
+            "name": "Shape",
+            "kind": "interface",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 4,
+            "endLine": 4,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "default",
+              "exported",
+              "unused"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "defaultFn"
+              },
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "exported"
+              },
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "unused",
+                "runtimeUsed": false
+              }
+            ],
+            "line": 1
+          },
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "namespace"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "exported"
+              }
+            ],
+            "line": 2
+          },
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [],
+            "bindingTargets": [],
+            "line": 3
+          },
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [],
+            "line": 4
+          },
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [],
+            "line": 7
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "renamed",
+            "calleeRelPath": "dep.ts",
+            "calleeSymbolPath": "exported",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "exported",
+            "calleeRelPath": "dep.ts",
+            "calleeSymbolPath": "exported",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "main",
+            "calleeRelPath": "dep.ts",
+            "calleeSymbolPath": "defaultFn",
+            "line": 6
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-imports-active",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-imports-active",
+          "files": {
+            "main.ts": "import main, { exported as renamed, unused } from \"./dep\";\nimport * as namespace from \"./dep\";\nimport type { Shape } from \"./dep\";\nexport { exported as relay } from \"./dep\";\nexport { renamed };\nrenamed(); namespace.exported(); main();\nimport(\"./dep\");\n",
+            "dep.ts": "export default function defaultFn() {}\nexport function exported() {}\nexport function unused() {}\nexport interface Shape { value: number }\n"
+          },
+          "roots": [
+            "main.ts",
+            "dep.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.ts",
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "defaultFn",
+                "kind": "function",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "exported",
+                "kind": "function",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 2,
+                "endLine": 2,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "unused",
+                "kind": "function",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 3,
+                "endLine": 3,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "Shape",
+                "kind": "interface",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 4,
+                "endLine": 4,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [],
+                "bindingTargets": [],
+                "line": 3
+              },
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [
+                  "default",
+                  "exported",
+                  "unused"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.ts",
+                    "symbolPath": "defaultFn"
+                  },
+                  {
+                    "relPath": "dep.ts",
+                    "symbolPath": "exported"
+                  },
+                  {
+                    "relPath": "dep.ts",
+                    "symbolPath": "unused",
+                    "runtimeUsed": false
+                  }
+                ],
+                "line": 1
+              },
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [
+                  "namespace"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.ts",
+                    "symbolPath": "exported"
+                  }
+                ],
+                "line": 2
+              },
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [],
+                "line": 4
+              },
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [],
+                "line": 7
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "exported",
+                "calleeRelPath": "dep.ts",
+                "calleeSymbolPath": "exported",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "main",
+                "calleeRelPath": "dep.ts",
+                "calleeSymbolPath": "defaultFn",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "renamed",
+                "calleeRelPath": "dep.ts",
+                "calleeSymbolPath": "exported",
+                "line": 6
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        179,
+        197,
+        205,
+        167,
+        175
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./missing",
+            "names": [
+              "absent"
+            ],
+            "bindingTargets": [],
+            "line": 1
+          },
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./missing-types",
+            "names": [],
+            "bindingTargets": [],
+            "line": 2
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "absent",
+            "line": 3
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "unknown",
+            "line": 3
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-imports-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-imports-control",
+          "files": {
+            "main.ts": "import { absent } from \"./missing\";\nimport type * as types from \"./missing-types\";\nabsent(); unknown();\nimport(moduleName);\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./missing",
+                "names": [
+                  "absent"
+                ],
+                "bindingTargets": [],
+                "line": 1
+              },
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./missing-types",
+                "names": [],
+                "bindingTargets": [],
+                "line": 2
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "absent",
+                "line": 3
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "unknown",
+                "line": 3
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        177,
+        179,
+        197,
+        205,
+        167,
+        175
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "leaf",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": false,
+            "markers": []
+          }
+        ],
+        "imports": [],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 3
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 4
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 5
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 7
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 8
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "method",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "method",
+            "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "line": 10
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "arrow",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "arrow",
+            "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "line": 10
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-object-members-active",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-object-members-active",
+          "files": {
+            "main.ts": "function leaf() {}\nconst object = {\n method() { leaf(); },\n get getter() { leaf(); return 1; },\n set setter(value: number) { leaf(); },\n arrow: (((() => leaf()) as (() => void))!),\n satisfies: ((() => leaf()) satisfies (() => void)),\n asserted: <(() => void)>(() => leaf())\n};\nobject.method(); object.arrow();\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "leaf",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": false,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "arrow",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "arrow",
+                "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "line": 10
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 3
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 4
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 5
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 7
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 8
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "method",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "method",
+                "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "line": 10
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        180,
+        197
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "leaf",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": false,
+            "markers": []
+          },
+          {
+            "name": "Owner",
+            "kind": "class",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 2,
+            "endLine": 2,
+            "exported": false,
+            "markers": []
+          },
+          {
+            "name": "local",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 3,
+            "endLine": 3,
+            "exported": false,
+            "markers": []
+          }
+        ],
+        "imports": [],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "callerSymbolPath": "Owner",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 2
+          },
+          {
+            "callerRelPath": "main.ts",
+            "callerSymbolPath": "local",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 3
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "local",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "local",
+            "line": 4
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-object-members-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-object-members-control",
+          "files": {
+            "main.ts": "function leaf() {}\nclass Owner { method() { leaf(); } }\nconst local = () => leaf();\nlocal();\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "leaf",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": false,
+                "markers": []
+              },
+              {
+                "name": "Owner",
+                "kind": "class",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 2,
+                "endLine": 2,
+                "exported": false,
+                "markers": []
+              },
+              {
+                "name": "local",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 3,
+                "endLine": 3,
+                "exported": false,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "Owner",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 2
+              },
+              {
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "local",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 3
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "local",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "local",
+                "line": 4
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        180,
+        197
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "leaf",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": false,
+            "markers": []
+          },
+          {
+            "name": "Status",
+            "kind": "enum",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 4,
+            "endLine": 4,
+            "exported": false,
+            "markers": []
+          }
+        ],
+        "imports": [],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "leaf",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "leaf",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "value",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "value",
+            "calleeUnmodeledReason": "VALUE_DECLARATION",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "missingInitializer",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "missingInitializer",
+            "calleeUnmodeledReason": "VALUE_DECLARATION",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "Status",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "Status",
+            "calleeUnmodeledReason": "ENUM_VALUE",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "Ready",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "Ready",
+            "calleeUnmodeledReason": "ENUM_VALUE",
+            "line": 6
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "method",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "method",
+            "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+            "line": 6
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-targets-active",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-targets-active",
+          "files": {
+            "main.ts": "function leaf() {}\nconst value = 1;\nlet missingInitializer;\nenum Status { Ready }\nconst object = { method() {} };\nleaf(); value(); missingInitializer(); Status(); Status.Ready(); object.method();\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "leaf",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": false,
+                "markers": []
+              },
+              {
+                "name": "Status",
+                "kind": "enum",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 4,
+                "endLine": 4,
+                "exported": false,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "Ready",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "Ready",
+                "calleeUnmodeledReason": "ENUM_VALUE",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "Status",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "Status",
+                "calleeUnmodeledReason": "ENUM_VALUE",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "leaf",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "method",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "method",
+                "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "missingInitializer",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "missingInitializer",
+                "calleeUnmodeledReason": "VALUE_DECLARATION",
+                "line": 6
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "value",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "value",
+                "calleeUnmodeledReason": "VALUE_DECLARATION",
+                "line": 6
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "external",
+            "kind": "function",
+            "relPath": "main.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": false,
+            "signatureOnly": true,
+            "markers": []
+          }
+        ],
+        "imports": [],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "external",
+            "calleeSymbolPath": "external",
+            "line": 3
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "dynamic",
+            "calleeRelPath": "main.ts",
+            "calleeSymbolPath": "dynamic",
+            "calleeUnmodeledReason": "VALUE_DECLARATION",
+            "line": 3
+          },
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "unknown",
+            "line": 3
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-targets-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-targets-control",
+          "files": {
+            "main.ts": "declare function external(): void;\ndeclare const dynamic: any;\nexternal(); dynamic(); unknown();\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "external",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": false,
+                "signatureOnly": true,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "dynamic",
+                "calleeRelPath": "main.ts",
+                "calleeSymbolPath": "dynamic",
+                "calleeUnmodeledReason": "VALUE_DECLARATION",
+                "line": 3
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "external",
+                "calleeSymbolPath": "external",
+                "line": 3
+              },
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "unknown",
+                "line": 3
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js",
+          "dep.js"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep.js",
+            "resolvedRelPath": "dep.js",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.js",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeRelPath": "dep.js",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declaration-runtime-ts",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declaration-runtime-ts",
+          "files": {
+            "main.js": "import { target } from \"./dep.js\";\ntarget();\n",
+            "dep.d.ts": "export declare function target(): void;\n",
+            "dep.js": "exports.target = function target() {};\n"
+          },
+          "roots": [
+            "main.js",
+            "dep.d.ts",
+            "dep.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.js",
+              "main.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep.js",
+                "resolvedRelPath": "dep.js",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.js",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeRelPath": "dep.js",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep.js",
+            "resolvedRelPath": "dep.d.ts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declaration-only-ts",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declaration-only-ts",
+          "files": {
+            "main.js": "import { target } from \"./dep.js\";\ntarget();\n",
+            "dep.d.ts": "export declare function target(): void;\n"
+          },
+          "roots": [
+            "main.js",
+            "dep.d.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep.js",
+                "resolvedRelPath": "dep.d.ts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js",
+          "dep.mjs"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep.mjs",
+            "resolvedRelPath": "dep.mjs",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.mjs",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeRelPath": "dep.mjs",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declaration-runtime-mts",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declaration-runtime-mts",
+          "files": {
+            "main.js": "import { target } from \"./dep.mjs\";\ntarget();\n",
+            "dep.d.mts": "export declare function target(): void;\n",
+            "dep.mjs": "exports.target = function target() {};\n"
+          },
+          "roots": [
+            "main.js",
+            "dep.d.mts",
+            "dep.mjs"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.mjs",
+              "main.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep.mjs",
+                "resolvedRelPath": "dep.mjs",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.mjs",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeRelPath": "dep.mjs",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep.mjs",
+            "resolvedRelPath": "dep.d.mts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declaration-only-mts",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declaration-only-mts",
+          "files": {
+            "main.js": "import { target } from \"./dep.mjs\";\ntarget();\n",
+            "dep.d.mts": "export declare function target(): void;\n"
+          },
+          "roots": [
+            "main.js",
+            "dep.d.mts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep.mjs",
+                "resolvedRelPath": "dep.d.mts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js",
+          "dep.cjs"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep.cjs",
+            "resolvedRelPath": "dep.cjs",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.cjs",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeRelPath": "dep.cjs",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declaration-runtime-cts",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declaration-runtime-cts",
+          "files": {
+            "main.js": "import { target } from \"./dep.cjs\";\ntarget();\n",
+            "dep.d.cts": "export declare function target(): void;\n",
+            "dep.cjs": "exports.target = function target() {};\n"
+          },
+          "roots": [
+            "main.js",
+            "dep.d.cts",
+            "dep.cjs"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.cjs",
+              "main.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep.cjs",
+                "resolvedRelPath": "dep.cjs",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.cjs",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeRelPath": "dep.cjs",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep.cjs",
+            "resolvedRelPath": "dep.d.cts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-declaration-only-cts",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-declaration-only-cts",
+          "files": {
+            "main.js": "import { target } from \"./dep.cjs\";\ntarget();\n",
+            "dep.d.cts": "export declare function target(): void;\n"
+          },
+          "roots": [
+            "main.js",
+            "dep.d.cts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep.cjs",
+                "resolvedRelPath": "dep.d.cts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        197,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "src/dep.ts",
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "target",
+            "kind": "function",
+            "relPath": "src/dep.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "@local/dep",
+            "resolvedRelPath": "src/dep.ts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "src/dep.ts",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "target",
+            "calleeRelPath": "src/dep.ts",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-config-alias-retained",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-config-alias-retained",
+          "files": {
+            "main.ts": "import { target } from \"@local/dep\";\ntarget();\n",
+            "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+            "src/dep.ts": "export function target() {}\n"
+          },
+          "roots": [
+            "main.ts",
+            "src/dep.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts",
+              "src/dep.ts"
+            ],
+            "symbols": [
+              {
+                "name": "target",
+                "kind": "function",
+                "relPath": "src/dep.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "@local/dep",
+                "resolvedRelPath": "src/dep.ts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "src/dep.ts",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "target",
+                "calleeRelPath": "src/dep.ts",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.ts",
+          "src/control.ts"
+        ],
+        "symbols": [
+          {
+            "name": "control",
+            "kind": "function",
+            "relPath": "src/control.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "@local/missing",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-config-missing-retained",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-config-missing-retained",
+          "files": {
+            "main.ts": "import { target } from \"@local/missing\";\ntarget();\n",
+            "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+            "src/control.ts": "export function control() {}\n"
+          },
+          "roots": [
+            "main.ts",
+            "src/control.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.ts",
+              "src/control.ts"
+            ],
+            "symbols": [
+              {
+                "name": "control",
+                "kind": "function",
+                "relPath": "src/control.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "@local/missing",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "dep.ts",
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "target",
+            "kind": "function",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "target",
+            "calleeRelPath": "dep.ts",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-config-invalid-retained",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-config-invalid-retained",
+          "files": {
+            "main.ts": "import { target } from \"./dep\";\ntarget();\n",
+            "tsconfig.json": "{invalid json\n",
+            "dep.ts": "export function target() {}\n"
+          },
+          "roots": [
+            "main.ts",
+            "dep.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.ts",
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "target",
+                "kind": "function",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.ts",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "target",
+                "calleeRelPath": "dep.ts",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "src/dep.ts",
+          "main.js"
+        ],
+        "symbols": [
+          {
+            "name": "target",
+            "kind": "function",
+            "relPath": "src/dep.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "@local/dep",
+            "resolvedRelPath": "src/dep.ts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "src/dep.ts",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeRelPath": "src/dep.ts",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-config-alias-live",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-config-alias-live",
+          "files": {
+            "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+            "src/dep.ts": "export function target() {}\n",
+            "main.js": "import { target } from \"@local/dep\";\ntarget();\n"
+          },
+          "roots": [
+            "src/dep.ts",
+            "main.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": false,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.js",
+              "src/dep.ts"
+            ],
+            "symbols": [
+              {
+                "name": "target",
+                "kind": "function",
+                "relPath": "src/dep.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "@local/dep",
+                "resolvedRelPath": "src/dep.ts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "src/dep.ts",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeRelPath": "src/dep.ts",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "src/control.ts",
+          "main.js"
+        ],
+        "symbols": [
+          {
+            "name": "control",
+            "kind": "function",
+            "relPath": "src/control.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "@local/missing",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-config-missing-live",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-config-missing-live",
+          "files": {
+            "tsconfig.json": "{\"compilerOptions\":{\"baseUrl\":\".\",\"paths\":{\"@local/*\":[\"src/*\"]}}}\n",
+            "src/control.ts": "export function control() {}\n",
+            "main.js": "import { target } from \"@local/missing\";\ntarget();\n"
+          },
+          "roots": [
+            "src/control.ts",
+            "main.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": false,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.js",
+              "src/control.ts"
+            ],
+            "symbols": [
+              {
+                "name": "control",
+                "kind": "function",
+                "relPath": "src/control.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "@local/missing",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        175
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "dep.ts",
+          "main.js"
+        ],
+        "symbols": [
+          {
+            "name": "target",
+            "kind": "function",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "dep.ts",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeRelPath": "dep.ts",
+            "calleeSymbolPath": "target",
+            "line": 2
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-config-invalid-live",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-config-invalid-live",
+          "files": {
+            "tsconfig.json": "{invalid json\n",
+            "dep.ts": "export function target() {}\n",
+            "main.js": "import { target } from \"./dep\";\ntarget();\n"
+          },
+          "roots": [
+            "dep.ts",
+            "main.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": false,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.ts",
+              "main.js"
+            ],
+            "symbols": [
+              {
+                "name": "target",
+                "kind": "function",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "dep.ts",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeRelPath": "dep.ts",
+                "calleeSymbolPath": "target",
+                "line": 2
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "dep.ts",
+          "main.ts"
+        ],
+        "symbols": [
+          {
+            "name": "target",
+            "kind": "function",
+            "relPath": "dep.ts",
+            "scope": [],
+            "startLine": 1,
+            "endLine": 1,
+            "exported": true,
+            "markers": []
+          }
+        ],
+        "imports": [
+          {
+            "fromRelPath": "main.ts",
+            "moduleSpecifier": "./dep",
+            "resolvedRelPath": "dep.ts",
+            "names": [
+              "target"
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.ts",
+            "calleeName": "target",
+            "calleeRelPath": "dep.ts",
+            "calleeSymbolPath": "target",
+            "line": 1
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-no-config-live",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-no-config-live",
+          "files": {
+            "main.ts": "import { target } from \"./dep\"; target();\n",
+            "dep.ts": "export function target() {}\n"
+          },
+          "roots": [
+            "main.ts",
+            "dep.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": false,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "dep.ts",
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "target",
+                "kind": "function",
+                "relPath": "dep.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./dep",
+                "resolvedRelPath": "dep.ts",
+                "names": [
+                  "target"
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "calleeName": "target",
+                "calleeRelPath": "dep.ts",
+                "calleeSymbolPath": "target",
+                "line": 1
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "modules": [
+          "main.js",
+          "node_modules/public-probe/index.js"
+        ],
+        "symbols": [],
+        "imports": [
+          {
+            "fromRelPath": "main.js",
+            "moduleSpecifier": "public-probe",
+            "resolvedRelPath": "node_modules/public-probe/index.js",
+            "names": [
+              "target"
+            ],
+            "bindingTargets": [
+              {
+                "relPath": "node_modules/public-probe/index.js",
+                "symbolPath": "target"
+              }
+            ],
+            "line": 1
+          }
+        ],
+        "calls": [
+          {
+            "callerRelPath": "main.js",
+            "calleeName": "target",
+            "calleeRelPath": "node_modules/public-probe/index.js",
+            "calleeSymbolPath": "target",
+            "line": 1
+          }
+        ]
+      },
+      "unit_id": "PUBLIC-symbols-live-package",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-live-package",
+          "files": {
+            "main.js": "import { target } from \"public-probe\"; target();\n",
+            "node_modules/public-probe/package.json": "{\"name\":\"public-probe\",\"types\":\"index.d.ts\",\"main\":\"index.js\"}\n",
+            "node_modules/public-probe/index.d.ts": "export declare function target(): void;\n",
+            "node_modules/public-probe/index.js": "exports.target = function target() {};\n"
+          },
+          "roots": [
+            "main.js",
+            "node_modules/public-probe/index.d.ts",
+            "node_modules/public-probe/index.js"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": false,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction"
+          ],
+          "mode": "eq",
+          "expected": {
+            "modules": [
+              "main.js",
+              "node_modules/public-probe/index.js"
+            ],
+            "symbols": [],
+            "imports": [
+              {
+                "fromRelPath": "main.js",
+                "moduleSpecifier": "public-probe",
+                "resolvedRelPath": "node_modules/public-probe/index.js",
+                "names": [
+                  "target"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "node_modules/public-probe/index.js",
+                    "symbolPath": "target"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.js",
+                "calleeName": "target",
+                "calleeRelPath": "node_modules/public-probe/index.js",
+                "calleeSymbolPath": "target",
+                "line": 1
+              }
+            ]
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "baseline_raw_extraction",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "raw_extraction"
+            ],
+            "baseline_operation": "extractTypeScript",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored package lookup; no symlinks",
+      "obligation_indices": [
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        197
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "statements": [
+          {
+            "kind": "function",
+            "startLine": 3,
+            "endLine": 5,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "active"
+            ],
+            "referencedNames": [
+              "input"
+            ],
+            "digest": "c0c179de0dcbb435a9938c2ba8f1c3b5",
+            "executesOnLoad": false
+          },
+          {
+            "kind": "import",
+            "startLine": 6,
+            "endLine": 6,
+            "leadingStartLine": 6,
+            "declaredNames": [],
+            "referencedNames": [],
+            "sideEffectImport": true,
+            "digest": "5fbcbef884388fb688f87618ef1d4383",
+            "executesOnLoad": true,
+            "moduleSpecifier": "./dep",
+            "importBindings": [],
+            "loadsModule": "yes"
+          }
+        ],
+        "exportedNames": [
+          "active"
+        ],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "unit_id": "PUBLIC-symbols-outline-active",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-outline-active",
+          "files": {
+            "main.ts": "/** preceding */\n\nexport function active() {\n return input;\n}\nimport \"./dep\";\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline"
+          ],
+          "mode": "eq",
+          "expected": {
+            "statements": [
+              {
+                "kind": "function",
+                "startLine": 3,
+                "endLine": 5,
+                "leadingStartLine": 1,
+                "declaredNames": [
+                  "active"
+                ],
+                "referencedNames": [
+                  "input"
+                ],
+                "executesOnLoad": false
+              },
+              {
+                "kind": "import",
+                "startLine": 6,
+                "endLine": 6,
+                "leadingStartLine": 6,
+                "declaredNames": [],
+                "referencedNames": [],
+                "sideEffectImport": true,
+                "executesOnLoad": true,
+                "moduleSpecifier": "./dep",
+                "importBindings": [],
+                "loadsModule": "yes"
+              }
+            ],
+            "exportedNames": [
+              "active"
+            ],
+            "hasSyntaxErrors": false,
+            "directiveLines": [],
+            "markerLines": []
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "outline_without_digest_bytes",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ],
+            "baseline_operation": "outlineTopLevel",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline",
+            "hasSyntaxErrors"
+          ],
+          "mode": "eq",
+          "expected": false,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "statements": [
+          {
+            "kind": "variable",
+            "startLine": 3,
+            "endLine": 3,
+            "leadingStartLine": 3,
+            "declaredNames": [
+              "value"
+            ],
+            "referencedNames": [],
+            "digest": "566073ab50dd140935de0aa4bc7a9c06",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "unit_id": "PUBLIC-symbols-outline-control",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-outline-control",
+          "files": {
+            "main.ts": "\n\nconst value = 1;\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline"
+          ],
+          "mode": "eq",
+          "expected": {
+            "statements": [
+              {
+                "kind": "variable",
+                "startLine": 3,
+                "endLine": 3,
+                "leadingStartLine": 3,
+                "declaredNames": [
+                  "value"
+                ],
+                "referencedNames": [],
+                "executesOnLoad": false
+              }
+            ],
+            "exportedNames": [],
+            "hasSyntaxErrors": false,
+            "directiveLines": [],
+            "markerLines": []
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "outline_without_digest_bytes",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ],
+            "baseline_operation": "outlineTopLevel",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline",
+            "hasSyntaxErrors"
+          ],
+          "mode": "eq",
+          "expected": false,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "statements": [],
+        "exportedNames": [],
+        "hasSyntaxErrors": false,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "unit_id": "PUBLIC-symbols-outline-empty",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-outline-empty",
+          "files": {
+            "main.ts": ""
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline"
+          ],
+          "mode": "eq",
+          "expected": {
+            "statements": [],
+            "exportedNames": [],
+            "hasSyntaxErrors": false,
+            "directiveLines": [],
+            "markerLines": []
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "outline_without_digest_bytes",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ],
+            "baseline_operation": "outlineTopLevel",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline",
+            "hasSyntaxErrors"
+          ],
+          "mode": "eq",
+          "expected": false,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    },
+    {
+      "oracle_full_value": {
+        "statements": [
+          {
+            "kind": "function",
+            "startLine": 1,
+            "endLine": 1,
+            "leadingStartLine": 1,
+            "declaredNames": [
+              "incomplete"
+            ],
+            "referencedNames": [],
+            "digest": "8ef81220d44c0e9d88ad61c191d3ed8e",
+            "executesOnLoad": false
+          }
+        ],
+        "exportedNames": [
+          "incomplete"
+        ],
+        "hasSyntaxErrors": true,
+        "directiveLines": [],
+        "markerLines": []
+      },
+      "unit_id": "PUBLIC-symbols-outline-recovery",
+      "surface": "raw_cli",
+      "requests": [
+        {
+          "id": "PUBLIC-symbols-outline-recovery",
+          "files": {
+            "main.ts": "export function incomplete( {\n"
+          },
+          "roots": [
+            "main.ts"
+          ],
+          "options": {
+            "target": "ES2022",
+            "module": "ESNext",
+            "moduleResolution": "Bundler",
+            "allowJs": true,
+            "jsx": "Preserve",
+            "skipLibCheck": true,
+            "noEmit": true,
+            "strict": false
+          },
+          "retained": true,
+          "qualified": false,
+          "sdk_directory": "/sdk/lib",
+          "roles": {},
+          "selection": {},
+          "disabled": [],
+          "utf16_files": {},
+          "raw_files": {}
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline"
+          ],
+          "mode": "eq",
+          "expected": {
+            "statements": [
+              {
+                "kind": "function",
+                "startLine": 1,
+                "endLine": 1,
+                "leadingStartLine": 1,
+                "declaredNames": [
+                  "incomplete"
+                ],
+                "referencedNames": [],
+                "executesOnLoad": false
+              }
+            ],
+            "exportedNames": [
+              "incomplete"
+            ],
+            "hasSyntaxErrors": true,
+            "directiveLines": [],
+            "markerLines": []
+          },
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "outline_without_digest_bytes",
+          "operation_binding": {
+            "status": "VERIFIED_SOURCE_OPERATION",
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ],
+            "baseline_operation": "outlineTopLevel",
+            "authority": {
+              "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+              "typescript": "5.9.3",
+              "sourceIdentities": [
+                {
+                  "path": "packages/ts-analyzer/src/top-level-outline.ts",
+                  "sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+                  "sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+                  "sha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782"
+                },
+                {
+                  "path": "packages/ts-analyzer/src/ts-symbols.ts",
+                  "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+                },
+                {
+                  "path": "scripts/pilot/baselines.ts",
+                  "sha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9"
+                }
+              ],
+              "inputSha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774"
+            }
+          }
+        },
+        {
+          "observation": 0,
+          "target": [
+            "outlines",
+            "main.ts",
+            "outline",
+            "hasSyntaxErrors"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "typescript-5.9.3",
+          "actual_transform": "none"
+        }
+      ],
+      "gaps": [],
+      "physical_live_after_capture": {},
+      "independent_input_origin": "Public independently authored activating/control source; TS5.9.3 baseline owns expected complete output",
+      "obligation_indices": [
+        159
+      ]
+    }
+  ]
+}

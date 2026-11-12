@@ -1,0 +1,41 @@
+{
+  "review": "Independent worker capture fidelity correction review",
+  "reviewer": "/root/pass2_spec_review",
+  "author": "/root/pass2_standards_review",
+  "completed_at": "2026-10-17T20:24:21.277790+00:00",
+  "source": {
+    "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/worker_observations.rs",
+    "sha256": "8455b1697f51233507eaf0d4a986171cf6cfebd74502e18cf9a3a40940960c5d"
+  },
+  "scope": "read_repository native path fidelity, sorted observations, error ordering and tests",
+  "findings": [],
+  "proof_integrity_verdict": "PROOF_ADEQUATE",
+  "verdict_scope": "Source review and relevant macOS DEV negative/positive witness only; not Linux/Windows execution or complete capture atomicity",
+  "observed": [
+    "read_repository refuses non-UTF8 lexical and canonical file paths via to_str, rather than replacement encoding. Unix literal backslash file paths are refused before extraction starts.",
+    "Duplicate logical file insertion is an explicit bound error; no silent last-writer overwrite survives successful capture.",
+    "Entries are sorted before traversal; final read observations are independently sorted by logical path. Native case and content checks are unchanged.",
+    "run still parses malformed request before extract/read_repository. CLI previously reviewed skips SDK load for malformed extraction request; this delta adds no pre-validation OS reads.",
+    "Actual RED log shows successful extraction with colliding logical read paths and different content hashes. Actual GREEN log exercises same literal-backslash negative plus valid replacement-character positive and other worker tests: 13 passed, 0 ignored, 4.44 seconds."
+  ],
+  "evidence": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-red-2.log",
+      "sha256": "f82cdf96eee9fc9fcb92e6b33f84aaa070228fc7eb1b52eac1f10e86b02cae59"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-worker-capture-fidelity-final-green.log",
+      "sha256": "a0add4855afb8e1d2f916f547aa0a5c434dd6cf8e47c92f5c7814f20898d75b0"
+    }
+  ],
+  "limitations": [
+    "No tests executed by reviewer; retained raw logs inspected.",
+    "Linux non-UTF8 lexical/canonical alias test is platform-bound and unexecuted on macOS; APFS fixture rejection was not credited as RED.",
+    "Windows native separator handling and whole-candidate release suite remain separate required evidence.",
+    "No source snapshot retained at exact RED invocation; final source and raw logs are bound separately.",
+    "Path rejection occurs after capture OS reads but before compiler extraction; no claim of zero filesystem access or atomic acquisition."
+  ],
+  "qualification_queries": 0,
+  "reserved_inputs_read": false,
+  "code_edits": false
+}

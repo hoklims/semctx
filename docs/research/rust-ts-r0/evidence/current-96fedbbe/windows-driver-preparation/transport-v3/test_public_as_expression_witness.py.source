@@ -1,0 +1,287 @@
+"""Synthetic orchestration/reader controls; no native process or compiler runs."""
+import copy
+import hashlib
+import importlib.util
+import io
+import json
+from pathlib import Path
+import shutil
+import sys
+import tarfile
+import tempfile
+import unittest
+from unittest.mock import patch
+
+HERE = Path(__file__).resolve().parent
+REPO = Path('C:/maintenence/semctx.codex-t00-physical-20261022')
+FROZEN = HERE.parent/'public-as-expression-witness'
+sys.path.insert(0, str(REPO/'tools/rust-ts-r0/qualification'))
+spec = importlib.util.spec_from_file_location('windows_as_helper', HERE/'public_as_expression_witness.py')
+helper = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(helper)
+
+
+def write(path, value):
+    path.write_text(json.dumps(value), encoding='utf-8')
+
+
+class SyntheticControls(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(dir=HERE)
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.repo = self.root/'repo'
+        self.repo.mkdir()
+        self.bundle = self.repo/'bundle'
+        self.bundle.mkdir()
+        shutil.copyfile(FROZEN/'staging-v1/capsule.tar.gz', self.bundle/'capsule.tar.gz')
+        shutil.copyfile(FROZEN/'manifest.frozen.json', self.bundle/'manifest.frozen.json')
+        self.out = self.root/'evidence'
+        self.out.mkdir()
+        sdk_path = self.root/'prepared-sdk.json'
+        shutil.copyfile(FROZEN/'sdk.frozen.json', sdk_path)
+        self.fixture = {'candidate_execution_authorized': True, 'optimized_frozen': True,
+                        'platform': 'windows', 'source_head': '1'*40,
+                        'sdk_path': str(sdk_path), 'sdk_sha256': helper.sha(sdk_path)}
+        for kind in ('artifact', 'helper', 'transport_fixture', 'qualification_observer', 'build_environment'):
+            path = self.root/(kind+'.fixture')
+            path.write_bytes(('SYNTHETIC NOT EXECUTABLE '+kind).encode())
+            self.fixture[kind+'_path'] = str(path)
+            self.fixture[kind+'_sha256'] = helper.sha(path)
+        self.run_calls = []
+        self.mutator = None
+        sys.modules.pop('identity_scope_reader', None)
+        self.addCleanup(lambda: sys.modules.pop('identity_scope_reader', None))
+        self.patches = [patch.object(helper, 'BUNDLE', Path('bundle')),
+                        patch.object(helper, 'compile_caller', self.compile_fake),
+                        patch('native_build_identity.validate_frozen_document', lambda *a: None)]
+        for item in self.patches:
+            item.start()
+            self.addCleanup(item.stop)
+
+    def compile_fake(self, repo, out, env, run):
+        path = out/'synthetic-caller.NOT-EXECUTABLE'
+        path.write_bytes(b'SYNTHETIC NO COMPILER OR NATIVE PROCESS')
+        return path, {str(path.resolve()): helper.sha(path)}
+
+    def run_fake(self, repo, out, label, argv, env, **kwargs):
+        self.run_calls.append(label)
+        spec_value = helper.load(argv[1])
+        request = helper.load(spec_value['argv'][1])
+        sdk = helper.load(spec_value['argv'][2])
+        context = 'retained' if request['retained'] else 'legacy'
+        identity = sys.modules['identity_scope_reader']
+        expected = helper.load(FROZEN/'expected-oracle.json')
+        source = request['roots'][0]
+        observed = {'complete': True, 'global_admission_inferred': False, 'request': request['id'],
+                    'request_id': identity.digest(request),
+                    'input_manifest_id': identity.digest(identity.logical_input(request, sdk)),
+                    'producer_artifact_id': 'sha256:'+self.fixture['artifact_sha256'],
+                    'sdk_version': '5.9.3', 'ambient_native_case_sensitive': False,
+                    'status': 'development_observation_not_qualification',
+                    'subjects': [{'path': 'entry.ts', 'outcome': 'analyzed'}],
+                    'capture_probes': [{'operation': 'read_file', 'path': source, 'found': True,
+                                       'content_id': identity.digest_bytes(request['files'][source].encode())}],
+                    'calls': [{'file': source, 'start_utf16': 73, 'end_utf16': 101}],
+                    'raw_extraction': copy.deepcopy(expected['extractions'][context])}
+        directory = Path(argv[2])
+        directory.mkdir()
+        if self.mutator:
+            self.mutator('observed', observed)
+        raw = json.dumps(observed).encode()
+        (directory/'stdout.raw').write_bytes(raw)
+        (directory/'stderr.raw').write_bytes(b'')
+        outcome = {'kind': 'success', 'exit_code': 0,
+                   'stdout_bytes': len(raw), 'stderr_bytes': 0,
+                   'stdout_hash': hashlib.sha256(raw).hexdigest(),
+                   'stderr_hash': hashlib.sha256(b'').hexdigest()}
+        if self.mutator:
+            self.mutator('outcome', outcome)
+        write(directory/'process-outcome.json', outcome)
+        return {'exit_code': 0}
+
+    def acquire(self, **kwargs):
+        return helper.acquire(self.repo, self.out, self.fixture, {}, self.run_fake,
+                              kwargs.get('source_check', lambda: None),
+                              authorized=kwargs.get('authorized', True))
+
+    def report(self):
+        return helper.load(self.out/'public-as-expression/report.json')
+
+    def test_positive_two_real_context_slots_synthetic_dtos(self):
+        path = self.acquire()
+        report = helper.load(path)
+        self.assertEqual(self.run_calls, ['legacy-caller', 'retained-caller'])
+        self.assertEqual([r['adjudication']['canonical_call_count'] for r in report['contexts']], [0, 1])
+        self.assertEqual(report['candidate_outcomes_recorded'], 2)
+        self.assertTrue(report['postflight_ok'])
+        self.assertEqual(report['qualification_credit'], 0)
+
+    def test_authorization_refused_before_build_or_output(self):
+        with self.assertRaisesRegex(ValueError, 'authorization absent'):
+            self.acquire(authorized=False)
+        self.assertFalse((self.out/'public-as-expression').exists())
+        self.assertEqual(self.run_calls, [])
+
+    def test_boolean_one_is_not_authorization(self):
+        with self.assertRaisesRegex(ValueError, 'authorization absent'):
+            self.acquire(authorized=1)
+        self.assertEqual(self.run_calls, [])
+
+    def test_missing_or_mismatched_caller_input_artifact_refused_before_build(self):
+        Path(self.fixture['artifact_path']).write_bytes(b'drift')
+        with self.assertRaisesRegex(ValueError, 'input/tool drift'):
+            self.acquire()
+        self.assertFalse((self.out/'public-as-expression').exists())
+
+    def test_missing_additional_caller_refused_before_candidate_dispatch(self):
+        missing = self.root/'missing-caller.exe'
+        with patch.object(helper, 'compile_caller', lambda *a: (missing, {str(missing): '0'*64})):
+            with self.assertRaisesRegex(ValueError, 'postflight drift'):
+                self.acquire()
+        self.assertEqual(self.run_calls, [])
+        self.assertEqual(self.report()['candidate_outcomes_recorded'], 0)
+
+    def test_wrong_frozen_oracle_refused_before_build(self):
+        (self.bundle/'capsule.tar.gz').write_bytes(b'not the approved archive')
+        with self.assertRaisesRegex(ValueError, 'public witness capsule differs'):
+            self.acquire()
+        self.assertFalse((self.out/'public-as-expression').exists())
+
+    def test_same_context_twice_is_rejected_no_second_query(self):
+        def mutate(stage, value):
+            if stage == 'observed':
+                value['raw_extraction']['calls'] = helper.load(FROZEN/'expected-oracle.json')['extractions']['retained']['calls']
+        self.mutator = mutate
+        with self.assertRaisesRegex(ValueError, 'canonical calls'):
+            self.acquire()
+        self.assertEqual(self.run_calls, ['legacy-caller'])
+        self.assertEqual(self.report()['candidate_outcomes_recorded'], 1)
+
+    def test_boolean_exit_code_is_not_success(self):
+        self.mutator = lambda stage, value: value.update(exit_code=False) if stage == 'outcome' else None
+        with self.assertRaisesRegex(ValueError, 'non-success'):
+            self.acquire()
+        self.assertEqual(self.run_calls, ['legacy-caller'])
+
+    def test_output_cap_violation_is_not_success(self):
+        self.mutator = lambda stage, value: value.update(stdout_bytes=helper.CAP+1) if stage == 'outcome' else None
+        with self.assertRaisesRegex(ValueError, 'size/cap'):
+            self.acquire()
+        self.assertTrue((self.out/'public-as-expression/legacy/stdout.raw').is_file())
+
+    def test_stream_hash_mismatch_refused(self):
+        self.mutator = lambda stage, value: value.update(stdout_hash='0'*64) if stage == 'outcome' else None
+        with self.assertRaisesRegex(ValueError, 'hash differs'):
+            self.acquire()
+
+    def test_foreign_candidate_identity_refused(self):
+        self.mutator = lambda stage, value: value.update(producer_artifact_id='sha256:'+'0'*64) if stage == 'observed' else None
+        with self.assertRaisesRegex(ValueError, 'artifact identity'):
+            self.acquire()
+
+    def test_one_shot_prevents_repeat(self):
+        self.acquire()
+        with self.assertRaisesRegex(ValueError, 'already attempted'):
+            self.acquire()
+        self.assertEqual(len(self.run_calls), 2)
+
+    def test_postflight_catches_drift_and_preserves_failure(self):
+        def mutate(stage, value):
+            if stage == 'outcome':
+                Path(self.fixture['helper_path']).write_bytes(b'changed')
+        self.mutator = mutate
+        with self.assertRaisesRegex(ValueError, 'postflight drift'):
+            self.acquire()
+        self.assertFalse(self.report()['postflight_ok'])
+        self.assertEqual(self.run_calls, ['legacy-caller'])
+
+    def test_final_postflight_failure_after_both_adjudications_records_failed_state(self):
+        checks = []
+        def source_check():
+            checks.append(len(checks)+1)
+            if len(checks) == 4:
+                raise ValueError('late final source snapshot drift')
+        with self.assertRaisesRegex(ValueError, 'postflight drift'):
+            self.acquire(source_check=source_check)
+        report = self.report()
+        self.assertEqual(checks, [1, 2, 3, 4])
+        self.assertEqual(self.run_calls, ['legacy-caller', 'retained-caller'])
+        self.assertEqual(report['candidate_phases_completed'], 2)
+        self.assertFalse(report['postflight_ok'])
+        self.assertEqual(report['state'], 'FAILED')
+        self.assertIn('late final source snapshot drift', report['failure'])
+
+    def test_invalid_utf8_decoded_prefix_is_preserved_but_refused_as_exact(self):
+        directory = self.root/'invalid-utf8'
+        directory.mkdir()
+        original, stored = b'\xff', b'\xef\xbf\xbd'
+        (directory/'stdout.raw').write_bytes(stored)
+        (directory/'stderr.raw').write_bytes(b'')
+        outcome = {'kind': 'malformed_output', 'exit_code': 0,
+                   'stdout_bytes': len(original), 'stderr_bytes': 0,
+                   'stdout_hash': hashlib.sha256(original).hexdigest(),
+                   'stderr_hash': hashlib.sha256(b'').hexdigest()}
+        write(directory/'process-outcome.json', outcome)
+        with self.assertRaisesRegex(ValueError, 'size/cap differs'):
+            helper.validate_outcome(directory)
+        self.assertEqual((directory/'stdout.raw').read_bytes(), stored)
+        self.assertEqual(helper.load(directory/'process-outcome.json'), outcome)
+
+    def test_unchanged_windows_transport_accepts_extra_full_snapshot_map(self):
+        path = HERE.parent/'retained-scope-observer-fix/windows-freeze-c01cb627/package/windows_transport.py'
+        spec_value = importlib.util.spec_from_file_location('unchanged_windows_transport', path)
+        transport = importlib.util.module_from_spec(spec_value)
+        spec_value.loader.exec_module(transport)
+        files = {'tools/rust-ts-r0/qualification/run_windows_milestone.py': 'a'*64}
+        before = {'source_head': '1'*40, 'status': '', 'files': files,
+                  'all_tracked_files': {**files, 'docs/public-witness': 'b'*64}}
+        build_source = {'head': '1'*40, 'status': '', 'files': files}
+        build = {'source_head': '1'*40, 'source_before': build_source,
+                 'source_after': copy.deepcopy(build_source), 'caller': {'sha256': 'a'*64}}
+        transport.source_pair(before, copy.deepcopy(before), build, '1'*40, 'a'*64)
+        after = copy.deepcopy(before)
+        after['all_tracked_files']['docs/public-witness'] = 'c'*64
+        with self.assertRaisesRegex(ValueError, 'raw source snapshots differ'):
+            transport.source_pair(before, after, build, '1'*40, 'a'*64)
+
+    def mutated_capsule(self, mode):
+        result = io.BytesIO()
+        with tarfile.open(fileobj=result, mode='w:gz') as output:
+            with tarfile.open(self.bundle/'capsule.tar.gz', mode='r:gz') as source:
+                for member in source:
+                    data = source.extractfile(member).read()
+                    if member.name == 'expected-oracle.json':
+                        if mode == 'missing':
+                            continue
+                        if mode == 'tamper':
+                            data = b'X'+data[1:]
+                        elif mode == 'traversal':
+                            member.name = '../expected-oracle.json'
+                        elif mode == 'foreign':
+                            member.name = 'foreign-oracle.json'
+                        elif mode == 'link':
+                            member.type, member.linkname, member.size = tarfile.SYMTYPE, 'outside', 0
+                            data = b''
+                    output.addfile(member, io.BytesIO(data))
+                    if mode == 'duplicate' and member.name == 'expected-oracle.json':
+                        output.addfile(member, io.BytesIO(data))
+        return result.getvalue()
+
+    def test_capsule_bad_member_types_paths_and_duplicates_refused_without_output(self):
+        manifest = (self.bundle/'manifest.frozen.json').read_bytes()
+        for mode, diagnostic in [('traversal', 'noncanonical'), ('link', 'regular capsule'),
+                                 ('duplicate', 'duplicate capsule'), ('missing', 'required member inventory'),
+                                 ('foreign', 'foreign capsule member')]:
+            with self.subTest(mode=mode), self.assertRaisesRegex(ValueError, diagnostic):
+                helper.inspect_capsule(self.mutated_capsule(mode), manifest)
+        self.assertFalse((self.out/'public-as-expression').exists())
+
+    def test_capsule_required_member_tamper_refused_without_output(self):
+        with self.assertRaisesRegex(ValueError, 'frozen witness member bytes differ'):
+            helper.inspect_capsule(self.mutated_capsule('tamper'), (self.bundle/'manifest.frozen.json').read_bytes())
+        self.assertFalse((self.out/'public-as-expression').exists())
+
+
+if __name__ == '__main__':
+    unittest.main(verbosity=2)

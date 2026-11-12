@@ -1,0 +1,3123 @@
+{
+  "archives": [
+    {
+      "api_digest_match": true,
+      "archive_name": "native-r0-development-macos-15.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+        "created_at": "2026-10-18T06:35:51Z",
+        "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12127728168,
+        "name": "native-r0-development-macos-15",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+        "size_in_bytes": 529936,
+        "updated_at": "2026-10-18T06:35:51Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 0,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127728168,
+            "name": "native-r0-development-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+            "size_in_bytes": 529936,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127728168,
+            "name": "native-r0-development-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+            "size_in_bytes": 529936,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll4.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127728168,
+            "name": "native-r0-development-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+            "size_in_bytes": 529936,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll5.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127728168,
+            "name": "native-r0-development-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+            "size_in_bytes": 529936,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127728168,
+            "name": "native-r0-development-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+            "size_in_bytes": 529936,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127728168,
+            "name": "native-r0-development-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzcyODE2OA==",
+            "size_in_bytes": 529936,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127728168",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4314,
+          "compressed_bytes": 1423,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/common-vectors.json",
+          "sha256": "2431d5219ad560065cae8a31730f71fa03f06a3b33d4eb64d7fda8cf27092498",
+          "zip_crc32": "58d884e2",
+          "zip_member": "common-34236-1792305134170510000/common-vectors.json"
+        },
+        {
+          "bytes": 103949,
+          "compressed_bytes": 11616,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development07Malformed-outcome.json",
+          "sha256": "7350e13d478ed0150716f51d7df7207f3e113f6c4141f805e0a2758eb1fa079e",
+          "zip_crc32": "0c357613",
+          "zip_member": "common-34236-1792305134170510000/t00Development07Malformed-outcome.json"
+        },
+        {
+          "bytes": 878,
+          "compressed_bytes": 338,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development07Malformed-request.json",
+          "sha256": "c1cd577b855213d6bc985c1c8c8673c66701321fe11e3dff9d7fb32a1863970e",
+          "zip_crc32": "e4ebd9a9",
+          "zip_member": "common-34236-1792305134170510000/t00Development07Malformed-request.json"
+        },
+        {
+          "bytes": 104735,
+          "compressed_bytes": 11513,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development07Valid-outcome.json",
+          "sha256": "8f64bdab1371a8f9be27729c1cef7226ccdc84e1764ac7c131a083643c8d731d",
+          "zip_crc32": "01f9dde2",
+          "zip_member": "common-34236-1792305134170510000/t00Development07Valid-outcome.json"
+        },
+        {
+          "bytes": 142169,
+          "compressed_bytes": 14748,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development08BomCrLfAstral-outcome.json",
+          "sha256": "b3c3e907568a066751f1af39ef096780991fa10c476c45c7a218b417d5da2b30",
+          "zip_crc32": "0ab77607",
+          "zip_member": "common-34236-1792305134170510000/t00Development08BomCrLfAstral-outcome.json"
+        },
+        {
+          "bytes": 879,
+          "compressed_bytes": 345,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development07Valid-request.json",
+          "sha256": "a35b1eb943c41f215bbe1727fd706783d46a30b2698be794228e3b8eaf8cec30",
+          "zip_crc32": "8baf26e6",
+          "zip_member": "common-34236-1792305134170510000/t00Development07Valid-request.json"
+        },
+        {
+          "bytes": 1004,
+          "compressed_bytes": 402,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development08BomCrLfAstral-request.json",
+          "sha256": "de781d21a00ba8b839c91e50aa9e6459b8bfef7dc72a8a90ecd230d7bcd2f859",
+          "zip_crc32": "721577f4",
+          "zip_member": "common-34236-1792305134170510000/t00Development08BomCrLfAstral-request.json"
+        },
+        {
+          "bytes": 142105,
+          "compressed_bytes": 14700,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development08SingleLineControl-outcome.json",
+          "sha256": "ad03bac439a7ad5c0de47cced06dcd6eebf65b9fff6a3f28497d0b87eaa5d127",
+          "zip_crc32": "1a989833",
+          "zip_member": "common-34236-1792305134170510000/t00Development08SingleLineControl-outcome.json"
+        },
+        {
+          "bytes": 951,
+          "compressed_bytes": 374,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/common-34236-1792305134170510000/t00Development08SingleLineControl-request.json",
+          "sha256": "bda86fb1bd127624b34722c78dbac255728ee9cb34dfa507c3aef6096cfbd76a",
+          "zip_crc32": "90f0e667",
+          "zip_member": "common-34236-1792305134170510000/t00Development08SingleLineControl-request.json"
+        },
+        {
+          "bytes": 2282,
+          "compressed_bytes": 763,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/coherent-payload-and-input-poisons.json",
+          "sha256": "8e66b6483824d58eb952f6f306bae2569bda562c08a58cc08297f180b104ab29",
+          "zip_crc32": "f230bdb2",
+          "zip_member": "run-34753-1792305158216631000/coherent-payload-and-input-poisons.json"
+        },
+        {
+          "bytes": 5373,
+          "compressed_bytes": 627,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/input-provenance-0.json",
+          "sha256": "e9919a59265fc416cc411e2d0d726387cebf329cab4769e3e9e5cc30a639b849",
+          "zip_crc32": "6e40ac5e",
+          "zip_member": "run-34753-1792305158216631000/input-provenance-0.json"
+        },
+        {
+          "bytes": 1,
+          "compressed_bytes": 3,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/malformed-request.json",
+          "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "zip_crc32": "15d54739",
+          "zip_member": "run-34753-1792305158216631000/malformed-request.json"
+        },
+        {
+          "bytes": 34615,
+          "compressed_bytes": 5814,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/native-0.json",
+          "sha256": "287a353983d868b1eb5fbff489f3ad444ad7d4095edfbe41622c99cb5c670516",
+          "zip_crc32": "c82f52af",
+          "zip_member": "run-34753-1792305158216631000/native-0.json"
+        },
+        {
+          "bytes": 35448,
+          "compressed_bytes": 5811,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/native-relocated.json",
+          "sha256": "0a8da466a4da5a8fb47ce13b3fa717f59e419d2921efa75b61bfccabf7d6d06a",
+          "zip_crc32": "3b06c2b4",
+          "zip_member": "run-34753-1792305158216631000/native-relocated.json"
+        },
+        {
+          "bytes": 34821,
+          "compressed_bytes": 5890,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/real-native-empty-path.json",
+          "sha256": "f0e823c1d6b04171fd2be59e3512d9a3d7d6ad3b7106ef1e12bc5f62c0f3e935",
+          "zip_crc32": "97a4c6ba",
+          "zip_member": "run-34753-1792305158216631000/real-native-empty-path.json"
+        },
+        {
+          "bytes": 1613,
+          "compressed_bytes": 715,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/real-native-failure.json",
+          "sha256": "c220d0e89f4643a2112bd9cb74b6935edfa4b229b00c1e606b19d560e80d7093",
+          "zip_crc32": "e6162e58",
+          "zip_member": "run-34753-1792305158216631000/real-native-failure.json"
+        },
+        {
+          "bytes": 1546,
+          "compressed_bytes": 661,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/real-native-output-cap.json",
+          "sha256": "680e75f417c62f34fcf069390ea849635c5fba2804fcd8de7ea47f0c7002b7d1",
+          "zip_crc32": "99b4d7fc",
+          "zip_member": "run-34753-1792305158216631000/real-native-output-cap.json"
+        },
+        {
+          "bytes": 1538,
+          "compressed_bytes": 612,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/real-native-timeout.json",
+          "sha256": "d8dc12ef4fcc276ca287f0e7af85d308408de3d896d6ca2022d633385fab141c",
+          "zip_crc32": "60efda0b",
+          "zip_member": "run-34753-1792305158216631000/real-native-timeout.json"
+        },
+        {
+          "bytes": 8020,
+          "compressed_bytes": 1248,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/real-relocation.json",
+          "sha256": "bfddc3d6e65c618f60abaa95d3f194016f6275a5fcd781f8cd2d4c09083b2ec5",
+          "zip_crc32": "a4fb7425",
+          "zip_member": "run-34753-1792305158216631000/real-relocation.json"
+        },
+        {
+          "bytes": 779,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/receiver-poisons.json",
+          "sha256": "4ab5ccb1a996dcbdcca5976ba7d62c298a62d6d8a4392aabf587341bc1de40bf",
+          "zip_crc32": "0aec9a86",
+          "zip_member": "run-34753-1792305158216631000/receiver-poisons.json"
+        },
+        {
+          "bytes": 1385,
+          "compressed_bytes": 508,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/relocated-request.json",
+          "sha256": "6e97ab6f6329d53f55b120f23934f410b29f360a6a4e5ebc66710e6fd3c2cd32",
+          "zip_crc32": "bc64be4d",
+          "zip_member": "run-34753-1792305158216631000/relocated-request.json"
+        },
+        {
+          "bytes": 3220097,
+          "compressed_bytes": 436975,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/relocated-sdk.json",
+          "sha256": "0a055683a9d521084602e1dc7d0950c4e76edfea544b5b57d65cc7339ce39035",
+          "zip_crc32": "03a3098f",
+          "zip_member": "run-34753-1792305158216631000/relocated-sdk.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/relocated-workspace/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "run-34753-1792305158216631000/relocated-workspace/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/relocated-workspace/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "run-34753-1792305158216631000/relocated-workspace/src/orbit-use.ts"
+        },
+        {
+          "bytes": 1335,
+          "compressed_bytes": 498,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/request-0.json",
+          "sha256": "f8102127748ca65a012c71772d58b32012f5388356890467c3f91ef2b6a9e100",
+          "zip_crc32": "f598599c",
+          "zip_member": "run-34753-1792305158216631000/request-0.json"
+        },
+        {
+          "bytes": 1279,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/semantic-0.json",
+          "sha256": "51154ddcf6afa9c0984c7e4e8f696db421a2d10ec962faeb7b13e9db848bd98a",
+          "zip_crc32": "e7792d6c",
+          "zip_member": "run-34753-1792305158216631000/semantic-0.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/workspace-0/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "run-34753-1792305158216631000/workspace-0/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305158216631000/workspace-0/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "run-34753-1792305158216631000/workspace-0/src/orbit-use.ts"
+        },
+        {
+          "bytes": 5263,
+          "compressed_bytes": 623,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305333371132000/input-provenance-1.json",
+          "sha256": "28d76287b110d8bd03513991e5217cbf2b30dffd595261669709b35ec5f068bb",
+          "zip_crc32": "4755f2d9",
+          "zip_member": "run-34753-1792305333371132000/input-provenance-1.json"
+        },
+        {
+          "bytes": 24810,
+          "compressed_bytes": 4823,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305333371132000/native-1.json",
+          "sha256": "36c49bbe34ddfef24570e11c1558a93532ccbb174b92e066152e98c5daec0b52",
+          "zip_crc32": "c443a27c",
+          "zip_member": "run-34753-1792305333371132000/native-1.json"
+        },
+        {
+          "bytes": 832,
+          "compressed_bytes": 381,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305333371132000/request-1.json",
+          "sha256": "1276d90eb3d19f44640efee6ee253746b880d84554a01bf50b636fc24423190b",
+          "zip_crc32": "c8632c2a",
+          "zip_member": "run-34753-1792305333371132000/request-1.json"
+        },
+        {
+          "bytes": 407,
+          "compressed_bytes": 284,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305333371132000/semantic-1.json",
+          "sha256": "89862fab2a5fec78377679d72ecfc11a691ea4fc4a438203bcdc7b42e4dd8374",
+          "zip_crc32": "f474d3bf",
+          "zip_member": "run-34753-1792305333371132000/semantic-1.json"
+        },
+        {
+          "bytes": 21,
+          "compressed_bytes": 23,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-macos-15/run-34753-1792305333371132000/workspace-1/src/orbit-default.ts",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "zip_crc32": "4ba7decf",
+          "zip_member": "run-34753-1792305333371132000/workspace-1/src/orbit-default.ts"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-development-macos-15.zip",
+      "original_zip_bytes": 529936,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "7eab0a315ab41b3cdd5a9b03a78b6431124295e824c1a2b3b067fcacd6396276"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "native-r0-development-ubuntu-latest.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+        "created_at": "2026-10-18T06:33:41Z",
+        "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12127423149,
+        "name": "native-r0-development-ubuntu-latest",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+        "size_in_bytes": 529961,
+        "updated_at": "2026-10-18T06:33:41Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 0,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+            "created_at": "2026-10-18T06:33:41Z",
+            "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127423149,
+            "name": "native-r0-development-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+            "size_in_bytes": 529961,
+            "updated_at": "2026-10-18T06:33:41Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+            "created_at": "2026-10-18T06:33:41Z",
+            "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127423149,
+            "name": "native-r0-development-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+            "size_in_bytes": 529961,
+            "updated_at": "2026-10-18T06:33:41Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll4.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+            "created_at": "2026-10-18T06:33:41Z",
+            "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127423149,
+            "name": "native-r0-development-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+            "size_in_bytes": 529961,
+            "updated_at": "2026-10-18T06:33:41Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll5.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+            "created_at": "2026-10-18T06:33:41Z",
+            "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127423149,
+            "name": "native-r0-development-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+            "size_in_bytes": 529961,
+            "updated_at": "2026-10-18T06:33:41Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+            "created_at": "2026-10-18T06:33:41Z",
+            "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127423149,
+            "name": "native-r0-development-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+            "size_in_bytes": 529961,
+            "updated_at": "2026-10-18T06:33:41Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149/zip",
+            "created_at": "2026-10-18T06:33:41Z",
+            "digest": "sha256:a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127423149,
+            "name": "native-r0-development-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzQyMzE0OQ==",
+            "size_in_bytes": 529961,
+            "updated_at": "2026-10-18T06:33:41Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127423149",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4313,
+          "compressed_bytes": 1429,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/common-vectors.json",
+          "sha256": "8c6f0519cd1e8cd956db2189f274171c0f80803b5ea7de7ad3ebd39095ec7bb9",
+          "zip_crc32": "9cd3d586",
+          "zip_member": "common-11574-1792305040432208923/common-vectors.json"
+        },
+        {
+          "bytes": 874,
+          "compressed_bytes": 336,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development07Malformed-request.json",
+          "sha256": "7bd579bdec1b3d23a9cc02ce15db24c33a0e5238445ab18ab127c3baa73dcf93",
+          "zip_crc32": "73593030",
+          "zip_member": "common-11574-1792305040432208923/t00Development07Malformed-request.json"
+        },
+        {
+          "bytes": 103272,
+          "compressed_bytes": 11592,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development07Malformed-outcome.json",
+          "sha256": "392f4426c0fa87b9d52ec8a2bc28c95cf0ab6d9181120a3309620878e626b92a",
+          "zip_crc32": "37477eb5",
+          "zip_member": "common-11574-1792305040432208923/t00Development07Malformed-outcome.json"
+        },
+        {
+          "bytes": 104058,
+          "compressed_bytes": 11525,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development07Valid-outcome.json",
+          "sha256": "c59dd1a9b49a983c616d4bef150ce19868841cc65e14839b90b689574f729c77",
+          "zip_crc32": "a054b5df",
+          "zip_member": "common-11574-1792305040432208923/t00Development07Valid-outcome.json"
+        },
+        {
+          "bytes": 875,
+          "compressed_bytes": 344,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development07Valid-request.json",
+          "sha256": "60aa55a86a1bd9fa7f3550a8552b76e136b02cb93fd54dc0ddb6a8590286d7e0",
+          "zip_crc32": "aa4678d8",
+          "zip_member": "common-11574-1792305040432208923/t00Development07Valid-request.json"
+        },
+        {
+          "bytes": 141240,
+          "compressed_bytes": 14766,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development08BomCrLfAstral-outcome.json",
+          "sha256": "1c5f63b635f543da5ca8d0c6ab1980a0719ccaef54d92b0150f9a1b7b5c99d2a",
+          "zip_crc32": "10ff74e3",
+          "zip_member": "common-11574-1792305040432208923/t00Development08BomCrLfAstral-outcome.json"
+        },
+        {
+          "bytes": 1000,
+          "compressed_bytes": 401,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development08BomCrLfAstral-request.json",
+          "sha256": "8f350ae3dd790a4a71ff141f829f521a3439132e45704fac3dbb7b9eac78706d",
+          "zip_crc32": "095ce4ac",
+          "zip_member": "common-11574-1792305040432208923/t00Development08BomCrLfAstral-request.json"
+        },
+        {
+          "bytes": 141176,
+          "compressed_bytes": 14712,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development08SingleLineControl-outcome.json",
+          "sha256": "acefbe79604bde64f67ff6c6f698813aebd2594e44d5a19ec0857be0aaa325fe",
+          "zip_crc32": "ac7505db",
+          "zip_member": "common-11574-1792305040432208923/t00Development08SingleLineControl-outcome.json"
+        },
+        {
+          "bytes": 947,
+          "compressed_bytes": 370,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/common-11574-1792305040432208923/t00Development08SingleLineControl-request.json",
+          "sha256": "2b93c3d1ad4c8f48137a4e309f46ff5b3e80a09f0dd2e6b1b21b65896bf3deec",
+          "zip_crc32": "8559903f",
+          "zip_member": "common-11574-1792305040432208923/t00Development08SingleLineControl-request.json"
+        },
+        {
+          "bytes": 2282,
+          "compressed_bytes": 764,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/coherent-payload-and-input-poisons.json",
+          "sha256": "138e9c21b3cca97dcc9aa9a180b5f906834222278dbe106b7632ced81dd5e78f",
+          "zip_crc32": "e00a8574",
+          "zip_member": "run-11675-1792305061329488091/coherent-payload-and-input-poisons.json"
+        },
+        {
+          "bytes": 5371,
+          "compressed_bytes": 629,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/input-provenance-0.json",
+          "sha256": "ec3ec602da612625d8a1b572a26fca63ccd537ac991c7de82c4486fc5c5b0bbe",
+          "zip_crc32": "7bfe8df8",
+          "zip_member": "run-11675-1792305061329488091/input-provenance-0.json"
+        },
+        {
+          "bytes": 1,
+          "compressed_bytes": 3,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/malformed-request.json",
+          "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "zip_crc32": "15d54739",
+          "zip_member": "run-11675-1792305061329488091/malformed-request.json"
+        },
+        {
+          "bytes": 34571,
+          "compressed_bytes": 5815,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/native-0.json",
+          "sha256": "4d64ec498149e6b305e3c8b644d1d2e81b0b238f27141bdc0dfd775de7edd261",
+          "zip_crc32": "7ca7b0e4",
+          "zip_member": "run-11675-1792305061329488091/native-0.json"
+        },
+        {
+          "bytes": 35404,
+          "compressed_bytes": 5812,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/native-relocated.json",
+          "sha256": "db1fe05fe980953d0c328aa7c6174b9f308b488cd0960a514e5bb5feaffbab99",
+          "zip_crc32": "7a10a67e",
+          "zip_member": "run-11675-1792305061329488091/native-relocated.json"
+        },
+        {
+          "bytes": 34776,
+          "compressed_bytes": 5891,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/real-native-empty-path.json",
+          "sha256": "3d7004c04cfaa7a65c66dec1b8f4717617688e3483d1bee5c164691bd7b8d031",
+          "zip_crc32": "53410a88",
+          "zip_member": "run-11675-1792305061329488091/real-native-empty-path.json"
+        },
+        {
+          "bytes": 1606,
+          "compressed_bytes": 715,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/real-native-failure.json",
+          "sha256": "f701f03de93f52de0b62c14fc80075893a78d2d662698eef8f0dcad5ee00b042",
+          "zip_crc32": "8d57ee08",
+          "zip_member": "run-11675-1792305061329488091/real-native-failure.json"
+        },
+        {
+          "bytes": 1543,
+          "compressed_bytes": 663,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/real-native-output-cap.json",
+          "sha256": "ff6824ea5adb93bd05d96f02110fc47b546f20bd61c43c95adc82057432ba1d4",
+          "zip_crc32": "5bab91d4",
+          "zip_member": "run-11675-1792305061329488091/real-native-output-cap.json"
+        },
+        {
+          "bytes": 1533,
+          "compressed_bytes": 613,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/real-native-timeout.json",
+          "sha256": "d5a7b4072d51e842bb75ddaf81b2b5e8d87f0f2ab1aae6a63b1137d0c55c69f1",
+          "zip_crc32": "3a585b36",
+          "zip_member": "run-11675-1792305061329488091/real-native-timeout.json"
+        },
+        {
+          "bytes": 8018,
+          "compressed_bytes": 1250,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/real-relocation.json",
+          "sha256": "b0855110f1c942b62781f9234f70ae364d95b32410d9b0755a7daae2230d26a6",
+          "zip_crc32": "24370ae8",
+          "zip_member": "run-11675-1792305061329488091/real-relocation.json"
+        },
+        {
+          "bytes": 779,
+          "compressed_bytes": 472,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/receiver-poisons.json",
+          "sha256": "696f57004ad26211156bafa11ebda222fd451b14846e6bed996e48af3fe09063",
+          "zip_crc32": "b9ecd6c7",
+          "zip_member": "run-11675-1792305061329488091/receiver-poisons.json"
+        },
+        {
+          "bytes": 1379,
+          "compressed_bytes": 506,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/relocated-request.json",
+          "sha256": "507f729f235f76a06d81ae10eaad7795c22fd66c2df218b57d5dc59561830764",
+          "zip_crc32": "252645eb",
+          "zip_member": "run-11675-1792305061329488091/relocated-request.json"
+        },
+        {
+          "bytes": 3220097,
+          "compressed_bytes": 436975,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/relocated-sdk.json",
+          "sha256": "0a055683a9d521084602e1dc7d0950c4e76edfea544b5b57d65cc7339ce39035",
+          "zip_crc32": "03a3098f",
+          "zip_member": "run-11675-1792305061329488091/relocated-sdk.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/relocated-workspace/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "run-11675-1792305061329488091/relocated-workspace/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/relocated-workspace/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "run-11675-1792305061329488091/relocated-workspace/src/orbit-use.ts"
+        },
+        {
+          "bytes": 1329,
+          "compressed_bytes": 497,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/request-0.json",
+          "sha256": "aaedc1e639706b94d8499c5df588d046aca8b9027c816a2809f2711c2c917397",
+          "zip_crc32": "e39f9f91",
+          "zip_member": "run-11675-1792305061329488091/request-0.json"
+        },
+        {
+          "bytes": 1279,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/semantic-0.json",
+          "sha256": "51154ddcf6afa9c0984c7e4e8f696db421a2d10ec962faeb7b13e9db848bd98a",
+          "zip_crc32": "e7792d6c",
+          "zip_member": "run-11675-1792305061329488091/semantic-0.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/workspace-0/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "run-11675-1792305061329488091/workspace-0/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305061329488091/workspace-0/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "run-11675-1792305061329488091/workspace-0/src/orbit-use.ts"
+        },
+        {
+          "bytes": 5262,
+          "compressed_bytes": 623,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305205046168868/input-provenance-1.json",
+          "sha256": "f52d148c25fc81650be844685d5b163e145f636dbec640aaebe41bd897b24dce",
+          "zip_crc32": "311eb70b",
+          "zip_member": "run-11675-1792305205046168868/input-provenance-1.json"
+        },
+        {
+          "bytes": 24768,
+          "compressed_bytes": 4824,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305205046168868/native-1.json",
+          "sha256": "86a1217e233d4daf65f96d2b22745cd0c68373b63f7e640e7d9df97bf160a293",
+          "zip_crc32": "57eafd5a",
+          "zip_member": "run-11675-1792305205046168868/native-1.json"
+        },
+        {
+          "bytes": 828,
+          "compressed_bytes": 380,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305205046168868/request-1.json",
+          "sha256": "7dcafdd13e09e126ecabae43dc958b42aa0b91b069e05f9b795e89ea592fec79",
+          "zip_crc32": "1705438b",
+          "zip_member": "run-11675-1792305205046168868/request-1.json"
+        },
+        {
+          "bytes": 407,
+          "compressed_bytes": 284,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305205046168868/semantic-1.json",
+          "sha256": "89862fab2a5fec78377679d72ecfc11a691ea4fc4a438203bcdc7b42e4dd8374",
+          "zip_crc32": "f474d3bf",
+          "zip_member": "run-11675-1792305205046168868/semantic-1.json"
+        },
+        {
+          "bytes": 21,
+          "compressed_bytes": 23,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-ubuntu-latest/run-11675-1792305205046168868/workspace-1/src/orbit-default.ts",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "zip_crc32": "4ba7decf",
+          "zip_member": "run-11675-1792305205046168868/workspace-1/src/orbit-default.ts"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-development-ubuntu-latest.zip",
+      "original_zip_bytes": 529961,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "a7f81745df7c2ed7cc545fdcf12041ab619624af056f78e28db81ef6c805677e"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "native-r0-development-windows-latest.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450/zip",
+        "created_at": "2026-10-18T06:37:10Z",
+        "digest": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12128365450,
+        "name": "native-r0-development-windows-latest",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyODM2NTQ1MA==",
+        "size_in_bytes": 523630,
+        "updated_at": "2026-10-18T06:37:10Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 0,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450/zip",
+            "created_at": "2026-10-18T06:37:10Z",
+            "digest": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128365450,
+            "name": "native-r0-development-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODM2NTQ1MA==",
+            "size_in_bytes": 523630,
+            "updated_at": "2026-10-18T06:37:10Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450/zip",
+            "created_at": "2026-10-18T06:37:10Z",
+            "digest": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128365450,
+            "name": "native-r0-development-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODM2NTQ1MA==",
+            "size_in_bytes": 523630,
+            "updated_at": "2026-10-18T06:37:10Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450/zip",
+            "created_at": "2026-10-18T06:37:10Z",
+            "digest": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128365450,
+            "name": "native-r0-development-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODM2NTQ1MA==",
+            "size_in_bytes": 523630,
+            "updated_at": "2026-10-18T06:37:10Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450/zip",
+            "created_at": "2026-10-18T06:37:10Z",
+            "digest": "sha256:400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128365450,
+            "name": "native-r0-development-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODM2NTQ1MA==",
+            "size_in_bytes": 523630,
+            "updated_at": "2026-10-18T06:37:10Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128365450",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4315,
+          "compressed_bytes": 1431,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/common-vectors.json",
+          "sha256": "9c90e312644097ccfd3484d0ceb6b055f587b7e303613d15165893e494cd9ed4",
+          "zip_crc32": "36971b95",
+          "zip_member": "common-8548-1792305292511521500/common-vectors.json"
+        },
+        {
+          "bytes": 102233,
+          "compressed_bytes": 11499,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development07Malformed-outcome.json",
+          "sha256": "4a811dafd4fc19e86ea616283d09e1c89ec0edb3c833dbd8ff1e7472c2f94ebb",
+          "zip_crc32": "dfb57314",
+          "zip_member": "common-8548-1792305292511521500/t00Development07Malformed-outcome.json"
+        },
+        {
+          "bytes": 845,
+          "compressed_bytes": 332,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development07Malformed-request.json",
+          "sha256": "9e209eeb17dc558fcc4fd9e28c9377f69cfdbe3bde42d1b0544c204940b5819e",
+          "zip_crc32": "daf859a6",
+          "zip_member": "common-8548-1792305292511521500/t00Development07Malformed-request.json"
+        },
+        {
+          "bytes": 103019,
+          "compressed_bytes": 11517,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development07Valid-outcome.json",
+          "sha256": "0d28dc8b7f9223ee8505eb5ab2299fab9d51164352ba8cbd3a7ac826d0424afb",
+          "zip_crc32": "c0035c8d",
+          "zip_member": "common-8548-1792305292511521500/t00Development07Valid-outcome.json"
+        },
+        {
+          "bytes": 846,
+          "compressed_bytes": 340,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development07Valid-request.json",
+          "sha256": "09a77c366d4093f4af6e9d96e3756c71f97904495f8ba3bb7253af4912ca137c",
+          "zip_crc32": "739f924c",
+          "zip_member": "common-8548-1792305292511521500/t00Development07Valid-request.json"
+        },
+        {
+          "bytes": 139256,
+          "compressed_bytes": 14714,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development08BomCrLfAstral-outcome.json",
+          "sha256": "1cdcee558e27ec6c4168dab5968b4fa696f9e80527f5c0aca0e9071c670948fd",
+          "zip_crc32": "9bb99923",
+          "zip_member": "common-8548-1792305292511521500/t00Development08BomCrLfAstral-outcome.json"
+        },
+        {
+          "bytes": 971,
+          "compressed_bytes": 395,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development08BomCrLfAstral-request.json",
+          "sha256": "52f92c9b881cf115e42c8ea752f908d6278e2d81eff0349613afb3a963d82c28",
+          "zip_crc32": "d04a8994",
+          "zip_member": "common-8548-1792305292511521500/t00Development08BomCrLfAstral-request.json"
+        },
+        {
+          "bytes": 139192,
+          "compressed_bytes": 14684,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development08SingleLineControl-outcome.json",
+          "sha256": "90cc7981bd5894ab4535175a0bbc00de6c64e3e458803a56eeecf14d2daf039b",
+          "zip_crc32": "90700f8a",
+          "zip_member": "common-8548-1792305292511521500/t00Development08SingleLineControl-outcome.json"
+        },
+        {
+          "bytes": 918,
+          "compressed_bytes": 366,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/common-8548-1792305292511521500/t00Development08SingleLineControl-request.json",
+          "sha256": "8cb34051bc4034da258f863b9bda96bac939e6fff1a4e9b4d6670c60b524974b",
+          "zip_crc32": "559aa222",
+          "zip_member": "common-8548-1792305292511521500/t00Development08SingleLineControl-request.json"
+        },
+        {
+          "bytes": 2282,
+          "compressed_bytes": 764,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/coherent-payload-and-input-poisons.json",
+          "sha256": "a744bae644cd76d9e09ff6e2b5da56416040cf479dd157e83961b7434afc3cf0",
+          "zip_crc32": "f86acfac",
+          "zip_member": "run-5672-1792305313757955600/coherent-payload-and-input-poisons.json"
+        },
+        {
+          "bytes": 5351,
+          "compressed_bytes": 626,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/input-provenance-0.json",
+          "sha256": "c8a70f7303f06c20322f52caceb1d41d48983ccffceaeecc4ed80b97c26c43c6",
+          "zip_crc32": "49dad1c9",
+          "zip_member": "run-5672-1792305313757955600/input-provenance-0.json"
+        },
+        {
+          "bytes": 1,
+          "compressed_bytes": 3,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/malformed-request.json",
+          "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "zip_crc32": "15d54739",
+          "zip_member": "run-5672-1792305313757955600/malformed-request.json"
+        },
+        {
+          "bytes": 33674,
+          "compressed_bytes": 5808,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/native-0.json",
+          "sha256": "7690804765688b82e55b4272e70ca9f4eb2988c785f9a50725189b18ef77b66f",
+          "zip_crc32": "6d68da5e",
+          "zip_member": "run-5672-1792305313757955600/native-0.json"
+        },
+        {
+          "bytes": 34504,
+          "compressed_bytes": 5822,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/native-relocated.json",
+          "sha256": "0d88ce41ee7f68bab83c9b2b9c1fd74f4763b8ec293d371550dd282ee2fea2d7",
+          "zip_crc32": "dc2c1105",
+          "zip_member": "run-5672-1792305313757955600/native-relocated.json"
+        },
+        {
+          "bytes": 1572,
+          "compressed_bytes": 727,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/real-native-failure.json",
+          "sha256": "5615f2f38f8f70e437219d04c6f419ae32ade55f5856ac9fe8385f10c13a88c1",
+          "zip_crc32": "04211cd3",
+          "zip_member": "run-5672-1792305313757955600/real-native-failure.json"
+        },
+        {
+          "bytes": 1507,
+          "compressed_bytes": 675,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/real-native-output-cap.json",
+          "sha256": "e5653d02f660127b42836439d67a87536737df13af29ea3ea51fe0066be4a278",
+          "zip_crc32": "99347891",
+          "zip_member": "run-5672-1792305313757955600/real-native-output-cap.json"
+        },
+        {
+          "bytes": 1496,
+          "compressed_bytes": 627,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/real-native-timeout.json",
+          "sha256": "2b8418353882e90b49e3a2584743151e75f5943fd7c201c649596a7120fd55c8",
+          "zip_crc32": "a2e4f363",
+          "zip_member": "run-5672-1792305313757955600/real-native-timeout.json"
+        },
+        {
+          "bytes": 7998,
+          "compressed_bytes": 1248,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/real-relocation.json",
+          "sha256": "f6777b399f5dd7c343145d9598ddb849363e071bf289faed90605ad78b032803",
+          "zip_crc32": "49614a8e",
+          "zip_member": "run-5672-1792305313757955600/real-relocation.json"
+        },
+        {
+          "bytes": 779,
+          "compressed_bytes": 473,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/receiver-poisons.json",
+          "sha256": "15c841fbae55247c0863c2e2418bf927ddd2c619fce91a3cacffb3aa86cc3ec4",
+          "zip_crc32": "07a340f5",
+          "zip_member": "run-5672-1792305313757955600/receiver-poisons.json"
+        },
+        {
+          "bytes": 1330,
+          "compressed_bytes": 501,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/relocated-request.json",
+          "sha256": "131911d5568227569d19919dd735e6d0bb0b599bb48429c624296ff4f6b3c0ae",
+          "zip_crc32": "de42eeec",
+          "zip_member": "run-5672-1792305313757955600/relocated-request.json"
+        },
+        {
+          "bytes": 3220097,
+          "compressed_bytes": 436975,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/relocated-sdk.json",
+          "sha256": "0a055683a9d521084602e1dc7d0950c4e76edfea544b5b57d65cc7339ce39035",
+          "zip_crc32": "03a3098f",
+          "zip_member": "run-5672-1792305313757955600/relocated-sdk.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/relocated-workspace/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "run-5672-1792305313757955600/relocated-workspace/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/relocated-workspace/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "run-5672-1792305313757955600/relocated-workspace/src/orbit-use.ts"
+        },
+        {
+          "bytes": 1280,
+          "compressed_bytes": 495,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/request-0.json",
+          "sha256": "3745097f1d15e6bbbf432d4aa1d83a3c0d39971c5e53cead7eb13edb1f5fb609",
+          "zip_crc32": "c3529569",
+          "zip_member": "run-5672-1792305313757955600/request-0.json"
+        },
+        {
+          "bytes": 1279,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/semantic-0.json",
+          "sha256": "51154ddcf6afa9c0984c7e4e8f696db421a2d10ec962faeb7b13e9db848bd98a",
+          "zip_crc32": "e7792d6c",
+          "zip_member": "run-5672-1792305313757955600/semantic-0.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/workspace-0/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "run-5672-1792305313757955600/workspace-0/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305313757955600/workspace-0/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "run-5672-1792305313757955600/workspace-0/src/orbit-use.ts"
+        },
+        {
+          "bytes": 5251,
+          "compressed_bytes": 622,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305415554618500/input-provenance-1.json",
+          "sha256": "f44a16e5fcba55cc0ac986e3622b34e049995cc365f0bac16d6aa579c9976eb8",
+          "zip_crc32": "d23c4d89",
+          "zip_member": "run-5672-1792305415554618500/input-provenance-1.json"
+        },
+        {
+          "bytes": 23891,
+          "compressed_bytes": 4824,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305415554618500/native-1.json",
+          "sha256": "fdd395996b0a51743ee2baa97ab24dc2925187fce77d8fd090b519381de6a6b9",
+          "zip_crc32": "581009c0",
+          "zip_member": "run-5672-1792305415554618500/native-1.json"
+        },
+        {
+          "bytes": 799,
+          "compressed_bytes": 378,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305415554618500/request-1.json",
+          "sha256": "fdf0f39011a29495efaf7e1a69743ef02d1c53440ba507664d52cb021777f3fb",
+          "zip_crc32": "8706587a",
+          "zip_member": "run-5672-1792305415554618500/request-1.json"
+        },
+        {
+          "bytes": 407,
+          "compressed_bytes": 284,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305415554618500/semantic-1.json",
+          "sha256": "89862fab2a5fec78377679d72ecfc11a691ea4fc4a438203bcdc7b42e4dd8374",
+          "zip_crc32": "f474d3bf",
+          "zip_member": "run-5672-1792305415554618500/semantic-1.json"
+        },
+        {
+          "bytes": 21,
+          "compressed_bytes": 23,
+          "included": true,
+          "portable_member": "artifacts/native-r0-development-windows-latest/run-5672-1792305415554618500/workspace-1/src/orbit-default.ts",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "zip_crc32": "4ba7decf",
+          "zip_member": "run-5672-1792305415554618500/workspace-1/src/orbit-default.ts"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-development-windows-latest.zip",
+      "original_zip_bytes": 523630,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "400337f38564af86cc4c6cdf1e9842b326ad8e9e93ad2ff5f056dd2620585da7"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "native-r0-optimized-macos-15.followup.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722/zip",
+        "created_at": "2026-10-18T06:41:30Z",
+        "digest": "sha256:05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12128425722,
+        "name": "native-r0-optimized-macos-15",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyODQyNTcyMg==",
+        "size_in_bytes": 11759569,
+        "updated_at": "2026-10-18T06:41:30Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 1,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722/zip",
+            "created_at": "2026-10-18T06:41:30Z",
+            "digest": "sha256:05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128425722,
+            "name": "native-r0-optimized-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODQyNTcyMg==",
+            "size_in_bytes": 11759569,
+            "updated_at": "2026-10-18T06:41:30Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722/zip",
+            "created_at": "2026-10-18T06:41:30Z",
+            "digest": "sha256:05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128425722,
+            "name": "native-r0-optimized-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODQyNTcyMg==",
+            "size_in_bytes": 11759569,
+            "updated_at": "2026-10-18T06:41:30Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722/zip",
+            "created_at": "2026-10-18T06:41:30Z",
+            "digest": "sha256:05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128425722,
+            "name": "native-r0-optimized-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODQyNTcyMg==",
+            "size_in_bytes": 11759569,
+            "updated_at": "2026-10-18T06:41:30Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/report-followup.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 103852,
+          "compressed_bytes": 11615,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Malformed-outcome.json",
+          "sha256": "0e7c00f953691ed7ca25da49b0823c7a0743c83739c3d6fed53aefc20f9bfecf",
+          "zip_crc32": "85f1072a",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Malformed-outcome.json"
+        },
+        {
+          "bytes": 104638,
+          "compressed_bytes": 11522,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Valid-outcome.json",
+          "sha256": "69b9796d0b4018dee471b7f7fba8ec8acaa83017fc8f5406dbbff6c0ebf153de",
+          "zip_crc32": "5a76f4b6",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Valid-outcome.json"
+        },
+        {
+          "bytes": 872,
+          "compressed_bytes": 341,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Malformed-request.json",
+          "sha256": "7ba665b6a334b7f046691c9692ac5e81d45c93867dfb4764bb2e98171dc6e58b",
+          "zip_crc32": "bf02e069",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Malformed-request.json"
+        },
+        {
+          "bytes": 4313,
+          "compressed_bytes": 1429,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/common-vectors.json",
+          "sha256": "ca4ccd703f900711d39bf8f8c8ace4c49f95db5b30fc5588b45a56c6e3bd2473",
+          "zip_crc32": "041dafa4",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/common-vectors.json"
+        },
+        {
+          "bytes": 873,
+          "compressed_bytes": 352,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Valid-request.json",
+          "sha256": "41dacb010e091120335ac9530c2131bc4b8404532a97e0f0a66360a554c051c4",
+          "zip_crc32": "585f1f0a",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Valid-request.json"
+        },
+        {
+          "bytes": 142022,
+          "compressed_bytes": 14753,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08BomCrLfAstral-outcome.json",
+          "sha256": "00ca80b4086b299c1b7ebbce553bb2d2762e5674bb6be9f5c59e64c0ec26572b",
+          "zip_crc32": "9d309a07",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08BomCrLfAstral-outcome.json"
+        },
+        {
+          "bytes": 998,
+          "compressed_bytes": 406,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08BomCrLfAstral-request.json",
+          "sha256": "9389a88e824e0e77a703af995ee4f2271e78a1f365a205331182eabdc25d5830",
+          "zip_crc32": "104266e1",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08BomCrLfAstral-request.json"
+        },
+        {
+          "bytes": 141958,
+          "compressed_bytes": 14706,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08SingleLineControl-outcome.json",
+          "sha256": "6e2322f48e95313123ccc58899e163efeb180057d1bc5c882932a93a4e863f9a",
+          "zip_crc32": "fb50ebd5",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08SingleLineControl-outcome.json"
+        },
+        {
+          "bytes": 945,
+          "compressed_bytes": 376,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08SingleLineControl-request.json",
+          "sha256": "e09b9514aba7c3efff7272f4ddae57cfa4184aea38620ffceb74c93558c89c4e",
+          "zip_crc32": "f0e23246",
+          "zip_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08SingleLineControl-request.json"
+        },
+        {
+          "bytes": 2282,
+          "compressed_bytes": 763,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/coherent-payload-and-input-poisons.json",
+          "sha256": "82147760504e0cdd494361565ce32d9e46f9c25c64c84ce8cc3d44fa5ce6b129",
+          "zip_crc32": "523590da",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/coherent-payload-and-input-poisons.json"
+        },
+        {
+          "bytes": 5369,
+          "compressed_bytes": 627,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/input-provenance-0.json",
+          "sha256": "947403d497fa35f22cf7865b581880dacb35fa9f437799defe71275e6b9f805d",
+          "zip_crc32": "fd32efa9",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/input-provenance-0.json"
+        },
+        {
+          "bytes": 1,
+          "compressed_bytes": 3,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/malformed-request.json",
+          "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "zip_crc32": "15d54739",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/malformed-request.json"
+        },
+        {
+          "bytes": 34572,
+          "compressed_bytes": 5823,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/native-0.json",
+          "sha256": "13cc42d0366ce4c3214b2f9e5dce6e2c2e49f61217d2aaed8bf48eeda584791c",
+          "zip_crc32": "a73b7c46",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/native-0.json"
+        },
+        {
+          "bytes": 35403,
+          "compressed_bytes": 5822,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/native-relocated.json",
+          "sha256": "3ffbe886672ac465ad183e5c4e88f7d2bea41c37fea015ac6f47eaeb63ecf734",
+          "zip_crc32": "54fd5417",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/native-relocated.json"
+        },
+        {
+          "bytes": 34776,
+          "compressed_bytes": 5898,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-empty-path.json",
+          "sha256": "150925ddc48e6afb0c178ecc4cb6fb9f159ad81f16d8840a6e2bbe4bb49ab494",
+          "zip_crc32": "9918d539",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-empty-path.json"
+        },
+        {
+          "bytes": 1613,
+          "compressed_bytes": 723,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-failure.json",
+          "sha256": "90199c6e4e50ebe1ea6461c18dc218ffc75dfd278549c82992b8a492d285b0a0",
+          "zip_crc32": "55fbfa68",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-failure.json"
+        },
+        {
+          "bytes": 1545,
+          "compressed_bytes": 669,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-output-cap.json",
+          "sha256": "8ccb7874a437a347d6183079ed170aee85c1ab87a18baac2f6c4a022a7056078",
+          "zip_crc32": "c847ddae",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-output-cap.json"
+        },
+        {
+          "bytes": 1539,
+          "compressed_bytes": 619,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-timeout.json",
+          "sha256": "da4e47217c50d18f4af366bbbaf2abdb68ab38b65fa6d332968b6dc76894ac29",
+          "zip_crc32": "33f8c924",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-timeout.json"
+        },
+        {
+          "bytes": 8016,
+          "compressed_bytes": 1247,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/real-relocation.json",
+          "sha256": "351a528beb173005bfd5f0de608310bb750fd66f690adae453c9acbf63e7b046",
+          "zip_crc32": "c5e39f2f",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-relocation.json"
+        },
+        {
+          "bytes": 779,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/receiver-poisons.json",
+          "sha256": "dac3ad473bca6348222926ad50c4303b867bb9b4f68d73cd090ebd764ec7832b",
+          "zip_crc32": "7f4bfb4d",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/receiver-poisons.json"
+        },
+        {
+          "bytes": 1375,
+          "compressed_bytes": 507,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-request.json",
+          "sha256": "b060d5dc587ab7880b2f975dcc3021abd165434448a36f3fa3b10587ae98486a",
+          "zip_crc32": "c5e17607",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-request.json"
+        },
+        {
+          "bytes": 3220097,
+          "compressed_bytes": 436975,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-sdk.json",
+          "sha256": "0a055683a9d521084602e1dc7d0950c4e76edfea544b5b57d65cc7339ce39035",
+          "zip_crc32": "03a3098f",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-sdk.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-workspace/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-workspace/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-workspace/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/relocated-workspace/src/orbit-use.ts"
+        },
+        {
+          "bytes": 1325,
+          "compressed_bytes": 498,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/request-0.json",
+          "sha256": "8816a8e05066b31188a10a9b75ff28c67f568da81b7a54bea7987b8777cf4273",
+          "zip_crc32": "9a6feeaa",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/request-0.json"
+        },
+        {
+          "bytes": 1279,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/semantic-0.json",
+          "sha256": "51154ddcf6afa9c0984c7e4e8f696db421a2d10ec962faeb7b13e9db848bd98a",
+          "zip_crc32": "e7792d6c",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/semantic-0.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/workspace-0/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/workspace-0/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305679737365000/workspace-0/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305679737365000/workspace-0/src/orbit-use.ts"
+        },
+        {
+          "bytes": 5261,
+          "compressed_bytes": 623,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305687767331000/input-provenance-1.json",
+          "sha256": "2feb778d5aae49677ff453c3f6246937d70a859123b13e67758bc277e960165e",
+          "zip_crc32": "6e68340e",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305687767331000/input-provenance-1.json"
+        },
+        {
+          "bytes": 24771,
+          "compressed_bytes": 4828,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305687767331000/native-1.json",
+          "sha256": "1b970b659efa013113d856806820dcc37f5f9d604b663f449f71c382811f8c23",
+          "zip_crc32": "1c18c73a",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305687767331000/native-1.json"
+        },
+        {
+          "bytes": 826,
+          "compressed_bytes": 381,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305687767331000/request-1.json",
+          "sha256": "e64d63d8861875874a608a582ecb5f659e7cafe18e5791d46be24c89c93d2234",
+          "zip_crc32": "5d83731e",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305687767331000/request-1.json"
+        },
+        {
+          "bytes": 407,
+          "compressed_bytes": 284,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305687767331000/semantic-1.json",
+          "sha256": "89862fab2a5fec78377679d72ecfc11a691ea4fc4a438203bcdc7b42e4dd8374",
+          "zip_crc32": "f474d3bf",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305687767331000/semantic-1.json"
+        },
+        {
+          "bytes": 21,
+          "compressed_bytes": 23,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-macos-15/_temp/native-r0-optimized/run-46548-1792305687767331000/workspace-1/src/orbit-default.ts",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "zip_crc32": "4ba7decf",
+          "zip_member": "_temp/native-r0-optimized/run-46548-1792305687767331000/workspace-1/src/orbit-default.ts"
+        },
+        {
+          "bytes": 32727328,
+          "compressed_bytes": 11227608,
+          "exclusion_reasons": [
+            "target build output",
+            "native executable magic"
+          ],
+          "included": false,
+          "sha256": "9452879049fbf836c8cd52208cf18d2389f98f55b20b1f8d2ba23c037f3823da",
+          "zip_crc32": "b5811130",
+          "zip_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-optimized-macos-15.followup.zip",
+      "original_zip_bytes": 11759569,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "native-r0-optimized-ubuntu-latest.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517/zip",
+        "created_at": "2026-10-18T06:37:45Z",
+        "digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12127594517,
+        "name": "native-r0-optimized-ubuntu-latest",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU5NDUxNw==",
+        "size_in_bytes": 12437921,
+        "updated_at": "2026-10-18T06:37:45Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 1,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517/zip",
+            "created_at": "2026-10-18T06:37:45Z",
+            "digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127594517,
+            "name": "native-r0-optimized-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU5NDUxNw==",
+            "size_in_bytes": 12437921,
+            "updated_at": "2026-10-18T06:37:45Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517/zip",
+            "created_at": "2026-10-18T06:37:45Z",
+            "digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127594517,
+            "name": "native-r0-optimized-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU5NDUxNw==",
+            "size_in_bytes": 12437921,
+            "updated_at": "2026-10-18T06:37:45Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517/zip",
+            "created_at": "2026-10-18T06:37:45Z",
+            "digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127594517,
+            "name": "native-r0-optimized-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU5NDUxNw==",
+            "size_in_bytes": 12437921,
+            "updated_at": "2026-10-18T06:37:45Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517/zip",
+            "created_at": "2026-10-18T06:37:45Z",
+            "digest": "sha256:653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127594517,
+            "name": "native-r0-optimized-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU5NDUxNw==",
+            "size_in_bytes": 12437921,
+            "updated_at": "2026-10-18T06:37:45Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4312,
+          "compressed_bytes": 1432,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/common-vectors.json",
+          "sha256": "ea324b92f630dc3e2d9372ede71efd59905840b1c5e54ba01f587e10329e5a65",
+          "zip_crc32": "d433e4bb",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/common-vectors.json"
+        },
+        {
+          "bytes": 103175,
+          "compressed_bytes": 11589,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Malformed-outcome.json",
+          "sha256": "93f51028670e47f5ef7e21f3f301c8974bdc94d819d77d1242ea73fc4e45c048",
+          "zip_crc32": "6af4c0d2",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Malformed-outcome.json"
+        },
+        {
+          "bytes": 868,
+          "compressed_bytes": 339,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Malformed-request.json",
+          "sha256": "d812f7e0dab3b022985be9a4c50462bfbf9c605eb3bd20e8b090a87e2829d4a4",
+          "zip_crc32": "10cde827",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Malformed-request.json"
+        },
+        {
+          "bytes": 103961,
+          "compressed_bytes": 11521,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Valid-outcome.json",
+          "sha256": "665fd00b4641525329da8877cc7ae674477d1578108553e8562739f35682484b",
+          "zip_crc32": "7a0b750a",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Valid-outcome.json"
+        },
+        {
+          "bytes": 869,
+          "compressed_bytes": 351,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Valid-request.json",
+          "sha256": "68ca12e8ab446f816c11e27709d9c49774def8e20297b0b743c242ac9dec8fed",
+          "zip_crc32": "8296098a",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development07Valid-request.json"
+        },
+        {
+          "bytes": 141093,
+          "compressed_bytes": 14773,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08BomCrLfAstral-outcome.json",
+          "sha256": "abfeb778a7ccac88b49627148ca3ed026a6b658dd463f281e0788d8209e0024d",
+          "zip_crc32": "ad1e5bae",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08BomCrLfAstral-outcome.json"
+        },
+        {
+          "bytes": 994,
+          "compressed_bytes": 404,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08BomCrLfAstral-request.json",
+          "sha256": "3f870ed3ba861c1dd37f39356501202b0e81c6a978c9c64415a24a7a729b8293",
+          "zip_crc32": "35233964",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08BomCrLfAstral-request.json"
+        },
+        {
+          "bytes": 141029,
+          "compressed_bytes": 14717,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08SingleLineControl-outcome.json",
+          "sha256": "5813702df42581e4a45bcdaeb561b3a83aeae284f0a249d761cba4baa2bf3234",
+          "zip_crc32": "398c82d3",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08SingleLineControl-outcome.json"
+        },
+        {
+          "bytes": 941,
+          "compressed_bytes": 373,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08SingleLineControl-request.json",
+          "sha256": "4204547244a3ce269539011dce69328ff18166cf2f50a9ccd53d06b11e97413e",
+          "zip_crc32": "73ed9e0d",
+          "zip_member": "_temp/native-r0-optimized/common-13288-1792305459279827625/t00Development08SingleLineControl-request.json"
+        },
+        {
+          "bytes": 2282,
+          "compressed_bytes": 762,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/coherent-payload-and-input-poisons.json",
+          "sha256": "f66c55c1c86e736a04aaeedf7da20008f03fb1c49c46c502944e02ca68a32242",
+          "zip_crc32": "3b22278d",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/coherent-payload-and-input-poisons.json"
+        },
+        {
+          "bytes": 5367,
+          "compressed_bytes": 629,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/input-provenance-0.json",
+          "sha256": "4bd29156d375692feab2ecd06a5337178060d29367822e9ea654e29aeff7bfc4",
+          "zip_crc32": "e73992e7",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/input-provenance-0.json"
+        },
+        {
+          "bytes": 1,
+          "compressed_bytes": 3,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/malformed-request.json",
+          "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "zip_crc32": "15d54739",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/malformed-request.json"
+        },
+        {
+          "bytes": 34528,
+          "compressed_bytes": 5823,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/native-0.json",
+          "sha256": "dc71ae1c02ebe4cc1bbf221a43d527f9e2ab298e145fb33bb8fdd8ffb42ae85a",
+          "zip_crc32": "bd8895ce",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/native-0.json"
+        },
+        {
+          "bytes": 35359,
+          "compressed_bytes": 5818,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/native-relocated.json",
+          "sha256": "7212e9e536cd5864d8743e7f765b7e91e42be29fe7966185fa1e2f45768abcee",
+          "zip_crc32": "9e5876f2",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/native-relocated.json"
+        },
+        {
+          "bytes": 34731,
+          "compressed_bytes": 5900,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-empty-path.json",
+          "sha256": "3fdabbc680321ede6ad8200074574a58af55c6e5e2bd42676e10dd6c43ee4659",
+          "zip_crc32": "9a35b488",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-empty-path.json"
+        },
+        {
+          "bytes": 1606,
+          "compressed_bytes": 719,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-failure.json",
+          "sha256": "4e866dc450b681a779e744e88d6585e6b505344dc987d602c0fa1ee4250cdab2",
+          "zip_crc32": "12ac0e5c",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-failure.json"
+        },
+        {
+          "bytes": 1542,
+          "compressed_bytes": 668,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-output-cap.json",
+          "sha256": "b61368b217c04d5761788ab41cd3a6407855a8362013f0c9e4720f97af3ffed8",
+          "zip_crc32": "b1efdad2",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-output-cap.json"
+        },
+        {
+          "bytes": 1533,
+          "compressed_bytes": 619,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-timeout.json",
+          "sha256": "ba9bdcd0d37ab277df047afe2882a65cf777cd11718997af4779f7eb68e23e6f",
+          "zip_crc32": "eff27dab",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-native-timeout.json"
+        },
+        {
+          "bytes": 8014,
+          "compressed_bytes": 1250,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/real-relocation.json",
+          "sha256": "59bb66c52d0cda792acb1e6be097e70ca7df0cda62558e52dac4e5b35a262ce4",
+          "zip_crc32": "4bf99734",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/real-relocation.json"
+        },
+        {
+          "bytes": 779,
+          "compressed_bytes": 472,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/receiver-poisons.json",
+          "sha256": "5c09f0f8de87cc7bfded24b0091d24006dee6de76206b40893a645965abf9fa3",
+          "zip_crc32": "952e429a",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/receiver-poisons.json"
+        },
+        {
+          "bytes": 1369,
+          "compressed_bytes": 505,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-request.json",
+          "sha256": "e087491ef0cc5f95e62ab1ec8b992da41ca5ff9a7f4a4e2d18aff94741c98a8e",
+          "zip_crc32": "dc743311",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-request.json"
+        },
+        {
+          "bytes": 3220097,
+          "compressed_bytes": 436975,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-sdk.json",
+          "sha256": "0a055683a9d521084602e1dc7d0950c4e76edfea544b5b57d65cc7339ce39035",
+          "zip_crc32": "03a3098f",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-sdk.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-workspace/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-workspace/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-workspace/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/relocated-workspace/src/orbit-use.ts"
+        },
+        {
+          "bytes": 1319,
+          "compressed_bytes": 496,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/request-0.json",
+          "sha256": "9443adead12c32cb433154aad33dc00eb34a39f0412fadc7b0c71db1c620293e",
+          "zip_crc32": "6c079e63",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/request-0.json"
+        },
+        {
+          "bytes": 1279,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/semantic-0.json",
+          "sha256": "51154ddcf6afa9c0984c7e4e8f696db421a2d10ec962faeb7b13e9db848bd98a",
+          "zip_crc32": "e7792d6c",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/semantic-0.json"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/workspace-0/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/workspace-0/src/orbit-use.ts"
+        },
+        {
+          "bytes": 5260,
+          "compressed_bytes": 623,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305462509476472/input-provenance-1.json",
+          "sha256": "cffdbadf504a8e4da03a37dc8eaf17e309081f8ef34e2544f4164089edc5b9cf",
+          "zip_crc32": "d08ff132",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305462509476472/input-provenance-1.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305459942124870/workspace-0/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305459942124870/workspace-0/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 24729,
+          "compressed_bytes": 4831,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305462509476472/native-1.json",
+          "sha256": "738a2dbaade80a9008f677092efd62b50d317e96ab26d43ddf3b2d8331c4a927",
+          "zip_crc32": "388e044e",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305462509476472/native-1.json"
+        },
+        {
+          "bytes": 822,
+          "compressed_bytes": 374,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305462509476472/request-1.json",
+          "sha256": "62010c3b621c5592e2d3e02b584b3dabd3da7d6c8610f049c28dcb45c085162d",
+          "zip_crc32": "2d4ce79c",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305462509476472/request-1.json"
+        },
+        {
+          "bytes": 407,
+          "compressed_bytes": 284,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305462509476472/semantic-1.json",
+          "sha256": "89862fab2a5fec78377679d72ecfc11a691ea4fc4a438203bcdc7b42e4dd8374",
+          "zip_crc32": "f474d3bf",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305462509476472/semantic-1.json"
+        },
+        {
+          "bytes": 21,
+          "compressed_bytes": 23,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-ubuntu-latest/_temp/native-r0-optimized/run-13391-1792305462509476472/workspace-1/src/orbit-default.ts",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "zip_crc32": "4ba7decf",
+          "zip_member": "_temp/native-r0-optimized/run-13391-1792305462509476472/workspace-1/src/orbit-default.ts"
+        },
+        {
+          "bytes": 36821584,
+          "compressed_bytes": 11905971,
+          "exclusion_reasons": [
+            "target build output",
+            "native executable magic"
+          ],
+          "included": false,
+          "sha256": "df7d35d30d20a9ba50672693834e9f8cce0d3bbb1462410a7cbb1e1391628dd3",
+          "zip_crc32": "bfea2bbf",
+          "zip_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-optimized-ubuntu-latest.zip",
+      "original_zip_bytes": 12437921,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "653534108a17f8299b311942b5642d7d148e8aa110f653f30a958b1032dfb888"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "native-r0-optimized-windows-latest.followup.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606/zip",
+        "created_at": "2026-10-18T06:49:12Z",
+        "digest": "sha256:d4d70ff9c0052bb96aad331494cd1bf238b7659d952e09032475d4bb20e74a39",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12128137606,
+        "name": "native-r0-optimized-windows-latest",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyODEzNzYwNg==",
+        "size_in_bytes": 11258628,
+        "updated_at": "2026-10-18T06:49:12Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 1,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606/zip",
+            "created_at": "2026-10-18T06:49:12Z",
+            "digest": "sha256:d4d70ff9c0052bb96aad331494cd1bf238b7659d952e09032475d4bb20e74a39",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128137606,
+            "name": "native-r0-optimized-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODEzNzYwNg==",
+            "size_in_bytes": 11258628,
+            "updated_at": "2026-10-18T06:49:12Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-windows-artifact.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606/zip",
+            "created_at": "2026-10-18T06:49:12Z",
+            "digest": "sha256:d4d70ff9c0052bb96aad331494cd1bf238b7659d952e09032475d4bb20e74a39",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12128137606,
+            "name": "native-r0-optimized-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyODEzNzYwNg==",
+            "size_in_bytes": 11258628,
+            "updated_at": "2026-10-18T06:49:12Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/report-followup.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 4314,
+          "compressed_bytes": 1426,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/common-vectors.json",
+          "sha256": "b205d009c6ac85401630abfceff6b6fb8d9278d59036ae31acb6ef1a306e78ad",
+          "zip_crc32": "ed119443",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/common-vectors.json"
+        },
+        {
+          "bytes": 839,
+          "compressed_bytes": 335,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Malformed-request.json",
+          "sha256": "34a6eba79a917eff31d1ccb8d8d6ff80413518b8eb65b154323cafe9fda8867b",
+          "zip_crc32": "fe74811d",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Malformed-request.json"
+        },
+        {
+          "bytes": 102136,
+          "compressed_bytes": 11507,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Malformed-outcome.json",
+          "sha256": "eb7fed233f224b3f53a705f4901725a88e1245d7e05a47ca9b02c31640f5b2f7",
+          "zip_crc32": "b37fbdbc",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Malformed-outcome.json"
+        },
+        {
+          "bytes": 102922,
+          "compressed_bytes": 11517,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Valid-outcome.json",
+          "sha256": "74a46718e5484693b48eef1d2bcada254329ece9bcda6456ea7a10f63457c7d6",
+          "zip_crc32": "b0342958",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Valid-outcome.json"
+        },
+        {
+          "bytes": 840,
+          "compressed_bytes": 343,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Valid-request.json",
+          "sha256": "15ae9c643eb6f1835f099dc61f3c0c3d39861f87743b5217a929e4ca1163146b",
+          "zip_crc32": "aeaa92fd",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Valid-request.json"
+        },
+        {
+          "bytes": 139109,
+          "compressed_bytes": 14715,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08BomCrLfAstral-outcome.json",
+          "sha256": "2dc82b34cb891e810af73735fcf49e7b87ed639fd711f59de74b17163da6f3a1",
+          "zip_crc32": "2e0ee85d",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08BomCrLfAstral-outcome.json"
+        },
+        {
+          "bytes": 965,
+          "compressed_bytes": 400,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08BomCrLfAstral-request.json",
+          "sha256": "4d72364212d50857c179b38e5e7a834417939c5f26a41c1e0e0cfdfa79c495f0",
+          "zip_crc32": "4eb4fd35",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08BomCrLfAstral-request.json"
+        },
+        {
+          "bytes": 139045,
+          "compressed_bytes": 14683,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08SingleLineControl-outcome.json",
+          "sha256": "877e3be70043d22cf529ed266ee145673cc81c1c8418cf4a805c00355590ccea",
+          "zip_crc32": "79f91268",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08SingleLineControl-outcome.json"
+        },
+        {
+          "bytes": 912,
+          "compressed_bytes": 371,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08SingleLineControl-request.json",
+          "sha256": "8ad98738b299c03d23f1ebec4c9c6464735b4fcd0c967e1830d7315b516591d9",
+          "zip_crc32": "cbb59423",
+          "zip_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08SingleLineControl-request.json"
+        },
+        {
+          "bytes": 2282,
+          "compressed_bytes": 764,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/coherent-payload-and-input-poisons.json",
+          "sha256": "0200cf5ffb2ecd0850d02009552703e9a1db2e8c16b8bea55ebf0c0fd98c1a51",
+          "zip_crc32": "f269f1de",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/coherent-payload-and-input-poisons.json"
+        },
+        {
+          "bytes": 5347,
+          "compressed_bytes": 624,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/input-provenance-0.json",
+          "sha256": "132dc3530eb9ecbde83fc43c5ac6e37241149ba30bb138c0f479f70b27d0da45",
+          "zip_crc32": "acdd8a1c",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/input-provenance-0.json"
+        },
+        {
+          "bytes": 1,
+          "compressed_bytes": 3,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/malformed-request.json",
+          "sha256": "021fb596db81e6d02bf3d2586ee3981fe519f275c0ac9ca76bbcf2ebb4097d96",
+          "zip_crc32": "15d54739",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/malformed-request.json"
+        },
+        {
+          "bytes": 33631,
+          "compressed_bytes": 5810,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/native-0.json",
+          "sha256": "448baf0f72b609010eb14426d82895f2efa80fca08c3fd62f400a1a5f5c83467",
+          "zip_crc32": "91fa7efc",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/native-0.json"
+        },
+        {
+          "bytes": 34459,
+          "compressed_bytes": 5824,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/native-relocated.json",
+          "sha256": "2a2ae2cdb2e851c0d99923bf856b0ef5c303575e75db4ab50bc0eee9ac17fb9e",
+          "zip_crc32": "74ad8be1",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/native-relocated.json"
+        },
+        {
+          "bytes": 1572,
+          "compressed_bytes": 729,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-failure.json",
+          "sha256": "b579d61292b9bb0e3d7191e9d0c906bf33b92121d2b4940aed164190eb18492b",
+          "zip_crc32": "e2c5f38b",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-failure.json"
+        },
+        {
+          "bytes": 1506,
+          "compressed_bytes": 678,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-output-cap.json",
+          "sha256": "39a5d24443b2cadb8557925493eb5fd95328e9464e6aaea401e079f31191c2e4",
+          "zip_crc32": "b757fb16",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-output-cap.json"
+        },
+        {
+          "bytes": 1496,
+          "compressed_bytes": 628,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-timeout.json",
+          "sha256": "2f5da24895d6542e4820295d7a1d3c2929c400246e67870fe37ef83490f1ad8d",
+          "zip_crc32": "142b12a2",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-timeout.json"
+        },
+        {
+          "bytes": 7994,
+          "compressed_bytes": 1247,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/real-relocation.json",
+          "sha256": "81588c0e55eaa50a61eeec306cdcbf6a7c2500bfb0228a2eaef80fcd962028ee",
+          "zip_crc32": "93b6f7bd",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-relocation.json"
+        },
+        {
+          "bytes": 779,
+          "compressed_bytes": 472,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/receiver-poisons.json",
+          "sha256": "022aa0c81a4edaca74d148947fcab15cd6a19e4bf0d18bea4ccdf0ef52aae62d",
+          "zip_crc32": "167ccdcd",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/receiver-poisons.json"
+        },
+        {
+          "bytes": 1320,
+          "compressed_bytes": 501,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-request.json",
+          "sha256": "0bf8fda1bd9f18393b88bffac1c03484cacb403743d623a92c38392d44ac473f",
+          "zip_crc32": "6c20147e",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-request.json"
+        },
+        {
+          "bytes": 3220097,
+          "compressed_bytes": 436975,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-sdk.json",
+          "sha256": "0a055683a9d521084602e1dc7d0950c4e76edfea544b5b57d65cc7339ce39035",
+          "zip_crc32": "03a3098f",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-sdk.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-workspace/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-workspace/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-workspace/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/relocated-workspace/src/orbit-use.ts"
+        },
+        {
+          "bytes": 1270,
+          "compressed_bytes": 494,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/request-0.json",
+          "sha256": "424f5a2c7905198a56a43179b942b0d8f43e44fc32b4554027baf4cf28c1616b",
+          "zip_crc32": "ac0c8745",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/request-0.json"
+        },
+        {
+          "bytes": 1279,
+          "compressed_bytes": 471,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/semantic-0.json",
+          "sha256": "51154ddcf6afa9c0984c7e4e8f696db421a2d10ec962faeb7b13e9db848bd98a",
+          "zip_crc32": "e7792d6c",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/semantic-0.json"
+        },
+        {
+          "bytes": 71,
+          "compressed_bytes": 63,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/workspace-0/src/orbit-leaf.ts",
+          "sha256": "b9548069aa4183b6fc551b44f5e2409a65d913154cae7bcf6d973e9ebdd0a28a",
+          "zip_crc32": "136c55e1",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/workspace-0/src/orbit-leaf.ts"
+        },
+        {
+          "bytes": 225,
+          "compressed_bytes": 133,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306145977797700/workspace-0/src/orbit-use.ts",
+          "sha256": "67681f84984ba69a0ab3e2fcd16bc495aae01f3913c726002922a03c623bfda3",
+          "zip_crc32": "95af2e3f",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306145977797700/workspace-0/src/orbit-use.ts"
+        },
+        {
+          "bytes": 5249,
+          "compressed_bytes": 621,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306149404336100/input-provenance-1.json",
+          "sha256": "30e9d24dc5ad766146af06d8230fcf1ad628250364baea86dd68bb786be278df",
+          "zip_crc32": "48381d92",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306149404336100/input-provenance-1.json"
+        },
+        {
+          "bytes": 23852,
+          "compressed_bytes": 4820,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306149404336100/native-1.json",
+          "sha256": "598813acd6a259c489244687309e300b8b98a69be3b9bd3c78d7e539124082ea",
+          "zip_crc32": "a2be6513",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306149404336100/native-1.json"
+        },
+        {
+          "bytes": 793,
+          "compressed_bytes": 376,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306149404336100/request-1.json",
+          "sha256": "e0d974c9ae2a90837c1d3cb9917502f48199e845ca37851d2782fce7bf8c8ee1",
+          "zip_crc32": "abf146d0",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306149404336100/request-1.json"
+        },
+        {
+          "bytes": 407,
+          "compressed_bytes": 284,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306149404336100/semantic-1.json",
+          "sha256": "89862fab2a5fec78377679d72ecfc11a691ea4fc4a438203bcdc7b42e4dd8374",
+          "zip_crc32": "f474d3bf",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306149404336100/semantic-1.json"
+        },
+        {
+          "bytes": 21,
+          "compressed_bytes": 23,
+          "included": true,
+          "portable_member": "artifacts/native-r0-optimized-windows-latest/_temp/native-r0-optimized/run-2992-1792306149404336100/workspace-1/src/orbit-default.ts",
+          "sha256": "18a0cbe2dac75097ddd329941d3a562e3ddcd60ace7bdd50362c671d8eaf469e",
+          "zip_crc32": "4ba7decf",
+          "zip_member": "_temp/native-r0-optimized/run-2992-1792306149404336100/workspace-1/src/orbit-default.ts"
+        },
+        {
+          "bytes": 31895552,
+          "compressed_bytes": 10733095,
+          "exclusion_reasons": [
+            "target build output",
+            "native binary/library extension",
+            "native executable magic"
+          ],
+          "included": false,
+          "sha256": "f190d84262e682f4545554c9d4e5edef9fe84524a23350f96cfa1658f973fb09",
+          "zip_crc32": "8d595568",
+          "zip_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe.exe"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-optimized-windows-latest.followup.zip",
+      "original_zip_bytes": 11258628,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "d4d70ff9c0052bb96aad331494cd1bf238b7659d952e09032475d4bb20e74a39"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "rust-product-tests-macos-15.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+        "created_at": "2026-10-18T06:35:51Z",
+        "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12127589437,
+        "name": "rust-product-tests-macos-15",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+        "size_in_bytes": 7960,
+        "updated_at": "2026-10-18T06:35:51Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 0,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127589437,
+            "name": "rust-product-tests-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+            "size_in_bytes": 7960,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127589437,
+            "name": "rust-product-tests-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+            "size_in_bytes": 7960,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll4.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127589437,
+            "name": "rust-product-tests-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+            "size_in_bytes": 7960,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll5.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127589437,
+            "name": "rust-product-tests-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+            "size_in_bytes": 7960,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127589437,
+            "name": "rust-product-tests-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+            "size_in_bytes": 7960,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437/zip",
+            "created_at": "2026-10-18T06:35:51Z",
+            "digest": "sha256:87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127589437,
+            "name": "rust-product-tests-macos-15",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzU4OTQzNw==",
+            "size_in_bytes": 7960,
+            "updated_at": "2026-10-18T06:35:51Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127589437",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 31343,
+          "compressed_bytes": 7796,
+          "included": true,
+          "portable_member": "artifacts/rust-product-tests-macos-15/native-product-tests.json",
+          "sha256": "08fd5356121c2102d195f44daf9d2e938e6ec70522213f80716db388ce7f936c",
+          "zip_crc32": "0b5b65b1",
+          "zip_member": "native-product-tests.json"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/rust-product-tests-macos-15.zip",
+      "original_zip_bytes": 7960,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "87d6f55c73430bf540b4c65ff79d4219aa6cd228740d7b1325cec54b3852603c"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "rust-product-tests-ubuntu-latest.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+        "created_at": "2026-10-18T06:33:39Z",
+        "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12127308490,
+        "name": "rust-product-tests-ubuntu-latest",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+        "size_in_bytes": 7936,
+        "updated_at": "2026-10-18T06:33:39Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 0,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+            "created_at": "2026-10-18T06:33:39Z",
+            "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127308490,
+            "name": "rust-product-tests-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+            "size_in_bytes": 7936,
+            "updated_at": "2026-10-18T06:33:39Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+            "created_at": "2026-10-18T06:33:39Z",
+            "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127308490,
+            "name": "rust-product-tests-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+            "size_in_bytes": 7936,
+            "updated_at": "2026-10-18T06:33:39Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll4.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+            "created_at": "2026-10-18T06:33:39Z",
+            "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127308490,
+            "name": "rust-product-tests-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+            "size_in_bytes": 7936,
+            "updated_at": "2026-10-18T06:33:39Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll5.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+            "created_at": "2026-10-18T06:33:39Z",
+            "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127308490,
+            "name": "rust-product-tests-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+            "size_in_bytes": 7936,
+            "updated_at": "2026-10-18T06:33:39Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+            "created_at": "2026-10-18T06:33:39Z",
+            "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127308490,
+            "name": "rust-product-tests-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+            "size_in_bytes": 7936,
+            "updated_at": "2026-10-18T06:33:39Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490/zip",
+            "created_at": "2026-10-18T06:33:39Z",
+            "digest": "sha256:cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127308490,
+            "name": "rust-product-tests-ubuntu-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzMwODQ5MA==",
+            "size_in_bytes": 7936,
+            "updated_at": "2026-10-18T06:33:39Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127308490",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 31329,
+          "compressed_bytes": 7772,
+          "included": true,
+          "portable_member": "artifacts/rust-product-tests-ubuntu-latest/native-product-tests.json",
+          "sha256": "8fe63b225b6686cf4c8e66f93294303a2908aa43a8c4e76cd030170634a5d2eb",
+          "zip_crc32": "ee7e3d52",
+          "zip_member": "native-product-tests.json"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/rust-product-tests-ubuntu-latest.zip",
+      "original_zip_bytes": 7936,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "cb532e2dde7ef555c1b81aad23c1b27b325ac86f6981efa283217f70015a82bc"
+    },
+    {
+      "api_digest_match": true,
+      "archive_name": "rust-product-tests-windows-latest.zip",
+      "artifact_api_metadata": {
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859/zip",
+        "created_at": "2026-10-18T06:37:09Z",
+        "digest": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+        "expired": false,
+        "expires_at": "2027-01-16T06:23:22Z",
+        "id": 12127921859,
+        "name": "rust-product-tests-windows-latest",
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyNzkyMTg1OQ==",
+        "size_in_bytes": 8020,
+        "updated_at": "2026-10-18T06:37:09Z",
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859",
+        "workflow_run": {
+          "head_branch": "rust/365-t00",
+          "head_repository_id": 1289209764,
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+          "id": 39103858448,
+          "repository_id": 1289209764
+        }
+      },
+      "excluded_member_count": 0,
+      "matching_api_snapshots": [
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859/zip",
+            "created_at": "2026-10-18T06:37:09Z",
+            "digest": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127921859,
+            "name": "rust-product-tests-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzkyMTg1OQ==",
+            "size_in_bytes": 8020,
+            "updated_at": "2026-10-18T06:37:09Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.latest.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859/zip",
+            "created_at": "2026-10-18T06:37:09Z",
+            "digest": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127921859,
+            "name": "rust-product-tests-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzkyMTg1OQ==",
+            "size_in_bytes": 8020,
+            "updated_at": "2026-10-18T06:37:09Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll6.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859/zip",
+            "created_at": "2026-10-18T06:37:09Z",
+            "digest": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127921859,
+            "name": "rust-product-tests-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzkyMTg1OQ==",
+            "size_in_bytes": 8020,
+            "updated_at": "2026-10-18T06:37:09Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/artifacts.poll7.json"
+        },
+        {
+          "metadata": {
+            "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859/zip",
+            "created_at": "2026-10-18T06:37:09Z",
+            "digest": "sha256:17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358",
+            "expired": false,
+            "expires_at": "2027-01-16T06:23:22Z",
+            "id": 12127921859,
+            "name": "rust-product-tests-windows-latest",
+            "node_id": "MDg6QXJ0aWZhY3QxMjEyNzkyMTg1OQ==",
+            "size_in_bytes": 8020,
+            "updated_at": "2026-10-18T06:37:09Z",
+            "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127921859",
+            "workflow_run": {
+              "head_branch": "rust/365-t00",
+              "head_repository_id": 1289209764,
+              "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+              "id": 39103858448,
+              "repository_id": 1289209764
+            }
+          },
+          "source_member": "raw/independent/followup-artifacts.json"
+        }
+      ],
+      "members": [
+        {
+          "bytes": 31506,
+          "compressed_bytes": 7856,
+          "included": true,
+          "portable_member": "artifacts/rust-product-tests-windows-latest/native-product-tests.json",
+          "sha256": "1d2633e5b86419dd9ddb2624f8b605029e782d90996e7c9b52f93e4b2111cec2",
+          "zip_crc32": "a2c51247",
+          "zip_member": "native-product-tests.json"
+        }
+      ],
+      "original_archive": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/rust-product-tests-windows-latest.zip",
+      "original_zip_bytes": 8020,
+      "original_zip_not_republished": true,
+      "original_zip_sha256": "17c5f8857dc80f9d6d097a1d1f04b4fe0f6d57b96959bd4c4b4cab52af938358"
+    }
+  ],
+  "excluded_members": [
+    {
+      "archive": "native-r0-optimized-macos-15.followup.zip",
+      "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722/zip",
+      "artifact_id": 12128425722,
+      "bytes": 32727328,
+      "compressed_bytes": 11227608,
+      "exclusion_reasons": [
+        "target build output",
+        "native executable magic"
+      ],
+      "included": false,
+      "sha256": "9452879049fbf836c8cd52208cf18d2389f98f55b20b1f8d2ba23c037f3823da",
+      "zip_crc32": "b5811130",
+      "zip_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe"
+    },
+    {
+      "archive": "native-r0-optimized-ubuntu-latest.zip",
+      "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12127594517/zip",
+      "artifact_id": 12127594517,
+      "bytes": 36821584,
+      "compressed_bytes": 11905971,
+      "exclusion_reasons": [
+        "target build output",
+        "native executable magic"
+      ],
+      "included": false,
+      "sha256": "df7d35d30d20a9ba50672693834e9f8cce0d3bbb1462410a7cbb1e1391628dd3",
+      "zip_crc32": "bfea2bbf",
+      "zip_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe"
+    },
+    {
+      "archive": "native-r0-optimized-windows-latest.followup.zip",
+      "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606/zip",
+      "artifact_id": 12128137606,
+      "bytes": 31895552,
+      "compressed_bytes": 10733095,
+      "exclusion_reasons": [
+        "target build output",
+        "native binary/library extension",
+        "native executable magic"
+      ],
+      "included": false,
+      "sha256": "f190d84262e682f4545554c9d4e5edef9fe84524a23350f96cfa1658f973fb09",
+      "zip_crc32": "8d595568",
+      "zip_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe.exe"
+    }
+  ],
+  "original_archive_count": 9,
+  "policy": "Original executable ZIPs are not republished. All JSON/TS evidence members retained byte-exact; target/native executable/library bytes excluded with hashes and artifact metadata. Remote retention is not guaranteed.",
+  "schema_version": 1
+}

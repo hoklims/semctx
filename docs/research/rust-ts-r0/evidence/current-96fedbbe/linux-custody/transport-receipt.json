@@ -1,0 +1,84 @@
+{
+  "kind": "LINUX_PUBLIC_TRANSPORT_COMPLETED",
+  "mode": "full",
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "protocol": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "container_id": "3395cf7123fac01231175e823bb498124569c1852ccbb524b062c4104e7a88be",
+  "network": "none",
+  "user": "501:20",
+  "source_read_only": true,
+  "copied": {
+    "assessment-linux.native.json": {
+      "native_path": "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/assessment-linux.native.json",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/assessment-linux.native.json",
+      "sha256": "5bd9f1014e1872dd4bd1ffcf5706e2e78cde7839eb0644ec0b3258fe0091f71b",
+      "bytes": 45463312
+    },
+    "linux-hosts.native.json": {
+      "native_path": "/work/evidence/native-corrected-v1-inputs-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-hosts.native.json",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/linux-hosts.native.json",
+      "sha256": "42568d8f5869e83c1ac2165de79b2cc14821f3006b079b549c7942986c3a4b11",
+      "bytes": 11120
+    },
+    "linux-assessment-driver.receipt.json": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-assessment-driver.receipt.json",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/linux-assessment-driver.receipt.json",
+      "sha256": "c663ff3d6621c6c4200b0003c4a60c6858b3e5e12249a98ff0c14f74edfaecf1",
+      "bytes": 3266
+    },
+    "linux-assessment-0.stdout": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-assessment-0.stdout",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/linux-assessment-0.stdout",
+      "sha256": "7ca812f6d372baa6d37b40371b5ba027433b25af31dd6444f024c6257dcd2ecd",
+      "bytes": 292
+    },
+    "linux-assessment-0.stderr": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-assessment-0.stderr",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/linux-assessment-0.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "linux-assessment-1.stdout": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-assessment-1.stdout",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/linux-assessment-1.stdout",
+      "sha256": "c04929e8a44473ceda1a8a114ceff27cadf041932f130b32a07455634ba58424",
+      "bytes": 34
+    },
+    "linux-assessment-1.stderr": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-corrected-v1-control-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/linux-assessment-1.stderr",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/linux-assessment-1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "complete-export-receipt.json": {
+      "native_path": "/work/evidence/native-final-complete-linux-export-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/complete-export-receipt.json",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/complete-export-receipt.json",
+      "sha256": "4c1d9235428cdde5d4df2cd536dcba32dae81e1f8a10eb3e5c7b20d95ed502b8",
+      "bytes": 10629805
+    },
+    "complete-evidence.tar.gz": {
+      "native_path": "/work/evidence/native-final-complete-linux-export-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/complete-evidence.tar.gz",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/complete-evidence.tar.gz",
+      "sha256": "162c9980c87fc0520c8aec12f452027b80beed81eaa800ec2421d38cf3be6539",
+      "bytes": 195461669
+    },
+    "native-export.stdout": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/native-export.stdout",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/native-export.stdout",
+      "sha256": "ff8c4ea7d55dcf72a311e8ca6663140b1714d1370e503265479a69be9bdf5007",
+      "bytes": 212
+    },
+    "native-export.stderr": {
+      "native_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/native-export.stderr",
+      "mac_path": "/Users/hokli/semctx-t00-build-evidence-20261021/native-final-linux-full-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3-f1/native-export.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  },
+  "tool_manifest_sha256": "21c5974bab0d92f41d38d036189b8f4fc28a4f5d4b80c75f61f0da653d886d5b",
+  "candidate_queries": 0,
+  "producer_builds": 0,
+  "qualification_credit": 0,
+  "R0_decision": null,
+  "owned_caffeinate_stopped": true
+}

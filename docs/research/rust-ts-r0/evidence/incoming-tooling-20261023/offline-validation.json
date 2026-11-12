@@ -1,0 +1,108 @@
+{
+  "kind": "ACTUAL_OFFLINE_READER_SOURCE_AND_PUBLIC_CORPUS_PREFLIGHT_ONLY",
+  "source_head": "3bf0060abab09f5671d3c1f45de4d83ccda14b74",
+  "packages": {
+    "native": {
+      "zip_sha256": "cba886f43d657647a49093555ef315f3607f1c525b527564cadc36b22c054b29",
+      "zip_bytes": 417119,
+      "members": 16,
+      "original_source_inventory": 139
+    },
+    "windows": {
+      "zip_sha256": "e6c0c0cbc55cdd9c63917f9cd3a72b222d7c33c56dc7f2eea1e63adfe42582d0",
+      "zip_bytes": 439972,
+      "members": 22,
+      "original_source_inventory": 139
+    }
+  },
+  "proposal_sha256": "484bc2adb25fd3e9eaac6728a05919b84c845f1c5e6f879c984837512515c8b7",
+  "scope_map_sha256": "7791fd8880bcbd62535f0bf2f0cd35089f8ac1146f2c9919f1f2eefa3049bf6f",
+  "windows_protocol_sha256": "93d52166d545784d657c2fb3528ab4aee5f24606138c8188c52d9074b17525b5",
+  "records": [
+    {
+      "label": "native-protocol",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\incoming-final-reader-preparation\\source-3bf0060a-once\\current-native-reader\\check_protocol.py",
+        "--repo",
+        "C:\\maintenence\\semctx.codex-t00-physical-20261022",
+        "--source-head",
+        "3bf0060abab09f5671d3c1f45de4d83ccda14b74",
+        "--protocol-sha256",
+        "7791fd8880bcbd62535f0bf2f0cd35089f8ac1146f2c9919f1f2eefa3049bf6f"
+      ],
+      "exit_code": 0,
+      "seconds": 22.378955699969083,
+      "stdout": {
+        "sha256": "2656f17648bef542d12adcaf069d92be3e51706cc270f31788d66c8dfb3bcfc7",
+        "bytes": 25702
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "label": "windows-protocol",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\incoming-final-reader-preparation\\source-3bf0060a-once\\current-windows-reader\\check_protocol.py",
+        "--repo",
+        "C:\\maintenence\\semctx.codex-t00-physical-20261022",
+        "--source-head",
+        "3bf0060abab09f5671d3c1f45de4d83ccda14b74",
+        "--protocol-sha256",
+        "7791fd8880bcbd62535f0bf2f0cd35089f8ac1146f2c9919f1f2eefa3049bf6f"
+      ],
+      "exit_code": 0,
+      "seconds": 9.78010070003802,
+      "stdout": {
+        "sha256": "fb38a47306e5127f9440f6dee13728f32838d4042bbc7356e638e40f7ec0d0ad",
+        "bytes": 25703
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    },
+    {
+      "label": "windows-package",
+      "argv": [
+        "C:\\Python314\\python.exe",
+        "-B",
+        "-c",
+        "import json,sys;from pathlib import Path;sys.path.insert(0,sys.argv[1]);import windows_transport as wt;print(json.dumps(wt.verify_package(Path(sys.argv[1]),sys.argv[2])))",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\incoming-final-reader-preparation\\source-3bf0060a-once\\current-windows-reader",
+        "93d52166d545784d657c2fb3528ab4aee5f24606138c8188c52d9074b17525b5"
+      ],
+      "exit_code": 0,
+      "seconds": 0.06523820001166314,
+      "stdout": {
+        "sha256": "4e2400db72e0e3b856da5375ddf0b83fe1aaca219b65513df446097fec5a6d56",
+        "bytes": 350
+      },
+      "stderr": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      }
+    }
+  ],
+  "source_inventory_unchanged": 139,
+  "changed_source_pins_from47a": 1,
+  "complete_ROOT_delta_paths": 139,
+  "outside139_delta_paths": 138,
+  "assessor139_is_complete_build_closure": false,
+  "outside139_requires_independent_loader_and_proof_binding": true,
+  "frozen_counts": {
+    "properties": 395,
+    "rows": 446,
+    "supports": 51
+  },
+  "check_definitions": 590,
+  "frozen_case_files": 1386,
+  "native_queries": 0,
+  "qualification_credit": 0,
+  "R0": null
+}

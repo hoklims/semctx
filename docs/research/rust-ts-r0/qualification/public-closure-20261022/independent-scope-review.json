@@ -1,0 +1,124 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "scope": "Bounded capture fidelity only; no consumer qualification",
+  "retainedObservations": [
+    {
+      "platform": "scope-macos.json",
+      "id": "inherited-positive",
+      "nativeExit": 0,
+      "sourceAdmission": "admitted",
+      "nativeAdmission": "admitted"
+    },
+    {
+      "platform": "scope-macos.json",
+      "id": "unretained-reference",
+      "nativeExit": 1,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": null
+    },
+    {
+      "platform": "scope-macos.json",
+      "id": "declared-optional",
+      "nativeExit": 3,
+      "sourceAdmission": "admitted",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-macos.json",
+      "id": "undeclared-optional",
+      "nativeExit": 1,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": null
+    },
+    {
+      "platform": "scope-macos.json",
+      "id": "excluded-dependent",
+      "nativeExit": 3,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-macos.json",
+      "id": "excluded-computed",
+      "nativeExit": 3,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-macos.json",
+      "id": "excluded-unresolved",
+      "nativeExit": 3,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "inherited-positive",
+      "nativeExit": 0,
+      "sourceAdmission": "admitted",
+      "nativeAdmission": "admitted"
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "unretained-reference",
+      "nativeExit": 1,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": null
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "declared-optional",
+      "nativeExit": 3,
+      "sourceAdmission": "admitted",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "undeclared-optional",
+      "nativeExit": 1,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": null
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "excluded-dependent",
+      "nativeExit": 3,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "excluded-computed",
+      "nativeExit": 3,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected"
+    },
+    {
+      "platform": "scope-linux.json",
+      "id": "excluded-unresolved",
+      "nativeExit": 3,
+      "sourceAdmission": "rejected",
+      "nativeAdmission": "rejected"
+    }
+  ],
+  "nativeNegativeAndRestoration": [
+    {
+      "name": "healthy",
+      "exitCode": 0,
+      "stdoutSha256": "0b4f2a8544702d5444c633844dd205b986c5f4377a03250b42f4cb3b50ee53d2",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "corrupted",
+      "exitCode": 1,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "095137716babb3de75fea80c72fb92cc1fe769c39fe1a9625fecff80f770336c"
+    },
+    {
+      "name": "restored",
+      "exitCode": 0,
+      "stdoutSha256": "b2e4dfc636fe0f8569bd5405377432505868806d5ca64692e9bfe16b6850ff8f",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

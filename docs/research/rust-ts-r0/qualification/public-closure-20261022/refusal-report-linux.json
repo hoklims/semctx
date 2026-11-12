@@ -1,0 +1,767 @@
+{
+  "schemaVersion": 1,
+  "platform": "linux",
+  "architecture": "arm64",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "typescript": "5.9.3",
+  "freeze": {
+    "path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/freeze.json",
+    "sha256": "9dfa73a875fa588c10711eea017e2c0ff7e7421f96fc3f3c15a7a3d9053b3ae3"
+  },
+  "sourceIdentities": [
+    {
+      "path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+      "sha256": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea"
+    },
+    {
+      "path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json",
+      "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"
+    },
+    {
+      "path": "/work/evidence/qualification-20261022/public-closure/linux-oracle-baseline/packages/ts-analyzer/src/ts-symbols.ts",
+      "sha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e"
+    },
+    {
+      "path": "/work/evidence/qualification-20261022/public-closure/linux-oracle-baseline/packages/ts-analyzer/src/analyze.ts",
+      "sha256": "8d9f774cab04662b293bad3ff564303605a862fadb59f4e5d3ca2fcf20c6cea2"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-inputs.json",
+      "sha256": "c8c1b3092872af2925c606ca6aa73ccf689d2b2f67ed79374003b0fe1c5bdff4"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/qualification/public-closure-20261022/refusal-capture.mjs",
+      "sha256": "69fe32aa2504a3ab3be4f51f0c1ce06f90070c8a46f403d7c592f9001b767b8f"
+    },
+    {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/qualification/public-closure-20261022/public-native-context.mjs",
+      "sha256": "d074a20c93efbbb794e5d5039b753f1a74370f992510925955e6d94a828b51c9"
+    }
+  ],
+  "boundInputsStable": true,
+  "units": [
+    {
+      "id": "import-escape-retained",
+      "obligation_indices": [
+        169
+      ],
+      "owner": "extractTypeScript",
+      "pass": true,
+      "ownerBoundaryMatched": true,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "refusal-exit-code",
+          "actual": 1,
+          "expected": 1,
+          "pass": true
+        },
+        {
+          "name": "refusal-stdout-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "complete-stderr-json-bytes",
+          "actual": "{\"error\":\"IMPORT_OUTSIDE_REPOSITORY: ../outside\"}\n",
+          "expected": "{\"error\":\"IMPORT_OUTSIDE_REPOSITORY: ../outside\"}\n",
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-retained",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-retained/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-retained/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "durationMs": 42.64272299999999,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 50,
+          "sha256": "6d9fb0525b655b451d62a42dab5e9839b0e75249921caa1e065f977569f445c4"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-retained/native-request.json",
+          "sha256": "c69510bb321ebcf5064036b58d70cfd7afabeac689cd9a83a300d1708ee7a545"
+        }
+      },
+      "typescriptOutcomeSha256": "49f43e8c6a28e4137ac13dd57467f6fc330ce70f5151c3a8bf9f2af1490fd101"
+    },
+    {
+      "id": "reference-escape-retained",
+      "obligation_indices": [
+        169
+      ],
+      "owner": "extractTypeScript",
+      "pass": true,
+      "ownerBoundaryMatched": true,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "refusal-exit-code",
+          "actual": 1,
+          "expected": 1,
+          "pass": true
+        },
+        {
+          "name": "refusal-stdout-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "complete-stderr-json-bytes",
+          "actual": "{\"error\":\"REFERENCE_OUTSIDE_REPOSITORY: ../outside.ts\"}\n",
+          "expected": "{\"error\":\"REFERENCE_OUTSIDE_REPOSITORY: ../outside.ts\"}\n",
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-retained",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-retained/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-retained/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "durationMs": 36.29499400000003,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 56,
+          "sha256": "6c7a689c61a152b9034aead0d393fbb1822e4f93f3004e45f51d9bc02038c5ca"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-retained/native-request.json",
+          "sha256": "b9af21b354052d316a24342f652e954d039b132872e11bd0967340ce72452bbc"
+        }
+      },
+      "typescriptOutcomeSha256": "2b45bb89f37a2efe13ba698ca3a240535c15329c6aa5ad93d7add46db1a64100"
+    },
+    {
+      "id": "import-escape-ordinary",
+      "obligation_indices": [
+        169
+      ],
+      "owner": "extractTypeScript",
+      "pass": true,
+      "ownerBoundaryMatched": true,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "refusal-exit-code",
+          "actual": 1,
+          "expected": 1,
+          "pass": true
+        },
+        {
+          "name": "refusal-stdout-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "complete-stderr-json-bytes",
+          "actual": "{\"error\":\"IMPORT_OUTSIDE_REPOSITORY: ../outside\"}\n",
+          "expected": "{\"error\":\"IMPORT_OUTSIDE_REPOSITORY: ../outside\"}\n",
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-ordinary",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-ordinary/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-ordinary/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "durationMs": 36.20853599999998,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 50,
+          "sha256": "6d9fb0525b655b451d62a42dab5e9839b0e75249921caa1e065f977569f445c4"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/import-escape-ordinary/native-request.json",
+          "sha256": "a7dbad741ac4166ce41c31472187a46fb557b14a691f93b9aecccd47142f53f2"
+        }
+      },
+      "typescriptOutcomeSha256": "49f43e8c6a28e4137ac13dd57467f6fc330ce70f5151c3a8bf9f2af1490fd101"
+    },
+    {
+      "id": "reference-escape-ordinary",
+      "obligation_indices": [
+        169
+      ],
+      "owner": "extractTypeScript",
+      "pass": true,
+      "ownerBoundaryMatched": true,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "refusal-exit-code",
+          "actual": 1,
+          "expected": 1,
+          "pass": true
+        },
+        {
+          "name": "refusal-stdout-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "complete-stderr-json-bytes",
+          "actual": "{\"error\":\"REFERENCE_OUTSIDE_REPOSITORY: ../outside.ts\"}\n",
+          "expected": "{\"error\":\"REFERENCE_OUTSIDE_REPOSITORY: ../outside.ts\"}\n",
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-ordinary",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-ordinary/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-ordinary/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "durationMs": 25.900875999999982,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 56,
+          "sha256": "6c7a689c61a152b9034aead0d393fbb1822e4f93f3004e45f51d9bc02038c5ca"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/reference-escape-ordinary/native-request.json",
+          "sha256": "dde601ac42f677fad6dc64cdd7be2fa11b9dc5886068c6455e2e8cee7f3d7453"
+        }
+      },
+      "typescriptOutcomeSha256": "2b45bb89f37a2efe13ba698ca3a240535c15329c6aa5ad93d7add46db1a64100"
+    },
+    {
+      "id": "in-root-call-control",
+      "obligation_indices": [
+        169
+      ],
+      "owner": "extractTypeScript",
+      "pass": true,
+      "ownerBoundaryMatched": true,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "success-exit-code",
+          "actual": 0,
+          "expected": 0,
+          "pass": true
+        },
+        {
+          "name": "success-stderr-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "producer-binding",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "raw-context-supportedInputRepresentations",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-requestIdentity",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-inputAndSdkIdentity",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-complete",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-noAdmission",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-productContext",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "complete-extraction",
+          "actual": {
+            "calls": [
+              {
+                "calleeName": "leaf",
+                "calleeRelPath": "leaf.ts",
+                "calleeSymbolPath": "leaf",
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "entry",
+                "line": 1
+              }
+            ],
+            "imports": [
+              {
+                "bindingTargets": [
+                  {
+                    "relPath": "leaf.ts",
+                    "symbolPath": "leaf"
+                  }
+                ],
+                "fromRelPath": "main.ts",
+                "line": 1,
+                "moduleSpecifier": "./leaf",
+                "names": [
+                  "leaf"
+                ],
+                "resolvedRelPath": "leaf.ts"
+              }
+            ],
+            "modules": [
+              "leaf.ts",
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "endLine": 1,
+                "exported": true,
+                "kind": "function",
+                "markers": [],
+                "name": "entry",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1
+              },
+              {
+                "endLine": 1,
+                "exported": true,
+                "kind": "function",
+                "markers": [],
+                "name": "leaf",
+                "relPath": "leaf.ts",
+                "scope": [],
+                "startLine": 1
+              }
+            ]
+          },
+          "expected": {
+            "modules": [
+              "leaf.ts",
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "entry",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              },
+              {
+                "name": "leaf",
+                "kind": "function",
+                "relPath": "leaf.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [
+              {
+                "fromRelPath": "main.ts",
+                "moduleSpecifier": "./leaf",
+                "resolvedRelPath": "leaf.ts",
+                "names": [
+                  "leaf"
+                ],
+                "bindingTargets": [
+                  {
+                    "relPath": "leaf.ts",
+                    "symbolPath": "leaf"
+                  }
+                ],
+                "line": 1
+              }
+            ],
+            "calls": [
+              {
+                "callerRelPath": "main.ts",
+                "callerSymbolPath": "entry",
+                "calleeName": "leaf",
+                "calleeRelPath": "leaf.ts",
+                "calleeSymbolPath": "leaf",
+                "line": 1
+              }
+            ]
+          },
+          "pass": true
+        },
+        {
+          "name": "real-call-target",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/in-root-call-control",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/in-root-call-control/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/in-root-call-control/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "durationMs": 349.57439999999997,
+        "stdout": {
+          "bytes": 282743,
+          "sha256": "663d129ebd3884863f72dd24607ad66cf162f44a17a9b1a352e05bb21095c795"
+        },
+        "stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/in-root-call-control/native-request.json",
+          "sha256": "92f4bed56f0477e122a1c0b69c54950c349e70ccb1b24a64343722b1a9b878b0"
+        }
+      },
+      "typescriptOutcomeSha256": "2a1915c9f2ed3d928bc17d1c99f5a4b6417f962a79cc3ba8e15e2c8f92184212"
+    },
+    {
+      "id": "snapshot-required-qualified",
+      "obligation_indices": [
+        4
+      ],
+      "owner": "analyzeRepository",
+      "pass": true,
+      "ownerBoundaryMatched": false,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "refusal-exit-code",
+          "actual": 1,
+          "expected": 1,
+          "pass": true
+        },
+        {
+          "name": "refusal-stdout-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "complete-stderr-json-bytes",
+          "actual": "{\"error\":\"SOURCE_SNAPSHOT_REQUIRED\"}\n",
+          "expected": "{\"error\":\"SOURCE_SNAPSHOT_REQUIRED\"}\n",
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-required-qualified",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-required-qualified/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-required-qualified/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 1,
+        "signal": null,
+        "error": null,
+        "durationMs": 10.019533000000138,
+        "stdout": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stderr": {
+          "bytes": 37,
+          "sha256": "4beadd9e4cbe5379a1ab6c29f14353911ecc7c7baf9fb1789ce45cd6c662c177"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-required-qualified/native-request.json",
+          "sha256": "624e3bc3548a46769a482ba3e3321b859d4c93b4b27e46761729bfb6483f139b"
+        }
+      },
+      "typescriptOutcomeSha256": "25307f81da95da7c8dee8f31c6226b21f8853aa1cfc38c1d4afef2b9aa536555"
+    },
+    {
+      "id": "snapshot-absent-ordinary",
+      "obligation_indices": [
+        4
+      ],
+      "owner": "analyzeRepository",
+      "pass": true,
+      "ownerBoundaryMatched": false,
+      "checks": [
+        {
+          "name": "no-process-error",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "no-process-signal",
+          "actual": null,
+          "expected": null,
+          "pass": true
+        },
+        {
+          "name": "success-exit-code",
+          "actual": 0,
+          "expected": 0,
+          "pass": true
+        },
+        {
+          "name": "success-stderr-complete",
+          "actual": "",
+          "expected": "",
+          "pass": true
+        },
+        {
+          "name": "producer-binding",
+          "actual": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "expected": "sha256:8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "pass": true
+        },
+        {
+          "name": "raw-context-supportedInputRepresentations",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-requestIdentity",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-inputAndSdkIdentity",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-complete",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-noAdmission",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "raw-context-productContext",
+          "actual": true,
+          "expected": true,
+          "pass": true
+        },
+        {
+          "name": "complete-extraction",
+          "actual": {
+            "calls": [],
+            "imports": [],
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "endLine": 1,
+                "exported": true,
+                "kind": "function",
+                "markers": [],
+                "name": "entry",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1
+              }
+            ]
+          },
+          "expected": {
+            "modules": [
+              "main.ts"
+            ],
+            "symbols": [
+              {
+                "name": "entry",
+                "kind": "function",
+                "relPath": "main.ts",
+                "scope": [],
+                "startLine": 1,
+                "endLine": 1,
+                "exported": true,
+                "markers": []
+              }
+            ],
+            "imports": [],
+            "calls": []
+          },
+          "pass": true
+        }
+      ],
+      "rawDirectory": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-absent-ordinary",
+      "process": {
+        "argv": [
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+          "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-absent-ordinary/native-request.json",
+          "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json"
+        ],
+        "cwd": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-absent-ordinary/repository",
+        "timeoutMs": 40000,
+        "outputCapBytes": 33554432,
+        "status": 0,
+        "signal": null,
+        "error": null,
+        "durationMs": 192.80909199999996,
+        "stdout": {
+          "bytes": 65008,
+          "sha256": "40ba845102d7b4b1c86e2cea96f50663f5d280023bccc2fa596efd40f94c0636"
+        },
+        "stderr": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "request": {
+          "path": "/work/evidence/qualification-20261022/public-closure/refusals/linux-v3/snapshot-absent-ordinary/native-request.json",
+          "sha256": "167e4bd367aa07e382107678e0f49d2ae8de4be1429bf398e362a18bc07240cd"
+        }
+      },
+      "typescriptOutcomeSha256": "714fa87ebd52140eebd6e61b53b2f0de950baf0512623af9f421d27626909bc7"
+    }
+  ],
+  "pass": true,
+  "formalR0Qualified": false,
+  "limitations": [
+    "Snapshot obligation 4 uses native raw analyze guard; retained runtime rejects ordinary missing snapshots before that guard. Its analyzeRepository owner boundary is not claimed closed.",
+    "Snapshot required message maps the entire baseline explanatory error to the native stable reason through the explicit sole mapping in this capture; no prefix-only stderr acceptance."
+  ]
+}

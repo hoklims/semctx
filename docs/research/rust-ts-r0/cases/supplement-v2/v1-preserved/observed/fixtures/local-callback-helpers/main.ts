@@ -1,0 +1,1 @@
+const mapper = { call(value) { return 1; }, apply(value) { return 1; }, bind(value) { return 1; } }; mapper.call(1); mapper.apply(1); mapper.bind(1); export {};

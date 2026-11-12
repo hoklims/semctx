@@ -1,0 +1,401 @@
+{
+  "schemaVersion": 1,
+  "state": "LOT2_FINITE_PUBLIC_ASSESSMENT_NO_PROMOTION",
+  "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+  "candidateEvidence": {
+    "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+    "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+    "bytes": 8455
+  },
+  "summary": {
+    "qualified": 0,
+    "notQualified": 6,
+    "total": 6,
+    "formalR0Qualified": 0,
+    "allTargetQualified": 0,
+    "arbitrationPassingCredit": 0
+  },
+  "qualificationPolicy": "No missing activation/control, API site, cumulative public property, exact complete reason comparison or required independent review can be waived. Windows and terminal admission are absent.",
+  "obligations": [
+    {
+      "index": 2,
+      "id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assemblerepository-6ce629281c",
+      "consumer": "assembleRepository",
+      "familyIds": [
+        "qualified-test-dynamic-import-binding"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite lot2 consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Public extractor reachability and complete baseline reasons are now observed. Both platforms pass the two static controls, but five refusal cases produce an index terminal refused that public Git-bound verify rejects with UnexpectedOutcome before a structured admission report. The cumulative public property remains not_qualified.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/2/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+            "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+            "bytes": 8455
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/assembly-campaign.json",
+            "sha256": "8911fb7ca50a9ddeb6df65237d85df05b3600f162c5a4399899b4282d1ef720a",
+            "bytes": 46510
+          }
+        ]
+      },
+      "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+      "platformResults": {
+        "macos": {
+          "originalAssociatedUnits": {
+            "pass": 9,
+            "total": 9
+          },
+          "publicGitVerification": {
+            "pass": 2,
+            "total": 7,
+            "missingStructuredRefusalReports": 5
+          }
+        },
+        "linux": {
+          "originalAssociatedUnits": {
+            "pass": 9,
+            "total": 9
+          },
+          "publicGitVerification": {
+            "pass": 2,
+            "total": 7,
+            "missingStructuredRefusalReports": 5
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 3,
+      "id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assemblerepository-visit-29bc606f63",
+      "consumer": "assembleRepository > visit",
+      "familyIds": [
+        "qualified-test-dynamic-import-binding"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite lot2 consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "The real test-source traversal finds literal imports. Both platforms pass the two static controls, but all five refusal cases stop at indexed extraction rejected: UnexpectedOutcome; exact public admission and coverage comparisons remain absent.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/3/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+            "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+            "bytes": 8455
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/assembly-campaign.json",
+            "sha256": "8911fb7ca50a9ddeb6df65237d85df05b3600f162c5a4399899b4282d1ef720a",
+            "bytes": 46510
+          }
+        ]
+      },
+      "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+      "platformResults": {
+        "macos": {
+          "originalAssociatedUnits": {
+            "pass": 9,
+            "total": 9
+          },
+          "publicGitVerification": {
+            "pass": 2,
+            "total": 7,
+            "missingStructuredRefusalReports": 5
+          }
+        },
+        "linux": {
+          "originalAssociatedUnits": {
+            "pass": 9,
+            "total": 9
+          },
+          "publicGitVerification": {
+            "pass": 2,
+            "total": 7,
+            "missingStructuredRefusalReports": 5
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 49,
+      "id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-cf54e48930",
+      "consumer": "inspectSemanticDependencies",
+      "familyIds": [
+        "qualified-semantic-context"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite lot2 consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Three exact sites49:2,49:4,49:5 remain unobserved: the sourcePath default and absent-snapshot source.fileName/source.text fallback. The existing invocation supplies both arguments; successful captured-input reasons do not qualify those paths.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/49/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+            "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+            "bytes": 8455
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/semantic-proof-map.json",
+            "sha256": "0006138fed69d106627886d9c0ea332af8d3f07593dbf09133b1f7e2cb856d4e",
+            "bytes": 16089,
+            "jsonPointer": "/rows/0"
+          }
+        ]
+      },
+      "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+      "platformResults": {
+        "macos": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 12,
+            "total": 15
+          },
+          "sourceReferenceReasonPair": {
+            "pass": 2,
+            "total": 2,
+            "defaultOrAbsentSnapshotReached": false
+          }
+        },
+        "linux": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 12,
+            "total": 15
+          },
+          "sourceReferenceReasonPair": {
+            "pass": 2,
+            "total": 2,
+            "defaultOrAbsentSnapshotReached": false
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 69,
+      "id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9cf6060641",
+      "consumer": "inspectSemanticDependencies > inlineOwned",
+      "familyIds": [
+        "qualified-opaque-ownership"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite lot2 consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "All75 exact inlineOwned API sites remain unobserved in the reason-only oracle: callback ownership is not registered for the identical inputs object. No public registration/assembly equivalence is established; no family or graph-inheritance credit.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/69/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+            "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+            "bytes": 8455
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/semantic-proof-map.json",
+            "sha256": "0006138fed69d106627886d9c0ea332af8d3f07593dbf09133b1f7e2cb856d4e",
+            "bytes": 16089,
+            "jsonPointer": "/rows/1"
+          }
+        ]
+      },
+      "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+      "platformResults": {
+        "macos": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 0,
+            "total": 75
+          }
+        },
+        "linux": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 0,
+            "total": 75
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 77,
+      "id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8f53518e6d",
+      "consumer": "inspectSemanticDependencies > inspectOpaqueCallbacks",
+      "familyIds": [
+        "qualified-opaque-ownership"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite lot2 consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "All97 baseline sites have witnesses and the16 newly covered sites have controls, but complete native reasons differ on the causal shorthand-binding activation on both platforms: TS5.9.3 expects[]; native returns[SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED]. The other15 of16 new consumer witnesses pass; no qualification.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/77/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+            "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+            "bytes": 8455
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/semantic-proof-map.json",
+            "sha256": "0006138fed69d106627886d9c0ea332af8d3f07593dbf09133b1f7e2cb856d4e",
+            "bytes": 16089,
+            "jsonPointer": "/rows/2"
+          }
+        ]
+      },
+      "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+      "platformResults": {
+        "macos": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 97,
+            "total": 97
+          },
+          "newSiteWitnessesCompleteReasons": {
+            "pass": 15,
+            "total": 16,
+            "mismatch": "LOT2-SEM-shorthand-binding-activate"
+          }
+        },
+        "linux": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 97,
+            "total": 97
+          },
+          "newSiteWitnessesCompleteReasons": {
+            "pass": 15,
+            "total": 16,
+            "mismatch": "LOT2-SEM-shorthand-binding-activate"
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    },
+    {
+      "index": 82,
+      "id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-19d401182a",
+      "consumer": "inspectSemanticDependencies > inspectSdkCoercion",
+      "familyIds": [
+        "qualified-runtime-boundaries"
+      ],
+      "publicFiniteQualification": {
+        "status": "not_qualified",
+        "scope": "Finite lot2 consumer properties on macOS arm64 and Linux aarch64 only; not terminal R0",
+        "reason": "Sites82:8 and82:27 remain unobserved (27/29 total). The const-string shorthand is rejected by baseline literalData before the property loop; the full shorthand/explicit-property reason pair passes natively but does not reach either missing site.",
+        "previousAssessment": {
+          "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+          "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+          "bytes": 1263092,
+          "jsonPointer": "/obligations/82/publicFiniteQualification"
+        },
+        "newEvidence": [],
+        "partialEvidence": [
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/campaign-manifest.json",
+            "sha256": "3ec83c2e62d873155a80c94683320415a921a1ee458cb59e888fee8d0464c8c5",
+            "bytes": 8455
+          },
+          {
+            "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/semantic-proof-map.json",
+            "sha256": "0006138fed69d106627886d9c0ea332af8d3f07593dbf09133b1f7e2cb856d4e",
+            "bytes": 16089,
+            "jsonPointer": "/rows/3"
+          }
+        ]
+      },
+      "observedCandidateCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+      "platformResults": {
+        "macos": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 27,
+            "total": 29
+          },
+          "shorthandReasonWitnesses": {
+            "pass": 2,
+            "total": 2,
+            "missingSiteReached": false
+          }
+        },
+        "linux": {
+          "originalAssociatedUnits": {
+            "pass": 7,
+            "total": 7
+          },
+          "baselineSites": {
+            "observed": 27,
+            "total": 29
+          },
+          "shorthandReasonWitnesses": {
+            "pass": 2,
+            "total": 2,
+            "missingSiteReached": false
+          }
+        }
+      },
+      "formalR0ObligationQualified": false,
+      "allTargetQualified": false
+    }
+  ]
+}

@@ -1,0 +1,426 @@
+{
+  "environment": {
+    "ts": "5.9.3",
+    "bun": "1.4.3",
+    "platform": "darwin",
+    "arch": "arm64"
+  },
+  "vectors": [
+    {
+      "id": "R01-ascii-lf",
+      "rawHex": "6578706f72742066756e6374696f6e206628297b7d0a",
+      "ordinaryText": "export function f(){}\n",
+      "retainedText": "export function f(){}\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      },
+      "retained": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      }
+    },
+    {
+      "id": "R02-retained-bom",
+      "rawHex": "efbbbf6578706f72742066756e6374696f6e206628297b7d0a",
+      "ordinaryText": "export function f(){}\n",
+      "retainedText": "﻿export function f(){}\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      },
+      "retained": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 1,
+          "end": 22,
+          "nameStart": 17,
+          "nameEnd": 18,
+          "startLine": 1,
+          "endLine": 1
+        }
+      }
+    },
+    {
+      "id": "R03-ascii-crlf",
+      "rawHex": "6578706f72742066756e6374696f6e206628297b7d0d0a",
+      "ordinaryText": "export function f(){}\r\n",
+      "retainedText": "export function f(){}\r\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      },
+      "retained": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      }
+    },
+    {
+      "id": "R04-shebang-lf",
+      "rawHex": "23212f7573722f62696e2f656e76206e6f64650a6578706f72742066756e6374696f6e206628297b7d0a",
+      "ordinaryText": "#!/usr/bin/env node\nexport function f(){}\n",
+      "retainedText": "#!/usr/bin/env node\nexport function f(){}\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 20,
+          "end": 41,
+          "nameStart": 36,
+          "nameEnd": 37,
+          "startLine": 2,
+          "endLine": 2
+        }
+      },
+      "retained": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 20,
+          "end": 41,
+          "nameStart": 36,
+          "nameEnd": 37,
+          "startLine": 2,
+          "endLine": 2
+        }
+      }
+    },
+    {
+      "id": "R05-astral-comment-crlf",
+      "rawHex": "2f2af09f98802a2f0d0a6578706f72742066756e6374696f6e206628297b7d0d0a",
+      "ordinaryText": "/*😀*/\r\nexport function f(){}\r\n",
+      "retainedText": "/*😀*/\r\nexport function f(){}\r\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 8,
+          "end": 29,
+          "nameStart": 24,
+          "nameEnd": 25,
+          "startLine": 2,
+          "endLine": 2
+        }
+      },
+      "retained": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 8,
+          "end": 29,
+          "nameStart": 24,
+          "nameEnd": 25,
+          "startLine": 2,
+          "endLine": 2
+        }
+      }
+    },
+    {
+      "id": "R06-combined-retained-raw-text",
+      "rawHex": "efbbbf23212f7573722f62696e2f656e76206e6f64650d0a2f2a2a20f09f9880202a2f0d0a6578706f72742066756e6374696f6e20662829207b0d0a202072657475726e2022c3a9223b0d0a7d0d0a",
+      "ordinaryText": "#!/usr/bin/env node\r\n/** 😀 */\r\nexport function f() {\r\n  return \"é\";\r\n}\r\n",
+      "retainedText": "﻿#!/usr/bin/env node\r\n/** 😀 */\r\nexport function f() {\r\n  return \"é\";\r\n}\r\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 32,
+          "end": 71,
+          "nameStart": 48,
+          "nameEnd": 49,
+          "startLine": 3,
+          "endLine": 5
+        }
+      },
+      "retained": {
+        "diagnostics": [
+          {
+            "code": 18026,
+            "category": 1,
+            "start": 1,
+            "length": 2,
+            "message": "'#!' can only be used at the start of a file."
+          },
+          {
+            "code": 1005,
+            "category": 1,
+            "start": 16,
+            "length": 4,
+            "message": "';' expected."
+          }
+        ],
+        "declaration": {
+          "start": 33,
+          "end": 72,
+          "nameStart": 49,
+          "nameEnd": 50,
+          "startLine": 3,
+          "endLine": 5
+        }
+      }
+    },
+    {
+      "id": "UTF16LE",
+      "rawHex": "fffe6500780070006f00720074002000660075006e006300740069006f006e0020006600280029007b007d000a00",
+      "ordinaryText": "export function f(){}\n",
+      "retainedText": "��e\u0000x\u0000p\u0000o\u0000r\u0000t\u0000 \u0000f\u0000u\u0000n\u0000c\u0000t\u0000i\u0000o\u0000n\u0000 \u0000f\u0000(\u0000)\u0000{\u0000}\u0000\n\u0000",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      },
+      "retained": {
+        "diagnostics": [
+          {
+            "code": 1490,
+            "category": 1,
+            "start": 0,
+            "length": 0,
+            "message": "File appears to be binary."
+          }
+        ],
+        "declaration": null
+      }
+    },
+    {
+      "id": "UTF16BE",
+      "rawHex": "feff006500780070006f00720074002000660075006e006300740069006f006e0020006600280029007b007d000a",
+      "ordinaryText": "export function f(){}\n",
+      "retainedText": "��\u0000e\u0000x\u0000p\u0000o\u0000r\u0000t\u0000 \u0000f\u0000u\u0000n\u0000c\u0000t\u0000i\u0000o\u0000n\u0000 \u0000f\u0000(\u0000)\u0000{\u0000}\u0000\n",
+      "ordinary": {
+        "diagnostics": [],
+        "declaration": {
+          "start": 0,
+          "end": 21,
+          "nameStart": 16,
+          "nameEnd": 17,
+          "startLine": 1,
+          "endLine": 1
+        }
+      },
+      "retained": {
+        "diagnostics": [
+          {
+            "code": 1490,
+            "category": 1,
+            "start": 0,
+            "length": 0,
+            "message": "File appears to be binary."
+          }
+        ],
+        "declaration": null
+      }
+    },
+    {
+      "id": "UTF8-invalid",
+      "rawHex": "c328",
+      "ordinaryText": "�(",
+      "retainedText": "�(",
+      "ordinary": {
+        "diagnostics": [
+          {
+            "code": 1490,
+            "category": 1,
+            "start": 0,
+            "length": 0,
+            "message": "File appears to be binary."
+          }
+        ],
+        "declaration": null
+      },
+      "retained": {
+        "diagnostics": [
+          {
+            "code": 1490,
+            "category": 1,
+            "start": 0,
+            "length": 0,
+            "message": "File appears to be binary."
+          }
+        ],
+        "declaration": null
+      }
+    }
+  ],
+  "parseCases": [
+    {
+      "id": "N09/N14",
+      "text": "export const = ;",
+      "source": {
+        "diagnostics": [
+          {
+            "code": 1134,
+            "category": 1,
+            "start": 13,
+            "length": 1,
+            "message": "Variable declaration expected."
+          }
+        ],
+        "declaration": null
+      },
+      "javascriptTranspile": [
+        {
+          "code": 1134,
+          "category": 1,
+          "start": 13,
+          "length": 1,
+          "message": "Variable declaration expected."
+        }
+      ]
+    }
+  ],
+  "configs": [
+    {
+      "id": "valid",
+      "text": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}",
+      "diagnostics": [
+        {
+          "code": 18003,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "No inputs were found in config file 'tsconfig.json'. Specified 'include' paths were '[\"**/*\"]' and 'exclude' paths were '[]'."
+        }
+      ],
+      "consumerProjection": [],
+      "filtered18003": true
+    },
+    {
+      "id": "malformed",
+      "text": "{\"compilerOptions\":",
+      "diagnostics": [
+        {
+          "code": 1109,
+          "category": 1,
+          "start": 19,
+          "length": 0,
+          "message": "Expression expected."
+        }
+      ],
+      "consumerProjection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 1109
+        }
+      ],
+      "filtered18003": false
+    },
+    {
+      "id": "unknown-option",
+      "text": "{\"compilerOptions\":{\"notACompilerOption\":true}}",
+      "diagnostics": [
+        {
+          "code": 5023,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "Unknown compiler option 'notACompilerOption'."
+        },
+        {
+          "code": 18003,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "No inputs were found in config file 'tsconfig.json'. Specified 'include' paths were '[\"**/*\"]' and 'exclude' paths were '[]'."
+        }
+      ],
+      "consumerProjection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 5023
+        }
+      ],
+      "filtered18003": true
+    },
+    {
+      "id": "invalid-target",
+      "text": "{\"compilerOptions\":{\"target\":99}}",
+      "diagnostics": [
+        {
+          "code": 5024,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "Compiler option 'target' requires a value of type string."
+        },
+        {
+          "code": 18003,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "No inputs were found in config file 'tsconfig.json'. Specified 'include' paths were '[\"**/*\"]' and 'exclude' paths were '[]'."
+        }
+      ],
+      "consumerProjection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 5024
+        }
+      ],
+      "filtered18003": true
+    },
+    {
+      "id": "missing-extends",
+      "text": "{\"extends\":\"./missing.json\"}",
+      "diagnostics": [
+        {
+          "code": 5083,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "Cannot read file '/fixture/missing.json'."
+        },
+        {
+          "code": 18003,
+          "category": 1,
+          "start": null,
+          "length": null,
+          "message": "No inputs were found in config file 'tsconfig.json'. Specified 'include' paths were '[\"**/*\"]' and 'exclude' paths were '[]'."
+        }
+      ],
+      "consumerProjection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 5083
+        }
+      ],
+      "filtered18003": true
+    }
+  ]
+}

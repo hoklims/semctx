@@ -1,0 +1,57 @@
+{
+  "toolchain": {
+    "bun": "1.4.3",
+    "node": "26.3.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\run.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\reproduction"
+      ],
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\"cases\":6,\"programRecords\":12,\"normalizedSha256\":\"9e4092f059555db3c9b27f3c9d06ea3a891d29ed6cfb50b9106416527f390ce3\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\verify.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\expected.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\primary\\normalized.json"
+      ],
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\"equal\":true,\"cases\":6,\"programRecords\":12}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\verify.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\expected.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\reproduction\\normalized.json"
+      ],
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\"equal\":true,\"cases\":6,\"programRecords\":12}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\verify.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\wrong-expected.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum\\primary\\normalized.json"
+      ],
+      "exitCode": 1,
+      "expectedExit": 1,
+      "stdout": "",
+      "stderr": "\u001b[0m\u001b[31mORACLE_EXPECTATION_MISMATCH\u001b[0m\n"
+    }
+  ]
+}

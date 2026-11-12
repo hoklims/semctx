@@ -1,0 +1,439 @@
+{
+  "schemaVersion": 1,
+  "id": "semctx-t00-qualification-supplement-v1",
+  "kind": "independent-complementary-qualification",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "candidateObserved": false,
+  "original354unchanged": true,
+  "originalSupportCount": 51,
+  "notReservedHoldout": true,
+  "rejectedComplementsAdopted": false,
+  "author": "independent_gap_witnesses / Codex native independent author",
+  "inputClosure": {
+    "sourceAuthority": "Git objects at baseline only; authority copies retain exact bytes",
+    "runtime": "Bun 1.4.3",
+    "compiler": "TypeScript 5.9.3 official installed package",
+    "sdkManifest": "observed/typescript-sdk-manifest.json",
+    "options": "Each variant records actual extractionContext Program options; no fabricated Compiler API values",
+    "fixtureFiles": "observed/fixtures; no live Semctx packages loaded",
+    "baselineRuntimeSourceManifest": "observed/identity-observations.json#/control/files",
+    "dependencyRecovery": "observed/oracle-dependencies.json: clean baseline, frozen-lockfile, ignore-scripts; lock unchanged",
+    "dependencyBytes": "observed/oracle-runtime-dependency-manifest.json"
+  },
+  "properties": [
+    {
+      "id": "SUP-T00-SNAPSHOT",
+      "group": "snapshot",
+      "authority": "3e94997f:analyze.ts:411-418",
+      "property": "Qualified snapshot entirely absent versus real retained capture",
+      "variants": [
+        "snapshot"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-NATIVE",
+      "group": "native",
+      "authority": "3e94997f:javascript-diagnostics.ts:14-236",
+      "property": "Type-only/typeof inert; module/process/getBuiltinModule unknown members versus local binding",
+      "variants": [
+        "native-type-only",
+        "native-typeof",
+        "native-module-unknown",
+        "native-process-unknown",
+        "native-getbuiltin",
+        "native-local-process"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-PRIMITIVE",
+      "group": "primitive",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:743-840",
+      "property": "Dominating typeof throw versus absent/written binding; unique synchronous primitive helper versus object/async/reassigned",
+      "variants": [
+        "guard-dominates",
+        "guard-absent",
+        "guard-written-forof",
+        "guard-written-increment",
+        "helper-primitive",
+        "helper-object",
+        "helper-async",
+        "helper-written"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-HERITAGE",
+      "group": "heritage",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:1080-1093",
+      "property": "Internal class heritage versus external import",
+      "variants": [
+        "heritage-internal",
+        "heritage-external"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-PROPERTY",
+      "group": "property",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:1107-1116",
+      "property": "Runtime computed property versus declare and actual .d.ts",
+      "variants": [
+        "computed-runtime",
+        "computed-declare",
+        "computed-dts"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-SDK",
+      "group": "sdk",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:1094-1251",
+      "property": "Real SDK globals/Wasm/document.write/script-element versus local/non-script controls",
+      "variants": [
+        "global-sdk",
+        "global-local",
+        "wasm-sdk",
+        "wasm-local",
+        "write-sdk",
+        "write-local",
+        "script-sdk",
+        "script-nonscript",
+        "script-local"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-ASSIGNMENT",
+      "group": "assignment",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:1269-1292",
+      "property": "Actual binary assignments to then/protocol/SDK callable; primitive RHS contrasts then and callable; protocol mutation remains refused",
+      "variants": [
+        "assign-unsafe",
+        "assign-primitive"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-ASYNC",
+      "group": "async",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:991-1003",
+      "property": "Actual async alias call awaited versus sync object result",
+      "variants": [
+        "async-alias-call",
+        "sync-alias-call"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-CONSTRUCTOR",
+      "group": "constructor",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:163-171,1348",
+      "property": "Callable receiver dot/bracket constructor versus ordinary object field",
+      "variants": [
+        "callable-constructor",
+        "local-constructor"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-DATE",
+      "group": "date",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:307-310,1339-1341",
+      "property": "Real Date instance copy versus ordinary object coercion",
+      "variants": [
+        "date-copy",
+        "date-object"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-NESTED",
+      "group": "nested",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:969-989",
+      "property": "Nested binding with literal outer array; nested literal versus noniterable element",
+      "variants": [
+        "nested-array-literal",
+        "nested-array-opaque"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-MEMBERSHIP",
+      "group": "membership",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:32,1296",
+      "property": "Binary in with unknown key versus literal key",
+      "variants": [
+        "in-unknown",
+        "in-literal"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-SDKHELPER",
+      "group": "sdkhelper",
+      "authority": "3e94997f:semantic-dependency-diagnostics.ts:348-365",
+      "property": "SDK callback-bearing map via call/apply/bind versus local homonyms",
+      "variants": [
+        "sdk-callback-helpers",
+        "local-callback-helpers"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    },
+    {
+      "id": "SUP-T00-SCOPE",
+      "group": "scope",
+      "authority": "3e94997f:qualified-analysis.ts:90-216",
+      "property": "Retained/external/unretained references; optional opaque boundary; excluded parse/computed/unresolved importer",
+      "variants": [
+        "reference-unretained",
+        "reference-retained",
+        "reference-outside",
+        "optional-opaque",
+        "excluded-parse",
+        "excluded-computed",
+        "excluded-unresolved"
+      ],
+      "expected": "expected-observables.json",
+      "status": "BASELINE_OBSERVED"
+    }
+  ],
+  "publicWitnesses": [
+    {
+      "id": "directory-alias",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 429,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "reference-confinement",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/discovery-selection.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/discovery-selection.test.ts",
+        "--test-name-pattern",
+        "records relative imports and reference paths escaping"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 270,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "native-inert",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/create-require.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/create-require.test.ts",
+        "--test-name-pattern",
+        "type-only native bindings"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 265,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "mixed-fallback",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/javascript.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/javascript.test.ts",
+        "--test-name-pattern",
+        "keeps mixed extraction in one semantic Program"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 225,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "external-partition",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/parallel-extraction.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/parallel-extraction.test.ts",
+        "--test-name-pattern",
+        "does not connect independent roots through the same external"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 277,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "namespace-owners",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/semantic-js-contracts.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/semantic-js-contracts.test.ts",
+        "--test-name-pattern",
+        "non-call namespace members retain|namespace destructuring preserves|unmodeled object members cannot claim"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 483,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "runtime-erased",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/runtime-value-imports.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/runtime-value-imports.test.ts",
+        "--test-name-pattern",
+        "unused, erased and shadowed"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 237,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "workspace-boundaries",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/workspace-configuration-links.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/workspace-configuration-links.test.ts",
+        "--test-name-pattern",
+        "installed dependency keeps precedence|workspace declared above|legacy TS-only extraction"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 415,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "opaque-ownership",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/ts-analyzer/test/opaque-inline-ownership.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/ts-analyzer/test/opaque-inline-ownership.test.ts",
+        "--test-name-pattern",
+        "opaque inline ownership|actual test binding ownership|anonymous default declaration"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 75,
+      "stderrBytes": 644,
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "scope-admission",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "packages/app-services/test/qualified-analysis.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "packages/app-services/test/qualified-analysis.test.ts",
+        "--test-name-pattern",
+        "unretained generated reference|manifest optional dependencies|excluded parse-failed or computed"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 445,
+      "runtimeSource": "baseline-clean-repro exact archive; frozen-lockfile ignore-scripts",
+      "rawPrefix": "scope-admission-clean",
+      "status": "BASELINE_TEST_OBSERVED"
+    },
+    {
+      "id": "pilot-builtin",
+      "authority": {
+        "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+        "file": "scripts/test/impact-pilot.test.ts"
+      },
+      "argv": [
+        "test",
+        "--timeout",
+        "60000",
+        "scripts/test/impact-pilot.test.ts",
+        "--test-name-pattern",
+        "extractRelativeImportSpecifiers keeps only relative"
+      ],
+      "exitCode": 0,
+      "stdoutBytes": 28,
+      "stderrBytes": 216,
+      "status": "BASELINE_TEST_OBSERVED"
+    }
+  ],
+  "unknown": [],
+  "counts": {
+    "sourceVariants": 50,
+    "publicExecutions": 11,
+    "publicExecuted": 11,
+    "publicUnknown": 0
+  },
+  "boundaries": [
+    "Original 354 units/51 supports were neither read nor modified",
+    "Reserved 23/26 and rejected complement outcomes were not read",
+    "No candidate/source Rust/native output/privateOutcome was read or executed",
+    "No network install, paid service, global modification or administrative action"
+  ]
+}

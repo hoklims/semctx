@@ -206,15 +206,21 @@ export function inspectSemanticDependencies(source: ts.SourceFile, snapshot?: Co
     const value = unwrapStaticExpression(expression);
     if (seen.has(value)) return false;
     seen.add(value);
+    const origins = (): readonly ts.Declaration[] => {
+      if (!ts.isIdentifier(value) || !ts.isShorthandPropertyAssignment(value.parent) || value.parent.name !== value) return declarations(value);
+      let symbol = checker.getShorthandAssignmentValueSymbol(value.parent);
+      if (symbol !== undefined && (symbol.flags & ts.SymbolFlags.Alias) !== 0) symbol = checker.getAliasedSymbol(symbol);
+      return symbol?.getDeclarations() ?? [];
+    };
     if (ts.isNumericLiteral(value) || ts.isBigIntLiteral(value) || ts.isStringLiteralLike(value) || ts.isVoidExpression(value)
       || [ts.SyntaxKind.NullKeyword, ts.SyntaxKind.TrueKeyword, ts.SyntaxKind.FalseKeyword].includes(value.kind)) return true;
-    if (ts.isIdentifier(value) && value.text === "undefined" && declarations(value).length === 0
+    if (ts.isIdentifier(value) && value.text === "undefined" && origins().length === 0
       && (checker.getTypeAtLocation(value).flags & ts.TypeFlags.Undefined) !== 0) return true;
     if (ts.isTypeOfExpression(value)) return true;
     if (ts.isTemplateExpression(value)) return value.templateSpans.every(span => primitiveValue(span.expression, new Set(seen)));
     if (ts.isBinaryExpression(value) && value.operatorToken.kind === ts.SyntaxKind.PlusToken) return primitiveValue(value.left, new Set(seen)) && primitiveValue(value.right, new Set(seen));
     if (ts.isPrefixUnaryExpression(value)) return value.operator === ts.SyntaxKind.ExclamationToken || primitiveValue(value.operand, new Set(seen));
-    return declarations(value).some(declaration => ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
+    return origins().some(declaration => ts.isVariableDeclaration(declaration) && ts.isVariableDeclarationList(declaration.parent)
       && (declaration.parent.flags & ts.NodeFlags.Const) !== 0 && declaration.initializer !== undefined && primitiveValue(declaration.initializer, new Set(seen)));
   };
   const constantString = (expression: ts.Expression, seen = new Set<ts.Node>()): string | undefined => {

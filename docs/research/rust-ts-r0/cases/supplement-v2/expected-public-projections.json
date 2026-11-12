@@ -1,0 +1,2850 @@
+[
+  {
+    "id": "directory-alias-01",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "script.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "script.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export { missing } from './not-created/deeper/missing.mjs';"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "javascript.inspect",
+        "expected": {
+          "parseFailed": false,
+          "reasons": [
+            "JAVASCRIPT_IMPORT_UNRESOLVED:./not-created/deeper/missing.mjs"
+          ],
+          "staticExports": [
+            {
+              "name": "missing",
+              "declarationKind": "reexport"
+            }
+          ],
+          "staticModuleLinks": [
+            {
+              "specifier": "./not-created/deeper/missing.mjs",
+              "resolution": "unresolved"
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "directory-alias-02",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "script.mjs",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            }
+          ],
+          "files": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "directory-alias-03",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "external",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "SOURCE_LINK_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "script.mjs",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            }
+          ],
+          "files": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "reference-confinement-01",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "README.txt",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "docs/guide.md",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "services/api/ignored.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "services/api/main.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "src/legacy.ts",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "src/referenced.ts",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "vendor/third_party.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "équipe/outil.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "docs/guide.md",
+              "role": "document",
+              "content": "# Guide\n"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "README.txt",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            },
+            {
+              "relPath": "docs/guide.md",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            },
+            {
+              "relPath": "services/api/ignored.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "EXCLUDE_MATCH"
+            },
+            {
+              "relPath": "services/api/main.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            },
+            {
+              "relPath": "src/legacy.ts",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "src/referenced.ts",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "vendor/third_party.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "EXCLUDE_MATCH"
+            },
+            {
+              "relPath": "équipe/outil.py",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            }
+          ],
+          "files": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "native-inert-01",
+    "projection": [
+      {
+        "operation": "native-bindings.inspect",
+        "expected": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      {
+        "operation": "native-bindings.inspect",
+        "expected": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      {
+        "operation": "native-bindings.inspect",
+        "expected": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      {
+        "operation": "native-bindings.inspect",
+        "expected": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      {
+        "operation": "native-bindings.inspect",
+        "expected": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": [
+            "prototype"
+          ]
+        }
+      },
+      {
+        "operation": "native-bindings.inspect",
+        "expected": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": [
+            "prototype"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "mixed-fallback-01",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "bridge.js",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "leaf.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "legacy.cjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "main.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "view.jsx",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "bridge.js",
+              "role": "source",
+              "language": "javascript",
+              "content": "export { leaf } from './leaf.mjs';"
+            },
+            {
+              "relPath": "leaf.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function leaf() { return 1; }"
+            },
+            {
+              "relPath": "legacy.cjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "module.exports = require('./leaf.mjs');"
+            },
+            {
+              "relPath": "main.ts",
+              "role": "source",
+              "language": "typescript",
+              "content": "import { leaf } from './bridge.js'; export function main() { return leaf(); }"
+            },
+            {
+              "relPath": "view.jsx",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function View() { return <div/>; }"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "leaf",
+                "filePath": "leaf.mjs"
+              },
+              {
+                "kind": "function",
+                "name": "main",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "View",
+                "filePath": "view.jsx"
+              },
+              {
+                "kind": "module",
+                "name": "bridge.js",
+                "filePath": "bridge.js"
+              },
+              {
+                "kind": "module",
+                "name": "leaf.mjs",
+                "filePath": "leaf.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "legacy.cjs",
+                "filePath": "legacy.cjs"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "view.jsx",
+                "filePath": "view.jsx"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"bridge.js\",\"filePath\":\"bridge.js\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"legacy.cjs\",\"filePath\":\"legacy.cjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"view.jsx\",\"filePath\":\"view.jsx\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "calls",
+                "from": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"leaf\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"leaf\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"view.jsx\",\"filePath\":\"view.jsx\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"View\",\"filePath\":\"view.jsx\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"module\",\"name\":\"bridge.js\",\"filePath\":\"bridge.js\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"bridge.js\",\"filePath\":\"bridge.js\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.analyze-with-workers",
+        "expected": {
+          "analysis": {
+            "graph": {
+              "nodes": [
+                {
+                  "kind": "function",
+                  "name": "leaf",
+                  "filePath": "leaf.mjs"
+                },
+                {
+                  "kind": "function",
+                  "name": "main",
+                  "filePath": "main.ts"
+                },
+                {
+                  "kind": "function",
+                  "name": "View",
+                  "filePath": "view.jsx"
+                },
+                {
+                  "kind": "module",
+                  "name": "bridge.js",
+                  "filePath": "bridge.js"
+                },
+                {
+                  "kind": "module",
+                  "name": "leaf.mjs",
+                  "filePath": "leaf.mjs"
+                },
+                {
+                  "kind": "module",
+                  "name": "legacy.cjs",
+                  "filePath": "legacy.cjs"
+                },
+                {
+                  "kind": "module",
+                  "name": "main.ts",
+                  "filePath": "main.ts"
+                },
+                {
+                  "kind": "module",
+                  "name": "view.jsx",
+                  "filePath": "view.jsx"
+                },
+                {
+                  "kind": "repository",
+                  "name": "$FIXTURE_0"
+                }
+              ],
+              "edges": [
+                {
+                  "kind": "belongs_to",
+                  "from": "{\"kind\":\"module\",\"name\":\"bridge.js\",\"filePath\":\"bridge.js\"}",
+                  "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+                },
+                {
+                  "kind": "belongs_to",
+                  "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                  "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+                },
+                {
+                  "kind": "belongs_to",
+                  "from": "{\"kind\":\"module\",\"name\":\"legacy.cjs\",\"filePath\":\"legacy.cjs\"}",
+                  "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+                },
+                {
+                  "kind": "belongs_to",
+                  "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                  "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+                },
+                {
+                  "kind": "belongs_to",
+                  "from": "{\"kind\":\"module\",\"name\":\"view.jsx\",\"filePath\":\"view.jsx\"}",
+                  "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+                },
+                {
+                  "kind": "calls",
+                  "from": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}",
+                  "to": "{\"kind\":\"function\",\"name\":\"leaf\",\"filePath\":\"leaf.mjs\"}"
+                },
+                {
+                  "kind": "declares",
+                  "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                  "to": "{\"kind\":\"function\",\"name\":\"leaf\",\"filePath\":\"leaf.mjs\"}"
+                },
+                {
+                  "kind": "declares",
+                  "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                  "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+                },
+                {
+                  "kind": "declares",
+                  "from": "{\"kind\":\"module\",\"name\":\"view.jsx\",\"filePath\":\"view.jsx\"}",
+                  "to": "{\"kind\":\"function\",\"name\":\"View\",\"filePath\":\"view.jsx\"}"
+                },
+                {
+                  "kind": "imports",
+                  "from": "{\"kind\":\"module\",\"name\":\"bridge.js\",\"filePath\":\"bridge.js\"}",
+                  "to": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}"
+                },
+                {
+                  "kind": "imports",
+                  "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                  "to": "{\"kind\":\"module\",\"name\":\"bridge.js\",\"filePath\":\"bridge.js\"}"
+                }
+              ]
+            },
+            "unresolvedReferences": []
+          },
+          "parallelism": {
+            "requested": 2,
+            "used": 1,
+            "mode": "preflight-fallback",
+            "reason": "mixed JavaScript/TypeScript extraction requires one semantic Program"
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "external-partition-01",
+    "projection": [
+      {
+        "operation": "typescript.partition-roots",
+        "expected": [
+          [
+            "$FIXTURE/0/b.ts"
+          ],
+          [
+            "$FIXTURE/0/a.ts"
+          ]
+        ]
+      }
+    ]
+  },
+  {
+    "id": "namespace-owners-01",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "barrel.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "leaf.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "leaf.test.js",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "barrel.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export { default as facade } from './leaf.mjs';"
+            },
+            {
+              "relPath": "leaf.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export default function namedFn() { return 1; }"
+            },
+            {
+              "relPath": "leaf.test.js",
+              "role": "test",
+              "language": "javascript",
+              "content": "import * as api from './barrel.mjs'; expect(api.facade).toBeDefined();"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "namedFn",
+                "filePath": "leaf.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "barrel.mjs",
+                "filePath": "barrel.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "leaf.mjs",
+                "filePath": "leaf.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              },
+              {
+                "kind": "test",
+                "name": "leaf.test.js",
+                "filePath": "leaf.test.js"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"barrel.mjs\",\"filePath\":\"barrel.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "covers",
+                "from": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"namedFn\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"namedFn\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"module\",\"name\":\"barrel.mjs\",\"filePath\":\"barrel.mjs\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"barrel.mjs\",\"filePath\":\"barrel.mjs\"}"
+              },
+              {
+                "kind": "tested_by",
+                "from": "{\"kind\":\"function\",\"name\":\"namedFn\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "role": "test",
+              "language": "typescript",
+              "content": "import * as api from './lib.mjs'; function ordinary(api) { expect(api.helper).toBeDefined(); }"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "function",
+                "name": "ordinary",
+                "filePath": "lib.test.ts"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_1"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.ts",
+                "filePath": "lib.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_1\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_1\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"ordinary\",\"filePath\":\"lib.test.ts\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "role": "test",
+              "language": "typescript",
+              "content": "import * as api from './lib.mjs'; expect(api.obj.helper).toBeDefined();"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_2"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.ts",
+                "filePath": "lib.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_2\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_2\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "role": "test",
+              "language": "typescript",
+              "content": "import type * as api from './lib.mjs'; export type Fn = typeof api.helper;"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_3"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.ts",
+                "filePath": "lib.test.ts"
+              },
+              {
+                "kind": "type",
+                "name": "Fn",
+                "filePath": "lib.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_3\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_3\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"type\",\"name\":\"Fn\",\"filePath\":\"lib.test.ts\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "namespace-owners-02",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "barrel.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "leaf.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "leaf.test.js",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "barrel.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export { default as facade } from './leaf.mjs';"
+            },
+            {
+              "relPath": "leaf.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export default function namedFn() { return 1; }"
+            },
+            {
+              "relPath": "leaf.test.js",
+              "role": "test",
+              "language": "javascript",
+              "content": "import * as api from './barrel.mjs'; const { facade: renamed } = api; expect(renamed).toBeDefined();"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "namedFn",
+                "filePath": "leaf.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "barrel.mjs",
+                "filePath": "barrel.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "leaf.mjs",
+                "filePath": "leaf.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              },
+              {
+                "kind": "test",
+                "name": "leaf.test.js",
+                "filePath": "leaf.test.js"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"barrel.mjs\",\"filePath\":\"barrel.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "covers",
+                "from": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"namedFn\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"namedFn\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"module\",\"name\":\"barrel.mjs\",\"filePath\":\"barrel.mjs\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"leaf.mjs\",\"filePath\":\"leaf.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"barrel.mjs\",\"filePath\":\"barrel.mjs\"}"
+              },
+              {
+                "kind": "tested_by",
+                "from": "{\"kind\":\"function\",\"name\":\"namedFn\",\"filePath\":\"leaf.mjs\"}",
+                "to": "{\"kind\":\"test\",\"name\":\"leaf.test.js\",\"filePath\":\"leaf.test.js\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "role": "test",
+              "language": "typescript",
+              "content": "import * as api from './lib.mjs'; function ordinary(api) { const { helper } = api; expect(helper).toBeDefined(); }"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "function",
+                "name": "ordinary",
+                "filePath": "lib.test.ts"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_1"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.ts",
+                "filePath": "lib.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_1\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_1\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"ordinary\",\"filePath\":\"lib.test.ts\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "role": "test",
+              "language": "typescript",
+              "content": "import * as api from './lib.mjs'; const { helper } = api.obj; expect(helper).toBeDefined();"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_2"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.ts",
+                "filePath": "lib.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_2\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_2\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.ts",
+              "role": "test",
+              "language": "typescript",
+              "content": "import type * as api from './lib.mjs'; type Fn = typeof api.helper;"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_3"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.ts",
+                "filePath": "lib.test.ts"
+              },
+              {
+                "kind": "type",
+                "name": "Fn",
+                "filePath": "lib.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_3\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_3\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"type\",\"name\":\"Fn\",\"filePath\":\"lib.test.ts\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.ts\",\"filePath\":\"lib.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "namespace-owners-03",
+    "projection": [
+      {
+        "operation": "repository.discover",
+        "expected": {
+          "candidates": [
+            {
+              "relPath": "lib.mjs",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "lib.test.js",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            }
+          ],
+          "files": [
+            {
+              "relPath": "lib.mjs",
+              "role": "source",
+              "language": "javascript",
+              "content": "export function helper() { return 1; } export const obj = { helper() { return 2; } };"
+            },
+            {
+              "relPath": "lib.test.js",
+              "role": "test",
+              "language": "javascript",
+              "content": "import * as lib from './lib.mjs'; lib.obj.helper();"
+            }
+          ]
+        }
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "lib.mjs",
+                "filePath": "lib.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              },
+              {
+                "kind": "test",
+                "name": "lib.test.js",
+                "filePath": "lib.test.js"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.js\",\"filePath\":\"lib.test.js\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "calls",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.js\",\"filePath\":\"lib.test.js\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"lib.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"lib.test.js\",\"filePath\":\"lib.test.js\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"lib.mjs\",\"filePath\":\"lib.mjs\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "runtime-erased-01",
+    "projection": [
+      {
+        "operation": "typescript.extract",
+        "expected": {
+          "modules": [
+            "dep.ts",
+            "consumer.ts"
+          ],
+          "symbols": [
+            {
+              "name": "run",
+              "kind": "function",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "consumer.ts",
+              "moduleSpecifier": "./dep",
+              "resolvedRelPath": "dep.ts",
+              "names": [
+                "FLAG"
+              ],
+              "bindingTargets": [
+                {
+                  "relPath": "dep.ts",
+                  "symbolPath": "FLAG",
+                  "runtimeUsed": false,
+                  "unmodeledReason": "VALUE_DECLARATION"
+                }
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      },
+      {
+        "operation": "typescript.extract",
+        "expected": {
+          "modules": [
+            "dep.ts",
+            "consumer.ts"
+          ],
+          "symbols": [
+            {
+              "name": "Mode",
+              "kind": "type",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "run",
+              "kind": "function",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "consumer.ts",
+              "moduleSpecifier": "./dep",
+              "resolvedRelPath": "dep.ts",
+              "names": [
+                "FLAG"
+              ],
+              "bindingTargets": [
+                {
+                  "relPath": "dep.ts",
+                  "symbolPath": "FLAG",
+                  "runtimeUsed": false,
+                  "unmodeledReason": "VALUE_DECLARATION"
+                }
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      },
+      {
+        "operation": "typescript.extract",
+        "expected": {
+          "modules": [
+            "dep.ts",
+            "consumer.ts"
+          ],
+          "symbols": [
+            {
+              "name": "run",
+              "kind": "function",
+              "relPath": "consumer.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "consumer.ts",
+              "moduleSpecifier": "./dep",
+              "resolvedRelPath": "dep.ts",
+              "names": [
+                "FLAG"
+              ],
+              "bindingTargets": [
+                {
+                  "relPath": "dep.ts",
+                  "symbolPath": "FLAG",
+                  "runtimeUsed": false,
+                  "unmodeledReason": "VALUE_DECLARATION"
+                }
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "workspace-boundaries-01",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "workspace-boundaries-02",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_CONFIGURATION_INVALID:6053:File '@fixture/config/tsconfig/node.json' not found."
+        ]
+      },
+      {
+        "operation": "typescript.resolve-module",
+        "expected": {
+          "$undefined": true
+        }
+      }
+    ]
+  },
+  {
+    "id": "workspace-boundaries-03",
+    "projection": [
+      {
+        "operation": "typescript.extract",
+        "expected": {
+          "modules": [
+            "domains/registry/api/src/registry.ts"
+          ],
+          "symbols": [],
+          "imports": [
+            {
+              "fromRelPath": "domains/registry/api/src/registry.ts",
+              "moduleSpecifier": "#shared",
+              "names": [
+                "shared"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      },
+      {
+        "operation": "typescript.extract",
+        "expected": {
+          "modules": [
+            "domains/registry/api/src/registry.ts"
+          ],
+          "symbols": [],
+          "imports": [
+            {
+              "fromRelPath": "domains/registry/api/src/registry.ts",
+              "moduleSpecifier": "#shared",
+              "names": [
+                "shared"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": []
+        }
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-01",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "main",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "calls",
+                "from": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": []
+      },
+      {
+        "operation": "ownership.register-extracted-graph",
+        "expected": {
+          "$undefined": true
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-02",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "main",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-03",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "main",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "calls",
+                "from": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-04",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "main",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-05",
+    "projection": [
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "main",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"main\",\"filePath\":\"main.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": [
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-06",
+    "projection": [
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "value",
+                "filePath": "value.mjs"
+              },
+              {
+                "kind": "module",
+                "name": "value.mjs",
+                "filePath": "value.mjs"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              },
+              {
+                "kind": "test",
+                "name": "value.test.ts",
+                "filePath": "value.test.ts"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"value.mjs\",\"filePath\":\"value.mjs\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"test\",\"name\":\"value.test.ts\",\"filePath\":\"value.test.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "calls",
+                "from": "{\"kind\":\"test\",\"name\":\"value.test.ts\",\"filePath\":\"value.test.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"value\",\"filePath\":\"value.mjs\"}"
+              },
+              {
+                "kind": "covers",
+                "from": "{\"kind\":\"test\",\"name\":\"value.test.ts\",\"filePath\":\"value.test.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"value\",\"filePath\":\"value.mjs\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"value.mjs\",\"filePath\":\"value.mjs\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"value\",\"filePath\":\"value.mjs\"}"
+              },
+              {
+                "kind": "imports",
+                "from": "{\"kind\":\"test\",\"name\":\"value.test.ts\",\"filePath\":\"value.test.ts\"}",
+                "to": "{\"kind\":\"module\",\"name\":\"value.mjs\",\"filePath\":\"value.mjs\"}"
+              },
+              {
+                "kind": "tested_by",
+                "from": "{\"kind\":\"function\",\"name\":\"value\",\"filePath\":\"value.mjs\"}",
+                "to": "{\"kind\":\"test\",\"name\":\"value.test.ts\",\"filePath\":\"value.test.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "id": "opaque-ownership-07",
+    "projection": [
+      {
+        "operation": "repository.analyze",
+        "expected": {
+          "graph": {
+            "nodes": [
+              {
+                "kind": "function",
+                "name": "default",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "function",
+                "name": "helper",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "module",
+                "name": "main.ts",
+                "filePath": "main.ts"
+              },
+              {
+                "kind": "repository",
+                "name": "$FIXTURE_0"
+              }
+            ],
+            "edges": [
+              {
+                "kind": "belongs_to",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"repository\",\"name\":\"$FIXTURE_0\"}"
+              },
+              {
+                "kind": "calls",
+                "from": "{\"kind\":\"function\",\"name\":\"default\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"default\",\"filePath\":\"main.ts\"}"
+              },
+              {
+                "kind": "declares",
+                "from": "{\"kind\":\"module\",\"name\":\"main.ts\",\"filePath\":\"main.ts\"}",
+                "to": "{\"kind\":\"function\",\"name\":\"helper\",\"filePath\":\"main.ts\"}"
+              }
+            ]
+          },
+          "unresolvedReferences": []
+        }
+      },
+      {
+        "operation": "module-configuration.inspect",
+        "expected": []
+      }
+    ]
+  },
+  {
+    "id": "scope-admission-01",
+    "projection": [
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.verify",
+        "expected": {
+          "verdict": "BLOCK",
+          "admission": {
+            "schemaVersion": 1,
+            "profile": "modelo-suite-static-v1",
+            "status": "rejected",
+            "changeCoverage": {
+              "expected": [
+                ".gitignore",
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "analyzed": [
+                "src/consumer.ts"
+              ],
+              "files": [
+                {
+                  "path": ".gitignore",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                },
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "failed",
+                  "reasons": [
+                    "PRODUCER_FAILED",
+                    "SOURCE_REFERENCE_PATH_UNSUPPORTED",
+                    "ANALYSIS_OUTCOME:failed"
+                  ]
+                }
+              ]
+            },
+            "repositoryCoverage": {
+              "status": "insufficient",
+              "files": [
+                {
+                  "path": "build/generated.ts",
+                  "status": "excluded",
+                  "reasons": [
+                    "IGNORED_GENERATED_OUTPUT",
+                    "IGNORED_GENERATED_OUTPUT"
+                  ]
+                },
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "failed",
+                  "reasons": [
+                    "PRODUCER_FAILED",
+                    "SOURCE_REFERENCE_PATH_UNSUPPORTED",
+                    "ANALYSIS_OUTCOME:failed"
+                  ]
+                },
+                {
+                  "path": ".gitignore",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                }
+              ]
+            },
+            "reasons": [
+              "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/main.ts:../build/generated.ts",
+              "DEPENDENCY_SCOPE_CONFIGURATION:src/main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED",
+              "ANALYSIS_SCOPE_INCOMPLETE:.gitignore:excluded",
+              "ANALYSIS_SCOPE_INCOMPLETE:src/main.ts:failed",
+              "UNSUPPORTED_CHANGED_OBLIGATION:.gitignore"
+            ],
+            "binding": {
+              "status": "valid",
+              "reasons": []
+            },
+            "indexFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "controlFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "checkFreshness": {
+              "status": "current",
+              "reasons": []
+            },
+            "limitations": [
+              "Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.",
+              "Deleted source post-images and unknown configurations require separate qualification.",
+              "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
+              "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): none. Their runtime behavior and APIs are not qualified."
+            ],
+            "proofObligations": [
+              {
+                "id": "tests-execution",
+                "status": "not_observed",
+                "observation": "Run required tests and retain exact candidate exit status."
+              },
+              {
+                "id": "turbo-cache",
+                "status": "not_observed",
+                "observation": "Observe cache miss/hit and invalidation with representative tasks."
+              },
+              {
+                "id": "failure-propagation",
+                "status": "not_observed",
+                "observation": "Inject a failing task and observe nonzero pipeline exit."
+              },
+              {
+                "id": "pipeline-execution",
+                "status": "not_observed",
+                "observation": "Execute the actual required pipeline on the exact candidate."
+              }
+            ]
+          },
+          "projectionExcludes": [
+            "analysisAdmission.identity: Git timestamps/commit IDs and repository-path-bound digests; full values retained in raw baseline output"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "scope-admission-02",
+    "projection": [
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.verify",
+        "expected": {
+          "verdict": "WARN",
+          "admission": {
+            "schemaVersion": 1,
+            "profile": "modelo-suite-static-v1",
+            "status": "admitted",
+            "changeCoverage": {
+              "expected": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "analyzed": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "files": [
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                }
+              ]
+            },
+            "repositoryCoverage": {
+              "status": "partial",
+              "files": [
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": ".gitignore",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                },
+                {
+                  "path": "package.json",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                }
+              ]
+            },
+            "reasons": [],
+            "binding": {
+              "status": "valid",
+              "reasons": []
+            },
+            "indexFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "controlFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "checkFreshness": {
+              "status": "current",
+              "reasons": []
+            },
+            "limitations": [
+              "Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.",
+              "Deleted source post-images and unknown configurations require separate qualification.",
+              "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
+              "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): optional. Their runtime behavior and APIs are not qualified."
+            ],
+            "proofObligations": [
+              {
+                "id": "tests-execution",
+                "status": "not_observed",
+                "observation": "Run required tests and retain exact candidate exit status."
+              },
+              {
+                "id": "turbo-cache",
+                "status": "not_observed",
+                "observation": "Observe cache miss/hit and invalidation with representative tasks."
+              },
+              {
+                "id": "failure-propagation",
+                "status": "not_observed",
+                "observation": "Inject a failing task and observe nonzero pipeline exit."
+              },
+              {
+                "id": "pipeline-execution",
+                "status": "not_observed",
+                "observation": "Execute the actual required pipeline on the exact candidate."
+              }
+            ]
+          },
+          "projectionExcludes": [
+            "analysisAdmission.identity: Git timestamps/commit IDs and repository-path-bound digests; full values retained in raw baseline output"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "scope-admission-03",
+    "projection": [
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.verify",
+        "expected": {
+          "verdict": "BLOCK",
+          "admission": {
+            "schemaVersion": 1,
+            "profile": "modelo-suite-static-v1",
+            "status": "rejected",
+            "changeCoverage": {
+              "expected": [
+                "hidden.ts",
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "analyzed": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "files": [
+                {
+                  "path": "hidden.ts",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                },
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                }
+              ]
+            },
+            "repositoryCoverage": {
+              "status": "partial",
+              "files": [
+                {
+                  "path": "hidden.ts",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                },
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": ".gitignore",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                }
+              ]
+            },
+            "reasons": [
+              "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:hidden.ts",
+              "DEPENDENCY_SCOPE_PARSE_FAILED:hidden.ts:SOURCE_PARSE_ERROR:1005:'}' expected.",
+              "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_AMBIENT_FUNCTION_UNSUPPORTED",
+              "ANALYSIS_SCOPE_INCOMPLETE:hidden.ts:excluded"
+            ],
+            "binding": {
+              "status": "invalid",
+              "reasons": [
+                "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:hidden.ts"
+              ]
+            },
+            "indexFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "controlFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "checkFreshness": {
+              "status": "current",
+              "reasons": []
+            },
+            "limitations": [
+              "Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.",
+              "Deleted source post-images and unknown configurations require separate qualification.",
+              "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
+              "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): none. Their runtime behavior and APIs are not qualified."
+            ],
+            "proofObligations": [
+              {
+                "id": "tests-execution",
+                "status": "not_observed",
+                "observation": "Run required tests and retain exact candidate exit status."
+              },
+              {
+                "id": "turbo-cache",
+                "status": "not_observed",
+                "observation": "Observe cache miss/hit and invalidation with representative tasks."
+              },
+              {
+                "id": "failure-propagation",
+                "status": "not_observed",
+                "observation": "Inject a failing task and observe nonzero pipeline exit."
+              },
+              {
+                "id": "pipeline-execution",
+                "status": "not_observed",
+                "observation": "Execute the actual required pipeline on the exact candidate."
+              }
+            ]
+          },
+          "projectionExcludes": [
+            "analysisAdmission.identity: Git timestamps/commit IDs and repository-path-bound digests; full values retained in raw baseline output"
+          ]
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.verify",
+        "expected": {
+          "verdict": "BLOCK",
+          "admission": {
+            "schemaVersion": 1,
+            "profile": "modelo-suite-static-v1",
+            "status": "rejected",
+            "changeCoverage": {
+              "expected": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "analyzed": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "files": [
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                }
+              ]
+            },
+            "repositoryCoverage": {
+              "status": "partial",
+              "files": [
+                {
+                  "path": "hidden.ts",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                },
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": ".gitignore",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                }
+              ]
+            },
+            "reasons": [
+              "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:hidden.ts",
+              "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_GLOBAL_SCRIPT_UNSUPPORTED",
+              "DEPENDENCY_SCOPE_COMPUTED_IMPORT:hidden.ts"
+            ],
+            "binding": {
+              "status": "invalid",
+              "reasons": [
+                "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:hidden.ts"
+              ]
+            },
+            "indexFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "controlFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "checkFreshness": {
+              "status": "current",
+              "reasons": []
+            },
+            "limitations": [
+              "Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.",
+              "Deleted source post-images and unknown configurations require separate qualification.",
+              "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
+              "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): none. Their runtime behavior and APIs are not qualified."
+            ],
+            "proofObligations": [
+              {
+                "id": "tests-execution",
+                "status": "not_observed",
+                "observation": "Run required tests and retain exact candidate exit status."
+              },
+              {
+                "id": "turbo-cache",
+                "status": "not_observed",
+                "observation": "Observe cache miss/hit and invalidation with representative tasks."
+              },
+              {
+                "id": "failure-propagation",
+                "status": "not_observed",
+                "observation": "Inject a failing task and observe nonzero pipeline exit."
+              },
+              {
+                "id": "pipeline-execution",
+                "status": "not_observed",
+                "observation": "Execute the actual required pipeline on the exact candidate."
+              }
+            ]
+          },
+          "projectionExcludes": [
+            "analysisAdmission.identity: Git timestamps/commit IDs and repository-path-bound digests; full values retained in raw baseline output"
+          ]
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.index",
+        "expected": {
+          "statefulSetupObserved": true
+        }
+      },
+      {
+        "operation": "repository.verify",
+        "expected": {
+          "verdict": "BLOCK",
+          "admission": {
+            "schemaVersion": 1,
+            "profile": "modelo-suite-static-v1",
+            "status": "rejected",
+            "changeCoverage": {
+              "expected": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "analyzed": [
+                "src/consumer.ts",
+                "src/main.ts"
+              ],
+              "files": [
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                }
+              ]
+            },
+            "repositoryCoverage": {
+              "status": "partial",
+              "files": [
+                {
+                  "path": "hidden.ts",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                },
+                {
+                  "path": "src/consumer.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": "src/main.ts",
+                  "status": "analyzed",
+                  "reasons": []
+                },
+                {
+                  "path": ".gitignore",
+                  "status": "excluded",
+                  "reasons": [
+                    "INCLUDE_MISS",
+                    "INCLUDE_MISS"
+                  ]
+                }
+              ]
+            },
+            "reasons": [
+              "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:hidden.ts",
+              "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:hidden.ts:@hidden/inbound",
+              "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+            ],
+            "binding": {
+              "status": "invalid",
+              "reasons": [
+                "QUALIFIED_WORKING_TREE_UNTRACKED_INPUT:hidden.ts"
+              ]
+            },
+            "indexFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "controlFreshness": {
+              "verdict": "DIRTY_KNOWN",
+              "reasons": [
+                "WORKING_TREE_DIRTY"
+              ]
+            },
+            "checkFreshness": {
+              "status": "current",
+              "reasons": []
+            },
+            "limitations": [
+              "Bounded static ESM/TypeScript analysis; no runtime dependency completeness or pipeline guarantee.",
+              "Deleted source post-images and unknown configurations require separate qualification.",
+              "PASS does not observe tests, Turbo cache behavior, failure propagation, or pipeline execution.",
+              "Opaque external static module boundaries (built-ins or manifest-declared non-workspace packages): none. Their runtime behavior and APIs are not qualified."
+            ],
+            "proofObligations": [
+              {
+                "id": "tests-execution",
+                "status": "not_observed",
+                "observation": "Run required tests and retain exact candidate exit status."
+              },
+              {
+                "id": "turbo-cache",
+                "status": "not_observed",
+                "observation": "Observe cache miss/hit and invalidation with representative tasks."
+              },
+              {
+                "id": "failure-propagation",
+                "status": "not_observed",
+                "observation": "Inject a failing task and observe nonzero pipeline exit."
+              },
+              {
+                "id": "pipeline-execution",
+                "status": "not_observed",
+                "observation": "Execute the actual required pipeline on the exact candidate."
+              }
+            ]
+          },
+          "projectionExcludes": [
+            "analysisAdmission.identity: Git timestamps/commit IDs and repository-path-bound digests; full values retained in raw baseline output"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "pilot-builtin-01",
+    "projection": [
+      {
+        "operation": "pilot.relative-specifiers",
+        "expected": [
+          "./a",
+          "./b",
+          "../c",
+          "./d"
+        ]
+      }
+    ]
+  }
+]

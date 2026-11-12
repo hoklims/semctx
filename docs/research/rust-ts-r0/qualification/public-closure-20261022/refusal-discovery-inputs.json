@@ -1,0 +1,9 @@
+{
+  "schemaVersion":1,
+  "units":[
+    {"id":"javascript-missing-in-root","files":{"main.js":"import { missing } from './missing'; export function run() { return missing(); }"},"outside":{},"diagnostic":true},
+    {"id":"javascript-missing-outside","files":{"main.js":"const missing = require('../missing'); module.exports = missing;"},"outside":{}},
+    {"id":"javascript-import-outside","files":{"main.js":"const missing = require('../outside'); module.exports = missing;"},"outside":{"outside.js":"module.exports = 1;"}},
+    {"id":"javascript-reference-outside","files":{"main.js":"/// <reference path=\"../outside.js\" />\nmodule.exports = 1;"},"outside":{"outside.js":"module.exports = 1;"}}
+  ]
+}

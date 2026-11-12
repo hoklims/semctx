@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -71,10 +71,13 @@ export function rustToolchainIdentity(config: RustNavigationConfig): string {
   if (analyzerDigest !== `sha256:${config.rustAnalyzerSha256}`) throw new Error("RUST_ANALYZER_DIGEST_MISMATCH");
   const targetLibrary = join(config.toolchainRoot, "lib", "rustlib", config.target, "lib");
   if (!existsSync(targetLibrary)) throw new Error("RUST_TARGET_UNAVAILABLE");
+  const sysrootSource = realpathSync(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library"));
+  // The library's own Cargo configuration is content-bound; only its ancestors are ambient.
+  assertNoAmbientCargoConfiguration(dirname(sysrootSource));
   return digest(JSON.stringify({ analyzerDigest,
     rustc: digest(readFileSync(join(config.toolchainRoot, "bin", `rustc${executable}`))),
     cargo: digest(readFileSync(join(config.toolchainRoot, "bin", `cargo${executable}`))),
-    sources: directoryDigest(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library")),
+    sources: directoryDigest(sysrootSource),
     target: directoryDigest(targetLibrary),
   }));
 }
@@ -143,8 +146,7 @@ export async function resolveRustNavigation(input: {
         }
       }
     }
-    const sysrootSource = join(directory, "sysroot-source");
-    cpSync(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library"), sysrootSource, { recursive: true });
+    const sysrootSource = realpathSync(join(config.toolchainRoot, "lib", "rustlib", "src", "rust", "library"));
     client = new RustLspClient([config.rustAnalyzerPath], { cwd: root, budgetMs: config.budgetMs, env: environment });
     parseRustAnalyzerInitializeResponse(await client.request("initialize", {
       processId: null, rootUri: pathToFileURL(root).href,

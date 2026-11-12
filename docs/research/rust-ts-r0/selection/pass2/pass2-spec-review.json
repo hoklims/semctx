@@ -1,0 +1,173 @@
+{
+  "review": "C1 pass 2 independent spec review",
+  "generated_at": "2026-10-17T20:20:32.469109+00:00",
+  "base_head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "semantic_reference": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "scope_inventory": "/private/tmp/semctx-t00-20261017/pass2-implementation-current.json",
+  "scope_patch_sha256": "01f36c6134722f99af23cebe36796b478ecbfe5c862b5f3919979fc1a426e473",
+  "files": [
+    {
+      "path": "tools/rust-ts-r0/src/batch.rs",
+      "inventory_sha256": "fc667a1acf5577a767dbcb37d8dfc3e133b32b1b2f1238ade5000bfefa99a9eb",
+      "observed_sha256": "fc667a1acf5577a767dbcb37d8dfc3e133b32b1b2f1238ade5000bfefa99a9eb",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured_system_observations.rs",
+      "inventory_sha256": "5183806941a4ce47fbc70b158c078c4b92227844e8a562e7d8e3f2a24731fc5f",
+      "observed_sha256": "5183806941a4ce47fbc70b158c078c4b92227844e8a562e7d8e3f2a24731fc5f",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/component_observations.rs",
+      "inventory_sha256": "d0c311b2e8b555e49e5b0ca9785456a851b4da56cee9192d6b6ef05dbff04053",
+      "observed_sha256": "d0c311b2e8b555e49e5b0ca9785456a851b4da56cee9192d6b6ef05dbff04053",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configuration.rs",
+      "inventory_sha256": "7ba5ce64b25ab3e7117084713d5459202f8684eac6811b3630f79ade272554bf",
+      "observed_sha256": "7ba5ce64b25ab3e7117084713d5459202f8684eac6811b3630f79ade272554bf",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/input_identity.rs",
+      "inventory_sha256": "6d19329c0728e4189f16593d76f3f270ca2df9494e8837f8a146b4df0e998455",
+      "observed_sha256": "6d19329c0728e4189f16593d76f3f270ca2df9494e8837f8a146b4df0e998455",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/javascript.rs",
+      "inventory_sha256": "73f679b7a86804fca8a0c7afa3c678b43f31de264657d1ddca79213fd01280e6",
+      "observed_sha256": "73f679b7a86804fca8a0c7afa3c678b43f31de264657d1ddca79213fd01280e6",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/lib.rs",
+      "inventory_sha256": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0",
+      "observed_sha256": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "inventory_sha256": "a73d573cdccea38588b1ff9097550d662c9f8f745a7a3bcd099d0a976974e98c",
+      "observed_sha256": "a73d573cdccea38588b1ff9097550d662c9f8f745a7a3bcd099d0a976974e98c",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/ordinary.rs",
+      "inventory_sha256": "6a28b56966fcda7d0e4d90dc9c0baf27fa26f62b64c85237226aa4ab506c9fa5",
+      "observed_sha256": "6a28b56966fcda7d0e4d90dc9c0baf27fa26f62b64c85237226aa4ab506c9fa5",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/primitive_observations.rs",
+      "inventory_sha256": "26e13109961a68d8b88f10a0471571dad7be7d4a8ae8415a9fe99c730f1e7a50",
+      "observed_sha256": "26e13109961a68d8b88f10a0471571dad7be7d4a8ae8415a9fe99c730f1e7a50",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/src/worker_observations.rs",
+      "inventory_sha256": "a8402188d8dc38d2bae9bf8484f8508a51d9952f8d1a11da6a767ead071facba",
+      "observed_sha256": "8c103a3ae41c39a73ae3175e5efd5651a314320addae4f8d39b49e33490ee474",
+      "changed_since_scope_inventory": true
+    },
+    {
+      "path": "tools/rust-ts-r0/src/worker_response.rs",
+      "inventory_sha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f",
+      "observed_sha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f",
+      "changed_since_scope_inventory": false
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "inventory_sha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762",
+      "observed_sha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762",
+      "changed_since_scope_inventory": false
+    }
+  ],
+  "independence": {
+    "producer_author": false,
+    "code_or_expectation_edits": false,
+    "qualification_queries": 0,
+    "reserved_inputs_read": false,
+    "github_writes": false
+  },
+  "findings": [
+    {
+      "id": "C1P2-SPEC-01",
+      "severity": "P1",
+      "axis": "spec",
+      "title": "Ordinary JavaScript module-link resolution uses the isolated semantic-dependency filesystem",
+      "location": {
+        "path": "tools/rust-ts-r0/src/main.rs",
+        "line": 876,
+        "related_lines": [
+          651,
+          674,
+          890
+        ]
+      },
+      "requirement_source": "issue365-current.md section 2.1/2.2; frozen baseline packages/ts-analyzer/src/javascript-diagnostics.ts:236-329",
+      "mechanism": "With retained=false, inspect_subject creates semantic_fs from SDK files plus only the subject source. The frontend built from that filesystem is reused for resolved static links, and declared_external also reads from semantic_fs. A captured sibling module and repository package.json are absent from that system. javascriptObservation consequently reports unresolved for a normal relative JS import that exists in the captured ordinary input, and for an uninstalled dependency declared in package.json that baseline classifies as external.",
+      "baseline_evidence": "Baseline inspectJavaScriptSource creates a source-only AST for diagnostics, but recordModuleLink calls resolveTypeScriptModule(specifier,path,undefined,true,compilerInputs,workspaceLinks,repositoryRoot), and isDeclaredExternal reads package.json via the real/retained system. These resolution inputs are distinct from the isolated semantic-dependency program.",
+      "observable_examples": [
+        {
+          "retained": false,
+          "files": {
+            "/repo/use.js": "import {value} from './dep.js'; export {value};",
+            "/repo/dep.js": "export const value=1;"
+          },
+          "baseline_static_link": {
+            "specifier": "./dep.js",
+            "resolution": "resolved"
+          },
+          "candidate_static_link_inferred_from_source": {
+            "specifier": "./dep.js",
+            "resolution": "unresolved"
+          }
+        },
+        {
+          "retained": false,
+          "files": {
+            "/repo/use.js": "import value from 'external-pkg'; export {value};",
+            "/repo/package.json": "{\"dependencies\":{\"external-pkg\":\"1.0.0\"}}"
+          },
+          "baseline_static_link": {
+            "specifier": "external-pkg",
+            "resolution": "external"
+          },
+          "candidate_static_link_inferred_from_source": {
+            "specifier": "external-pkg",
+            "resolution": "unresolved"
+          }
+        }
+      ],
+      "evidence_kind": "deterministic source trace; no candidate/baseline execution or qualification query performed by reviewer",
+      "requested_correction": "Resolve JavaScript links and declared-external manifests through the complete ordinary captured/workspace system while preserving the source-only semantic-dependency context. Add DEV positive cases for existing relative import and declared external package, alongside unresolved negative."
+    }
+  ],
+  "proof_integrity": {
+    "verdict": "PROOF_WEAK",
+    "reason": "Demonstrated source-level semantic-input mismatch blocks the full JavaScript observation claim. Native DEV test evidence is macOS only; Windows/Linux and final qualification remain outside this review.",
+    "negative_witnesses_observed_by_reviewer": []
+  },
+  "coverage": {
+    "read": [
+      "javascript full observation and dispatch composition",
+      "retained/workspace configuration profile separation",
+      "primitive decoder/native parser and request failure paths",
+      "captured system actual-read/workspace resolution and explicit unsupported handling",
+      "worker request/response source contract",
+      "logical content identity manifest integration and receiver integration-test code"
+    ],
+    "execution": "read-only review; no tests executed",
+    "not_claimed": [
+      "inventory closure",
+      "100 percent semantic parity",
+      "final R0 decision",
+      "Windows/Linux support proof",
+      "complete T02 migration"
+    ]
+  },
+  "scope_stability": "File hashes captured at report generation; worker_observations.rs changed since inventory during concurrent root work. Finding is bound to unchanged main.rs/javascript.rs identities, not the concurrent worker delta."
+}

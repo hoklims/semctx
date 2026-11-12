@@ -1,0 +1,88 @@
+{
+  "R0_decision": null,
+  "all_non_source_scope_fields_equal": true,
+  "check_definitions": 590,
+  "frozen_case_files": 1386,
+  "frozen_counts": {
+    "properties": 395,
+    "rows": 446,
+    "supports": 51
+  },
+  "identical_native_windows_source_members": 139,
+  "kind": "ACTUAL_OFFLINE_PACKAGE_SOURCE_AND_PUBLIC_CORPUS_PREFLIGHT_ONLY",
+  "native_queries": 0,
+  "packages": {
+    "current_native": {
+      "all_python_code_identical_to_predecessor": true,
+      "manifest": {
+        "bytes": 2292,
+        "sha256": "c47ce88fe8dc67d1baec3ad8e94138d5017caf1d6fe07983ee6656295a38b732"
+      },
+      "members": 16,
+      "zip": {
+        "bytes": 417065,
+        "sha256": "4b477a8ddbe3ba531c93b3502ba1a932979c788a03643ed37ad17bf815be7061"
+      }
+    },
+    "current_windows": {
+      "all_python_code_identical_to_predecessor": true,
+      "manifest": {
+        "bytes": 3117,
+        "sha256": "5e201ef2fa4de5d82e3429b3877c26ae9af6c7abe7767bac0818240f82cfd8ff"
+      },
+      "members": 22,
+      "zip": {
+        "bytes": 431646,
+        "sha256": "6961edebfe8b271061e601f49b458cef2ed77d615c3c5e912fd62d929d621ba8"
+      }
+    }
+  },
+  "preflights": [
+    {
+      "actual_exit_code": 0,
+      "actual_exit_observation": "ROOT unified exec completion chunk a93db8",
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 25535,
+        "sha256": "108296ce5a0eec6ec958180730ef7e276097782eeb8527be02de85bb3e58f8d9"
+      },
+      "variant": "native"
+    },
+    {
+      "actual_exit_code": 0,
+      "actual_exit_observation": "ROOT unified exec completion chunk 1b67b7",
+      "stderr": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout": {
+        "bytes": 25536,
+        "sha256": "3843833faf22c369094adae6b62d28dcfcb60d6b13e77604ee6c6f2195ba66ee"
+      },
+      "variant": "windows"
+    }
+  ],
+  "qualification_credit": 0,
+  "scope_map_sha256": "7e7f98ccd15668d7b38fccbe59e5df1a7e5c4e368aed7be20507ed6c5b3f34a7",
+  "source_delta_paths": [
+    "tools/rust-ts-r0/src/ordinary.rs",
+    "tools/rust-ts-r0/src/qualified.rs",
+    "tools/rust-ts-r0/tests/unit/ordinary.rs",
+    "tools/rust-ts-r0/tests/unit/qualified.rs"
+  ],
+  "source_freeze_receipt": {
+    "bytes": 3483,
+    "sha256": "dc10c9c0bde7f489cae099dd5b1a0da300dc057e26f003aa765977d4b878e50f"
+  },
+  "source_head": "fc0283e2ec6f521fa0cdd7192495e02f6e6de172",
+  "unchanged_source_pins": 135,
+  "windows_package_verification": {
+    "path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\casefold-reader-successor-fc0283\\built-fc0283-v1\\current-windows-reader\\windows-transport-protocol.json",
+    "scope_map_sha256": "7e7f98ccd15668d7b38fccbe59e5df1a7e5c4e368aed7be20507ed6c5b3f34a7",
+    "sha256": "2535c75211e6b784daa06c79d37244af2adc0ac566824e1095b201b5bb75798c"
+  },
+  "windows_protocol_sha256": "2535c75211e6b784daa06c79d37244af2adc0ac566824e1095b201b5bb75798c"
+}

@@ -1,0 +1,1 @@
+[1].map.call([1], value => value); [1].map.apply([1], [value => value]); [1].map.bind([1], value => value); export {};

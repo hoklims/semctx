@@ -1,0 +1,120 @@
+{
+  "status": "SOURCE_AUTHORED_PRIVATE_CODE_PROJECTIONS_PENDING_REVIEW_NOT_NATIVE_PROOF",
+  "vectors": [
+    {
+      "id": "D-source-parse",
+      "case_refs": [
+        "N09-outline-syntax-error",
+        "N14-javascript-parse-recovery-not-success"
+      ],
+      "text": "export const = ;",
+      "file": "entry.mjs",
+      "exact_source_projection": [
+        {
+          "reason": "SOURCE_PARSE_ERROR",
+          "code": 1134
+        }
+      ],
+      "exact_javascript_projection": [
+        {
+          "reason": "JAVASCRIPT_PARSE_ERROR",
+          "code": 1134
+        }
+      ],
+      "parseFailed": true,
+      "analyzed_success": false,
+      "source_authority": [
+        "baseline javascript-diagnostics.ts242–246,333–337",
+        "published TS9268,34565–34566"
+      ],
+      "diagnostic_span_utf16": {
+        "start": 13,
+        "length": 1
+      },
+      "message_policy": "Human TS wording retained as raw observation; excluded from this private stable-code assertion, not a change to public baseline reason strings."
+    },
+    {
+      "id": "D-config-valid",
+      "text": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"}}",
+      "exact_observable_projection": [],
+      "filtered_code": 18003,
+      "authority": [
+        "baseline javascript-diagnostics.ts381–410",
+        "published TS Diagnostics definitions1109,5023,5024,5083,18003 and config parser"
+      ],
+      "profile_scope": "inspectModuleConfiguration reasons; not whole qualified admission or all unrelated source reasons",
+      "message_policy": "Do not freeze absolute path/localized TS wording; raw diagnostic retained separately"
+    },
+    {
+      "id": "D-config-malformed",
+      "text": "{\"compilerOptions\":",
+      "exact_observable_projection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 1109
+        }
+      ],
+      "filtered_code": 18003,
+      "authority": [
+        "baseline javascript-diagnostics.ts381–410",
+        "published TS Diagnostics definitions1109,5023,5024,5083,18003 and config parser"
+      ],
+      "profile_scope": "inspectModuleConfiguration reasons; not whole qualified admission or all unrelated source reasons",
+      "message_policy": "Do not freeze absolute path/localized TS wording; raw diagnostic retained separately"
+    },
+    {
+      "id": "D-config-unknown-option",
+      "text": "{\"compilerOptions\":{\"notACompilerOption\":true}}",
+      "exact_observable_projection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 5023
+        }
+      ],
+      "filtered_code": 18003,
+      "authority": [
+        "baseline javascript-diagnostics.ts381–410",
+        "published TS Diagnostics definitions1109,5023,5024,5083,18003 and config parser"
+      ],
+      "profile_scope": "inspectModuleConfiguration reasons; not whole qualified admission or all unrelated source reasons",
+      "message_policy": "Do not freeze absolute path/localized TS wording; raw diagnostic retained separately"
+    },
+    {
+      "id": "D-config-invalid-target",
+      "text": "{\"compilerOptions\":{\"target\":99}}",
+      "exact_observable_projection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 5024
+        }
+      ],
+      "filtered_code": 18003,
+      "authority": [
+        "baseline javascript-diagnostics.ts381–410",
+        "published TS Diagnostics definitions1109,5023,5024,5083,18003 and config parser"
+      ],
+      "profile_scope": "inspectModuleConfiguration reasons; not whole qualified admission or all unrelated source reasons",
+      "message_policy": "Do not freeze absolute path/localized TS wording; raw diagnostic retained separately"
+    },
+    {
+      "id": "D-config-missing-extends",
+      "text": "{\"extends\":\"./missing.json\"}",
+      "exact_observable_projection": [
+        {
+          "reason": "SOURCE_CONFIGURATION_INVALID",
+          "code": 5083
+        }
+      ],
+      "filtered_code": 18003,
+      "authority": [
+        "baseline javascript-diagnostics.ts381–410",
+        "published TS Diagnostics definitions1109,5023,5024,5083,18003 and config parser"
+      ],
+      "profile_scope": "inspectModuleConfiguration reasons; not whole qualified admission or all unrelated source reasons",
+      "message_policy": "Do not freeze absolute path/localized TS wording; raw diagnostic retained separately"
+    }
+  ],
+  "projection_rule": "Match complete ordered code-family projection for source parsing, deduplicate/sort for JS reason Set, filter18003 only for configuration. Do not widen to prefix-only acceptance or infer full fact/analysis completeness.",
+  "preserved_baseline_limitation": "Baseline public reason strings include TS message text. This annex freezes a deliberately named private projection, not full public-string parity.",
+  "message_observations_file": "typescript-observations.json"
+}

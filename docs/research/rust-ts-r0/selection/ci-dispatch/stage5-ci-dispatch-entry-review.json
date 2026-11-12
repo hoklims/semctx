@@ -1,0 +1,172 @@
+{
+  "verdict": "PROOF_WEAK",
+  "status": "NO_DEMONSTRATED_ROUTING_DEFECT_PUBLIC_DISPATCH_NOT_OBSERVED",
+  "author": "/root/pass2_api_gap_inventory",
+  "independent_from_author": "Root owns the workflow edit; reviewer wrote no candidate code.",
+  "generated_utc": "2026-10-17T19:49:06.628515+00:00",
+  "effort_upper_bound_seconds": 120,
+  "base_commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "candidate": "working/indexed .github/workflows/ci.yml dispatch-entry delta against that commit",
+  "candidate_file_sha256": "4edd50b9735bf0d13286a5fc4683bc3317d2b8c45dc6a675a24e9491d8d3919b",
+  "scope": "Add workflow_dispatch input base_sha to existing registered ci workflow and feed same base expression to plan/gates; no new checks/controller/permissions or altered PR triggers.",
+  "official_source": {
+    "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch",
+    "lines": [
+      1166,
+      1170,
+      1171,
+      1177
+    ],
+    "claim": "Previously registered/run workflow can be dispatched for a selected branch/ref; github.sha is the event ref commit; inputs available in inputs context."
+  },
+  "routing_review": [
+    "Manual event checkout selects immutable github.sha because no pull_request.head.sha is present. Caller must verify returned run.head_sha equals intended pushed SHA.",
+    "base_sha is assigned through environment and quoted as an existing ci-plan argument; shell code injection via input interpolation is not introduced.",
+    "Required input belongs to manual event only; PR and main push expressions retain prior base selection.",
+    "Existing ci-plan failure gates all downstream jobs through needs:plan, including rust-gates.",
+    "rust-gates matrix remains Ubuntu/Windows/macOS with unchanged native Cargo operations; successful manual job execution can provide platform evidence for that head.",
+    "Manual run cannot establish GitHub PR mergeability, merged-tree proof or equivalence of missing pull_request event context."
+  ],
+  "native_negative_and_positive": {
+    "environment": "macOS arm64, existing gate executable, clean disposable private local clone detached at568c; shared source repo/index untouched",
+    "tool_sha256": "6075f9f324decfb2f78051d604b44d1399c738a81d42a689d073246287048413",
+    "invalid_base": {
+      "command": [
+        "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/gates/target/release/semctx-gates",
+        "ci-plan",
+        "--root",
+        "/private/tmp/semctx-t00-20261017/dispatch-review-private-clone",
+        "--base",
+        "0000000000000000000000000000000000000000",
+        "--head",
+        "568c271f86adc45db7bfcce9ef902b29eef164c9",
+        "--output",
+        "/private/tmp/semctx-t00-20261017/dispatch-review-invalid-base-private-plan.json"
+      ],
+      "exit": 2,
+      "stdout": "",
+      "stderr": "{\"error\":\"git [\\\"rev-parse\\\", \\\"0000000000000000000000000000000000000000^{commit}\\\", \\\"568c271f86adc45db7bfcce9ef902b29eef164c9^{commit}\\\", \\\"HEAD\\\"]: nonzero: fatal: ambiguous argument '0000000000000000000000000000000000000000^{commit}': unknown revision or path not in the working tree.\\nUse '--' to separate paths from revisions, like this:\\n'git <command> [<revision>...] -- [<file>...]'\\n\",\"schema\":1,\"status\":\"refused\"}\n"
+    },
+    "valid_base": {
+      "exit": 0,
+      "subject": {
+        "base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+        "head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+        "tree": "10b7dd0267509ddce3abe903bb88eb09d11f2586",
+        "policy_hash": "ebeb82d0d64d2145335cf6e4a102a8714d7cc5b7c95413e758cf8b1fb3f85682"
+      },
+      "plan_id": "34b8031e1b4d6dee1e5134a99b65d3c878a72e00c0b4cce3e3759234ccaf3632",
+      "matrix": {
+        "include": [
+          {
+            "index": 0,
+            "id": "lane-000-ubuntu-latest-contract",
+            "os": "ubuntu-latest",
+            "profile": "contract",
+            "targets": "",
+            "smoke": "false",
+            "shard": ""
+          },
+          {
+            "index": 1,
+            "id": "lane-001-ubuntu-latest-full",
+            "os": "ubuntu-latest",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "1/2"
+          },
+          {
+            "index": 2,
+            "id": "lane-002-ubuntu-latest-full",
+            "os": "ubuntu-latest",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "2/2"
+          },
+          {
+            "index": 3,
+            "id": "lane-003-windows-latest-full",
+            "os": "windows-latest",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "1/4"
+          },
+          {
+            "index": 4,
+            "id": "lane-004-windows-latest-full",
+            "os": "windows-latest",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "2/4"
+          },
+          {
+            "index": 5,
+            "id": "lane-005-windows-latest-full",
+            "os": "windows-latest",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "3/4"
+          },
+          {
+            "index": 6,
+            "id": "lane-006-windows-latest-full",
+            "os": "windows-latest",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "4/4"
+          },
+          {
+            "index": 7,
+            "id": "lane-007-macos-15-full",
+            "os": "macos-15",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "1/2"
+          },
+          {
+            "index": 8,
+            "id": "lane-008-macos-15-full",
+            "os": "macos-15",
+            "profile": "full",
+            "targets": "",
+            "smoke": "true",
+            "shard": "2/2"
+          }
+        ]
+      }
+    },
+    "evidence": [
+      {
+        "path": "/private/tmp/semctx-t00-20261017/dispatch-review-invalid-base-native.json",
+        "sha256": "41ca502e15d6fb750991f6b231be8128959e0fab95b2ff6f4a465a13683beaee"
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/dispatch-review-valid-base-native.json",
+        "sha256": "5338ee3d997d10e631f994c1ee9735cbab3d1f5106c3be0c93efcb5b3c222b10"
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/dispatch-review-valid-base-private-plan.json",
+        "sha256": "f3306c7b5c08c00728f7870bb2cacfaa8ca312350507516d37634fcd2bdd33d6"
+      }
+    ],
+    "limit": "The planner tests exercise unchanged argument-consumer fail-closed behavior at568c, not GitHub dispatch event evaluation of the uncommitted workflow delta.",
+    "preliminary_main_worktree_attempts": "Both invalid and valid base first failed the existing clean-index precondition because root has staged changes; these are not counted as base-validation evidence."
+  },
+  "necessary_public_observation": [
+    "workflow_dispatch run is actually created for exact new pushed SHA",
+    "run.head_sha, plan.subject.head and plan.subject.base match intended immutable SHA inputs",
+    "actual required native Ubuntu/Windows jobs execute and retained outputs bind actual artifacts/run attempt",
+    "No success claim from CodeQL-only checks or from workflow registration alone"
+  ],
+  "finding": "No demonstrated material scope or routing flaw in proposed delta; technical implementation may proceed under existing authority. Essential public event/execution evidence remains unavailable at review time, hence PROOF_WEAK rather than PROOF_ADEQUATE.",
+  "candidate_unchanged_during_audit": true,
+  "github_mutations": 0,
+  "main_repo_edits_by_reviewer": 0
+}

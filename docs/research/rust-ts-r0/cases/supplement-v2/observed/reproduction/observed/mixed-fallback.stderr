@@ -1,0 +1,9 @@
+
+packages\ts-analyzer\test\javascript.test.ts:
+(pass) keeps mixed extraction in one semantic Program when workers are requested [4967.78ms]
+
+ 1 pass
+ 7 filtered out
+ 0 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [5.13s]

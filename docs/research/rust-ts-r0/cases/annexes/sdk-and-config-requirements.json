@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "author": "/root/qualification383",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "sdk_version": "5.9.3",
+  "sdk_published_input_manifest": "/private/tmp/semctx-t00-20261017/sdk/sdk-manifest.json",
+  "sdk_static_required_default_closure_files": [
+    {
+      "path": "lib/lib.decorators.d.ts",
+      "bytes": 13192,
+      "sha256": "8e7f8264d0fb4c5339605a15daadb037bf238c10b654bb3eee14208f860a32ea"
+    },
+    {
+      "path": "lib/lib.decorators.legacy.d.ts",
+      "bytes": 1326,
+      "sha256": "782dec38049b92d4e85c1585fbea5474a219c6984a35b004963b00beb1aab538"
+    },
+    {
+      "path": "lib/lib.dom.asynciterable.d.ts",
+      "bytes": 1887,
+      "sha256": "d7a3c8b952931daebdfc7a2897c53c0a1c73624593fa070e46bd537e64dcd20a"
+    },
+    {
+      "path": "lib/lib.dom.d.ts",
+      "bytes": 1874901,
+      "sha256": "080941d9f9ff9307f7e27a83bcd888b7c8270716c39af943532438932ec1d0b9"
+    },
+    {
+      "path": "lib/lib.dom.iterable.d.ts",
+      "bytes": 29802,
+      "sha256": "2e80ee7a49e8ac312cc11b77f1475804bee36b3b2bc896bead8b6e1266befb43"
+    },
+    {
+      "path": "lib/lib.es2015.collection.d.ts",
+      "bytes": 5229,
+      "sha256": "dc2df20b1bcdc8c2d34af4926e2c3ab15ffe1160a63e58b7e09833f616efff44"
+    },
+    {
+      "path": "lib/lib.es2015.core.d.ts",
+      "bytes": 22866,
+      "sha256": "c57796738e7f83dbc4b8e65132f11a377649c00dd3eee333f672b8f0a6bea671"
+    },
+    {
+      "path": "lib/lib.es2015.d.ts",
+      "bytes": 1241,
+      "sha256": "45b7ab580deca34ae9729e97c13cfd999df04416a79116c3bfb483804f85ded4"
+    },
+    {
+      "path": "lib/lib.es2015.generator.d.ts",
+      "bytes": 2557,
+      "sha256": "515d0b7b9bea2e31ea4ec968e9edd2c39d3eebf4a2d5cbd04e88639819ae3b71"
+    },
+    {
+      "path": "lib/lib.es2015.iterable.d.ts",
+      "bytes": 18200,
+      "sha256": "0559b1f683ac7505ae451f9a96ce4c3c92bdc71411651ca6ddb0e88baaaad6a3"
+    },
+    {
+      "path": "lib/lib.es2015.promise.d.ts",
+      "bytes": 3200,
+      "sha256": "0dc1e7ceda9b8b9b455c3a2d67b0412feab00bd2f66656cd8850e8831b08b537"
+    },
+    {
+      "path": "lib/lib.es2015.proxy.d.ts",
+      "bytes": 5251,
+      "sha256": "ce691fb9e5c64efb9547083e4a34091bcbe5bdb41027e310ebba8f7d96a98671"
+    },
+    {
+      "path": "lib/lib.es2015.reflect.d.ts",
+      "bytes": 6493,
+      "sha256": "8d697a2a929a5fcb38b7a65594020fcef05ec1630804a33748829c5ff53640d0"
+    },
+    {
+      "path": "lib/lib.es2015.symbol.d.ts",
+      "bytes": 1649,
+      "sha256": "4ff2a353abf8a80ee399af572debb8faab2d33ad38c4b4474cff7f26e7653b8d"
+    },
+    {
+      "path": "lib/lib.es2015.symbol.wellknown.d.ts",
+      "bytes": 11010,
+      "sha256": "fb0f136d372979348d59b3f5020b4cdb81b5504192b1cacff5d1fbba29378aa1"
+    },
+    {
+      "path": "lib/lib.es2016.array.include.d.ts",
+      "bytes": 5204,
+      "sha256": "d15bea3d62cbbdb9797079416b8ac375ae99162a7fba5de2c6c505446486ac0a"
+    },
+    {
+      "path": "lib/lib.es2016.d.ts",
+      "bytes": 965,
+      "sha256": "3facaf05f0c5fc569c5649dd359892c98a85557e3e0c847964caeb67076f4d75"
+    },
+    {
+      "path": "lib/lib.es2016.intl.d.ts",
+      "bytes": 1484,
+      "sha256": "68d18b664c9d32a7336a70235958b8997ebc1c3b8505f4f1ae2b7e7753b87618"
+    },
+    {
+      "path": "lib/lib.es2017.arraybuffer.d.ts",
+      "bytes": 915,
+      "sha256": "eb3d66c8327153d8fa7dd03f9c58d351107fe824c79e9b56b462935176cdf12a"
+    },
+    {
+      "path": "lib/lib.es2017.d.ts",
+      "bytes": 1162,
+      "sha256": "e44bb8bbac7f10ecc786703fe0a6a4b952189f908707980ba8f3c8975a760962"
+    },
+    {
+      "path": "lib/lib.es2017.date.d.ts",
+      "bytes": 1916,
+      "sha256": "38f0219c9e23c915ef9790ab1d680440d95419ad264816fa15009a8851e79119"
+    },
+    {
+      "path": "lib/lib.es2017.intl.d.ts",
+      "bytes": 1449,
+      "sha256": "4de680d5bb41c17f7f68e0419412ca23c98d5749dcaaea1896172f06435891fc"
+    },
+    {
+      "path": "lib/lib.es2017.object.d.ts",
+      "bytes": 2473,
+      "sha256": "69ab18c3b76cd9b1be3d188eaf8bba06112ebbe2f47f6c322b5105a6fbc45a2e"
+    },
+    {
+      "path": "lib/lib.es2017.sharedmemory.d.ts",
+      "bytes": 7209,
+      "sha256": "a680117f487a4d2f30ea46f1b4b7f58bef1480456e18ba53ee85c2746eeca012"
+    },
+    {
+      "path": "lib/lib.es2017.string.d.ts",
+      "bytes": 2378,
+      "sha256": "2f11ff796926e0832f9ae148008138ad583bd181899ab7dd768a2666700b1893"
+    },
+    {
+      "path": "lib/lib.es2017.typedarrays.d.ts",
+      "bytes": 1542,
+      "sha256": "954296b30da6d508a104a3a0b5d96b76495c709785c1d11610908e63481ee667"
+    },
+    {
+      "path": "lib/lib.es2018.asyncgenerator.d.ts",
+      "bytes": 2692,
+      "sha256": "ac9538681b19688c8eae65811b329d3744af679e0bdfa5d842d0e32524c73e1c"
+    },
+    {
+      "path": "lib/lib.es2018.asynciterable.d.ts",
+      "bytes": 2257,
+      "sha256": "0a969edff4bd52585473d24995c5ef223f6652d6ef46193309b3921d65dd4376"
+    },
+    {
+      "path": "lib/lib.es2018.d.ts",
+      "bytes": 1088,
+      "sha256": "5e1c4c362065a6b95ff952c0eab010f04dcd2c3494e813b493ecfd4fcb9fc0d8"
+    },
+    {
+      "path": "lib/lib.es2018.intl.d.ts",
+      "bytes": 3021,
+      "sha256": "9e9fbd7030c440b33d021da145d3232984c8bb7916f277e8ffd3dc2e3eae2bdb"
+    },
+    {
+      "path": "lib/lib.es2018.promise.d.ts",
+      "bytes": 1353,
+      "sha256": "811ec78f7fefcabbda4bfa93b3eb67d9ae166ef95f9bff989d964061cbf81a0c"
+    },
+    {
+      "path": "lib/lib.es2018.regexp.d.ts",
+      "bytes": 1232,
+      "sha256": "717937616a17072082152a2ef351cb51f98802fb4b2fdabd32399843875974ca"
+    },
+    {
+      "path": "lib/lib.es2019.array.d.ts",
+      "bytes": 3163,
+      "sha256": "d7e7d9b7b50e5f22c915b525acc5a49a7a6584cf8f62d0569e557c5cfc4b2ac2"
+    },
+    {
+      "path": "lib/lib.es2019.d.ts",
+      "bytes": 1071,
+      "sha256": "68d73b4a11549f9c0b7d352d10e91e5dca8faa3322bfb77b661839c42b1ddec7"
+    },
+    {
+      "path": "lib/lib.es2019.intl.d.ts",
+      "bytes": 958,
+      "sha256": "74f7fa2d027d5b33eb0471c8e82a6c87216223181ec31247c357a3e8e2fddc5b"
+    },
+    {
+      "path": "lib/lib.es2019.object.d.ts",
+      "bytes": 1473,
+      "sha256": "71c37f4c9543f31dfced6c7840e068c5a5aacb7b89111a4364b1d5276b852557"
+    },
+    {
+      "path": "lib/lib.es2019.string.d.ts",
+      "bytes": 1528,
+      "sha256": "576711e016cf4f1804676043e6a0a5414252560eb57de9faceee34d79798c850"
+    },
+    {
+      "path": "lib/lib.es2019.symbol.d.ts",
+      "bytes": 1006,
+      "sha256": "89c1b1281ba7b8a96efc676b11b264de7a8374c5ea1e6617f11880a13fc56dc6"
+    },
+    {
+      "path": "lib/lib.es2020.bigint.d.ts",
+      "bytes": 38185,
+      "sha256": "d6d7ae4d1f1f3772e2a3cde568ed08991a8ae34a080ff1151af28b7f798e22ca"
+    },
+    {
+      "path": "lib/lib.es2020.d.ts",
+      "bytes": 1201,
+      "sha256": "5efce4fc3c29ea84e8928f97adec086e3dc876365e0982cc8479a07954a3efd4"
+    },
+    {
+      "path": "lib/lib.es2020.date.d.ts",
+      "bytes": 2956,
+      "sha256": "063600664504610fe3e99b717a1223f8b1900087fab0b4cad1496a114744f8df"
+    },
+    {
+      "path": "lib/lib.es2020.intl.d.ts",
+      "bytes": 22438,
+      "sha256": "639e512c0dfc3fad96a84caad71b8834d66329a1f28dc95e3946c9b58176c73a"
+    },
+    {
+      "path": "lib/lib.es2020.number.d.ts",
+      "bytes": 1587,
+      "sha256": "368af93f74c9c932edd84c58883e736c9e3d53cec1fe24c0b0ff451f529ceab1"
+    },
+    {
+      "path": "lib/lib.es2020.promise.d.ts",
+      "bytes": 1803,
+      "sha256": "934019d7e3c81950f9a8426d093458b65d5aff2c7c1511233c0fd5b941e608ab"
+    },
+    {
+      "path": "lib/lib.es2020.sharedmemory.d.ts",
+      "bytes": 5128,
+      "sha256": "52ada8e0b6e0482b728070b7639ee42e83a9b1c22d205992756fe020fd9f4a47"
+    },
+    {
+      "path": "lib/lib.es2020.string.d.ts",
+      "bytes": 2556,
+      "sha256": "3bdefe1bfd4d6dee0e26f928f93ccc128f1b64d5d501ff4a8cf3c6371200e5e6"
+    },
+    {
+      "path": "lib/lib.es2020.symbol.wellknown.d.ts",
+      "bytes": 1606,
+      "sha256": "59fb2c069260b4ba00b5643b907ef5d5341b167e7d1dbf58dfd895658bda2867"
+    },
+    {
+      "path": "lib/lib.es2021.d.ts",
+      "bytes": 1036,
+      "sha256": "feecb1be483ed332fad555aff858affd90a48ab19ba7272ee084704eb7167569"
+    },
+    {
+      "path": "lib/lib.es2021.intl.d.ts",
+      "bytes": 8245,
+      "sha256": "965f36eae237dd74e6cca203a43e9ca801ce38824ead814728a2807b1910117d"
+    },
+    {
+      "path": "lib/lib.es2021.promise.d.ts",
+      "bytes": 2262,
+      "sha256": "af3dd424cf267428f30ccfc376f47a2c0114546b55c44d8c0f1d57d841e28d74"
+    },
+    {
+      "path": "lib/lib.es2021.string.d.ts",
+      "bytes": 1592,
+      "sha256": "995c005ab91a498455ea8dfb63aa9f83fa2ea793c3d8aa344be4a1678d06d399"
+    },
+    {
+      "path": "lib/lib.es2021.weakref.d.ts",
+      "bytes": 3171,
+      "sha256": "959d36cddf5e7d572a65045b876f2956c973a586da58e5d26cde519184fd9b8a"
+    },
+    {
+      "path": "lib/lib.es2022.array.d.ts",
+      "bytes": 4676,
+      "sha256": "3925a6c820dcb1a06506c90b1577db1fdbf7705d65b62b99dce4be75c637e26b"
+    },
+    {
+      "path": "lib/lib.es2022.d.ts",
+      "bytes": 1108,
+      "sha256": "ee7bad0c15b58988daa84371e0b89d313b762ab83cb5b31b8a2d1162e8eb41c2"
+    },
+    {
+      "path": "lib/lib.es2022.error.d.ts",
+      "bytes": 2379,
+      "sha256": "0a3d63ef2b853447ec4f749d3f368ce642264246e02911fcb1590d8c161b8005"
+    },
+    {
+      "path": "lib/lib.es2022.full.d.ts",
+      "bytes": 1074,
+      "sha256": "3cbad9a1ba4453443026ed38e4b8be018abb26565fa7c944376463ad9df07c41"
+    },
+    {
+      "path": "lib/lib.es2022.intl.d.ts",
+      "bytes": 7692,
+      "sha256": "8cdf8847677ac7d20486e54dd3fcf09eda95812ac8ace44b4418da1bbbab6eb8"
+    },
+    {
+      "path": "lib/lib.es2022.object.d.ts",
+      "bytes": 1085,
+      "sha256": "8444af78980e3b20b49324f4a16ba35024fef3ee069a0eb67616ea6ca821c47a"
+    },
+    {
+      "path": "lib/lib.es2022.regexp.d.ts",
+      "bytes": 1331,
+      "sha256": "b4b67b1a91182421f5df999988c690f14d813b9850b40acd06ed44691f6727ad"
+    },
+    {
+      "path": "lib/lib.es2022.string.d.ts",
+      "bytes": 1155,
+      "sha256": "3287d9d085fbd618c3971944b65b4be57859f5415f495b33a6adc994edd2f004"
+    },
+    {
+      "path": "lib/lib.es5.d.ts",
+      "bytes": 218439,
+      "sha256": "c430d44666289dae81f30fa7b2edebf186ecc91a2d4c71266ea6ae76388792e1"
+    },
+    {
+      "path": "lib/lib.scripthost.d.ts",
+      "bytes": 9451,
+      "sha256": "cd034f499c6cdca722b60c04b5b1b78e058487a7085a8e0d6fb50809947ee573"
+    },
+    {
+      "path": "lib/lib.webworker.importscripts.d.ts",
+      "bytes": 1041,
+      "sha256": "80e18897e5884b6723488d4f5652167e7bb5024f946743134ecc4aa4ee731f89"
+    }
+  ],
+  "sdk_static_required_default_closure_count": 63,
+  "required_closure_not_observed_read_set": true,
+  "capture_coherence_proved": false,
+  "baseline_program_options_authority": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "path": "packages/ts-analyzer/src/ts-symbols.ts",
+    "line": 154,
+    "end_line": 183,
+    "role": "implemented historical source read independently; no execution",
+    "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L154"
+  },
+  "baseline_resolver_configuration_authority": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "path": "packages/ts-analyzer/src/ts-symbols.ts",
+    "line": 264,
+    "end_line": 315,
+    "role": "implemented historical source read independently; no execution",
+    "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/ts-symbols.ts#L264"
+  },
+  "pathe_original_configuration": {
+    "path": "tsconfig.json",
+    "target": "ESNext",
+    "module": "ESNext",
+    "types": [
+      "node"
+    ],
+    "moduleResolution_explicit": false,
+    "include": [
+      "src",
+      "test"
+    ],
+    "package_dev_typescript": "^6.0.3",
+    "package_dev_node_types": "^26.1.0",
+    "package_native_preview": "7.0.0-dev.20260705.1",
+    "unchanged_original_bytes": true,
+    "no_dev_toolchain_executed": true,
+    "effect": "Baseline semantic Program uses fixed ES2022 etc, not project target/strict/types options. Resolution/config inspectors consume original config separately. No compatibility/admission of the full TS6 upstream project is inferred.",
+    "unresolved_inputs": [
+      "No exact installed @types/node version or byte/dependency closure supplied here. NodePath in index/_path cannot claim fully resolved Node SDK semantics.",
+      "No project test/devdependency/lockfile closure or complete repository analysis; src/test include does not imply test execution or frozen expectations."
+    ]
+  },
+  "yocto_original_configuration": {
+    "package_type": "module",
+    "package_exports": "./index.js",
+    "package_types": "./index.d.ts",
+    "tsconfig_in_selected_inputs": false,
+    "sdk_declaration_dependencies": [
+      "Iterable",
+      "IterableIterator",
+      "Symbol.iterator default SDK for .d.ts/protocol projection"
+    ],
+    "no_external_runtime_imports_in_index_js": true,
+    "index_d_ts_emission_excluded_by_baseline": true
+  },
+  "shared_limit": "Source components selected explicitly; actual consumption/capture and Windows/Linux native results still absent. Original manifests/config are retained unchanged, never normalized to fit TS5.9.",
+  "effort_intervals": [
+    {
+      "start_utc": "2026-10-17T14:53:44Z",
+      "end_utc": "2026-10-17T14:57:28.931599+00:00",
+      "wall_seconds": 224.931599,
+      "kind": "conservative active wall interval; no known host sleep",
+      "limit_seconds": 480
+    }
+  ]
+}

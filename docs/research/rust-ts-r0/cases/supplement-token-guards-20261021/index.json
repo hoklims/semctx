@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 3,
+  "kind": "PACKAGING_WITH_EXPLICIT_STANDALONE_GIT_FIXTURE_PRECONDITION",
+  "originalManifestSha256": "58036fdf209e27bb8d37027b29afc3b8646c3671dfd9e09dfa22f0421b46f3e5",
+  "archive": {
+    "file": "lot.tar.gz.b64",
+    "base64Sha256": "4aed40e337737277a019728c2c4cf6848765f8d85c758862a7289c2d38469645",
+    "gzipSha256": "0437d74e6c4c9f7345f468bc5c579a2ac0bdfd015b6e18d0cc89113dee0776f9",
+    "tarSha256": "161e2ef686bc74d90cba58f4ccceaeaa4fc427c999f827993ca407c594183498",
+    "gzipBytes": 8754572
+  },
+  "expectedSha256": "9b268653eb2c6d6fd06fa8104fc1fffd52960a0da68a12c0414496caae85a675",
+  "baselineAuthoritySha256": "a6cad108dd5d1748183ce57404152befdc4949a79d57bae088d5f4758deea483",
+  "manifestFiles": 1904,
+  "totalRegularFiles": 1906,
+  "actualProgramRecords": 21,
+  "custody": {
+    "sourceLinks": [],
+    "unmanifestedFiles": [
+      "manifest.json",
+      "freeze.json"
+    ],
+    "explanation": "Original manifest intentionally excludes itself and freeze.json; both archived verbatim and pinned by outer copies. No symlinks, hardlinks or special files observed. No external link targets."
+  },
+  "baselineReplayThisPackaging": "ONE_EXECUTION_EXIT_ZERO_EXPECTATIONS_UNCHANGED",
+  "nativeExecution": "NOT_OBSERVED",
+  "v3Replay": {
+    "outputRoot": "C:/Users/Hokli/token-guard-v3-baseline-20261021-01",
+    "gitInitExit": 0,
+    "baselineExit": 0,
+    "verifyExit": 0,
+    "issuance": 13,
+    "revalidation": 7,
+    "mapIdentityContrasts": 1,
+    "actualProgramRecords": 21,
+    "evidenceArchive": {
+      "file": "v3-replay-evidence.tar.gz.b64",
+      "base64Sha256": "212894abd60f9d4ed37cb055473f20cfe66b45cc42d45379269c4ea718812a6a",
+      "gzipSha256": "0e9cbb6a99a09e1f8c28b8c5dd23d13004e74dfefad91c88b049da39320c5ad0",
+      "tarSha256": "9807289e807a91af9c9cc143142b99f9c1387338f2d2fe994ed6f89b1c796a65"
+    },
+    "sourceSDKJoin": "v3-replay-provenance.json pinned runtime authority/observer/driver/vendor hashes join actualProgramRecords retained source and default-library SHA256s; expected original SHA unchanged"
+  }
+}

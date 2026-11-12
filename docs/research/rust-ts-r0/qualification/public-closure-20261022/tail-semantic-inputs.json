@@ -1,0 +1,271 @@
+{
+  "units": [
+    {
+      "id": "PUBLIC-TAIL-cluster-export-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export {type Flag, other, fork as launch, setupPrimary} from \"node:cluster\";"
+      },
+      "origin": "Public named re-export syntax: runtime cluster fork versus wholly type-only named bindings",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-cluster-export-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export {type Flag, type fork as launch} from \"node:cluster\";"
+      },
+      "origin": "Public named re-export syntax: runtime cluster fork versus wholly type-only named bindings",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-jsx-identifier-activate",
+      "operation": "semantic",
+      "path": "main.tsx",
+      "files": {
+        "main.tsx": "const view=<Widget/>;"
+      },
+      "origin": "Public TSX component tag versus intrinsic identifier tag",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-jsx-identifier-control",
+      "operation": "semantic",
+      "path": "main.tsx",
+      "files": {
+        "main.tsx": "const view=<widget/>;"
+      },
+      "origin": "Public TSX component tag versus intrinsic identifier tag",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-jsx-namespace-activate",
+      "operation": "semantic",
+      "path": "main.tsx",
+      "files": {
+        "main.tsx": "const view=<Ui:Button/>;"
+      },
+      "origin": "Public TSX namespaced tag with uppercase versus lowercase namespace",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-jsx-namespace-control",
+      "operation": "semantic",
+      "path": "main.tsx",
+      "files": {
+        "main.tsx": "const view=<svg:path/>;"
+      },
+      "origin": "Public TSX namespaced tag with uppercase versus lowercase namespace",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-jsx-member-activate",
+      "operation": "semantic",
+      "path": "main.tsx",
+      "files": {
+        "main.tsx": "const view=<Ui.Button/>;"
+      },
+      "origin": "Public TSX member component versus intrinsic identifier tag",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-jsx-member-control",
+      "operation": "semantic",
+      "path": "main.tsx",
+      "files": {
+        "main.tsx": "const view=<button/>;"
+      },
+      "origin": "Public TSX member component versus intrinsic identifier tag",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-class-expression-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class Base{};const Derived=class extends Base{};"
+      },
+      "origin": "Public class-expression heritage: retained class base versus SDK Date base",
+      "obligation_indices": [
+        84,
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-class-expression-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const Derived=class extends Date{};"
+      },
+      "origin": "Public class-expression heritage: retained class base versus SDK Date base",
+      "obligation_indices": [
+        84,
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-overload-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "declare function task(x:number):number; task(1);"
+      },
+      "origin": "Public function overload binding with no implementation versus retained exported implementation",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-overload-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export function task(x:number):number; export function task(x:number){return x}; task(1);"
+      },
+      "origin": "Public function overload binding with no implementation versus retained exported implementation",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-protocol-property-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class Box{[Symbol.iterator]=()=>({next(){return {done:true,value:0}}})};"
+      },
+      "origin": "Public computed class property: callable iterator implementation versus primitive initializer",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-protocol-property-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "class Box{[Symbol.iterator]=0};"
+      },
+      "origin": "Public computed class property: callable iterator implementation versus primitive initializer",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-location-href-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "location.href=\"javascript:alert(1)\";"
+      },
+      "origin": "Public SDK Location href assignment with script versus HTTPS constant",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-location-href-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "location.href=\"https://example.invalid/path\";"
+      },
+      "origin": "Public SDK Location href assignment with script versus HTTPS constant",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-async-for-items-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run(){for await(const x of [,[...[]]]){}}"
+      },
+      "origin": "Public async iteration over a sparse literal: nested array versus primitive item",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-async-for-items-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run(){for await(const x of [,0]){}}"
+      },
+      "origin": "Public async iteration over a sparse literal: nested array versus primitive item",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-async-for-spread-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const xs=[0];export async function run(){for await(const x of [...xs]){}}"
+      },
+      "origin": "Public async iteration over a literal containing spread versus primitive item",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-async-for-spread-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "export async function run(){for await(const x of [0]){}}"
+      },
+      "origin": "Public async iteration over a literal containing spread versus primitive item",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-prototype-initializer-activate",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={__proto__:()=>{}};"
+      },
+      "origin": "Public object literal prototype initializer: function versus null data",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "id": "PUBLIC-TAIL-prototype-initializer-control",
+      "operation": "semantic",
+      "path": "main.ts",
+      "files": {
+        "main.ts": "const value={__proto__:null};"
+      },
+      "origin": "Public object literal prototype initializer: function versus null data",
+      "obligation_indices": [
+        134
+      ]
+    }
+  ],
+  "digestPairs": []
+}

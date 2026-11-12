@@ -1,0 +1,243 @@
+{
+  "schemaVersion": 1,
+  "scope": "T00 compiler dialect oracle only; no Semctx producer qualification or full consumer oracle",
+  "authority": "Owner brief 2026-10-23, decision 1",
+  "reference": {
+    "compilerVersion": "7.1.0-dev",
+    "crateRequirement": "=7.0.0-dev",
+    "repository": "https://github.com/pingdotgg/ts-rust",
+    "revision": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "rust": "1.95.0",
+    "cargo": "1.95.0",
+    "sourceManifest": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/oracle-source-manifest.json",
+      "bytes": 409014,
+      "sha256": "3e8dbf2f34bd53dee6be13d5512da3e2e3b12a0cde66487f8d5297f7968c1cd5"
+    },
+    "lock": {
+      "path": "Cargo.lock",
+      "bytes": 21826,
+      "sha256": "3ba1f7a7833ca86321a2fb8b8bfb9d53a5395524f0b8ac51d5f35f3ef768bb2b"
+    }
+  },
+  "build": {
+    "command": [
+      "cargo",
+      "build",
+      "--locked",
+      "--offline",
+      "--release",
+      "-p",
+      "ts_goport",
+      "--no-default-features",
+      "--features",
+      "noembed",
+      "--bin",
+      "tsgo",
+      "-j",
+      "4"
+    ],
+    "sourceDirectory": "Exact revision checkout, verified against source manifest",
+    "targetDirectory": "Unique to each session; not shared for writes",
+    "GOPORT_BUILD_VERSION": null,
+    "macosBuildLog": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/oracle-build-macos-v2.log",
+      "bytes": 1904,
+      "sha256": "d6264c6ebd047f68d5485a321d00d82405bfc51ba2444aec0efd251e1a79fb57"
+    },
+    "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "linuxNetwork": "none"
+  },
+  "execution": {
+    "command": [
+      "tsgo",
+      "--noEmit",
+      "--pretty",
+      "false",
+      "--project",
+      "tsconfig.json"
+    ],
+    "cwd": "Each fixture directory",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "macosNetwork": "sandbox-exec (version 1) (allow default) (deny network*)",
+    "linuxNetwork": "none",
+    "showConfig": "Excluded as a diagnostic oracle: invalid options can be silently omitted"
+  },
+  "oracleSdk": {
+    "source": "crates/ts_goport/libs at reference revision; copy all lib*.d.ts beside tsgo",
+    "libraries": 115,
+    "manifest": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/oracle-sdk-manifest.json",
+      "bytes": 16871,
+      "sha256": "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+    },
+    "sameLibraryBytesOnBothPlatforms": true,
+    "replacesSemctxCapturedSdk": false
+  },
+  "platforms": {
+    "macosArm64": {
+      "binary": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/target-oracle-macos/release/tsgo",
+        "bytes": 46822432,
+        "sha256": "5cbfaf1ebda63e251e3509fdca8c80711f300a7cdc684f3b332e155c7e4cfa62"
+      },
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/macos-oracle-matched/manifest.json",
+        "bytes": 49785,
+        "sha256": "f2d0c948d07020eb336b57a3d1c9f4339726fa95af3f8ea1812568b56673bf9b"
+      }
+    },
+    "linuxAarch64": {
+      "binary": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/linux-oracle/oracle/tsgo",
+        "bytes": 50239712,
+        "sha256": "14338f19b9d040c2e148387d72e8118c29a16d744119a0063fb8d13714b8a8dd"
+      },
+      "evidence": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/linux-oracle/manifest.json",
+        "bytes": 52164,
+        "sha256": "065aa51ef5f9a028d17efcbd221865452f87bfafb6f185d6d462c506c25e9d22"
+      }
+    }
+  },
+  "compilerExpectations": [
+    {
+      "case": "control",
+      "exitCode": 0,
+      "diagnostics": [],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "module-amd",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 5095,
+          "message": "Option 'bundler' can only be used when 'module' is set to 'preserve', 'commonjs', or 'es2015' or later."
+        },
+        {
+          "code": 5108,
+          "message": "Option 'module=AMD' has been removed. Please remove it from your configuration."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "module-invalid",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 6046,
+          "message": "Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "module-none",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 6046,
+          "message": "Argument for '--module' option must be: 'commonjs', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "module-system",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 5095,
+          "message": "Option 'bundler' can only be used when 'module' is set to 'preserve', 'commonjs', or 'es2015' or later."
+        },
+        {
+          "code": 5108,
+          "message": "Option 'module=System' has been removed. Please remove it from your configuration."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "module-umd",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 5095,
+          "message": "Option 'bundler' can only be used when 'module' is set to 'preserve', 'commonjs', or 'es2015' or later."
+        },
+        {
+          "code": 5108,
+          "message": "Option 'module=UMD' has been removed. Please remove it from your configuration."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "target-es2025",
+      "exitCode": 0,
+      "diagnostics": [],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "target-es2026",
+      "exitCode": 0,
+      "diagnostics": [],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "target-es5",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 5108,
+          "message": "Option 'target=ES5' has been removed. Please remove it from your configuration."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    },
+    {
+      "case": "target-invalid",
+      "exitCode": 2,
+      "diagnostics": [
+        {
+          "code": 6046,
+          "message": "Argument for '--target' option must be: 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'es2025', 'es2026', 'esnext'."
+        }
+      ],
+      "macosLinuxExactOutputMatch": true
+    }
+  ],
+  "qualification": {
+    "finitePublicQualified": 0,
+    "denominator": 240,
+    "arbCredit": 0,
+    "finalCandidateCampaignExecuted": false
+  },
+  "limits": [
+    "These ten compiler controls do not qualify Semctx configuration observations, graphs, admission or degraded TS5 support.",
+    "The reference shares upstream compiler implementation with the producer; only Semctx process/adapter independence is established.",
+    "Builds succeeded once per platform; bit-identical repeat-build reproducibility is not claimed.",
+    "The integrated TS7 producer captures the same 115 pinned libraries. This oracle build does not itself install a Semctx SDK; the explicit TS5 SDK remains a diagnostic-only degraded input, without qualified admission."
+  ],
+  "evidenceIntegrity": {
+    "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/evidence-integrity.json",
+    "bytes": 203,
+    "sha256": "fa22c8d361fa7bb59c0e52d1da66338fd6a842021093b1801c39cdf7dd947326"
+  },
+  "obligationImpact": {
+    "scope": "Static indexed impact census, not behavioral qualification",
+    "json": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/impact.json",
+      "bytes": 2612791,
+      "sha256": "151e4dd9b342d0496761e95f10bcfbdca0244c35bcafd53f6d582df17d39a938"
+    },
+    "readable": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/ts7/impact.md",
+      "bytes": 98958,
+      "sha256": "03519ea5958e071c305941e718bfc2946477b2f9f48a85c84efde5938b85a778"
+    }
+  }
+}

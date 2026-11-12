@@ -1,0 +1,10 @@
+{
+  "archiveSha256": "08766e846e3d3812792d80f40dccbd1d1917a049c05635aa53118453be0fefbf",
+  "archiveBytes": 4247465,
+  "encoding": "base64(gzip(tar))",
+  "originalReportsUnchanged": true,
+  "candidate": "C1pass2",
+  "r0": "NOT_RUN",
+  "qualification": "NONPASS_AND_GAPS_PRESERVED",
+  "scope": "Projection and controlled-consumer observations only; no qualified obligation or READY credit"
+}

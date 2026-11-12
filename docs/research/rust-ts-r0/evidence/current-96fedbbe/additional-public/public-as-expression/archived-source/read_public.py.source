@@ -1,0 +1,84 @@
+"""Exact public two-context extraction reader; no candidate or host execution."""
+import argparse
+import hashlib
+import json
+from pathlib import Path
+
+from identity_scope_reader import equal, key, need, relative, validate_observation
+
+HERE = Path(__file__).resolve().parent
+EXPECTED = json.loads((HERE / 'expected-oracle.json').read_text())
+LOCAL = {c: json.loads((HERE / ('request.' + c + '.local.json')).read_text()) for c in ('legacy', 'retained')}
+SDK = json.loads((HERE / 'sdk.frozen.json').read_text())
+ARTIFACT = {'macos': '47f68c66bb694511cff1263c713c83971d384846f920832f78c21530d0fe2d3d',
+            'linux': '8918644a583367162d3e826b5349c9144aa1ef75190319db1ff69506ac30c624'}
+
+
+def check_inputs(lane, context, request, sdk, physical=True):
+    local = LOCAL[context]
+    need(set(request) == set(local), 'request shape differs')
+    for field in set(local) - {'cwd', 'sdk_directory', 'case_sensitive', 'roots', 'files'}:
+        need(equal(request[field], local[field]), 'request context/options differ: ' + field)
+    need(type(request['case_sensitive']) is bool and request['case_sensitive'] is (lane == 'linux'), 'native case mode differs')
+    need(type(request['roots']) is list and len(request['roots']) == 1, 'one selected root required')
+    source = request['roots'][0]
+    need(type(request['files']) is dict and set(request['files']) == {source}, 'source census differs')
+    need(relative(request['cwd'], source, request['case_sensitive']) == 'entry.ts', 'root relocation differs')
+    text = request['files'][source]
+    need(text == next(iter(local['files'].values())) and hashlib.sha256(text.encode()).hexdigest() == EXPECTED['source_sha256'], 'source bytes differ')
+    need(type(sdk) is dict and set(sdk) == {'version', 'archive_sha256', 'files'}, 'SDK shape differs')
+    need(sdk['version'] == SDK['version'] == '5.9.3' and sdk['archive_sha256'] == SDK['archive_sha256'], 'SDK identity differs')
+    def files(value):
+        result = {p.replace('\\', '/').rsplit('/', 1)[-1]: t for p, t in value['files'].items()}
+        need(len(result) == len(value['files']) == 100, 'SDK census differs')
+        return result
+    need(equal(files(sdk), files(SDK)), 'SDK contents differ')
+    need(all(relative(request['sdk_directory'], p, request['case_sensitive']) == p.replace('\\', '/').rsplit('/', 1)[-1] for p in sdk['files']), 'SDK paths differ')
+    if physical:
+        for p, t in {**request['files'], **sdk['files']}.items():
+            need(Path(p).read_bytes() == t.encode(), 'physical captured bytes differ')
+    return source
+
+
+def read(lane, context, request, sdk, observed, physical=True):
+    source = check_inputs(lane, context, request, sdk, physical)
+    validate_observation(observed, request, sdk, 'sha256:' + ARTIFACT[lane])
+    need(observed['status'] == 'development_observation_not_qualification', 'observation mode differs')
+    need(len(observed['subjects']) == 1 and observed['subjects'][0]['outcome'] == 'analyzed', 'source subject not analyzed')
+    syntax = EXPECTED['syntax_call']['call']
+    need(type(observed['calls']) is list and len(observed['calls']) == 1, 'exact syntax Call census differs')
+    raw = observed['calls'][0]
+    need(key(raw['file'], request['case_sensitive']) == key(source, request['case_sensitive']), 'syntax Call source differs')
+    for native, reference in [('start_utf16', 'startUtf16'), ('end_utf16', 'endUtf16')]:
+        need(type(raw[native]) is int and raw[native] == syntax[reference], 'syntax Call UTF16 differs')
+    extraction = observed['raw_extraction']
+    need(type(extraction) is dict and set(extraction) == {'modules', 'symbols', 'imports', 'calls'}, 'extraction shape differs')
+    wanted = EXPECTED['extractions'][context]
+    for field in ('modules', 'imports', 'calls'):
+        need(equal(extraction[field], wanted[field]), 'canonical ' + field + ' projection differs')
+    need(type(extraction['symbols']) is list and len(extraction['symbols']) == len(wanted['symbols']), 'symbol census differs')
+    for actual, reference in zip(extraction['symbols'], wanted['symbols'], strict=True):
+        need(type(actual) is dict and set(reference) <= set(actual), 'symbol fields missing')
+        need(set(actual) - set(reference) <= {'startUtf16', 'endUtf16'}, 'unexpected symbol fields')
+        need(equal({k: actual[k] for k in reference}, reference), 'canonical symbol projection differs')
+        for field in set(actual) - set(reference):
+            need(type(actual[field]) is int and 0 <= actual[field] <= len(request['files'][source].encode('utf-16-le')) // 2, 'symbol UTF16 invalid')
+    return {'state': 'PASS_PUBLIC_AS_EXPRESSION_FINITE_CONTEXT', 'context': context,
+            'canonical_call_count': len(extraction['calls']), 'same_source_syntax_call_utf16': [syntax['startUtf16'], syntax['endUtf16']],
+            'empty_calls_scope': 'this source and legacy context only' if context == 'legacy' else None,
+            'qualification_credit': 0, 'R0_decision': None, 'global_admission_inferred': False}
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--lane', choices=['macos', 'linux'], required=True)
+    parser.add_argument('--context', choices=['legacy', 'retained'], required=True)
+    parser.add_argument('--request', type=Path, required=True)
+    parser.add_argument('--sdk', type=Path, required=True)
+    parser.add_argument('--observed', type=Path)
+    args = parser.parse_args()
+    request = json.loads(args.request.read_text())
+    sdk = json.loads(args.sdk.read_text())
+    result = read(args.lane, args.context, request, sdk, json.loads(args.observed.read_text())) if args.observed else {
+        'inputs_validated': bool(check_inputs(args.lane, args.context, request, sdk)), 'candidate_queries': 0}
+    print(json.dumps(result))

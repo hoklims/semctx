@@ -1,0 +1,163 @@
+"""Public DEV reader. No process execution; identities derive from supplied bytes."""
+import copy
+import hashlib
+import json
+import posixpath
+
+def need(value, message):
+    if not value:
+        raise ValueError(message)
+
+def key_order(key):
+    numeric = key.isascii() and key.isdigit() and str(int(key)) == key and int(key) < 4294967295
+    return (0, int(key)) if numeric else (1, key.encode('utf-16-be', errors='surrogatepass'))
+
+def canonical(value):
+    if isinstance(value, dict):
+        return '{' + ','.join(json.dumps(k, ensure_ascii=False) + ':' + canonical(value[k]) for k in sorted(value, key=key_order)) + '}'
+    if isinstance(value, list):
+        return '[' + ','.join(canonical(v) for v in value) + ']'
+    need(type(value) in (str, int, bool, type(None)), 'unsupported canonical value type')
+    return json.dumps(value, ensure_ascii=False, separators=(',', ':'))
+
+def digest_bytes(value):
+    return 'sha256:' + hashlib.sha256(value).hexdigest()
+
+def digest(value):
+    return digest_bytes(canonical(value).encode('utf-8'))
+
+def equal(left, right):
+    return type(left) is type(right) and (set(left) == set(right) and all(equal(left[k], right[k]) for k in left) if isinstance(left, dict) else len(left) == len(right) and all(equal(a, b) for a, b in zip(left, right)) if isinstance(left, list) else left == right)
+
+def key(path, sensitive):
+    result = posixpath.normpath('/' + path.replace('\\', '/').lstrip('/'))
+    return result if sensitive else result.lower()
+
+def relative(root, path, sensitive):
+    prefix = key(root, sensitive) + '/'
+    normalized = key(path, sensitive)
+    need(normalized.startswith(prefix), 'source outside bound root')
+    return normalized[len(prefix):]
+
+def logical_input(request, sdk):
+    sensitive = request['case_sensitive']
+    seen = set()
+    def location(root, path, domain):
+        normalized = key(path, sensitive)
+        need(normalized not in seen, 'duplicate captured key')
+        seen.add(normalized)
+        prefix = key(root, sensitive) + '/'
+        return {'domain': domain, 'path': normalized[len(prefix):]} if normalized.startswith(prefix) else {'domain': 'external', 'path': normalized}
+    entries = []
+    for path, text in request['files'].items():
+        entries.append({'location': location(request['cwd'], path, 'repository'), 'representation': 'text', 'text': text})
+    for path, units in request['utf16_files'].items():
+        entries.append({'location': location(request['cwd'], path, 'repository'), 'representation': 'utf16', 'units': units})
+    for path, raw in request['raw_files'].items():
+        entries.append({'location': location(request['cwd'], path, 'repository'), 'representation': 'raw', 'bytes': raw['bytes'], 'profile': raw['profile']})
+    files = [{'location': location(request['sdk_directory'], path, 'sdk'), 'text': text} for path, text in sdk['files'].items()]
+    return {'domain': 'T00-logical-input-v2', 'project': sorted(entries, key=canonical), 'sdk': {'domain': 'T00-logical-sdk-v2', 'version': sdk['version'], 'archive_sha256': sdk['archive_sha256'], 'files': sorted(files, key=canonical)}}
+
+def contents(request, sdk):
+    result = dict(request['files'])
+    result.update({p: bytes(v['bytes']).decode('utf-8', errors='strict') for p, v in request['raw_files'].items()})
+    result.update({p: bytes().join(int(u).to_bytes(2, 'little') for u in units).decode('utf-16-le', errors='strict') for p, units in request['utf16_files'].items()})
+    result.update(sdk['files'])
+    return {key(p, request['case_sensitive']): digest_bytes(t.encode('utf-8')) for p, t in result.items()}
+
+def validate_observation(observed, request, sdk, artifact_id):
+    need(observed['complete'] is True and observed['global_admission_inferred'] is False, 'observation completion/admission type')
+    need(observed['request'] == request['id'] and observed['request_id'] == digest(request), 'request identity')
+    need(observed['input_manifest_id'] == digest(logical_input(request, sdk)), 'input manifest identity')
+    need(observed['producer_artifact_id'] == artifact_id, 'producer artifact identity')
+    need(observed['sdk_version'] == sdk['version'], 'SDK version identity')
+    need(observed['ambient_native_case_sensitive'] is request['case_sensitive'], 'native case identity')
+    paths = sorted(relative(request['cwd'], p, request['case_sensitive']) for p in request['roots'])
+    need(sorted(s['path'] for s in observed['subjects']) == paths, 'root subject inventory')
+    bound = contents(request, sdk)
+    reads = set()
+    for probe in observed['capture_probes']:
+        need(type(probe['found']) is bool, 'probe found type')
+        if probe['operation'] == 'read_file' and probe['found']:
+            normalized = key(probe['path'], request['case_sensitive'])
+            need(normalized in bound and probe['content_id'] == bound[normalized], 'unbound positive content read')
+            reads.add(normalized)
+    need(all(key(p, request['case_sensitive']) in reads for p in request['roots']), 'root read evidence missing')
+    return {'input_manifest_id': observed['input_manifest_id'], 'request_id': observed['request_id'], 'positive_content_reads_bound': len(reads)}
+
+def validate_scope(report, request, sdk, artifact_id, descriptor, batch):
+    need(report['producer_artifact_id'] == artifact_id, 'scope artifact identity')
+    need(report['request_descriptor_id'] == digest(descriptor), 'scope descriptor identity')
+    need(report['sdk_input_id'] == digest(sdk), 'scope SDK identity')
+    need(report['indexed_extraction_received'] is True and report['global_admission_inferred'] is False, 'scope index/admission')
+    selected = validate_observation(report['selected_analysis'], request, sdk, artifact_id)
+    retained = report['retained_scope']
+    need(retained['global_admission_inferred'] is False, 'retained admission type')
+    need(retained['input_manifest_id'] == selected['input_manifest_id'] == batch['input_manifest_id'], 'scope input identity')
+    need(retained['sdk_input_id'] == digest(sdk), 'retained SDK identity')
+    graph = {'nodes': [f['payload'] for f in batch['facts'] if f['record'] == 'node'], 'edges': [f['payload'] for f in batch['facts'] if f['record'] == 'edge']}
+    need(retained['graph_id'] == digest(graph), 'scope graph identity')
+    source_map = {relative(request['cwd'], p, request['case_sensitive']): (p, t) for p, t in request['files'].items() if p.endswith(('.ts', '.tsx', '.mts', '.cts', '.js', '.jsx', '.mjs', '.cjs'))}
+    need(set(source_map) == {s['path'] for s in retained['sources']}, 'complete retained source inventory')
+    for source in retained['sources']:
+        need(source['source_sha256'] == digest_bytes(source_map[source['path']][1].encode('utf-8')), 'retained source byte identity')
+        need(type(source['references']) is list and type(source['syntax_reasons']) is list and type(source['has_parse_diagnostics']) is bool, 'retained source field types')
+    for metadata in retained['metadata_reads']:
+        text = next((t for p, t in request['files'].items() if relative(request['cwd'], p, request['case_sensitive']) == metadata['path']), None)
+        need(text is not None and metadata['content_id'] == digest_bytes(text.encode('utf-8')), 'metadata read identity')
+        need(type(metadata['parsed']) is bool, 'metadata parsed type')
+    expected_metadata = {relative(request['cwd'], p, request['case_sensitive']) for p in request['files'] if posixpath.basename(p) == 'package.json' or posixpath.basename(p).startswith('tsconfig') and p.endswith('.json')}
+    need({m['path'] for m in retained['metadata_reads']} == expected_metadata, 'metadata inventory')
+    full_request = copy.deepcopy(request)
+    full_request['roots'] = sorted(p for p in request['files'] if p in [v[0] for v in source_map.values()] and not p.endswith(('.d.ts', '.d.mts', '.d.cts')))
+    validate_observation(retained['full_analysis'], full_request, sdk, artifact_id)
+    decl_request = copy.deepcopy(request)
+    decl_request['roots'] = sorted(p for p in request['files'] if p.endswith(('.d.ts', '.d.mts', '.d.cts')))
+    decl_request['qualified'] = False
+    if decl_request['roots']:
+        validate_observation(retained['declaration_analysis'], decl_request, sdk, artifact_id)
+        need(retained['declaration_analysis']['observation_mode'] == 'declaration_roots', 'declaration caller surface')
+    else:
+        need(retained['declaration_analysis'] is None, 'unexpected declaration analysis')
+    projection = retained['projection']
+    need(set(projection) == {'links', 'reasons', 'externalModuleSpecifiers', 'unresolvedImports'} and all(type(v) is list for v in projection.values()), 'complete typed projection')
+    return {'projection': projection, 'input_manifest_id': retained['input_manifest_id'], 'graph_id': retained['graph_id'], 'source_count': len(source_map), 'metadata_count': len(expected_metadata)}
+
+def typed_declarations(call, request, sdk):
+    bound = contents(request, sdk)
+    result = []
+    for declaration in call['declarations']:
+        path = key(declaration['file'], request['case_sensitive'])
+        need(path in bound and type(declaration['default_library']) is bool, 'typed declaration source/type binding')
+        sdk_paths = {key(p, request['case_sensitive']) for p in sdk['files']}
+        domain = 'sdk' if path in sdk_paths else 'repository'
+        root = request['sdk_directory'] if domain == 'sdk' else request['cwd']
+        result.append((domain, relative(root, declaration['file'], request['case_sensitive']), declaration['start_utf16'], declaration['default_library']))
+    return sorted(result)
+
+def assertions(witness, observed, request, sdk, scope=None):
+    """Exactly the frozen 19 assertion slots; no generic rejection success."""
+    source = observed['subjects'][0]
+    parsing = source['sourceParsingObservation']
+    parsing_ok = parsing['executed'] is True and parsing['unsupported'] == [] and parsing['reasons'] == []
+    checks = [(parsing_ok, 'actual parsing observation')]
+    wid = witness['id']
+    if wid.startswith('PUBLIC-01'):
+        checks.append((None, 'GAP: valueDeclaration kind is absent from Call DTO; nominal raw/graph identity cannot substitute'))
+        wanted = witness['raw_extraction']['calls']
+        checks.append((all(any(all(equal(c.get(k), v) for k, v in want.items()) for c in observed['raw_extraction']['calls']) for want in wanted), 'actual canonical raw calls'))
+        want_reasons = [r for _, reasons in witness['qualified_call_integrity_reasons'] for r in reasons]
+        checks.append((not any(e['kind'] == 'calls' for e in observed['assembly']['edges']) and all(r in source['reasons'] for r in want_reasons), 'distinct actual assembled ambiguity surface'))
+    elif wid.startswith(('PUBLIC-02', 'PUBLIC-03')):
+        actual = typed_declarations(observed['calls'][0], request, sdk)
+        wanted = sorted(('sdk', posixpath.basename(d['file']), d['start'], d['defaultLibrary']) for d in witness['typed_calls'][0]['declarations'])
+        checks.append((equal(actual, wanted), 'bound SDK declaration vector including exact loaded SDK key and UTF16 start'))
+        checks.append((equal(source['semanticObservation']['reasons'], witness['source_local'][0]['semantic']), 'exact semantic reason set'))
+    elif wid.startswith('PUBLIC-04'):
+        checks.append((None, 'GAP: transitive immutable initializer origin chain is absent from Call DTO'))
+        checks.append((equal(source['semanticObservation']['reasons'], witness['source_local'][0]['semantic']), 'exact timer semantic reason set'))
+    else:
+        checks.append((equal(source['semanticObservation']['reasons'], []), 'actual selected root negative control'))
+        checks.append((None if scope is None else equal(scope['projection'], witness['retained_qualified_scope']), 'all four actual full retained-scope projection fields; no source-local substitute'))
+    need(len(checks) == len(witness['assertions']), 'frozen assertion denominator changed')
+    return [{'assertion': frozen['assertion'], 'state': 'GAP' if value is None else 'PASS' if value else 'NONPASS', 'evidence': evidence} for frozen, (value, evidence) in zip(witness['assertions'], checks)]

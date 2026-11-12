@@ -1,0 +1,1 @@
+const box = {}; box.then = 1; box[Symbol.toPrimitive] = 1; const Math = { max: 0 }; Math.max = 1; export {};

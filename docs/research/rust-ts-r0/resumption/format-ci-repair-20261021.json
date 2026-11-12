@@ -1,0 +1,138 @@
+{
+  "status": "FORMAT_CORRECTION_EXECUTION_RECORD_NOT_QUALIFICATION",
+  "recordedUTC": "2026-10-21T07:19:32.599523+00:00",
+  "owner_instruction": "Sebastien21October202609:10: publish existing format correction after complete native local checks; no digest-evidence adoption pending separate decision.",
+  "source_commit": "8c06ef8faf32a93e31692fc1cb70ae223e5b48d4",
+  "failed_ci": {
+    "head": "3d5d3cab9349786ef5d38e3f9e9e8a3427be0086",
+    "run": "https://github.com/hoklims/semctx/actions/runs/39473766887",
+    "cause": "T00 cargo fmt rejects one leading empty line in27 extracted unit modules; missing retained artifacts and required aggregate failure are downstream consequences."
+  },
+  "change": {
+    "files": 27,
+    "exact_byte_delta": "For each changed unit module, corrected bytes equal previous bytes after deletion of the first LF; no other byte changed.",
+    "production_logic_changed": false,
+    "workflow_or_gate_changed": false,
+    "comments_added": false
+  },
+  "ci_step": {
+    "rust_toolchain": "1.95.0",
+    "commands": [
+      [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/gates/Cargo.toml",
+        "--check"
+      ],
+      [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/qualification/Cargo.toml",
+        "--check"
+      ],
+      [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "tools/rust-ts-r0/Cargo.toml",
+        "--check"
+      ],
+      [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "tools/gates/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "tools/qualification/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ],
+      [
+        "cargo",
+        "clippy",
+        "--manifest-path",
+        "tools/rust-ts-r0/Cargo.toml",
+        "--locked",
+        "--all-targets",
+        "--",
+        "-D",
+        "warnings"
+      ]
+    ],
+    "macos": "6/6exit0",
+    "linux_orbstack": "6/6exit0",
+    "environment_record": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/environment.json",
+    "linux_image": "rust@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "local_limits": "Linuxsource mount is read-only: only qualification target output is redirected to a writable directory; Cargo argv unchanged. Rustfmt/clippy components installed for the exact toolchain. Environment remains local, not Windows evidence.",
+    "logs": {
+      "macos": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/macos-ci-format-clippy.log",
+        "sha256": "29284bd60a4b27bda9bdc4a26b8372dc6d42de116b5e9ffc07c75f5801dfa727"
+      },
+      "linux": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/linux-ci-format-clippy.log",
+        "sha256": "f5427e5671e4de1836d1b4034af1fd8f0a2313790a70ba153de60c7ede3becd1"
+      }
+    }
+  },
+  "identities": {
+    "macos": {
+      "producer": {
+        "before": "471379b3c6267dd9da11cb0b88e2d7fddbff5428cd1451a94f15b17cf060899c",
+        "after": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1"
+      },
+      "observer": {
+        "before": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+        "after": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727"
+      },
+      "observer_build_log": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/macos-observer-build.jsonl",
+      "limit": "Current local bytes, produced by Cargo commands; no source-to-binary or process-to-image attestation."
+    },
+    "linux": {
+      "producer": {
+        "before": "69b6c59278a516b9f7477ef08d73b7f5ab9f519dd7a7d0848076bf3fcf70689b",
+        "after": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea"
+      },
+      "observer": {
+        "before": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+        "after": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e"
+      },
+      "observer_build_log": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-observer-format-build.jsonl",
+      "limit": "Current local bytes, produced by Cargo commands; no source-to-binary or process-to-image attestation."
+    }
+  },
+  "before_push_requirements": [
+    "Both native CI-step reproductions and Cargo suites pass",
+    "Complete verify:pr passes with Bun1.4.3 and GIT_CONFIG_GLOBAL absent",
+    "Verify origin is hoklims/semctx and push fast-forward only"
+  ],
+  "local_execution_logs": {
+    "macos_cargo": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/macos-cargo-tests.log",
+    "linux_cargo": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/linux-cargo-tests.log",
+    "verify_pr": "/Users/sebastien/semctx-evidence/t00/20261021/format-ci-0910/verify-pr.log"
+  },
+  "qualification": {
+    "formal_credit": 0,
+    "denominator": 240,
+    "R0": "PENDING",
+    "digest_supplemental_evidence": "OWNER_DECISION_PENDING_NOT_ADOPTED",
+    "additional_790_assertions": "Experimental owner-local observations only; not part of this format-correction milestone; no arbitration or evaluator changed.",
+    "reserved_cases": "NOT_EXECUTED",
+    "windows_campaign": "FINAL_MILESTONE_ONLY_NOT_EXECUTED"
+  },
+  "custody": "All execution logs and raw evidence remain on owner Mac; no release, tag, or evidence upload. Historical extraction records retain their original identities and execution cutoffs."
+}

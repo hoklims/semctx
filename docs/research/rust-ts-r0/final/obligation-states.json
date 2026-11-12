@@ -1,0 +1,2307 @@
+{
+  "scope": "Final observed C1 states, not qualification; family associations overlap and must not be summed as distinct units. C2 failed its SDK bootstrap witness before project loading and adds no qualified obligation.",
+  "source": "../qualification/c1-pass2/second-replay-summary.json",
+  "families": [
+    {
+      "family_id": "configuration-eligibility",
+      "obligations": {
+        "GAP": 7,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 4
+      },
+      "associated_unique_units": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "total_obligations": 11,
+      "total_associated_unique_units": 14,
+      "qualified": false
+    },
+    {
+      "family_id": "javascript-parsing",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 3,
+      "qualified": false
+    },
+    {
+      "family_id": "jsdoc-and-default-eligibility",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 10,
+      "qualified": false
+    },
+    {
+      "family_id": "jsx-and-generated-runtime",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 16
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 16,
+      "qualified": false
+    },
+    {
+      "family_id": "native-bindings",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 12
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "total_obligations": 12,
+      "total_associated_unique_units": 2,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-call-endpoints",
+      "obligations": {
+        "GAP": 4,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 4,
+        "NONPASS_OBSERVED": 2
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 14,
+        "GAP": 9,
+        "NONPASS_OBSERVED": 2
+      },
+      "total_obligations": 10,
+      "total_associated_unique_units": 25,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-canonical-exports",
+      "obligations": {
+        "NONPASS_OBSERVED": 4
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 9,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "total_obligations": 4,
+      "total_associated_unique_units": 14,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-confinement",
+      "obligations": {
+        "GAP": 3,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 1
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4,
+        "GAP": 4
+      },
+      "total_obligations": 4,
+      "total_associated_unique_units": 8,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-discovery",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 3
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 3,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-module-resolution",
+      "obligations": {
+        "GAP": 9
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3,
+        "GAP": 2
+      },
+      "total_obligations": 9,
+      "total_associated_unique_units": 5,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-program",
+      "obligations": {
+        "GAP": 2,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 11
+      },
+      "associated_unique_units": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "total_obligations": 13,
+      "total_associated_unique_units": 9,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-runtime-bindings",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 3,
+        "NONPASS_OBSERVED": 2
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "NONPASS_OBSERVED": 1
+      },
+      "total_obligations": 5,
+      "total_associated_unique_units": 8,
+      "qualified": false
+    },
+    {
+      "family_id": "ordinary-symbol-extraction",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 6,
+        "NONPASS_OBSERVED": 3
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 8,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "total_obligations": 9,
+      "total_associated_unique_units": 13,
+      "qualified": false
+    },
+    {
+      "family_id": "outline-module-links",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 3
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "total_obligations": 3,
+      "total_associated_unique_units": 1,
+      "qualified": false
+    },
+    {
+      "family_id": "outline-statements",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 25,
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 94,
+        "GAP": 1
+      },
+      "total_obligations": 27,
+      "total_associated_unique_units": 95,
+      "qualified": false
+    },
+    {
+      "family_id": "parallel-preflight",
+      "obligations": {
+        "GAP": 7,
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 4
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 2
+      },
+      "total_obligations": 11,
+      "total_associated_unique_units": 3,
+      "qualified": false
+    },
+    {
+      "family_id": "pilot-comparator-annex",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 1
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 1,
+      "qualified": false
+    },
+    {
+      "family_id": "producer-compiler-identity",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 5
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 5,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-mutation-protocols",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 24
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 28
+      },
+      "total_obligations": 24,
+      "total_associated_unique_units": 28,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-opaque-ownership",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 10,
+        "GAP": 3
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 36,
+        "GAP": 1
+      },
+      "total_obligations": 13,
+      "total_associated_unique_units": 37,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-runtime-boundaries",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 17
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 14
+      },
+      "total_obligations": 17,
+      "total_associated_unique_units": 14,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-scope-projection",
+      "obligations": {
+        "GAP": 5
+      },
+      "associated_unique_units": {
+        "GAP": 7
+      },
+      "total_obligations": 5,
+      "total_associated_unique_units": 7,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-sdk-callbacks",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 7
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "total_obligations": 7,
+      "total_associated_unique_units": 7,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-semantic-context",
+      "obligations": {
+        "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED": 36
+      },
+      "associated_unique_units": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 11
+      },
+      "total_obligations": 36,
+      "total_associated_unique_units": 11,
+      "qualified": false
+    },
+    {
+      "family_id": "qualified-test-dynamic-import-binding",
+      "obligations": {
+        "GAP": 2
+      },
+      "associated_unique_units": {
+        "GAP": 9
+      },
+      "total_obligations": 2,
+      "total_associated_unique_units": 9,
+      "qualified": false
+    },
+    {
+      "family_id": "worker-transport",
+      "obligations": {
+        "NONPASS_OBSERVED": 1
+      },
+      "associated_unique_units": {
+        "NONPASS_OBSERVED": 5,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "total_obligations": 1,
+      "total_associated_unique_units": 10,
+      "qualified": false
+    },
+    {
+      "family_id": "workspace-system",
+      "obligations": {
+        "GAP": 6
+      },
+      "associated_unique_units": {
+        "GAP": 2
+      },
+      "total_obligations": 6,
+      "total_associated_unique_units": 2,
+      "qualified": false
+    }
+  ],
+  "obligations": [
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-inspectretainedqualifiedscope-bd751ded9d",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-inspectretainedqualifiedscope-visit-04b87875b6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assemblerepository-6ce629281c",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 9
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assemblerepository-visit-29bc606f63",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 9
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assertsnapshotinputs-c112c2b6f5",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-discovery-ts-createqualifiedpatheligibility-34b5ccf114",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-discovery-ts-escapeddependencyreason-54c513873b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hassemanticjsdocimport-3072815d34",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hassemanticjsdocimport-visit-249931dfd0",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hassemanticjsdocimport-visitdoc-82df49928d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hasunsupporteddefaultexpression-9f5389335c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-hasunsupporteddefaultexpression-cal-91d884d1da",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectimportedruntimehelpers-28fdd45ef7",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectimportedruntimehelpers-callb-f5054798c5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectimportedruntimehelpers-callb-547b133b32",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-5e3eda13a6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-callback-24-d0ac8d43e4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-callback-29-88784073d1",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-isdeclarede-18f3561a09",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjavascriptsource-visit-d99ce9ad30",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjsxruntimeboundary-c6b77f683f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjsxruntimeboundary-callback--3eab9541f5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectjsxruntimeboundary-visit-26217b99b8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-85815f5af7",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-68ee556fec",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-32604b33d1",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-callback-2c85cf784f",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectmoduleconfiguration-readfile-ef9362fff6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 10
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-645cf79c58",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-callbac-6ebe0ed018",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-callbac-3b73886143",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-callbac-ad44cc8120",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-findmod-83aa82d20e",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-isimpor-add2ce4bd3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-isnodem-9dd41ca935",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-isnodep-4506acf9a2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-origin-b145b21705",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-safenam-90aa1bb9ef",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-staticn-753e90361a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectnativemodulebindings-visit-0f8432408d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectqualifiedmodulescope-7ee16295ee",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectqualifiedmodulescope-visit-6edec9d108",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectsourceparsing-77d5a6d4cb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectsourceparsing-callback-336-32172632bc",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-d0f99d2f4b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-a9112ffbd4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-6deb8cb77a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunconsumednamedconfiguration-f7746cfe22",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-javascript-diagnostics-ts-inspectunmodeledinvocations-visit-2110525dff",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 6
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-cf54e48930",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6f9e80e4bd",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-94aaf19f03",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9f46fde1d9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c74645a0d7",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-adea108af8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-3093f51a0a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-1636c13e6f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2902b9cd1a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-b26cfc59d3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-81798ed515",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c12fefd1ef",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-f1eafa34bf",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-eef3ce89ac",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2a2fbe0952",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e0738e476e",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6136c4e53b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2b904e8a56",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8e54625619",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-76bfe07fba",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9cf6060641",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8183520e54",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-0049cc6aeb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-ba896a915c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-31fc45d836",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc9e45d4da",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-016ff860d6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-11b7179a64",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8f53518e6d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6732afcf32",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8f5feb10ae",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-17111bfab8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-1025232e15",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-19d401182a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-5f0b7ed090",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-b7227c826b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-248f377bb9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-afb0554c24",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c59ed52a2d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-078c82bd6c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-d051ce69f2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-005a440065",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-228caabce2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-7ce1650891",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c942b3e51c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-a89ff2dd55",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fb3557c2e4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8d9e972b12",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c13444db99",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-7e77092355",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c77bd960b6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-3ff7802121",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-a33b6a8683",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-64939da151",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-07d7946988",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-eca1c5be74",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e84ff2a6e7",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-ad9332fcd2",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9412420bd9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2eb5759761",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-220c734077",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-541741b659",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e1d1776bd6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-bf27f646d3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-2f26bd761c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-49f7ed022f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc22f30bc4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-d65f95a8c9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6e7b64ed9a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fbc914bada",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-50b5d680a9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-8535a73103",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-378d1705f5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9a0dde3e97",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-6ff7431bef",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-fc046ebdd3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9748143214",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-87be196249",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-67641b2308",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-c75330e406",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-dcfbc8cf8c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-e2d30a418f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9a69370e98",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-9608b6f244",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-4d491c2735",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-794f90cbfc",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-inspectsemanticdependencie-33a3fb5b2a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-semantic-dependency-diagnostics-ts-key-131c1fcb59",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-module-b2d3123b11",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 28
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-bindingnames-edafe22e53",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-732578b356",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 17
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-297-aa8fb35d4c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-303-1841c36108",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-305-0015a1aed0",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-describestatement-e39ff48cbc",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 11
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-describestatement-named-ed955c3ec9",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-expressionexecutes-757ae12eb6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 27
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-expressionexecutes-callback-288-6ff8ba0cd8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 26
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-hasmodifier-41b99da69c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-hasmodifier-callback-89-9d18473089",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-importdetails-3a3f671705",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 20
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-ismembername-f7f9a94c35",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 12
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-leadingcommentstart-4264069511",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-lineof-0b94b882aa",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-290c49f289",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 24
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-callback-345-442515a84c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-callback-353-1f45a0381a",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinemodulelinks-5155a7c1a3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinemodulelinks-literal-f51edb1766",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinemodulelinks-visit-53d381b308",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-outlinetoplevel-e997044d63",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-referencedidentifiers-18c11a48d4",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-referencedidentifiers-visit-fe8120d6b1",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-scriptkindfor-4cf7804c6b",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-statementexecutes-7cfeb5636c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 34
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-statementexecutes-callback-321-2c6b414fc6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-statementexecutes-callback-332-e50f93696c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 27
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-structuraldigest-visit-fcd1703efb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-compiler-options-469a3ad01e",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-dialect-version-a301ccdca0",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-assertconfinedtypescriptsources-c9ea0125fa",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-canonicaltypescriptfilekey-c3dd471648",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-67dc915614",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-171-61dd1124fe",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-172-197ebbbd27",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-173-b82e64d228",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-createprogram-callback-180-a0436dd435",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-enclosingscopeof-6b95a75b4c",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-extracttypescript-9b06e8acec",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-extracttypescript-recordsymbol-870fa4f6ba",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-extracttypescript-visit-b9ca21a547",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7,
+        "GAP": 4,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-hasobjectliteralmemberancestor-5df9d090be",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-importednames-bd2e680f90",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 6
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-isexported-6a0b5012eb",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-isfunctionlike-b3bb41d221",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-ismodeledcallcallee-cc03fc5100",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 6
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-leadingjsdoc-58ef0bf980",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-lineof-7aabac826f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-literalmodulespecifiers-24288eb58a",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-literalmodulespecifiers-visit-942e55d8e4",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-nameofcallee-85bd499d83",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2,
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-namespacememberreferences-add-51d8f2c30b",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-namespacememberreferences-visit-32bca5fede",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "NONPASS_OBSERVED": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-9a779575ba",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-callback-732-1b412a6696",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-callback-735-fee21a59f6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-callback-762-125bbc5421",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-preflightparallelsafety-visit-149cc4f783",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolvecalltarget-49d1e2989b",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 8,
+        "NONPASS_OBSERVED": 1,
+        "GAP": 3
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-39c3d332ed",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-callback-275-f9a575b09b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-callback-278-be8946fb2b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-directoryexists-1ffbdba51c",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-fileexists-3c237ffbb2",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-readfile-9895662a49",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolveconfiguredmodule-realpath-89c966e6ff",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-resolvetypescriptmodule-b83ac7a50b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedcallablecoordinate-13c825d160",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 5
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedcallablecoordinate-callback-1228-9e3ef03cc8",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedcallablecoordinate-callback-1232-1b70e3ed86",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-retainedfunctionownercoordinate-e0eefa272f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-574d894c20",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-callback-779-0856ce2426",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-callback-780-852b2c92e5",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-rootmodulecomponents-callback-784-ab3344a529",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-runtimereferencesymbols-visit-c4c01cfc9d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-scopenameof-e9f52469d8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-c1c525f129",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-directoryexists-ee83d1d5c8",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-fileexists-5ecaa00d92",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-snapshotsystem-readfile-f4dc7533c6",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-typescriptlibrarydirectory-e9855a4e4f",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-unwrapstaticexpression-5c6cae09a3",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-valueimportbindings-541861f16d",
+      "state": "ASSOCIATED_UNITS_ALL_PASSED_PROPERTY_SUPPORT_REVIEW_REQUIRED",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-alloweddirect-ceb2971cc0",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-directoryexists-a6359f415b",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-fileexists-9b56596c2d",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-installed-a300cbc97c",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-readfile-1d37d86969",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-workspace-links-ts-workspacelinkedsystem-realpath-98c5b9c944",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-analyzer-identity-ts-analyzeridentity-530b120929",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 4
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-pilot-baselines-ts-extractrelativeimportspecifiers-95b94116e6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-scripts-pilot-baselines-ts-extractrelativeimportspecifiers-visit-087252e9e7",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-bindopaquecallbackgraph-44b96ab139",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 22,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-qualifiedadmission-5e3c15f48a",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-qualified-analysis-ts-scope-token-revalidation-and-opaque-ow-b3c8039572",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 22,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-plane-a-runtime-ts-produce-extract-plane-a-runtime-analyzere-73e2719cc6",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 2
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-verify-ts-immutable-base-capture-inspectretainedqualifiedsco-ee99401afd",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-verify-ts-verify-qualifiedadmission-08496630a9",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "GAP": 7
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-app-services-src-verify-ts-verify-admission-arguments-bindopaquecallbackgraph-d6d3e9c98f",
+      "state": "GAP",
+      "associated_unit_counts": {
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 22,
+        "GAP": 1
+      },
+      "qualified": false
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-index-worker-ts-worker-extraction-entrypoint-d1cb292fa7",
+      "state": "NONPASS_OBSERVED",
+      "associated_unit_counts": {
+        "NONPASS_OBSERVED": 5,
+        "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 5
+      },
+      "qualified": false
+    }
+  ],
+  "qualifiedObligations": 0,
+  "C2All240Obligations": "NOT_QUALIFIED; final native SDK probe is a DEV witness, not a campaign over all240 obligations."
+}

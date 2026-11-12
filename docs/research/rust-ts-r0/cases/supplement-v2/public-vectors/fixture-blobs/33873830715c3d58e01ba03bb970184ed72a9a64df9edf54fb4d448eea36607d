@@ -1,0 +1,2 @@
+import { secret } from '../../semctx-selection-dxAsDZ-outside/imported';
+export const value = secret;

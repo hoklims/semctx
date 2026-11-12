@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "preparedUtc": "2026-10-17T20:46:02.767391+00:00",
+  "scope": "Historical C1 pass2 DEV-only portable textual evidence; canonical current runs explicitly pending",
+  "archive": "portable-dev.tar.gz.b64",
+  "decodedArchiveFormat": "tar.gz",
+  "decodedArchiveSha256": "f26de633b7c5b5f3397190325d8e23560d8b64f2cb922c72061dc0854f83615c",
+  "decodedArchiveBytes": 2608612,
+  "encodedFileSha256": "b86762dc78af6d91721272f404944353682aa452a5a75686b90955a33c077266",
+  "encodedFileBytes": 3523918,
+  "archiveMembers": 529,
+  "archivedOriginalPaths": 454,
+  "extractedHistoricalBaselineSourceMembers": 117,
+  "uncompressedMemberBytes": 20057850,
+  "sourceManifestValidation": {
+    "files": 44,
+    "allMatch": true,
+    "manifestSha256": "9c5883bdf6b07a13cb2c6d21906cf312f8e59b6ef54cb14cc7643d5892ea8da5"
+  },
+  "aliasMap": {
+    "path": "original-path-aliases.json",
+    "sha256": "fb4776f85208e052eeccdc861208962c12a7835ef5effa25085acc7459d25451",
+    "bytes": 244298
+  },
+  "absoluteReportReferences": {
+    "count": 85,
+    "archived": 78,
+    "notArchived": 7
+  },
+  "pendingCanonicalVerification": [
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-1-generated.log",
+      "status": "PENDING_ROOT_FINALIZATION",
+      "archived": false,
+      "reason": "Canonical verification was running when checkpoint was requested; no bytes captured, no result inferred"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-2-generated.log",
+      "status": "PENDING_ROOT_FINALIZATION",
+      "archived": false,
+      "reason": "Canonical verification was running when checkpoint was requested; no bytes captured, no result inferred"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-3-generated.log",
+      "status": "PENDING_ROOT_FINALIZATION",
+      "archived": false,
+      "reason": "Canonical verification was running when checkpoint was requested; no bytes captured, no result inferred"
+    },
+    {
+      "originalPath": "/private/tmp/semctx-t00-20261017/evidence/verify-integrated-p2-4-generated.log",
+      "status": "PENDING_ROOT_FINALIZATION",
+      "archived": false,
+      "reason": "Canonical verification was running when checkpoint was requested; no bytes captured, no result inferred"
+    }
+  ],
+  "qualificationCredit": false,
+  "reservedReadOrIncluded": false,
+  "mainWorktreeChanges": false,
+  "commentsAdded": []
+}

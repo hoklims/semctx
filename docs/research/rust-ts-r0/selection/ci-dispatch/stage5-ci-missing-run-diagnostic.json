@@ -1,0 +1,186 @@
+{
+  "status": "READ_ONLY_INDEPENDENT_ENVIRONMENT_DIAGNOSTIC",
+  "author": "/root/pass2_api_gap_inventory",
+  "generated_utc": "2026-10-17T19:47:30.095117+00:00",
+  "effort_upper_bound_seconds": 300,
+  "scope": {
+    "github_mutations": 0,
+    "pushes": 0,
+    "branch_or_index_mutations": 0,
+    "code_edits": 0,
+    "comments": 0,
+    "reserved_access": false
+  },
+  "exact_head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "exact_base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+  "confirmed_facts": [
+    {
+      "source": "GitHub REST pulls/386 GET, two independent reads at19:45–19:46UTC",
+      "observation": {
+        "head_sha": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+        "base_sha": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+        "mergeable": false,
+        "mergeable_state": "dirty",
+        "merge_commit_sha": null,
+        "updated_at": "2026-10-17T19:42:44Z"
+      }
+    },
+    {
+      "source": "GitHub REST compare/base...head",
+      "observation": {
+        "status": "ahead",
+        "ahead_by": 7,
+        "behind_by": 0,
+        "total_commits": 7,
+        "merge_base_commit": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+        "linear_remote_parent_chain": [
+          "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+          "d5ba8fdb3a3b8b8da7ceeb06c16db851d02ad950",
+          "5d6382a1d3bd7a7a26b79892128ccc0082bd7d24",
+          "4eee04db58ce021e4fdefce8a903efff587c625c",
+          "e1e82886330b452c40a4a4da42bb0cc4330d4662",
+          "9494388269ed1b3220ce4bde247e58543c6ffd87",
+          "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+          "568c271f86adc45db7bfcce9ef902b29eef164c9"
+        ]
+      }
+    },
+    {
+      "source": "git ls-remote HTTPS public origin exact refs",
+      "observation": {
+        "refs/heads/rust/365-coordination": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+        "refs/heads/rust/365-t00": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+        "refs/pull/386/head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+        "refs/pull/386/merge": "bdb052218bf3c15afd2bd75af7c3f253d72c6ddd"
+      }
+    },
+    {
+      "source": "GitHub REST git/commits/bdb052...",
+      "observation": {
+        "merge_ref_commit": "bdb052218bf3c15afd2bd75af7c3f253d72c6ddd",
+        "parents": [
+          "31ff2fb593825ca176d089397b4399cafcf0b025",
+          "9494388269ed1b3220ce4bde247e58543c6ffd87"
+        ],
+        "tree": "2f951db9503a6f4c5e8f107486abf3061b76d5e7",
+        "author_date": "2026-10-17T16:10:55Z",
+        "message": "Merge 9494388269ed1b3220ce4bde247e58543c6ffd87 into 31ff2fb593825ca176d089397b4399cafcf0b025",
+        "inference": "Pull-request merge ref still contains an earlier head AND earlier base, approximately3h35 before observation."
+      }
+    },
+    {
+      "source": "local Git with GIT_NO_REPLACE_OBJECTS=1",
+      "observation": {
+        "merge_base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+        "merge_tree_write_tree": "10b7dd0267509ddce3abe903bb88eb09d11f2586",
+        "head_tree_verified_remotely": "10b7dd0267509ddce3abe903bb88eb09d11f2586",
+        "shallow": false,
+        "git_replace_l": "empty",
+        "info_grafts_exists": false,
+        "shallow_file_exists": false,
+        "refs_replace_exists": false
+      }
+    },
+    {
+      "source": "GitHub Actions workflow325377151 GET",
+      "observation": {
+        "name": "ci",
+        "path": ".github/workflows/ci.yml",
+        "state": "active"
+      }
+    },
+    {
+      "source": "GitHub Actions runs filtered by exact head",
+      "observation": {
+        "total_count": 1,
+        "only_run": {
+          "id": 39063623797,
+          "name": "PR #386",
+          "path": "dynamic/github-code-scanning/codeql",
+          "event": "dynamic",
+          "created_at": "2026-10-17T19:42:36Z",
+          "status": "in_progress"
+        },
+        "ci_workflow_runs_for_head": 0
+      }
+    },
+    {
+      "source": "workflow at exact Git object head",
+      "observation": {
+        "on_pull_request": "default opened/synchronize/reopened",
+        "on_push_branches": [
+          "main"
+        ],
+        "checkout_ref": "github.event.pull_request.head.sha || github.sha",
+        "SEMCTX_VERIFY_BASE": "pull_request.base.sha for PR events; otherwise github.event.before"
+      }
+    },
+    {
+      "source": "GitHub issue386 events first100 filtered for base/ref changes or reopen",
+      "observation": {
+        "matching_events": [],
+        "limit": "absence from this endpoint is not complete historical proof of no retarget/forcepush"
+      }
+    }
+  ],
+  "official_documentation": [
+    {
+      "url": "https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#pull_request",
+      "read_utc": "2026-10-17T19:46:34Z",
+      "lines": [
+        534,
+        537,
+        543,
+        550
+      ],
+      "supported_claim": "GitHub does not start pull_request workflows while it classifies a PR as conflicted. PR events use refs/pull/N/merge by default, although this workflow explicitly checks out exact head."
+    },
+    {
+      "url": "https://docs.github.com/en/rest/pulls/pulls#get-a-pull-request",
+      "read_utc": "2026-10-17T19:46:34Z",
+      "lines": [
+        179,
+        180
+      ],
+      "supported_claim": "GET/edit/create ordinarily computes a test merge; null mergeability means background calculation pending. Here false/dirty persisted across GET, so it is not merely an observed null awaiting a first calculation."
+    }
+  ],
+  "conclusion": {
+    "established": "GitHub remote DAG itself proves base is an ancestor of head while GitHub PR metadata says conflicting. This is a server-side mergeability/merge-ref inconsistency, not a local ancestry illusion.",
+    "likely_but_not_proven": "A stale or failed GitHub mergeability/test-merge calculation is suppressing pull_request CI; stale merge ref and documented conflict behavior jointly support this inference.",
+    "not_established": "Internal reason GitHub cached/computed dirty, exact moment its merge ref stopped updating, or whether a future normal synchronize event will repair it."
+  },
+  "invalidated_causes": [
+    "Local replace objects, grafts or shallow ancestry causing a false local ancestor result.",
+    "Remote branch points at another head/base than local exact SHA.",
+    "Actual Git content conflict between the stated base and head: GitHub compare behind_by0 and local tree equality contradict it.",
+    "Workflow disabled or no pull_request trigger.",
+    "Queued native workflow jobs that simply have not been scheduled: no ci workflow run exists for this exact head."
+  ],
+  "not_silently_invalidated": [
+    "Current workflow acceptance on a public runner has not been observed; local actionlint and corrected context evidence remain root-supplied local evidence only.",
+    "A successful CodeQL or GitGuardian check does not prove native CI."
+  ],
+  "bounded_next_actions": [
+    {
+      "action": "Continue independent authorized pass2 work; after ordinary verification, the already required next normal stage push creates another synchronize event, then inspect exact head refs/mergeability/runs again.",
+      "authority": "Already authorized normal own-branch stage commits/pushes; no rebase, restack or artificial content change needed.",
+      "confidence": "May refresh GitHub calculation, not guaranteed."
+    },
+    {
+      "action": "Retain missing Windows/Linux CI as missing evidence; do not mark native platforms green or R0 READY from local tests.",
+      "authority": "Existing proof requirements."
+    },
+    {
+      "action": "If false dirty persists after the next authorized synchronization within the existing blocker budget, classify the remote CI dependency BLOCKED_ENV and report exact contradiction.",
+      "authority": "Existing stop condition and bounded investigation; continue independent work while possible."
+    }
+  ],
+  "actions_not_recommended_without_new_reason": [
+    "Force-push/rebase an already fast-forward compatible branch solely to change a GitHub cache.",
+    "Change the PR base or restack the chain.",
+    "Close/reopen the PR or add dispatch/alternative CI routing before assessing external side effects and proof scope.",
+    "Switch to pull_request_target as a workaround; it changes security and event semantics."
+  ],
+  "workspace_report_only": true
+}

@@ -1,0 +1,35 @@
+{
+  "R0_decision": null,
+  "kind": "PRE_QUERY_WINDOWS_CONTENT_FREEZE_NO_QUERIES",
+  "native_freeze_receipt_sha256": "11c2a4cbe3b172c3d4ae587528822c441a4a2bc8bb6fce2eda66b0c7f938d6e7",
+  "native_protocol_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "native_queries": 0,
+  "native_source_content_head": "c01cb627c6ee756a477d7f0c8a3aa7aa452efcbf",
+  "previous_native_manifest_sha256": "6f510e8dd361772aed3f33462891784ae124909beed07dd8038a686cf1421de3",
+  "previous_native_protocol_sha256": "e61166d6a2e41aacb1bfbed3531a36e5b78fa8022bffd0a10cfab68402de0373",
+  "previous_verifier_sources": 139,
+  "previous_windows_transport_protocol_sha256": "5a2602fca7e463190e19cc0698fba28162009a80fa684c47cea00a3bb9b2a232",
+  "qualification_credit": 0,
+  "strict_json_comparator_sha256": "52b62e26ec0e53cb74e07697b444c665dbd9cc15dacf5a0d1f67b57c891d0993",
+  "unchanged_windows_transport_source_files": {
+    "assess_final.py": "01b6c5d7a5c9668f61d2493d97ea18428d6235d3f4676d624a2b13c38c5ca6c9",
+    "final_join.py": "c2a6f52c039738cc0e3b5472b3eb11de07632bd5f27f16bf58cb51de888b7275",
+    "qualified_carriers.py": "8d7050765b9a797f5d87aef81fff32131e20c7f3633a3c703b96d53bf25929d9",
+    "remaining_carriers.py": "92c640da6decf363d0f122325811b9095dadecad6f226d109d7b4ad9cd7ea895",
+    "windows_transport.py": "73f8523e8862cff7f0d0871920363606dc1fe16aef419503bbd6bcff66db444b"
+  },
+  "windows_protocol_sha256": "7fca4576486e69bc1bc16b062099152c6c763444267f4f3f45da4f65c73769f8",
+  "windows_runner_source_binding": {
+    "binding_kind": "EXACT_COMMITTED_BLOB_SEPARATE_FROM_NATIVE_SOURCE_PIN_SET",
+    "bytes": 23896,
+    "git_blob_id": "cf3d0395750da564131be69788948bc0388f9224",
+    "git_mode": "100644",
+    "path": "tools/rust-ts-r0/qualification/run_windows_milestone.py",
+    "repository": "C:\\maintenence\\semctx.codex-t00-physical-20261022",
+    "sha256": "d97763aaa87d3ff3469c102f812b250d2100c1c190bb335eb0df9788b6ab0142",
+    "source_content_head": "c01cb627c6ee756a477d7f0c8a3aa7aa452efcbf",
+    "verified_origin": "https://github.com/hoklims/semctx.git"
+  },
+  "zip_bytes": 430553,
+  "zip_sha256": "d98a7b4d003f812c97b3c71ea2d23ec90780bba3bc1cdecc3c90aa75ca20158d"
+}

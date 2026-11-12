@@ -1,0 +1,42 @@
+{
+  "R0_decision": null,
+  "all_other_protocol_fields_unchanged": true,
+  "check_definitions": 590,
+  "counts": {
+    "properties": 395,
+    "rows": 446,
+    "supports": 51
+  },
+  "frozen_case_files": 1386,
+  "kind": "PRE_QUERY_CONTENT_FREEZE_NO_OUTCOMES",
+  "native_queries": 0,
+  "package_manifest_sha256": "e16b723069dac127a524007ac5c3fe6afa4862a2ee5c299d5b3087c8a8f26287",
+  "previous_package_manifest_sha256": "6f510e8dd361772aed3f33462891784ae124909beed07dd8038a686cf1421de3",
+  "previous_protocol_sha256": "e61166d6a2e41aacb1bfbed3531a36e5b78fa8022bffd0a10cfab68402de0373",
+  "previous_verifier_sources": 139,
+  "protocol_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "qualification_credit": 0,
+  "repository_written": false,
+  "source_content_head": "c01cb627c6ee756a477d7f0c8a3aa7aa452efcbf",
+  "source_delta": [
+    {
+      "after_sha256": "00c0e9cd2f9665b25eb8881f289d0409ab65f34086abe08f9c365005bf375805",
+      "before_sha256": "c82c372c974166e5548e8c05bdfa6c3d513f3399c5e0d06a31aa225da6144e74",
+      "path": "tools/rust-ts-r0/src/main.rs"
+    },
+    {
+      "after_sha256": "7d08d2c65d274764d90d24c5c136793e313b6f8e35881801b77aa92f4b39ff9e",
+      "before_sha256": "b356b52967ebbab2ae92c80fbb450e8cfbc702ecd27feaa6153c1f18831ef240",
+      "path": "tools/rust-ts-r0/src/retained_scope.rs"
+    },
+    {
+      "after_sha256": "3d9228fb2f25eede5e31c4279f652484ca901c85f7274e8f031d2d3ed41aa3d3",
+      "before_sha256": "5170022687fbe337f4bbb61987238818c0adee4eb2ccc1acbe6812132167706e",
+      "path": "tools/rust-ts-r0/tests/native_qualified_flow.rs"
+    }
+  ],
+  "source_pin_install_commit_pending": true,
+  "verifier_sources": 139,
+  "zip_bytes": 417183,
+  "zip_sha256": "30fb1d2033423ae069e790d5e701d28038fd98857b9f22d4f42ffb2dd56b2f48"
+}

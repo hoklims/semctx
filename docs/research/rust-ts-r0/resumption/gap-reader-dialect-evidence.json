@@ -1,0 +1,146 @@
+{
+  "recordVersion": 1,
+  "state": "READER_COMPONENT_LIMITED_PASS_AND_DIALECT_IDENTITY_RAW_VERSION_NONPASS_REVIEWED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/reader_dialect_claim_auditor",
+  "claimLedger": "gap-reader-dialect-claim-audit.md",
+  "authority": {
+    "frozenUnits": "cases/qualification/scenarios.json#/execution_units/18 T-reader-error::base and /304 ORD-DIALECT-CAPABILITY::base; frozen hashes2f8c33c160e32ec4ffed5ea444e817f1e8c8aa8c30fe9291cc1a5c5b56208171 and25e9a78de2eda03053d69b9013006b4a30be479a8bcbde25e5e6cf1a969dd80e.",
+    "dialectObligation": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-dialect-version-a301ccdca0;100percent frozen observations remains unsatisfied.",
+    "architecture": "Accepted ADR0037; implemented historical ts-symbols.ts9–10/analyze.ts500–534 at3e94997f identifies actual compiler runtime,notSDKbytes.",
+    "individualVersionRule": "T00-ARB-002 comparisonRule delegates only individually demonstrable TS7/TS5 differences. ARB004 records this identity-only application,not a new owner approval,waiver or PASS."
+  },
+  "sourceAnchor": {
+    "base": "e59bcae350d44c27617f05683894d7ccedf42ea3",
+    "localCommitAtRecording": "b09896d4d8daaed1280f7f48ab14f3a11307c095",
+    "parentAtRecording": "ff8ed485b4462e0a6cc3267f3c2924912ad028b6",
+    "publicationAtRecording": "Local b09896d4 not pushed; no current exact-SHA CI.",
+    "files": {
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "c883aab18858c536d751fb871ddd32edcf9677d747c31559bca0de252ea4f31d",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "bac6837d4edf127429db45888a140b16f1f65c7f1bd60bb9996b2d11b9b8091e",
+      "tools/rust-ts-r0/qualification/reader_error_replay.rs": "b7095cd6fe89c6418314a2c593c84b7346cd828d58b84c0f719ac14ab5bfdf38",
+      "tools/rust-ts-r0/src/main.rs": "8a10f0177c0b0a739b0314ee4928e10e86ffb86ef4a3bf80bf50792071c0a16c",
+      "tools/rust-ts-r0/tests/native_development_flow.rs": "fa6588e0abe17359f47613288e53b1aba6f16569aad08f309d2da233b027e39a"
+    },
+    "patchSha256": "9ca3767563f019ffd37f1cbd43edac0b9c04b3857dc1def9aeeff95b7d4068b5",
+    "scope": "Five committed blobs; subsequent qualified-code/integration WIP excluded."
+  },
+  "artifacts": {
+    "producerSha256": "aefaecbee4677e1c72f3a150532c4dda363a5b09b20a55392507f54bf1bb8b39",
+    "observerSha256": "e969c0040c9e6f9534d64b41275fd0f6a9dc0d241dc4db3cb218edf10908ad96",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "fixtureSha256": "f04ef5f8d448939f79b98e2dd983c05eb079e1ea5b27533be1bd62189448213f",
+    "canonicalRecipeSha256": "2507d8c2b53baec54f474bfcbfe3f48704c7134c779b380d656eb78c7e5ca272",
+    "provenance": "Hash-bound artifacts and descriptors; no independent complete source→binary reconstruction."
+  },
+  "reader": {
+    "unitId": "T-reader-error::base",
+    "state": "PASS_REAL_READER_FAILURE",
+    "checks": 6,
+    "contexts": 3,
+    "mechanism": "Real kernel refusal after47byte prefix through reused process::pipe_reader/finish_reader,between healthyEOF controls; budget64,digest8a4812ebe8a8cb42e1db6e92663e4c8b31508f4c1271adfa879986494a7bbd6c.",
+    "observed": {
+      "available_bounded_capture_retained": true,
+      "cause": {
+        "kind": "Uncategorized",
+        "message": "Bad file descriptor (os error 9)",
+        "raw_os_error": 9
+      },
+      "controlled_product_refusal": false,
+      "error_identity_preserved": true,
+      "failure_kind": "reader_io_error",
+      "failure_kind_distinct_from_success": true,
+      "qualification_success": false,
+      "reader_capture_id": "sha256:ba058b62e27f7c579cf359386b065a4bf2f0dfe8879d5f899739210c9450e0c1",
+      "useful_product_success": false
+    },
+    "resultSha256": "5d41b43cd42921079cf3cd3591ac5aac29d913ce8240cb6cfda15a1a31d810ec",
+    "scope": "Qualification-tool reader component only; no outerprocess::run Outcome.capture_error,shared drain,childcleanup,blockedreaderfinalizetimeout or C1semantic/productrefusal claim."
+  },
+  "dialect": {
+    "unitId": "ORD-DIALECT-CAPABILITY::base",
+    "state": "NONPASS_PROJECTED_UNIT",
+    "mismatches": 2,
+    "nativeCompilerVersion": "7.1.0-dev",
+    "sdkVersion": "5.9.3",
+    "baselineCompilerPackageVersion": "5.9.3",
+    "frozenExpected": "5.9.3 in both checks; unchanged.",
+    "resultSha256": "0914cbf780beb7cbc3fcc433b498ddf1c2b60724205a855d85701a5ee0e8a5d1",
+    "individualVersionProofSha256": "5b203dad2d449108a880f58585e3a568ee92e9b9c4c5008302a136af21b0ca66",
+    "meaning": "One new NONPASS unit with two mismatched identity checks. No semantic equivalence,obligationclosure,qualificationPASS or R0 credit.",
+    "javascriptControl": "SPEC private actual entry.js input is selected/analyzed with executed source observation,languagejavascript,dialect7.1.0-dev/SDK5.9.3; producerexit0,replayexit101 against frozenTS5. This is bounded JS observation,notcanonicalPASS."
+  },
+  "oracles": {
+    "environment": "macOS27.0.1 ARM64,Bun1.4.3;GIT_CONFIG_GLOBAL absent,GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1.",
+    "localChecks": "49lib+248bin releasePASS (--lib--bin only);63comparators,8Python tests,Clippy,Ruff PASS. No integration coverage inferred from --lib--bin.",
+    "independentSpec": "Readerkernel witness passes; false-reader-success rejects; excludedactualdialectinput rejects;actualJSscope observed; falseversion rejects; canonical readerPASS/dialectNONPASS restored.",
+    "adversarial": "18invocations; readerPASSanddialectNONPASS before/after; realcapabilityforeign/excluded/disabled/SDK controls reject. Private expected7.1 mutationpasses its own changed policy only.",
+    "windows": "WindowsGNU cargo check --all-targets--all-features onDarwinPASS,notWindowsruntime. Linuxcurrentcandidateunexercised."
+  },
+  "recipeTrust": "Canonical SHA2507d8c2b53baec54f474bfcbfe3f48704c7134c779b380d656eb78c7e5ca272 is externally verified before/after. Focused runner does not authenticate recipe/completecheckpolicy; privateexpectedmutationPASSisnotfrozenqualification.",
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 62,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 60,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+    "versionAttributedNonpassUnitIds": [
+      "N17c-importhelpers-es5-actual-emission::base",
+      "ORD-DIALECT-CAPABILITY::base"
+    ],
+    "residualStaticGapUnits": 2,
+    "recipesWithoutKnownGaps": 352,
+    "unitDenominator": 354,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "PENDING; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+    "R0": "UNDECIDED",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Cumulative multi-artifact checkpoints;352 is static preparation,not campaign passage."
+  },
+  "residualStaticUnitIds": [
+    "P19-qualified-inherited-esnext-bundler::base",
+    "N19-excluded-dependent-blocks::base"
+  ],
+  "limits": [
+    "No full354/reserved/178review,publicadmission,globalsemantic/dialectequivalence,coherentcapture,allSDKreads or R0.",
+    "CI9da7 covers its own322Rusttests/OS,notthislocalb098source or354qualificationunits.",
+    "No budget8fdc/ownerCIrule change or counter reset.",
+    "Selected compact hashes/projections only; temporary evidence may expire,no archive."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "reader-dialect-source-anchor-v1.json": "72fa18570752659eceb92ad856cc5130cc87c529793693883406ef0a93570485",
+    "reader-dialect-source-v1.patch": "9ca3767563f019ffd37f1cbd43edac0b9c04b3857dc1def9aeeff95b7d4068b5",
+    "fixture-reader-dialect-v1.json": "f04ef5f8d448939f79b98e2dd983c05eb079e1ea5b27533be1bd62189448213f",
+    "dialect-recipes-v1/replay-recipes.json": "2507d8c2b53baec54f474bfcbfe3f48704c7134c779b380d656eb78c7e5ca272",
+    "dialect-recipes-v1/preparation-summary.json": "9ec983720eabc749ac737f52b8273200639dc026b148a3e527e5db9d47d58b8b",
+    "reader-dialect-spec-proof-v1.md": "de51b656f1606e22b474cd467064e72b3d732a0bfd3e518a5458b2d56c0b850e",
+    "reader-dialect-standards-v1.md": "ff5925d1023fd55f71fd6449e139b40aa3448086ed5fcba048299fd86ceb3b2d",
+    "reader-dialect-adversarial-v1.md": "57187b04dc8646cdfea17a8ccc3ee7f03fc9717ce35896086a55f5dc5b437c23",
+    "reader-mapping-red-v1.log": "3f158ee5f6e16912a96d0bd9a5cbf94c7219d6c232370a0a650391c3afa564ba",
+    "reader-mapping-green-v1.log": "1790fd14e3ba33428db6d16ef92838db8a5986cd71aa1a290ae2f1ea531c72c4",
+    "reader-comparator-green-v1.log": "f8bbd9d2d5d2949c2004729067cfe197fd18c41aa181daad6b3b32b74bd69fd8",
+    "reader-dialect-reader-green-v1.log": "1f4172d5e9ac1fe3ec317bbe694105b9c404cff0f9799e32890755a03c9ef168",
+    "dialect-native-red-v1.log": "f0c2de26cf54bebbc95b02c6e2e8303d737cd771283a1494bc661d293d8194a1",
+    "dialect-native-green-v1.log": "0c6373bc428a46bb9891913dc9b388c457bd93b04f10b08a926ff9a8f5bceb6c",
+    "dialect-raw-nonpass-v1.log": "455de8504ffa9dda5666d694d42afae3a45bb8ad15a25387eff9ad160b40c902",
+    "dialect-comparator-green-v1.log": "f168b4b2d2709e791a2c13e91f037bac0b2e4af1065d466563c48b70c5cd119e",
+    "dialect-individual-version-proof-v1.json": "5b203dad2d449108a880f58585e3a568ee92e9b9c4c5008302a136af21b0ca66",
+    "reader-dialect-all-comparators-v1.log": "b24b19c2b7e99898383b2c06480e98395d1fb4bc656b39f924fe2a7200c96d23",
+    "reader-dialect-clippy-v1.log": "d6a30c9d1a3131d74258f0ccc5b3ba63fcad8673a35a42a82aec33eb6309d119",
+    "reader-dialect-ruff-v1.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "reader-dialect-python-v1.log": "5f441a4e55108dc16665bf7d5bcfbf9755930c1c2a307109c3559a96b02719db",
+    "reader-dialect-windows-crosscheck-v1.log": "91a5dbf1994ea32799642c4e9b228bd5e0cc4f300d1a6dd1da15e2658bc0317d",
+    "reader-dialect-all-lib-bin-v1.log": "55679cce6d0a4ad4a7886647c20c82dfaee6f37115ce16d6f70bec72a7229851",
+    "reader-dialect-spec-proof-before-v1.json": "44c3d276dd00972c799ef1497f1b12b700d80ecb36c952e83bbb6efefbcc9ec9",
+    "reader-dialect-spec-proof-after-v1.json": "14980a02f8af0a05f4e2859c8d12f9a06353cd4c7ced0a44f74a0d8d75227093",
+    "reader-dialect-spec-proof-execution-v1/execution.json": "40a7244d0bff6def0b034a7a01bdc3f4baa2d76f0070871dd801a75cdac2dc13",
+    "reader-dialect-spec-proof-execution-v1/mutations.json": "b00440aa36d77268dfde5ae2824bd55d743a56cdf383bbd0aba227e88d61b3b3",
+    "reader-dialect-adversarial-v1/summary.json": "bf1b566298a11b7253bdcd7755ad41b4758efea2e5ccdf0f8e840fd777ffb056"
+  }
+}

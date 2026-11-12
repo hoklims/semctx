@@ -1,0 +1,1 @@
+import * as lib from './lib.mjs'; lib.obj.helper();

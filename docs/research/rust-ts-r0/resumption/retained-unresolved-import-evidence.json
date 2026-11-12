@@ -1,0 +1,120 @@
+{
+  "recordVersion": 1,
+  "state": "RETAINED_UNRESOLVED_IMPORT_CORRECTION_LOCALLY_REVIEWED_V12",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/retained_claim_auditor",
+  "claimLedger": "retained-unresolved-import-claim-audit.md",
+  "authority": {
+    "architecture": "docs/adr/0035-qualified-static-analysis-admission.md (accepted)",
+    "continuation": "owner-continuation-20261019.json; same C1 branch/PR, no fixed correction-turn ceiling; no qualification waiver",
+    "baseline": "packages/app-services/src/qualified-analysis.ts:103-150; capture freshness.ts:208-255 and core/ids.ts:33; selected frozen/current metadata projection equal SHA256 1da4d66a30476495c092e4b9d824a8bb25b45234fbfb21a7bd38e426b7ae23b5"
+  },
+  "sourceAnchor": {
+    "base": "8fdc087d1365bfb95134d01a849609cae7a6d3c4",
+    "sourceFiles": 11,
+    "manifest": "source-anchor-v12.json",
+    "patchSha256": "ff66a5b3527b0733d61dafa12d2d56c3bb06f79c53d510a0cffc679846988ec9",
+    "scope": "Eleven Rust source/test-support files only; separate CI timeout and documentation changes are outside this source anchor."
+  },
+  "producer": {
+    "sha256": "ea5a0b6a1b441d6d8cd2c2b174435c4dfe4b2ad404e9004ec7b36916e865f4ad",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "scope": "Immutable DEV product, not a qualification freeze or complete build-input closure."
+  },
+  "correction": {
+    "scope": "Owned retained-qualified unresolved bare-import classification: dependencies, workspaces, builtins and Bun aliases; relevant JSONC enumerable/prototype semantics and same-directory last-wins metadata ordering by JavaScript UTF16 units.",
+    "transport": "Canonical UTF16 vectors flow actual Subject → batch Diagnostic code_utf16/message_utf16 → receiver ReasonCode(Vec<u16>); lossy display is separate.",
+    "failurePaths": "Malformed/out-of-range, missing/partial, empty, duplicate, foreign-prefix, unbound-display or inconsistent unresolved metadata refuses; canonical duplicate/mismatch checks retain different values with the same display. Unrelated legacy diagnostics may omit vector fields.",
+    "deployment": "Co-deployed private research producer/receiver; no released external ABI compatibility claim.",
+    "localCorrectionTurns": 8,
+    "history": "correction-slate.json retains pass1–7 findings and witnesses; pass8 exact v12 reviews report no remaining demonstrated defect in this correction. Historical reports are not duplicated."
+  },
+  "oracles": {
+    "environment": "Darwin ARM64; Bun1.4.3+26aa4e1a92bf95a3c059271a3e13749575aa3d4b; TypeScript5.9.3; rustc1.95.0. Native runs disable parse/library snapshots.",
+    "native": "native-unit-v12.log:49library+242binary PASS; native-integration-v12.log:23PASS (1common/8development/7discovery/4parallel/3transport); clippy-v12.log and clippy-observer-v12.log exit0.",
+    "observer": "Current feature qualification-observer comparators-v12.log:55PASS,27filtered.",
+    "spec": "review-pass8-spec-v12.md:80classification+14exact-unit+4actual-capture-order cases PASS;4direct existinglibtests PASS; frozenv10 yields4/4order divergences, restoredv12 agrees4/4.",
+    "adversarial": "adversarial-pass8-v12.md:178actual-capture fixtures (174qualified+4ordinary),356producer processes;32actual receiver checks PASS; no demonstrated discrepancy in those cases.",
+    "redGreen": "pass8-red/green (metadata order), text-red/green (FDD0/exact values), receiver-red/green and same-display witness retained with hashes below.",
+    "carryover": "Four replay-v12 groups:10frozen units/60projected checks PASS against v12 producer using unchanged prior qualification-observer-fce14fee. This preserves existing raw paths; it is not a new-receiver oracle. Frozen recipes SHA256 34dc44a230338a9bcef15d8fb83d66607a72aa6421e1e9748fc0cce55c384d50 unchanged."
+  },
+  "vendor": {
+    "upstreamTag": "oven-sh/bun bun-v1.4.3",
+    "commit": "c6da4a4d3010e5553438c60f6bd76d981976867c",
+    "blob": "fdd03aeb72f297d5fec06964247be41a3971032e",
+    "originalSha256": "84c2578621848c3800b9546bd5c43d17beae90e87a3fa83d2d190f1455fdb014",
+    "adaptation": "Local matcher control flow/limits retained with imports/wrapper adapted and full MIT notice; no Cargo manifest/lockfile or new dependency.",
+    "runtimeIdentity": "Installed revision26aa4e1a9 differs from official tagc6da4a4d; no runtime/source identity claimed. Earlier274067rawmatcher differential pairs retain v6 provenance; not rerun in v12.",
+    "retrieval": "Official acquisition is preserved locally in upstream-matching; no fresh web retrieval by this author, Agent-Reach unavailable.",
+    "addedCommentGroups": [
+      "Pinned upstream source provenance in vendor/bun_1_4_3_glob.rs.",
+      "Retained upstream MIT copyright/permission/warranty notice in the same file."
+    ]
+  },
+  "progress": {
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "mappedOriginalGapUnits": 52,
+    "limitedPassAcrossCheckpoints": 51,
+    "versionAttributedNonpass": "N17c",
+    "residualOriginalGapUnits": 12,
+    "historicalReview178": "PENDING; not recomputed/reviewed here",
+    "campaign354ThreeOS": "PENDING",
+    "reserved": "Not read or executed by this author/auditor; no reserved replay claimed and no global access-history assertion.",
+    "R0": "PENDING",
+    "resumedC1Pass1": "OPEN",
+    "resumedC1Pass2": "NOT_STARTED",
+    "newMappingCredit": 0
+  },
+  "limits": {
+    "supportedTargets": [
+      "macOS",
+      "Linux",
+      "Windows"
+    ],
+    "currentFixExercised": "macOS ARM64 only; current Linux/Windows behavior unexercised.",
+    "ci": "Run39291640202 at8fdc087d was cancelled during macOS observer compilation after45min; other native producers succeeded, semctx-required not green. Separate timeout45→60 change does not supply a green rerun.",
+    "fullVerifyPr": "Earlier d765 restack success is historical only; no current-fix full verify:pr success.",
+    "notEstablished": [
+      "Raw JSON string equality for unpaired surrogates or normalization of every legacy SDK string field.",
+      "Complete capture/discovery/admission equivalence, public transport parity, full354 or reserved campaign, R0/READY_TS_NATIVE.",
+      "Complete build closure/SDK consumption, absence of arbitrary OS reads, atomic capture, OS sandboxing or performance equivalence."
+    ],
+    "rawEvidence": "Compact local paths/hashes only; temporary artifacts may expire; no archive or historical ledger duplication."
+  },
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "source-anchor-v12.json": "691b47f808461d273c771eae4f37b4b32d465124f8290978839e008cf15a99f2",
+    "source-v12.patch": "ff66a5b3527b0733d61dafa12d2d56c3bb06f79c53d510a0cffc679846988ec9",
+    "fixture-v12.json": "44b65ad5d745d491b0ee898f7338acd73955c41d6062e7146a05b351bf62652d",
+    "baseline-projection-binding.json": "0a1903c3dbebabe372e8af17797898ee77b36cdc4a6cb44e23d06ad08316bd28",
+    "correction-slate.json": "c3a11ce47ce52bc5e279ac95630e9ec60a54a01cf880f633a4c867cebb8b8996",
+    "p2-utf16-diagnostic-design.json": "24b713d750c5d54ed3ebc72598623db17a12b6891636931595cdd8c13f09001d",
+    "producer-build-v12.log": "5393190fd1cf9a34a03eda42678362d0d94d5bc4c87f8830100bdd59c2c57c64",
+    "native-unit-v12.log": "061d9929e682b23a0ae886f0c8b8225133eaa64c28a198856e1c551f34af356d",
+    "native-integration-v12.log": "5817a742c6ec78b030c275ed11c34bffab96481a87105e1602fc4eaa26639b83",
+    "clippy-v12.log": "c8286a90d84803a38b2125ae59fcb1361076dbec9fb8e4c2c715d894556adbda",
+    "clippy-observer-v12.log": "3fe980a0f9709b0a2d093ea2a65202e1e589d4893ac71be4272c165923b9e527",
+    "comparators-v12.log": "91e7dd4db36d9e69f0cd960df02fdb15ec9423fbef6a4e2b97c5e2eb4533a43e",
+    "review-pass8-spec-v12.md": "8cdf1163c3320286accd4483dde624b573087c231c59b0f654b763751b5a34f2",
+    "review-pass8-standards-v12.md": "47129118383f45340a56ade749ac7f5d46ba34ee47026be9e545c30dbc5c5d88",
+    "adversarial-pass8-v12.md": "d519d3a50647d5a8b3325fbeaf7685c745b167c1300e3a4bf7ecef6bd82d1045",
+    "review-pass8-spec-v12-evidence-sha256.json": "d48d87a67d583c3685983f0e2f4bb5ddfa451aab53e3c479920d0f08660ec01e",
+    "adversarial-pass8-v12-evidence-sha256.json": "8f1162d30df2b9b0aa0c2e184926a51aa88d5e2de21ebcb71c1a9a39961c229e",
+    "pass8-red.log": "bfc9926edc19f994abd1f42d15a2267b36ee83ad8c113abad4683789bd1ae54b",
+    "pass8-green.log": "de665a180772e172cc9c82bf84dae83bcde0f9fae0a76e7332443ba4799d8070",
+    "pass8-text-red.log": "da2131c9139f1776b37bf48e489b5f2713cb10fd9019dec05f4ac912b5de314f",
+    "pass8-text-green.log": "3dcc08940713d323683d06b75d85759b199b046cd3d4f15d38cfd3f11483f512",
+    "pass8-receiver-red.log": "bf3aeb740244b394a99ad8e54420fa5aa7ba3f4668bacdaeeb33030d1b7d967e",
+    "pass8-receiver-green.log": "c2d8d01639d545c7379ca10d124b2b0adbd20151758302c46ce8205ba794b7d1",
+    "pass8-same-display.log": "85cabfa67c7f4c863739278bc12a258b0bc78809ee8449ce89592e19e6e53743",
+    "replay-v12-qdyn.log": "7298bf72ebe1229f72374add8e9a1342616d2c709495e4a926f228642ff35483",
+    "replay-v12-static.log": "db980a024b2cd9e48b0fc8b531f17c4e19d6d083f0e99a51abe707f57a579555",
+    "replay-v12-private.log": "e0ff5918bef07ff1755163c4b3acc284b6a6c1907629d232dee566972333d142",
+    "replay-v12-qscope.log": "e1ab2f72695b73e10b60966fe2fe3f2fce8006d381a35cc4139e10018213130e",
+    "upstream-matching/acquisition.json": "505b50bce062f677341bac58e3e2682a97bee9830b7e18f481e713d6e782dfc1",
+    "upstream-matching/tag-response.json": "7834b2b582526f06bccfbf79dec93c122103669e7df7016dd2b60ab81b4b2e4f",
+    "upstream-matching/matcher-response.json": "3da24fd39e7aab62089ad00a0b0c98be64b29ed76d0b5246964ffa92c8976261"
+  }
+}

@@ -1,5 +1,6 @@
 import { execFileSyncWithinBudget as execFileSync } from "../plugins/shared/hooks/process-budget.mjs";
 import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { dirname, extname, relative, resolve, sep } from "node:path";
 import cliPackage from "../apps/cli/package.json";
 import compatibility from "../compatibility.json";
@@ -71,7 +72,13 @@ function documentationFiles(root: string): string[] {
     ["ls-files", "-z", "--cached", "--others", "--exclude-standard", "--", "*.md", "*.html"],
     { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] },
   );
-  return output.split("\0").filter(Boolean).map(posix).sort();
+  return output.split("\0").filter(Boolean).map(posix).filter((file) => {
+    // This immutable third-party README belongs to the frozen qualification
+    // input, not authored documentation. A changed copy receives normal checks.
+    if (file !== "docs/research/rust-ts-r0/cases/supplement-sdk-assignment-20261021/vendor/zod/README.md") return true;
+    return createHash("sha256").update(readFileSync(resolve(root, file))).digest("hex")
+      !== "f534842731b0e9599e3927c234fab2090ac2b64ab98fe5035f26c28f1e149536";
+  }).sort();
 }
 
 function releaseTagCommit(root: string, version: string): string {

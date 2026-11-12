@@ -1,0 +1,103 @@
+{
+  "recordVersion": 1,
+  "state": "THREE_FROZEN_E03_LIMITED_PASSES_MACOS_PRIVATE_CONSUMER_REVIEWED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/e03_claim_auditor",
+  "claimLedger": "gap-ambiguous-exports-claim-audit.md",
+  "authority": {
+    "arbitration": "T00-ARB-001: approved_expectation_pending_native_qualification; approved expectation, not native qualification.",
+    "frozenAnnex": "cases/annexes/e03-expectations.json",
+    "frozenAnnexSha256": "36d94cc69dda4d5c1d35129e65a5f45a1b6b2636cbf84954cee4fc0d46c8f1ac",
+    "receiverScope": "Minimal receiver facts/reasons/input binding/refusal in the frozen obligation map; no full health/storage/services or public application assembly."
+  },
+  "sourceAnchor": {
+    "base": "16817c9ff84b845800734d8ad91463518eb54161",
+    "files": {
+      "tools/rust-ts-r0/qualification/ambiguous_exports_replay.rs": "2801338b5805cc07656d8d642460e73eaf3e5e3486b26e6c3420b2ca339ecbd3",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "2525c434613a2aa2a33d3e09426c1676c703f1655943dce2e0636e46962ab1ff",
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "1f73e65aeb6a451d764bc2d3d1ad6bc340de82c3463fa9d98095e132cea890da",
+      "tools/rust-ts-r0/tests/support/receiver_context.rs": "de8df94f730ef3dd65d592333cf81c31d21ffbb0ab66d5a4997608b142661d22"
+    },
+    "patchSha256": "ccc8abf65233f25b1666cc723d031f702734bf7e232bcdcab86eaccbf2515f9f"
+  },
+  "artifacts": {
+    "producerSha256": "ea5a0b6a1b441d6d8cd2c2b174435c4dfe4b2ad404e9004ec7b36916e865f4ad",
+    "producerStatus": "Unchanged v12 DEV artifact published at fbc; same product supplies raw and batch, no independent rebuild provenance claimed.",
+    "observerSha256": "84f0ea7317845cae5e3c1815fa6cdfe684bf60f9322c978946b5a8c586fb8615",
+    "recipeSha256": "153a263f88812b34dbf08672a46052554fca14b09e1e55f3d86151f32ff3912b",
+    "recipeBinding": "Canonical recipe hash independently checked before documentary reconciliation; focused replay does not enforce this recipe hash itself.",
+    "recipePreparation": "345/354 without known GAP, static preparation only, not qualification/freeze."
+  },
+  "focusedReplay": {
+    "oracle": "gap_ambiguous_star_exports_refuse_and_named_export_keeps_its_target",
+    "rawInvocations": 3,
+    "batchInvocations": 3,
+    "rawChecks": 18,
+    "consumerObservations": 3,
+    "units": [
+      {"unitId": "V3-E03-ambiguous-stars-arbitrated-refusal::E03-a-then-b", "rawChecks": 6, "consumer": "controlled_refusal", "privateGraphOwnership": false, "qualifiedAdmissionRefused": true, "resultSha256": "1886d0753754693315ea3cba1e3f0acb205444ce5d23ed959c57c070183faf54"},
+      {"unitId": "V3-E03-ambiguous-stars-arbitrated-refusal::E03-b-then-a", "rawChecks": 6, "consumer": "controlled_refusal", "privateGraphOwnership": false, "qualifiedAdmissionRefused": true, "resultSha256": "6ba533a99a11ae86f4ca1a836c9f1f19b97c5d7e0edd896a1da1de20e4fbfe50"},
+      {"unitId": "V3-E03-ambiguous-stars-arbitrated-refusal::E03-explicit-named-control", "rawChecks": 6, "consumer": "analyzed", "privateGraphOwnership": true, "qualifiedAdmissionRefused": false, "resultSha256": "9fe6d91745313a0d08dd733187b35b630b9d0893709f54ea854c32105c39d4b5"}
+    ],
+    "meaning": "AB/BA controlled refusal SOURCE_EXPORT_AMBIGUOUS without arbitrary target/edge or private ownership; named control resolves main.ts/main→b.ts/same and revalidates its own private graph; global_admission_inferred=false in all three.",
+    "red": "e03-red.log fails before a fully mapped CLI execution; demonstrates incomplete mapping, not producer regression.",
+    "green": "e03-green-v2.log and exact result hashes; actual batch output equals the controlled raw graph before Receiver consumption."
+  },
+  "oracles": {
+    "environment": "Darwin ARM64; pinned Rust1.95.0/Bun1.4.3; GOPORT_LIB_PARSE_SNAPSHOT=0 GOPORT_LIB_SNAPSHOT=0; GIT_CONFIG_GLOBAL absent.",
+    "localChecks": "57comparators (2new E03 guards),23native integrations (1+8+7+4+3),8Python tests,Clippy,Ruff PASS. No current full verify:pr or remote CI result claimed.",
+    "independentSpec": "Two actual source mutations at unchanged expectations reject using same observer; canonical restoration passes.",
+    "adversarial": "30invocations:26private mutations+initial/restored controls+2controlled comparators.21mutations NONPASS;5accepted (20,22,23,24,25); these are scope evidence, not new mapping credit.",
+    "windows": "cargo check alltargets+qualification-observer x86_64-pc-windows-gnu PASS on Darwin; no runtime Windows or Linux execution."
+  },
+  "policyLimit": {
+    "focused": "Does not bind recipe hash or full expected-check inventory. Mutation25 changes named source toward a.ts and removes target+edge checks together: focused PASS with that different policy. Canonical complete checks reject the same wrong target (mutation26).",
+    "heldScope": "Only separately hash-verified canonical recipe with semantically reviewed complete checks; no claim of focused anti-tampering.",
+    "fullCampaignTarget": "replay() exact_hash(recipes_path,freeze.recipes_sha256) inspected; full354 threeOS campaign not executed, no freeze-bypass claim."
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 55,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 54,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+    "residualStaticGapUnits": 9,
+    "recipesWithoutKnownGaps": 345,
+    "unitDenominator": 354,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "NOT_PERFORMED; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reservedReplay": "PENDING; not read or executed by documentary author/auditor",
+    "R0": "PENDING",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Cumulative checkpoints across different artifacts, not one current campaign."
+  },
+  "limits": [
+    "No qualification/R0/READY or global admission/publicCLI/assembly/fullSDK/sandbox/performance guarantee.",
+    "macOS runtime only; Windows cross-compilation is not Windows execution.",
+    "Frozen expected fields and producer unchanged; no comments or dependencies added in the four source files.",
+    "Local evidence paths may expire; compact hashes/result projections only, no archive."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "e03-source-anchor-v2.json": "71389c78017e4e8451f45f36af6782a31192ba2b2d5077b175a3e0db2cfc8e88",
+    "e03-source-v2.patch": "ccc8abf65233f25b1666cc723d031f702734bf7e232bcdcab86eaccbf2515f9f",
+    "e03-recipes-v1/replay-recipes.json": "153a263f88812b34dbf08672a46052554fca14b09e1e55f3d86151f32ff3912b",
+    "e03-recipes-v1/preparation-summary.json": "0f4b63867b277133eeac757def13bc00a55fa0354acda9016dc5a2212d99d267",
+    "e03-red.log": "7185cc635001922f8441095d7fa0bb3ce8415f6f0775d384f15d65e594f41567",
+    "e03-green-v2.log": "2634158dae1f8b19239bd37b19e4d2907d234445eb3b8f39bc88daa65aaab445",
+    "comparators-e03-v2.log": "a23dd5bee671b85fb5eec8e692df5c8d253261a931b630e128bb17e277d5d9bd",
+    "native-integration-e03-v2.log": "20dfd086040c9e31940be0aa422dc8fba6ba5d1ee62c934f857cafd20f33709a",
+    "clippy-e03-v2.log": "7dc18613e418803c426347cb8ca12a790fa665c43475ff44df6bd556ea0f6f64",
+    "ruff-e03-v2.log": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+    "python-e03-v2.log": "d27c306d46f0dd39f6a5916ffa59e9f48b8305d6cef6bb58f78aae12c21bd1f4",
+    "windows-check-e03-v2.log": "6392e81f20c32b3868795cd0e2c783c564fc3ddb5a0023aaf81101c3e63669bd",
+    "e03-spec-v2.md": "3af2ed6df9baf172cf8a3d8f36de1fa1bc2e84d968a1d6b5fe364c0c7c499f0a",
+    "e03-standards-v2.md": "16b7b89bf9e78413bccdf6cc64bd74c166493e35faf58af7a23972212a2601aa",
+    "e03-adversarial-v2.md": "d2854c540237bbc26c73124e1769570500f4505f20ca9a79f5e1c845c68a1659",
+    "e03-adversarial-v2-sha256.json": "dd4f67140ca581cb935c4aab5e17d8bbd6ccb34fef577d2d498be025f47f9ca9",
+    "e03-spec-v2-evidence/manifest.json": "b91af06327930e8cfc0821a66736022a3027f7d33bada91f22418e81344c339e"
+  }
+}

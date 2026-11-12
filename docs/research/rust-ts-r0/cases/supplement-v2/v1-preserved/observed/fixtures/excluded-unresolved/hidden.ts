@@ -1,0 +1,1 @@
+import { main } from '@hidden/inbound'; export const value = main();

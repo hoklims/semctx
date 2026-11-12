@@ -1,0 +1,36 @@
+"""Freeze the one successful independent reference and its source authority."""
+import hashlib
+import json
+from pathlib import Path
+import shutil
+
+HERE=Path(__file__).resolve().parent
+baseline=json.loads((HERE/'baseline.actual.json').read_bytes())
+request=json.loads((HERE/'request.local.json').read_bytes())
+assert baseline['reference_attempt']==1 and baseline['requestedDistinctionObserved'] is True
+assert not baseline['diagnostics'] and baseline['candidateQueries']==0
+call=baseline['typedCalls'][0];canonical=baseline['productionExtraction']['calls'][0]
+def relative(path):return Path(path).relative_to(Path(request['cwd'])).as_posix()
+oracle={'schema':1,'id':request['id'],'typescript':'5.9.3','baseline_sha256':hashlib.sha256((HERE/'baseline.actual.json').read_bytes()).hexdigest(),
+        'source_sha256_by_path':{relative(path):digest for path,digest in baseline['sources'].items()},
+        'raw_alias_checker_name':call['rawSymbol']['name'],'resolved_checker_name':call['resolvedSymbol']['name'],
+        'canonical_call':canonical,'call':call['call'],'expression':call['expression'],
+        'value_declaration':call['resolvedSymbol']['valueDeclaration'],'declarations':call['resolvedSymbol']['declarations'],
+        'expected_relation':'resolved checker name differs from canonical calleeName; canonical calleeName equals the final target coordinate segment',
+        'native_raw_and_first_provenance_follow_import_alias':True,
+        'native_queries_before_freeze':0,'qualification_credit':0}
+with (HERE/'expected-oracle.json').open('x',encoding='utf-8') as out:json.dump(oracle,out,indent=2);out.write('\n')
+shutil.copyfile(HERE.parent/'t00-public-failure-replay-a9a3ffda/identity_scope_reader.py',HERE/'identity_scope_reader.py')
+repo=Path('C:/maintenence/semctx.codex-t00-physical-20261022')
+authority=[]
+for name,start,end,reason in [('main.rs',1537,1550,'top-level Call resolves import aliases before name.to_string'),
+                              ('qualified.rs',350,366,'provenance resolves import aliases before symbol_name'),
+                              ('ordinary.rs',754,787,'canonical calleeName uses lexical identifier/property name')]:
+    source=repo/'tools/rust-ts-r0/src'/name
+    text=''.join(source.read_text().splitlines(keepends=True)[start-1:end])
+    target=HERE/('authority-'+name+'.txt');target.write_text(text)
+    authority.append({'repository_path':'tools/rust-ts-r0/src/'+name,'start_line':start,'end_line':end,
+                      'source_sha256':hashlib.sha256(source.read_bytes()).hexdigest(),'reason':reason,
+                      'excerpt':target.name,'excerpt_sha256':hashlib.sha256(target.read_bytes()).hexdigest()})
+with (HERE/'source-authority.json').open('x',encoding='utf-8') as out:json.dump(authority,out,indent=2);out.write('\n')
+print(json.dumps({'oracle_sha256':hashlib.sha256((HERE/'expected-oracle.json').read_bytes()).hexdigest(),'candidate_queries':0}))

@@ -1,0 +1,82 @@
+{
+  "recordVersion": 1,
+  "state": "ORDINARY_CONFIG_DEV_NOT_QUALIFICATION",
+  "sourceHead": "a8f9e464695fe2c621321a77ca9c69d36b330469",
+  "reviewedDiffSha256": "0418ff13da8bcf250b2eb0702ec41d0b8ed8e6a5def468e4948e4733b65df7a6",
+  "archive": {
+    "path": "gap-ordinary-config-evidence.tar.gz.b64",
+    "bytes": 604588,
+    "sha256": "4572fbdb09bcdcb6df6e9002e3bd56951a3306959cde8f52adbc3a1df4c08bad",
+    "decodedSha256": "ddba10694b7fd0efa0bc4bfdfcc43f51d265d49a9d889cf648b44739ce8d406b",
+    "files": 159
+  },
+  "units": [
+    "N02-legacy-ignores-config::base",
+    "V2-E08-ordinary-conditional-package-exports::base"
+  ],
+  "nativeArtifactSha256": "e48e95cb00921896d58658ddc7f7810f3e4ebbe0344d2ea2bce860c47f812179",
+  "engineSourceSha256": {
+    "tools/rust-ts-r0/src/main.rs": "a1e8ebad46b1b2714ddf2d5b757b41a46be027c0872e31e70ea7489511812207",
+    "tools/rust-ts-r0/src/ordinary.rs": "4308ea4b87303bec0a3eced364c7763c8db382e2ab1b8e87e72920961cd3489e"
+  },
+  "recipesSha256": "d6c5c84861c0833684e68b37972d918c69ebe211d92e82e98edf25cec0e310af",
+  "nativeResults": "raw-corrected/units-N02-legacy-ignores-config/repair-results.json",
+  "projectedPasses": 2,
+  "qualificationCredit": 0,
+  "ownedCorrection": "Ordinary JS resolution uses source-configured native program mode and literal-span lookup, without checker-symbol fallback when the native observation is unresolved. Program/resolver errors and missing context refuse.",
+  "checks": {
+    "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22, Ruff0.16.10; GIT_CONFIG_GLOBAL unset",
+    "nativeBinTests": 182,
+    "observerComparators": 33,
+    "recipeCliTests": 7,
+    "formatClippyRuffExitCode": 0,
+    "verifyPrFourPartitions": [
+      {
+        "shard": "1/4",
+        "exitCode": 0,
+        "log": "logs/semctx-t00-gap-batch4-verify-1.log",
+        "sha256": "c2271355dbaab4fcf4f7370de2204e462d2b8f9a219a185771ab2cb8d25a69eb"
+      },
+      {
+        "shard": "2/4",
+        "exitCode": 0,
+        "log": "logs/semctx-t00-gap-batch4-verify-2.log",
+        "sha256": "99ec071001fcd2ddf2aa752871123dc00b10bdc296c0dd6ad320ad145d6802b4"
+      },
+      {
+        "shard": "3/4",
+        "exitCode": 0,
+        "log": "logs/semctx-t00-gap-batch4-verify-3.log",
+        "sha256": "48f15671de705adfaffbc93316794ef571ee0c1603147707ed1dd05d508c157a"
+      },
+      {
+        "shard": "4/4",
+        "exitCode": 0,
+        "log": "logs/semctx-t00-gap-batch4-verify-4.log",
+        "sha256": "7f285b041af24406170f328a517283760f4551af0a5a6b39ecae027d2e15a3fb"
+      }
+    ],
+    "verifyScope": "Indexed executable candidate; final result documentation validated separately. SEMCTX_VERIFY_BASE4e80d36c258cd63a871bf98fe0dcce0e7f1c2739."
+  },
+  "review": {
+    "standards": "/root/gap_batch4_standards",
+    "specProof": "/root/gap_batch4_spec_proof",
+    "verdict": "PROOF_ADEQUATE bounded to two mappings and changed ordinary JS mechanism",
+    "negativeWitnesses": 10,
+    "independentNativeInvocations": 4,
+    "reports": [
+      "review/standards/report.md",
+      "review/spec-proof/report.md"
+    ],
+    "candidateStable": true
+  },
+  "redWitnesses": [
+    "raw-before-native-fix: E08 missing paths",
+    "logs/semctx-t00-gap-conditional-import-native-diagnostic.log: actual failed native assertion; initial -red.log compile failure is not a behavioral witness"
+  ],
+  "limits": [
+    "macOS DEV only for this new engine and these two mappings; Linux/Windows CI pending next push.",
+    "Predecessor CI39142147341 at53cd succeeded with32 comparators and7 Python tests per OS; not this engine or full354 campaign.",
+    "No qualified obligation, reserved execution, blanket version attribution or R0 decision."
+  ]
+}

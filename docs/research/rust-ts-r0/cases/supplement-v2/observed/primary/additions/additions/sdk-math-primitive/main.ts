@@ -1,0 +1,1 @@
+Math.max = 1; export {};

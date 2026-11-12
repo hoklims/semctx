@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "state": "BLOCKED_BEFORE_EXTRACTION_OR_PAYLOAD_INSPECTION",
+  "recordedUTC": "2026-10-22T06:24:47.549248+00:00",
+  "candidateSourceCommit": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
+  "definitiveFreezeCommit": "84c46592",
+  "archiveSha256": "849e4bba3fc0e4d0cfd765620042d0e9fe7bd5caed84b6b775335d02997f8040",
+  "archiveIdentityVerified": true,
+  "archiveContentsListed": false,
+  "extracted": false,
+  "payloadInspected": false,
+  "privateCommitmentsVerified": false,
+  "cases": 23,
+  "variants": 26,
+  "executedVariants": 0,
+  "passVariants": null,
+  "failVariants": null,
+  "detailedOutputHashes": [],
+  "blocker": "No pre-existing frozen mapping from the 26 private variant expectations to native candidate invocations and deterministic comparison rules is available in the public tooling. The public receipt records nativeAnalysisReady:false and the missing invocation contract. Preparing that contract after opening would risk holdout contamination.",
+  "requiredNextCapability": "An independent candidate-blind verifier must supply and freeze the invocation/comparison contract before any payload opening; confirm it binds the final producer/helper/SDK hashes and preserves the frozen expectations.",
+  "r0Decision": null
+}

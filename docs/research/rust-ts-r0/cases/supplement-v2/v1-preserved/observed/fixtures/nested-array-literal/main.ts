@@ -1,0 +1,1 @@
+const [[value]] = [[1]]; export function main() { return value; }

@@ -1,0 +1,9 @@
+
+packages\ts-analyzer\test\parallel-extraction.test.ts:
+(pass) parallel TypeScript extraction > does not connect independent roots through the same external node_modules package [33.27ms]
+
+ 1 pass
+ 27 filtered out
+ 0 fail
+ 2 expect() calls
+Ran 1 test across 1 file. [172.00ms]

@@ -1,0 +1,73 @@
+/** Public surface of @semantic-context/ts-analyzer. */
+export { analyzeRepository, analyzeRepositoryAsync, assembleRepository, getQualifiedCallIntegrityReasons } from "./analyze";
+export type { AnalysisResult, AsyncAnalysisResult } from "./analyze";
+export { inspectJavaScriptSource, inspectSourceParsing, inspectModuleConfiguration, hasNodeCreateRequireUse, inspectNativeModuleBindings } from "./javascript-diagnostics";
+export { createWorkspaceLinkResolver } from "./workspace-links";
+export type { WorkspaceLinkResolver } from "./workspace-links";
+/** Internal app-service integration seam; does not create graph facts or public report fields. */
+export { registerOpaqueCallbackOwnership } from "./semantic-dependency-diagnostics";
+
+export {
+  DISCOVERY_CANDIDATE_REASONS,
+  discoverFiles,
+  discoverRepository,
+  countTypeScriptFiles,
+  isPathSelected,
+  sourceLanguage,
+  createQualifiedPathEligibility,
+  isHardExcludedPath,
+  createDiscoveryPathExclusion,
+} from "./discovery";
+export type {
+  DiscoveredFile,
+  DiscoveryCandidate,
+  DiscoveryResult,
+  FileRole,
+  SourceLanguage,
+} from "./discovery";
+
+export {
+  extractTypeScript,
+  extractTypeScriptParallel,
+  resolveWorkerCount,
+  TYPESCRIPT_DIALECT_VERSION,
+  typeScriptLibraryDirectory,
+} from "./ts-symbols";
+export type {
+  TsExtraction,
+  ExtractedSymbol,
+  ExtractedImport,
+  ExtractedCall,
+  IndexWorkerSelection,
+  ParallelTsExtraction,
+  TypeScriptParallelism,
+  CompilerInputSnapshot,
+} from "./ts-symbols";
+
+export {
+  parseMarkers,
+  stripJsDoc,
+  detectMarkerDivergence,
+  degradeDivergentMarkerNodes,
+  degradeDivergentPlaneAFacts,
+  summarizeMarkerCoverage,
+} from "./markers";
+export type {
+  ParsedMarker,
+  MarkerTag,
+  MarkerDeclaration,
+  MarkerDivergence,
+  MarkerCoverage,
+} from "./markers";
+
+export { outlineModuleLinks, outlineTopLevel } from "./top-level-outline";
+export type { ModuleLinkOutline, TopLevelOutline, TopLevelStatementKind, TopLevelStatementOutline } from "./top-level-outline";
+
+export { parseFrontmatter, asStringArray } from "./frontmatter";
+export type { Frontmatter, FrontmatterValue } from "./frontmatter";
+
+export { extractDoc } from "./docs";
+export type { ExtractedDoc } from "./docs";
+
+export { extractMigration } from "./migrations";
+export type { ExtractedMigration, MigrationConstraint } from "./migrations";

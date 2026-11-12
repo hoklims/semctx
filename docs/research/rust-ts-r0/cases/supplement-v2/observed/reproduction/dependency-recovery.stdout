@@ -1,0 +1,10 @@
+[0m[1mbun install [0m[2mv1.4.3 (c6da4a4d3)[0m
+
+[0m[32m+[0m [1m@eslint/js[0m[2m@10.0.1[0m
+[0m[32m+[0m [1m@types/bun[0m[2m@1.4.2[0m
+[0m[32m+[0m [1meslint[0m[2m@10.12.0[0m
+[0m[32m+[0m [1mglobals[0m[2m@17.13.0[0m
+[0m[32m+[0m [1mtypescript[0m[2m@5.9.3[0m
+[0m[32m+[0m [1mtypescript-eslint[0m[2m@8.71.1[0m
+
+[32m115[0m packages[0m installed [0m[2m[[1m1.83s[0m[2m][0m[0m

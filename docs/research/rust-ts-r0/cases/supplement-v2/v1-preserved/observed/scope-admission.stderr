@@ -1,0 +1,13 @@
+
+packages\app-services\test\qualified-analysis.test.ts:
+
+# Unhandled error between tests
+-------------------------------
+error: Cannot find module '@lezer/python' from 'C:\Users\Hokli\Documents\Codex\2026-10-21\re\work\t00-qualification-supplement-v1\baseline-source\packages\python-analyzer\src\index.ts'
+-------------------------------
+
+
+ 0 pass
+ 1 fail
+ 1 error
+Ran 1 test across 1 file. [160.00ms]

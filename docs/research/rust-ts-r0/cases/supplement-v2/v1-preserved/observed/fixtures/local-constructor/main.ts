@@ -1,0 +1,1 @@
+const helper = { constructor: 1 }; const dot = helper.constructor; const bracket = helper['constructor']; export {};

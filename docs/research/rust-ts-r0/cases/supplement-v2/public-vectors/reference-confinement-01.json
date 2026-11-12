@@ -1,0 +1,610 @@
+{
+  "schemaVersion": 1,
+  "id": "reference-confinement-01",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "records relative imports and reference paths escaping the repository as failed",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/ts-analyzer/test/discovery-selection.test.ts"
+  },
+  "rawStream": {
+    "file": "reference-confinement.operations.jsonl",
+    "sha256": "f2059e835c6dcdf4849f17c44e8c0e86ff4d8f75f6d8de4e327d90979ee3c877"
+  },
+  "pathNormalization": {
+    "roots": [
+      {
+        "raw": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ-outside",
+        "token": "$FIXTURE/1"
+      },
+      {
+        "raw": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+        "token": "$FIXTURE/0"
+      }
+    ],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "parent": null,
+      "baselineFunction": "discoverRepository",
+      "request": {
+        "operation": "repository.discover",
+        "arguments": [
+          {
+            "version": 1,
+            "repositoryRoot": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-selection-dxAsDZ",
+            "include": [
+              "src/**/*.ts"
+            ],
+            "exclude": [
+              "node_modules",
+              "dist",
+              ".semctx",
+              ".git",
+              "coverage"
+            ],
+            "docsDirs": [
+              "docs"
+            ],
+            "migrationsDirs": [
+              "migrations"
+            ],
+            "testGlobs": [
+              "**/*.test.ts",
+              "**/*.spec.ts",
+              "test/**/*.ts"
+            ],
+            "semanticProvider": "none",
+            "blockingRules": [
+              {
+                "id": "invariant-needs-test",
+                "description": "A change touching an invariant-constrained symbol must be covered by a test.",
+                "when": "invariant_touched_without_test",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "critical-contract-needs-test",
+                "description": "A change to a critical exported contract (tagged `critical`/`security`) must be covered by a test.",
+                "when": "critical_contract_changed_without_test",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "security-needs-verification",
+                "description": "A security-surface change needs an explicit verification.",
+                "when": "security_surface_without_verification",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "contract-needs-test",
+                "description": "A change to an exported contract should be covered by a contract test.",
+                "when": "contract_changed_without_test",
+                "severity": "warn",
+                "tier": "advisory"
+              },
+              {
+                "id": "contradiction-unresolved",
+                "description": "An unresolved contradiction in touched sources should be surfaced.",
+                "when": "contradiction_unresolved",
+                "severity": "warn",
+                "tier": "advisory"
+              }
+            ]
+          }
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "docs/guide.md",
+            "size": 8,
+            "sha256": "bc553ffe57e544498b12a9865dbf3abc2004c474e349c52c378eaa402287424b",
+            "bytesBase64": "IyBHdWlkZQo=",
+            "materializedBlob": "fixture-blobs/bc553ffe57e544498b12a9865dbf3abc2004c474e349c52c378eaa402287424b"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "README.txt",
+            "size": 26,
+            "sha256": "fb1e2fff2d9de20c1b2bf294f80ca39a19f12a2df2050acdc6d2073bb1a84afa",
+            "bytesBase64": "bm90IHNlbWFudGljYWxseSBhbmFseXplZAo=",
+            "materializedBlob": "fixture-blobs/fb1e2fff2d9de20c1b2bf294f80ca39a19f12a2df2050acdc6d2073bb1a84afa"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "services/api/ignored.py",
+            "size": 28,
+            "sha256": "da36358bdd001cd5b78cb977e059bd52eac0caff7b0ab6dae54b12c7ebf04f13",
+            "bytesBase64": "ZGVmIGlnbm9yZWQoKToKICAgIHJldHVybiAwCg==",
+            "materializedBlob": "fixture-blobs/da36358bdd001cd5b78cb977e059bd52eac0caff7b0ab6dae54b12c7ebf04f13"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "services/api/main.py",
+            "size": 25,
+            "sha256": "13e9ae3486a224c96a589306cbfdf9dafd96593694e3b4632548f2999cf2299f",
+            "bytesBase64": "ZGVmIG1haW4oKToKICAgIHJldHVybiAxCg==",
+            "materializedBlob": "fixture-blobs/13e9ae3486a224c96a589306cbfdf9dafd96593694e3b4632548f2999cf2299f"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "src/legacy.ts",
+            "size": 102,
+            "sha256": "33873830715c3d58e01ba03bb970184ed72a9a64df9edf54fb4d448eea36607d",
+            "bytesBase64": "aW1wb3J0IHsgc2VjcmV0IH0gZnJvbSAnLi4vLi4vc2VtY3R4LXNlbGVjdGlvbi1keEFzRFotb3V0c2lkZS9pbXBvcnRlZCc7CmV4cG9ydCBjb25zdCB2YWx1ZSA9IHNlY3JldDsK",
+            "materializedBlob": "fixture-blobs/33873830715c3d58e01ba03bb970184ed72a9a64df9edf54fb4d448eea36607d"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "src/referenced.ts",
+            "size": 109,
+            "sha256": "09836cdb2780b0ee30afabe5076821a06df659ecd719da635ca27785d53846a6",
+            "bytesBase64": "Ly8vIDxyZWZlcmVuY2UgcGF0aD0nLi4vLi4vc2VtY3R4LXNlbGVjdGlvbi1keEFzRFotb3V0c2lkZS90eXBlcy5kLnRzJyAvPgpleHBvcnQgY29uc3QgdmFsdWUgPSBleHRlcm5hbFR5cGU7Cg==",
+            "materializedBlob": "fixture-blobs/09836cdb2780b0ee30afabe5076821a06df659ecd719da635ca27785d53846a6"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "vendor/third_party.py",
+            "size": 27,
+            "sha256": "81e003049b03e4eaa94d92261d60dfdd0456414dfcb0ff895682fd0c9e635ec3",
+            "bytesBase64": "ZGVmIHZlbmRvcigpOgogICAgcmV0dXJuIDAK",
+            "materializedBlob": "fixture-blobs/81e003049b03e4eaa94d92261d60dfdd0456414dfcb0ff895682fd0c9e635ec3"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "équipe/outil.py",
+            "size": 26,
+            "sha256": "e9c6058e86366989e0c02984b7af6e2c8a181a9362ab88e7ba9cbf4c1efb65be",
+            "bytesBase64": "ZGVmIG91dGlsKCk6CiAgICByZXR1cm4gMQo=",
+            "materializedBlob": "fixture-blobs/e9c6058e86366989e0c02984b7af6e2c8a181a9362ab88e7ba9cbf4c1efb65be"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ-outside",
+            "path": "imported.ts",
+            "size": 33,
+            "sha256": "426642e77de2060860b60cfc093e2284a9a638b891848433b9579482c34efa96",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IHNlY3JldCA9ICdvdXRzaWRlJzsK",
+            "materializedBlob": "fixture-blobs/426642e77de2060860b60cfc093e2284a9a638b891848433b9579482c34efa96"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ-outside",
+            "path": "types.d.ts",
+            "size": 36,
+            "sha256": "696fdda8f6316d9ed01ecd1e67b77c54bbc15256337b48fc684fe012888f1bf3",
+            "bytesBase64": "ZGVjbGFyZSBjb25zdCBleHRlcm5hbFR5cGU6IHN0cmluZzsK",
+            "materializedBlob": "fixture-blobs/696fdda8f6316d9ed01ecd1e67b77c54bbc15256337b48fc684fe012888f1bf3"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "files": [
+            {
+              "absPath": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-selection-dxAsDZ\\docs\\guide.md",
+              "relPath": "docs/guide.md",
+              "role": "document",
+              "content": "# Guide\n"
+            }
+          ],
+          "candidates": [
+            {
+              "relPath": "README.txt",
+              "language": "unknown",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "docs/guide.md",
+              "language": "markdown",
+              "selectionDecision": "selected",
+              "reason": "SELECTED"
+            },
+            {
+              "relPath": "services/api/ignored.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "services/api/main.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "src/legacy.ts",
+              "language": "typescript",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "src/referenced.ts",
+              "language": "typescript",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "vendor/third_party.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            },
+            {
+              "relPath": "équipe/outil.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+            }
+          ]
+        }
+      },
+      "normalizedProjection": {
+        "candidates": [
+          {
+            "relPath": "README.txt",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+          },
+          {
+            "relPath": "docs/guide.md",
+            "selectionDecision": "selected",
+            "reason": "SELECTED"
+          },
+          {
+            "relPath": "services/api/ignored.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+          },
+          {
+            "relPath": "services/api/main.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+          },
+          {
+            "relPath": "src/legacy.ts",
+            "selectionDecision": "selected",
+            "analysisOutcome": "failed",
+            "reason": "IMPORT_OUTSIDE_REPOSITORY"
+          },
+          {
+            "relPath": "src/referenced.ts",
+            "selectionDecision": "selected",
+            "analysisOutcome": "failed",
+            "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+          },
+          {
+            "relPath": "vendor/third_party.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+          },
+          {
+            "relPath": "équipe/outil.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "LEGACY_UNSUPPORTED_EXTENSION"
+          }
+        ],
+        "files": [
+          {
+            "relPath": "docs/guide.md",
+            "role": "document",
+            "content": "# Guide\n"
+          }
+        ]
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 2,
+      "parent": null,
+      "baselineFunction": "discoverRepository",
+      "request": {
+        "operation": "repository.discover",
+        "arguments": [
+          {
+            "version": 2,
+            "repositoryRoot": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\primary\\public-sealed\\scratch\\semctx-selection-dxAsDZ",
+            "include": [
+              "src/**/*.ts"
+            ],
+            "exclude": [
+              "services/**/ignored.py",
+              "vendor/**"
+            ],
+            "docsDirs": [
+              "docs"
+            ],
+            "migrationsDirs": [
+              "migrations"
+            ],
+            "testGlobs": [
+              "**/*.test.ts",
+              "**/*.spec.ts",
+              "test/**/*.ts"
+            ],
+            "semanticProvider": "none",
+            "blockingRules": [
+              {
+                "id": "invariant-needs-test",
+                "description": "A change touching an invariant-constrained symbol must be covered by a test.",
+                "when": "invariant_touched_without_test",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "critical-contract-needs-test",
+                "description": "A change to a critical exported contract (tagged `critical`/`security`) must be covered by a test.",
+                "when": "critical_contract_changed_without_test",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "security-needs-verification",
+                "description": "A security-surface change needs an explicit verification.",
+                "when": "security_surface_without_verification",
+                "severity": "block",
+                "tier": "strict"
+              },
+              {
+                "id": "contract-needs-test",
+                "description": "A change to an exported contract should be covered by a contract test.",
+                "when": "contract_changed_without_test",
+                "severity": "warn",
+                "tier": "advisory"
+              },
+              {
+                "id": "contradiction-unresolved",
+                "description": "An unresolved contradiction in touched sources should be surfaced.",
+                "when": "contradiction_unresolved",
+                "severity": "warn",
+                "tier": "advisory"
+              }
+            ],
+            "selectionMode": "globs-v1",
+            "languages": {
+              "typescript": "on",
+              "python": "on",
+              "markdown": "on",
+              "sql": "on"
+            }
+          }
+        ],
+        "fixtureClosure": [
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "docs/guide.md",
+            "size": 8,
+            "sha256": "bc553ffe57e544498b12a9865dbf3abc2004c474e349c52c378eaa402287424b",
+            "bytesBase64": "IyBHdWlkZQo=",
+            "materializedBlob": "fixture-blobs/bc553ffe57e544498b12a9865dbf3abc2004c474e349c52c378eaa402287424b"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "README.txt",
+            "size": 26,
+            "sha256": "fb1e2fff2d9de20c1b2bf294f80ca39a19f12a2df2050acdc6d2073bb1a84afa",
+            "bytesBase64": "bm90IHNlbWFudGljYWxseSBhbmFseXplZAo=",
+            "materializedBlob": "fixture-blobs/fb1e2fff2d9de20c1b2bf294f80ca39a19f12a2df2050acdc6d2073bb1a84afa"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "services/api/ignored.py",
+            "size": 28,
+            "sha256": "da36358bdd001cd5b78cb977e059bd52eac0caff7b0ab6dae54b12c7ebf04f13",
+            "bytesBase64": "ZGVmIGlnbm9yZWQoKToKICAgIHJldHVybiAwCg==",
+            "materializedBlob": "fixture-blobs/da36358bdd001cd5b78cb977e059bd52eac0caff7b0ab6dae54b12c7ebf04f13"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "services/api/main.py",
+            "size": 25,
+            "sha256": "13e9ae3486a224c96a589306cbfdf9dafd96593694e3b4632548f2999cf2299f",
+            "bytesBase64": "ZGVmIG1haW4oKToKICAgIHJldHVybiAxCg==",
+            "materializedBlob": "fixture-blobs/13e9ae3486a224c96a589306cbfdf9dafd96593694e3b4632548f2999cf2299f"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "src/legacy.ts",
+            "size": 102,
+            "sha256": "33873830715c3d58e01ba03bb970184ed72a9a64df9edf54fb4d448eea36607d",
+            "bytesBase64": "aW1wb3J0IHsgc2VjcmV0IH0gZnJvbSAnLi4vLi4vc2VtY3R4LXNlbGVjdGlvbi1keEFzRFotb3V0c2lkZS9pbXBvcnRlZCc7CmV4cG9ydCBjb25zdCB2YWx1ZSA9IHNlY3JldDsK",
+            "materializedBlob": "fixture-blobs/33873830715c3d58e01ba03bb970184ed72a9a64df9edf54fb4d448eea36607d"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "src/referenced.ts",
+            "size": 109,
+            "sha256": "09836cdb2780b0ee30afabe5076821a06df659ecd719da635ca27785d53846a6",
+            "bytesBase64": "Ly8vIDxyZWZlcmVuY2UgcGF0aD0nLi4vLi4vc2VtY3R4LXNlbGVjdGlvbi1keEFzRFotb3V0c2lkZS90eXBlcy5kLnRzJyAvPgpleHBvcnQgY29uc3QgdmFsdWUgPSBleHRlcm5hbFR5cGU7Cg==",
+            "materializedBlob": "fixture-blobs/09836cdb2780b0ee30afabe5076821a06df659ecd719da635ca27785d53846a6"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "vendor/third_party.py",
+            "size": 27,
+            "sha256": "81e003049b03e4eaa94d92261d60dfdd0456414dfcb0ff895682fd0c9e635ec3",
+            "bytesBase64": "ZGVmIHZlbmRvcigpOgogICAgcmV0dXJuIDAK",
+            "materializedBlob": "fixture-blobs/81e003049b03e4eaa94d92261d60dfdd0456414dfcb0ff895682fd0c9e635ec3"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ",
+            "path": "équipe/outil.py",
+            "size": 26,
+            "sha256": "e9c6058e86366989e0c02984b7af6e2c8a181a9362ab88e7ba9cbf4c1efb65be",
+            "bytesBase64": "ZGVmIG91dGlsKCk6CiAgICByZXR1cm4gMQo=",
+            "materializedBlob": "fixture-blobs/e9c6058e86366989e0c02984b7af6e2c8a181a9362ab88e7ba9cbf4c1efb65be"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ-outside",
+            "path": "imported.ts",
+            "size": 33,
+            "sha256": "426642e77de2060860b60cfc093e2284a9a638b891848433b9579482c34efa96",
+            "bytesBase64": "ZXhwb3J0IGNvbnN0IHNlY3JldCA9ICdvdXRzaWRlJzsK",
+            "materializedBlob": "fixture-blobs/426642e77de2060860b60cfc093e2284a9a638b891848433b9579482c34efa96"
+          },
+          {
+            "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/public-sealed/scratch/semctx-selection-dxAsDZ-outside",
+            "path": "types.d.ts",
+            "size": 36,
+            "sha256": "696fdda8f6316d9ed01ecd1e67b77c54bbc15256337b48fc684fe012888f1bf3",
+            "bytesBase64": "ZGVjbGFyZSBjb25zdCBleHRlcm5hbFR5cGU6IHN0cmluZzsK",
+            "materializedBlob": "fixture-blobs/696fdda8f6316d9ed01ecd1e67b77c54bbc15256337b48fc684fe012888f1bf3"
+          }
+        ],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "files": [],
+          "candidates": [
+            {
+              "relPath": "README.txt",
+              "language": "unknown",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            },
+            {
+              "relPath": "docs/guide.md",
+              "language": "markdown",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            },
+            {
+              "relPath": "services/api/ignored.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "EXCLUDE_MATCH"
+            },
+            {
+              "relPath": "services/api/main.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            },
+            {
+              "relPath": "src/legacy.ts",
+              "language": "typescript",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "IMPORT_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "src/referenced.ts",
+              "language": "typescript",
+              "selectionDecision": "selected",
+              "analysisOutcome": "failed",
+              "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+            },
+            {
+              "relPath": "vendor/third_party.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "EXCLUDE_MATCH"
+            },
+            {
+              "relPath": "équipe/outil.py",
+              "language": "python",
+              "selectionDecision": "excluded",
+              "analysisOutcome": "not_applicable",
+              "reason": "INCLUDE_MISS"
+            }
+          ]
+        }
+      },
+      "normalizedProjection": {
+        "candidates": [
+          {
+            "relPath": "README.txt",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "INCLUDE_MISS"
+          },
+          {
+            "relPath": "docs/guide.md",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "INCLUDE_MISS"
+          },
+          {
+            "relPath": "services/api/ignored.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "EXCLUDE_MATCH"
+          },
+          {
+            "relPath": "services/api/main.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "INCLUDE_MISS"
+          },
+          {
+            "relPath": "src/legacy.ts",
+            "selectionDecision": "selected",
+            "analysisOutcome": "failed",
+            "reason": "IMPORT_OUTSIDE_REPOSITORY"
+          },
+          {
+            "relPath": "src/referenced.ts",
+            "selectionDecision": "selected",
+            "analysisOutcome": "failed",
+            "reason": "REFERENCE_OUTSIDE_REPOSITORY"
+          },
+          {
+            "relPath": "vendor/third_party.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "EXCLUDE_MATCH"
+          },
+          {
+            "relPath": "équipe/outil.py",
+            "selectionDecision": "excluded",
+            "analysisOutcome": "not_applicable",
+            "reason": "INCLUDE_MISS"
+          }
+        ],
+        "files": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": []
+}

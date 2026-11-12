@@ -10,7 +10,20 @@ use std::{
     path::{Path, PathBuf},
 };
 
-const TOOL_MANIFESTS: &[&str] = &["tools/gates/Cargo.toml", "tools/qualification/Cargo.toml"];
+const TOOL_MANIFESTS: &[&str] = &[
+    "tools/gates/Cargo.toml",
+    "tools/qualification/Cargo.toml",
+    "tools/rust-ts-r0/Cargo.toml",
+];
+pub(crate) const EXPERIMENTAL_TOOL_MANIFESTS: &[&str] = &[
+    "tools/rust-ts-r0-ts7-experimental/Cargo.toml",
+    "tools/t00-ts7-oracle-emit-helpers/Cargo.toml",
+    "tools/t00-ts7-oracle-q-semantic/Cargo.toml",
+    "tools/t00-ts7-oracle-q-syntax/Cargo.toml",
+];
+fn is_tool_manifest(manifest: &str) -> bool {
+    TOOL_MANIFESTS.contains(&manifest) || EXPERIMENTAL_TOOL_MANIFESTS.contains(&manifest)
+}
 #[derive(Serialize)]
 pub struct Report {
     pub schema: u32,
@@ -91,8 +104,7 @@ pub fn test(root: &Path) -> Result<Report> {
     let manifests = tracked
         .iter()
         .filter(|p| {
-            (p.as_str() == "Cargo.toml" || p.ends_with("/Cargo.toml"))
-                && !TOOL_MANIFESTS.contains(&p.as_str())
+            (p.as_str() == "Cargo.toml" || p.ends_with("/Cargo.toml")) && !is_tool_manifest(p)
         })
         .cloned()
         .collect::<Vec<_>>();
@@ -235,7 +247,7 @@ fn discover_workspaces(
                 .ok_or("Cargo member missing manifest")?;
             let path = require_tracked(root, Path::new(package_manifest), tracked)?;
             let relative_path = relative(root, &path)?;
-            if !TOOL_MANIFESTS.contains(&relative_path.as_str()) {
+            if !is_tool_manifest(&relative_path) {
                 product_members.push(
                     package["name"]
                         .as_str()

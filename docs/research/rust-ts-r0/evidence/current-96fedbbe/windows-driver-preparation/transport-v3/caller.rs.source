@@ -1,0 +1,89 @@
+use semctx_gates::process;
+use sha2::{Digest, Sha256};
+use std::{env, fs, path::Path};
+fn sha(bytes: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(bytes))
+}
+fn need(value: bool, message: &str) -> Result<(), String> {
+    if value { Ok(()) } else { Err(message.into()) }
+}
+fn checked(spec: &serde_json::Value) -> Result<(), String> {
+    need(
+        spec["execution_authorized"] == true
+            && spec["timeout_ms"] == 20_000
+            && spec["output_cap"] == 8_388_608,
+        "exact authority/budget required",
+    )?;
+    for pin in spec["pins"].as_array().ok_or("pins required")? {
+        let path = pin["path"].as_str().ok_or("pin path required")?;
+        need(Path::new(path).is_absolute(), "absolute pin required")?;
+        need(
+            sha(&fs::read(path).map_err(|e| e.to_string())?)
+                == pin["sha256"].as_str().ok_or("pin digest required")?,
+            "input/tool drift",
+        )?;
+    }
+    Ok(())
+}
+fn run() -> Result<(), String> {
+    let args: Vec<String> = env::args().skip(1).collect();
+    need(
+        args.len() == 3,
+        "spec, new output and independent spec SHA required",
+    )?;
+    let raw_spec = fs::read(&args[0]).map_err(|e| e.to_string())?;
+    need(sha(&raw_spec) == args[2], "external spec byte pin differs")?;
+    let spec: serde_json::Value = serde_json::from_slice(&raw_spec).map_err(|e| e.to_string())?;
+    checked(&spec)?;
+    let argv: Vec<String> = spec["argv"]
+        .as_array()
+        .ok_or("argv required")?
+        .iter()
+        .map(|v| v.as_str().map(String::from).ok_or("string argv required"))
+        .collect::<Result<_, _>>()?;
+    need(argv.len() == 3, "exact direct candidate argc required")?;
+    let cwd = spec["cwd"].as_str().ok_or("cwd required")?;
+    let helper = spec["helper"].as_str().ok_or("helper required")?;
+    need(
+        Path::new(cwd).is_absolute() && Path::new(helper).is_absolute(),
+        "absolute paths required",
+    )?;
+    let output = Path::new(&args[1]);
+    fs::create_dir(output).map_err(|e| e.to_string())?;
+    process::install_cancellation();
+    let outcome =
+        process::run_with_helper(&argv, Path::new(cwd), 20_000, 8_388_608, Path::new(helper))
+            .map_err(|e| e.to_string())?;
+    // Outcome strings are bounded UTF-8 decodings, potentially lossy/truncated.
+    // Keep compatibility filenames and original read counts/hashes separately.
+    fs::write(output.join("stdout.raw"), outcome.stdout.as_bytes()).map_err(|e| e.to_string())?;
+    fs::write(output.join("stderr.raw"), outcome.stderr.as_bytes()).map_err(|e| e.to_string())?;
+    fs::write(
+        output.join("process-outcome.json"),
+        serde_json::to_vec_pretty(&outcome).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    let storage = serde_json::json!({
+        "representation": "bounded_utf8_decoded_ProcessOutcome_strings",
+        "decoder": "String::from_utf8_lossy",
+        "raw_suffix_is_compatibility_filename": true,
+        "original_read_counts_and_hashes": "process-outcome.json",
+        "original_capture_cap_bytes_per_stream": 8_388_608,
+        "maximum_decoded_utf8_bytes_per_stream": 25_165_824,
+        "exactness": "Only successful, nontruncated streams whose stored lengths and SHA256 equal the original outcome are accepted."
+    });
+    fs::write(
+        output.join("capture-storage.json"),
+        serde_json::to_vec_pretty(&storage).map_err(|e| e.to_string())?,
+    )
+    .map_err(|e| e.to_string())?;
+    checked(&spec)?;
+    println!("{{\"captured\":true}}");
+    Ok(())
+}
+fn main() {
+    if let Err(error) = run() {
+        eprintln!("{error}");
+        std::process::exit(1);
+    }
+}

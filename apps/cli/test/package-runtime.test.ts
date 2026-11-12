@@ -17,6 +17,7 @@ import packageJson from "../package.json";
 const cliRoot = resolve(import.meta.dir, "..");
 const repoRoot = resolve(cliRoot, "..", "..");
 const foreignRoot = mkdtempSync(join(tmpdir(), "semctx-npm-package-"));
+const npmCache = join(foreignRoot, "npm-cache");
 let packedTarball: string | undefined;
 
 afterAll(() => {
@@ -39,7 +40,7 @@ function run(command: string[], cwd: string): {
 
 describe("published npm CLI package", () => {
   test("packs and installs a portable CLI whose npm bin runs outside the checkout", () => {
-    const pack = run(["npm", "pack", "--json", "--silent"], cliRoot);
+    const pack = run(["npm", "--cache", npmCache, "pack", "--json", "--silent"], cliRoot);
     expect(pack.code, pack.err).toBe(0);
     type PackedPackage = {
       filename: string;
@@ -58,7 +59,7 @@ describe("published npm CLI package", () => {
     mkdirSync(installRoot, { recursive: true });
     writeFileSync(join(installRoot, "package.json"), '{"name":"consumer","private":true}\n');
     const install = run(
-      ["npm", "install", "--offline", "--ignore-scripts", "--no-audit", "--no-fund", packedTarball],
+      ["npm", "--cache", npmCache, "install", "--offline", "--ignore-scripts", "--no-audit", "--no-fund", packedTarball],
       installRoot,
     );
     expect(install.code, install.err).toBe(0);

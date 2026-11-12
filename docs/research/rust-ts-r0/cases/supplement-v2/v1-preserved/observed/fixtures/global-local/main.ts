@@ -1,0 +1,1 @@
+const globalThis = { setTimeout: () => 0 }; globalThis.setTimeout = () => 1; export {};

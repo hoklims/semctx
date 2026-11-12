@@ -1,0 +1,66 @@
+{
+  "files": {
+    "README.md": {
+      "bytes": 6470,
+      "sha256": "9a534443d49bdca1140b052f5d97f38ea52c69569fa5e8c39269adc7c3df4d92"
+    },
+    "additional_digest_dispositions.py": {
+      "bytes": 9394,
+      "sha256": "9138a21378ea488d66e1ab1b129b9ab0f14b5ef1b3d92e43460184b6c1005cce"
+    },
+    "assess_final.py": {
+      "bytes": 38275,
+      "sha256": "d0d7e39ebbe11ebfb46d86ea74935f85b39923058a27dca0f5a008f76962a3fa"
+    },
+    "check_protocol.py": {
+      "bytes": 1681,
+      "sha256": "adaa7927379f27f363550d6efb0d5e19fd39b0415d8da459c59559a22130c7c2"
+    },
+    "configuration_6046_disposition.py": {
+      "bytes": 13012,
+      "sha256": "1eb4cabe6a5a7de5d027744b5f43c482f38e036d3129758b0ef9e1419bd62374"
+    },
+    "final_join.py": {
+      "bytes": 5580,
+      "sha256": "e0b6bc005eb72facb4b3175b6fe589516ebd73ee99721ce81e2b66923232e26b"
+    },
+    "n12-baseline-oracle.json": {
+      "bytes": 7633,
+      "sha256": "8f4c0803242c41df2d48595e60e303cb35fc8a9b7179d5bec18f722c31959559"
+    },
+    "nonqualified_carriers.py": {
+      "bytes": 30190,
+      "sha256": "8572cd6abd4457cd36876e00fed528b0e8b19fc29b4ba918472ec7ef178a098d"
+    },
+    "physical_system_carrier.py": {
+      "bytes": 5251,
+      "sha256": "34d4bddf8a4fe5467779f8d3d3353d434816e8762f0d7867c48d5db04167cf4d"
+    },
+    "poison_controls.py": {
+      "bytes": 6129,
+      "sha256": "746b6120d7b23b2dd272d07612a9d56596de23aa4bcbfb0c706ada91177c11a5"
+    },
+    "qualified_carriers.py": {
+      "bytes": 28615,
+      "sha256": "2a26d2859f4ad0c3a5fcae982962d35c5edd8b55f385c82c6bd5d67bdd38d31b"
+    },
+    "raw_compare.py": {
+      "bytes": 7559,
+      "sha256": "52b62e26ec0e53cb74e07697b444c665dbd9cc15dacf5a0d1f67b57c891d0993"
+    },
+    "remaining_carriers.py": {
+      "bytes": 32610,
+      "sha256": "e1b98db92f75411057812209c6b7b58573f1953180ca0d3a89062a5fb3b4db09"
+    },
+    "scope-map.json.gz": {
+      "bytes": 367719,
+      "sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3"
+    },
+    "token_inputs.py": {
+      "bytes": 6052,
+      "sha256": "a5eccbd3094532ef4951efead383de39bc0bdd3a647084f740021f0658beec67"
+    }
+  },
+  "kind": "PRE_QUERY_SOURCE_PIN_UPDATE_WITH_TYPE_STRICT_COMPARATOR",
+  "scope_map_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3"
+}

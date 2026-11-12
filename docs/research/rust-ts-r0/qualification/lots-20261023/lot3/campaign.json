@@ -1,0 +1,282 @@
+{
+  "schemaVersion": 1,
+  "state": "FINITE_PUBLIC_LOT3_ONLY",
+  "baseCommit": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+  "producerSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3"
+  },
+  "producerHelperChanged": false,
+  "platforms": {
+    "macos": {
+      "os": "macOS 27.0.1",
+      "architecture": "arm64",
+      "bun": "1.4.3",
+      "rust": "1.95.0",
+      "producerSha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+      "helperSha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d"
+    },
+    "linux": {
+      "os": "OrbStack Linux",
+      "architecture": "aarch64",
+      "bun": "1.4.3",
+      "rust": "1.95.0",
+      "image": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+      "network": "none",
+      "producerSha256": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+      "helperSha256": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe"
+    }
+  },
+  "sdkJsonSha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+  "sdkArchiveSha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+  "helperExecutionClaim": "Helper identities retained from the unchanged freeze; these supplemental comparisons directly invoke the producer, not a new helper campaign.",
+  "scope": "Only lot3 public fixtures; no recampaign of the 209 prior finite qualifications. No full compiler API equivalence or terminal admission.",
+  "resolutionAssessmentOverride": "Independent audit narrows configuration System selection, live wrapper selection and nearest config exists to ORACLE_ONLY: baseline traces plus endpoint equality do not prove native live branches or an isolated predicate control. Raw author summaries remain preserved as evidence, not qualification authority.",
+  "rawEvidence": {
+    "config": {
+      "summary.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/summary.json",
+        "sha256": "87c0e7df55606ba20df3647cba971d5780cd66c1e8bdfe34056cec7c4670cf6b",
+        "bytes": 11402
+      },
+      "raw-manifest.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/raw-manifest.json",
+        "sha256": "b8cc38c49cd266c7fff3aabf30fb83c4f7cda06439431086dc4825b64b41f9ff",
+        "bytes": 182827
+      },
+      "dialect-cause.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/config/dialect-cause.json",
+        "sha256": "63139815873eb3f6a6aa9e05b123bd37c04b5cd94b5d0f4ddc09df513735f51e",
+        "bytes": 6291
+      }
+    },
+    "resolution": {
+      "summary.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/resolution/summary.json",
+        "sha256": "2292c694aa1e5f0936e709920e0a79d1b578e07905bac71d9b55b54f6d2e37f2",
+        "bytes": 51745
+      },
+      "manifest.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/resolution/manifest.json",
+        "sha256": "1594241c54b78792cb128ff64545bdebdd1cd83203c6298ac9e24fe3a6bfaa94",
+        "bytes": 15693
+      },
+      "reproduction.md": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/resolution/reproduction.md",
+        "sha256": "5cdbf59115ccd8a42a7183b6e13f6032e0f28798438981acbd7ce690d098bb62",
+        "bytes": 5315
+      }
+    },
+    "owner": {
+      "owner-summary.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/owner/owner-summary.json",
+        "sha256": "901bbd84892232a7aa3ba11ee94df65e6d8d3849dac2c9ac6f330e70507f70b8",
+        "bytes": 13391
+      },
+      "artifact-manifest.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/owner/artifact-manifest.json",
+        "sha256": "7c93bef252eb660800a99a308f70ca38e7e2ce7688c2fe2fd6ba8a8f24911cf5",
+        "bytes": 26780
+      },
+      "reproduction.md": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/owner/reproduction.md",
+        "sha256": "b5dbb47d54f1b02404c3e53bbc081fd139e7746bcfb1ae45fb84315b3aee200c",
+        "bytes": 4443
+      },
+      "source-identity-check.json": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/owner/source-identity-check.json",
+        "sha256": "8c8162e1d402e61c8a9e6fa756a82f1941a4eb95b654c7a1dece490918bb6764",
+        "bytes": 822
+      }
+    }
+  },
+  "sources": [
+    {
+      "path": "scripts/t00-lot3-config.test.ts",
+      "sha256": "c6c8f109d05d51744039210f06bdab35cb9ec3ac19caa08011a6e159c23b747e",
+      "bytes": 3420
+    },
+    {
+      "path": "scripts/t00-lot3-config.ts",
+      "sha256": "8d176fe7ba195134f54bfc61381c43d2298fee36a3fd61b73b5bc9eef0697446",
+      "bytes": 8805
+    },
+    {
+      "path": "scripts/t00-lot3-owner.test.ts",
+      "sha256": "6c6f32c6b4bd127922eda7c3f292d4a23b9d7f049422c6255de3df48030f5b57",
+      "bytes": 1611
+    },
+    {
+      "path": "scripts/t00-lot3-owner.ts",
+      "sha256": "89400fc0a7e80a133b529974bcdb163f5a52b930aa1db56603724206affe69bc",
+      "bytes": 15287
+    },
+    {
+      "path": "scripts/t00-lot3-resolution.test.ts",
+      "sha256": "7ca50d9f7c050e9cbbbbe61556b12cefbfbecefc2ef558068df315f275a484e5",
+      "bytes": 1664
+    },
+    {
+      "path": "scripts/t00-lot3-resolution.ts",
+      "sha256": "bb267f04785b1f2454b34aa2325f5a0b2301ef0c45450e657a93ae18603c2dac",
+      "bytes": 11348
+    }
+  ],
+  "verification": {
+    "quality": {
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/quality-final.log",
+        "sha256": "aff9da66d61c1faa4b0d74f9d6e9c094349a89ac1d9f5321e7b80452c4e29f71",
+        "bytes": 959
+      },
+      "result": "PASS",
+      "exitCode": 0,
+      "environment": "macOS27.0.1 arm64, Bun1.4.3, Rust1.95.0, Python3.11.15, Ruff0.16.10, zizmor1.30.1 offline",
+      "binding": "Final six scripts after owner metadata correction; quality-final.log"
+    },
+    "targetedTestsMacOS": {
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/tests-macos-final.log",
+        "sha256": "0cdf9fb565454628cd7ac548e524deb0f7efb53f14a8d991f484ec187d2271ee",
+        "bytes": 2204
+      },
+      "result": "24 PASS / 0 FAIL, 59 assertions",
+      "exitCode": 0,
+      "environment": "macOS27.0.1 arm64, Bun1.4.3",
+      "binding": "Final six scripts after owner metadata correction; tests-macos-final.log"
+    },
+    "verifyPr": {
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/verify-pr.log",
+        "sha256": "30f1a9037c3c82fe5825814b657580d2ef0747c429a556a9490b4521c1c8677b",
+        "bytes": 351
+      },
+      "result": "FAIL",
+      "environment": "macOS27.0.1 arm64; Bun1.4.3; Rust1.95.0; GIT_CONFIG_GLOBAL unset; Cargo offline and lot-specific target; navigation variables from brief",
+      "base": "rust/365-coordination",
+      "binding": "Full gate started with the six indexed scripts before table/manifests and owner metadata-only correction. Final metadata/doc additions receive separate targeted/static/documentation checks.",
+      "exitCode": 101,
+      "failedAction": "cargo test --manifest-path tools/gates/Cargo.toml --locked",
+      "bunSuite": "Completed successfully before the failing Rust action",
+      "remainingActionsNotExecuted": [
+        "tools/qualification Rust formatting, Clippy and tests",
+        "final native product discovery"
+      ],
+      "diagnostic": {
+        "sameEnvironmentReplay": {
+          "exitCode": 101,
+          "result": "67 PASS / 2 FAIL; rust_product: 6 PASS / 2 FAIL",
+          "log": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/rust-gates-diagnostic.log",
+            "sha256": "38c6ded0cc08906431310b4de0854796957665e498be3abf7704666d47281557",
+            "bytes": 9268
+          }
+        },
+        "singleVariableExperiment": {
+          "change": "Unset CARGO_TARGET_DIR only for the already compiled rust_product integration-test binary; fixtures then use their own temporary targets. No assertions, concurrency or source modified.",
+          "exitCode": 0,
+          "result": "8 PASS / 0 FAIL, parallel test execution",
+          "log": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/rust-gates-isolation-experiment.log",
+            "sha256": "5179254b1d6556f82c376784d630e6b1c9ad309a54c44d8e5f26208a7e2c4d3b",
+            "bytes": 625
+          }
+        },
+        "cause": "Parallel Cargo fixtures with identical package names inherit the shared lot CARGO_TARGET_DIR and execute incompatible artifacts. Repo::run does not isolate the variable; gates code is unchanged from base.",
+        "disposition": "Pre-existing test-isolation defect outside the permitted lot3 paths; not repaired or waived. The diagnostic PASS does not convert the failed full gate to PASS."
+      }
+    },
+    "documentation": {
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/docs-check-final.log",
+        "sha256": "ecc1566aa857c4d85448527b0638e6f9336b59c07fd8b84f398b3efe9a34ca41",
+        "bytes": 71
+      },
+      "result": "PASS",
+      "exitCode": 0,
+      "environment": "macOS27.0.1 arm64, Bun1.4.3",
+      "binding": "Final table and metadata; docs-check-final.log"
+    },
+    "targetedTestsLinux": {
+      "result": "24 PASS / 0 FAIL, 59 assertions",
+      "exitCode": 0,
+      "environment": "Linux aarch64, pinned Rust1.95.0 image, Bun1.4.3, network none",
+      "binding": "Final six scripts, t00-lot3-config-20261023, /repo read-only, /tools/bun; tests-linux.log",
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/tests-linux.log",
+        "sha256": "e3c9de006946bc5c6bbf0a865253e22bf7496381cc4b3e125cbc6ecdeb13bd43",
+        "bytes": 2205
+      }
+    }
+  },
+  "summary": {
+    "qualified": 0,
+    "notQualified": 13,
+    "formalR0Qualified": 0,
+    "allTargetQualified": 0,
+    "arbitrationPassingCredit": 0
+  },
+  "arbitrations": {
+    "ids": [
+      "ARB-002",
+      "ARB-003",
+      "ARB-004"
+    ],
+    "passingCredit": 0,
+    "nonpassPreserved": true,
+    "separateFromOrdinaryPasses": true
+  },
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "r0Decision": null,
+  "independentReview": {
+    "authorTask": "/root",
+    "claimAuditorTask": "/root/claim_audit",
+    "proofReviewerTask": "/root/proof_review",
+    "claimLedger": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/claim-audit-final.md",
+      "sha256": "bc6895db4ce23499d4c8f16907e8f2c4d0bd32e68bd1836714c38c6f13c4ab82",
+      "bytes": 13389
+    },
+    "claimAddendum": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/claim-audit-addendum.md",
+      "sha256": "02121e5b03366346bd6e51d5e2e22ae192ab430404eefc1fab867cc62fcc2008",
+      "bytes": 3122
+    },
+    "claimValidationFailure": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/claim-audit-validation-failure.md",
+      "sha256": "b78ad4f91e295b708ac621e61cd7b43719447d46c327dd6a34c4aaa67d9ea7e6",
+      "bytes": 4172
+    },
+    "rustGateDiagnosis": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/rust-gates-diagnosis.md",
+      "sha256": "53ad5a81d682bf21f49132e5cb175b5d3547acec5b7f70dfef1460c6b9ea43f8",
+      "bytes": 2393
+    },
+    "mechanismFinalReview": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/proof-review/review-final.md",
+      "sha256": "0ccdcc229d5931d8b67e4bc69d9ab93b8ac86acbd8de500b7d3aef1c811a5659",
+      "bytes": 5923
+    },
+    "mechanismFinalEvidence": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/proof-review/review-final-manifest.json",
+      "sha256": "c41ca3403fefeecf0b90867b631f76d122d71c329e410869081c93fe2dc75d56",
+      "bytes": 682
+    },
+    "mechanismReview": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/proof-review/review.md",
+      "sha256": "5c97f702c2d89b6450877a64febbab9f42d70d062b8cf65d9ca3b8d7bf86cefb",
+      "bytes": 8890
+    },
+    "mechanismEvidence": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot3/proof-review/review-evidence-manifest.json",
+      "sha256": "3a03d8004eabc1052eedf271ebb21d08b2db404cecd10372e544ac4ab090ca16",
+      "bytes": 2630
+    },
+    "meaning": "Finite proof mechanisms reviewed; no qualification or delivery authority follows from this review."
+  }
+}

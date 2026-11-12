@@ -1,0 +1,49 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const tsPath='C:/maintenence/semctx.codex-t00-review-20261021/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.js';
+const productionPath='C:/maintenence/semctx.codex-t00-review-20261021/packages/ts-analyzer/src/ts-symbols.ts';
+const ts=require(tsPath),production=require(productionPath),H=b=>crypto.createHash('sha256').update(b).digest('hex');
+if(ts.version!=='5.9.3'||Bun.version!=='1.4.3'||production.TYPESCRIPT_DIALECT_VERSION!=='5.9.3')throw Error('reference runtime differs');
+if(H(fs.readFileSync(productionPath))!=='9e025956b492b77cd13c59e9b5196c76506367db484180f28824ccd508665d7f')throw Error('production source differs');
+const requestRaw=fs.readFileSync(path.join(__dirname,'request.local.json')),sdkRaw=fs.readFileSync(path.join(__dirname,'sdk.frozen.json'));
+const request=JSON.parse(requestRaw),sdk=JSON.parse(sdkRaw),norm=p=>path.resolve(p).replaceAll('\\','/').toLowerCase();
+for(const [p,text]of Object.entries({...request.files,...sdk.files}))if(!fs.readFileSync(p).equals(Buffer.from(text)))throw Error('physical reference bytes differ');
+const texts=new Map(Object.entries({...request.files,...sdk.files}).map(([p,t])=>[norm(p),t]));
+const options={target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,allowJs:true,jsx:ts.JsxEmit.Preserve,skipLibCheck:true,noEmit:true,strict:false,types:[]};
+const host=ts.createCompilerHost(options),reads=[];
+host.getCurrentDirectory=()=>request.cwd;
+host.getDefaultLibFileName=o=>path.join(request.sdk_directory,ts.getDefaultLibFileName(o));
+host.getDefaultLibLocation=()=>request.sdk_directory;
+host.fileExists=p=>texts.has(norm(p));
+host.readFile=p=>{const value=texts.get(norm(p));if(value!==undefined)reads.push({file:p,sha256:H(Buffer.from(value))});return value;};
+host.getSourceFile=(p,v)=>{const value=host.readFile(p);return value===undefined?undefined:ts.createSourceFile(p,value,v,true);};
+const program=ts.createProgram(request.roots,options,host),checker=program.getTypeChecker();
+const diagnostics=[...program.getSyntacticDiagnostics(),...program.getSemanticDiagnostics()].map(d=>({code:d.code,file:d.file?.fileName,startUtf16:d.start}));
+if(diagnostics.length)throw Error('public reference diagnostics');
+function node(n){return {kind:ts.SyntaxKind[n.kind],file:n.getSourceFile().fileName,startUtf16:n.getStart(),endUtf16:n.end,defaultLibrary:program.isSourceFileDefaultLibrary(n.getSourceFile())};}
+function symbol(s){return s?{name:s.getName(),escapedName:String(s.escapedName),valueDeclaration:s.valueDeclaration?node(s.valueDeclaration):null,declarations:(s.getDeclarations()||[]).map(node)}:null;}
+const calls=[];
+for(const source of request.roots){const sf=program.getSourceFile(source);if(!sf)throw Error('root missing');
+ const visit=n=>{if(ts.isCallExpression(n)){
+   const raw=checker.getSymbolAtLocation(n.expression);
+   const resolved=raw&&(raw.flags&ts.SymbolFlags.Alias)?checker.getAliasedSymbol(raw):raw;
+   calls.push({call:node(n),expression:node(n.expression),text:n.getText(sf),rawSymbol:symbol(raw),resolvedSymbol:symbol(resolved)});
+ }ts.forEachChild(n,visit);};visit(sf);
+}
+const extraction=production.extractTypeScript(request.roots,request.cwd,new Map(Object.entries(request.files)));
+if(calls.length!==1||extraction.calls.length!==1)throw Error('one public Call required');
+const call=calls[0],canonical=extraction.calls[0],leaf=canonical.calleeSymbolPath?.split('.').at(-1);
+const distinction=call.resolvedSymbol!==null&&call.resolvedSymbol.name!==canonical.calleeName&&canonical.calleeName===leaf;
+const output={schema:1,kind:'PUBLIC_NAMED_DEFAULT_CALL_REFERENCE_NOT_CANDIDATE',reference_attempt:1,
+ typescript:ts.version,bun:Bun.version,typescriptModuleSha256:H(fs.readFileSync(tsPath)),productionSourceSha256:H(fs.readFileSync(productionPath)),
+ productionGitBlob:'2400cdd94c0903195df82c2b2c387bcbaa1513b0',sdkDescriptorSha256:H(sdkRaw),requestSha256:H(requestRaw),
+ sources:Object.fromEntries(Object.entries(request.files).map(([p,t])=>[p,H(Buffer.from(t))])),diagnostics,readBindings:reads,
+ typedCalls:calls,productionExtraction:extraction,
+ resolvedCheckerName:call.resolvedSymbol?.name,canonicalCalleeName:canonical.calleeName,canonicalTarget:canonical.calleeSymbolPath,
+ canonicalLeaf:leaf,requestedDistinctionObserved:distinction,candidateQueries:0,candidateBuilds:0,hostActions:0};
+const target=path.join(__dirname,'baseline.actual.json');fs.writeFileSync(target,JSON.stringify(output,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({baselineSha256:H(fs.readFileSync(target)),resolvedCheckerName:output.resolvedCheckerName,
+ canonicalCalleeName:output.canonicalCalleeName,canonicalTarget:output.canonicalTarget,canonicalLeaf:leaf,
+ rawCheckerName:call.rawSymbol?.name,valueDeclarationKind:call.resolvedSymbol?.valueDeclaration?.kind,
+ callUtf16:[call.call.startUtf16,call.call.endUtf16],requestedDistinctionObserved:distinction,diagnostics:0,readBindings:reads.length,candidateQueries:0}));
+if(!distinction)process.exitCode=2;

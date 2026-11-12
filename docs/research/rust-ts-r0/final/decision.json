@@ -1,0 +1,146 @@
+{
+  "recordVersion": 1,
+  "recordedUtc": "2026-10-18T06:58:04.537122+00:00",
+  "authority": "Owner-approved issue365 section2 research envelope; not an architectural ADR or universal language-equivalence claim.",
+  "issue": "https://github.com/hoklims/semctx/issues/365",
+  "pullRequest": "https://github.com/hoklims/semctx/pull/386",
+  "r0Decision": "STOP_BUDGET",
+  "READY_TS_NATIVE": false,
+  "stopReason": "Both native compositions and both correction passes per composition are exhausted without R0 passage.",
+  "budget": {
+    "compositionsMaximum": 2,
+    "compositionsUsed": 2,
+    "correctionsMaximumPerComposition": 2,
+    "correctionsClosed": {
+      "C1": 2,
+      "C2": 2
+    },
+    "workingDaysMaximum": 5,
+    "effortLimitClaimedExhausted": false,
+    "effortLedger": "effort-ledger.json",
+    "timeAccounting": "8h/day is a journal accounting convention, not an additional owner-approved requirement. Stop rests on candidate/correction limits, independent of this conversion."
+  },
+  "baseline": {
+    "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3",
+    "semctx": "0.4.5"
+  },
+  "C1": {
+    "state": "FINAL_PASS2_NONPASS_NO_CORRECTIONS_LEFT",
+    "sourceFreeze": "../selection/pass2/FREEZE.json",
+    "artifactSha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+    "qualificationSummary": "../qualification/c1-pass2/second-replay-summary.json",
+    "units": {
+      "GAP": 64,
+      "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 283,
+      "NONPASS_OBSERVED": 7
+    },
+    "supports": {
+      "PASS_PROJECTED_OR_CONTROLLED_SCOPE": 42,
+      "NONPASS_OBSERVED": 4,
+      "GAP": 5
+    },
+    "qualifiedObligations": 0,
+    "certainNativeDivergence": "UTF16LE-lone-high-surrogate: native diagnostic1490 instead of frozen1127. Recipe/context nonpasses remain separate."
+  },
+  "C2": {
+    "state": "CLOSED_NONPASS_FINAL_CORRECTION_EXHAUSTED",
+    "sourceFreeze": "../composition2/pass2-producer/FREEZE.json",
+    "sourceFreezeSha256": "e51c7d0137f8ab890b33116d1e5f7c2bc6e53b045cb20a3813b16e1ca53567df",
+    "artifactSha256": "acfd231f629de6036056f137b44edb2513ef3283ce1e531b9747279ca6b50a37",
+    "finalReport": "../composition2/pass2-replay/report.json",
+    "reportOriginalBinding": {
+      "bytes": 13028,
+      "sha256": "02c404b4b9c63ab61432d2ee171871521024c411134aa8cad529602ed89e6bb3"
+    },
+    "closureOriginalBinding": {
+      "bytes": 1864,
+      "sha256": "078d54f6c5f8976d2d1db05438cd32d5ba3f97b6e6448a37f4e206ae24890ed4"
+    },
+    "outcome": {
+      "kind": "success",
+      "exit_code": 0,
+      "duration_ms": 357,
+      "stdout_bytes": 205915,
+      "stderr_bytes": 31295,
+      "stdout_hash": "be41e7568028dafab4669496e93d5c48f3ef058626d4d3e41052e2cc859943c3",
+      "stderr_hash": "c58eb5b892cf9b2eaf5dc2555c78f4e966cb7dca09b14236b299c1b06033c7ec"
+    },
+    "nativeErrors": 541,
+    "nativeWarnings": 17,
+    "nativeParserLexerRejectionsObserved": 0,
+    "projectModules": 0,
+    "projectReads": 0,
+    "expressionMappings": 0,
+    "semanticTargets": [
+      {
+        "expression": "aliasValue",
+        "expected_source": "/repo/dep.ts",
+        "expected_declaration_name": "sourceValue",
+        "expected_declaration_range_utf16": [
+          0,
+          59
+        ],
+        "status": "NOT_EXERCISED_NO_ENTRY_MODULE"
+      },
+      {
+        "expression": "aliasValue().trim",
+        "expected_source": "/sdk/lib/lib.es5.d.ts",
+        "expected_declaration_name": "String.trim",
+        "expected_declaration_range_utf16": [
+          21094,
+          21109
+        ],
+        "status": "NOT_EXERCISED_NO_ENTRY_MODULE"
+      }
+    ],
+    "boundIdentitiesUnchanged": 458,
+    "exactSDKFilesRead": 63,
+    "qualifiedObligations": 0,
+    "sourceAndDependencyArchive": "../composition2/pass2-producer/README.md",
+    "rawReplayArchive": "../composition2/pass2-replay/README.md"
+  },
+  "denominators": {
+    "usageGroups": 240,
+    "families": 27,
+    "qualificationRecords": 268,
+    "qualificationUnits": 354,
+    "supportUnits": 51,
+    "reservedCases": 23,
+    "reservedVariants": 26,
+    "reservedVariantsRun": 0,
+    "qualifiedObligations": 0
+  },
+  "preservedExpectations": {
+    "frozenCorpusUnchanged": true,
+    "C2ExpectedTargetsSha256": "50b739ba978d13b6d011264b1837447d0160088108406abecbd67124da8676ef",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "holdout": "Independently prepared, unexposed and unexecuted. Known nonpassing candidates were not sent to the reserved set."
+  },
+  "platformEvidence": {
+    "record": "../selection/platforms-49fa/record.json",
+    "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+    "run": "https://github.com/hoklims/semctx/actions/runs/39103858448",
+    "C1Optimized": [
+      "Linux x86_64 ELF",
+      "Windows native x86_64 PE",
+      "macOS ARM64 Mach-O"
+    ],
+    "scope": "Same4DEV vectors, actual native optimized binaries and bounded receiver controls. Not full semantic qualification. Unix-only empty-PATH test is not credited on Windows.",
+    "C2": "macOS ARM64 DEV only; no native Windows/Linux C2 execution.",
+    "generalCI": "Completed FAILURE: unchanged unrelated Windows Codex plugin inode-replacement test in shard1/4 and dependent semctx-required failed; all three rust-gates jobs succeeded. No retry/skip/fix or aggregate green.",
+    "completion": "../selection/platforms-49fa/completion.json"
+  },
+  "limits": [
+    "STOP_SEMANTIC is not established: these failures do not prove universal native Rust impossibility.",
+    "C2 SDK name/type diagnostics alone are not semantic impossibility, particularly with baseline skipLibCheck=true; no project/target witness was produced.",
+    "Native strict nullability differs from baseline strict:false with absent strictNullChecks; native DEV laws do not prove baseline parity.",
+    "No complete Bundler/config/package/ambient module resolution parity.",
+    "No obligation qualified from successful bounded projections alone; property/support/capture/mapping gaps remain explicit.",
+    "No complete G01–G28, T02, T04, economic/frontier or distributed-product qualification.",
+    "Manual CI proves its actual immutable head/platforms, not missing PR merge-context checks."
+  ],
+  "continuation": "No automatic third candidate or correction, T01 or substantial port. Any further research needs an explicit new budget and a separately registered experiment.",
+  "publicationPolicy": "Normal pushes to rust/365-t00 and PR386 body updates only. No GitHub comments, restack, merge, release or deployment.",
+  "deliveryVerification": "../selection/ci-dispatch/canonical-final/record.json"
+}

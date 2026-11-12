@@ -1,0 +1,224 @@
+{
+  "schema_version": 1,
+  "id": "T00-C1-ts-rust",
+  "selected_utc": "2026-10-17T15:58:49.266804+00:00",
+  "status": "SELECTED_OPTIMIZED_PASS1_FROZEN_QUALIFICATION_PENDING",
+  "native_component": {
+    "repository": "https://github.com/pingdotgg/ts-rust",
+    "revision": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "crate": "ts_goport",
+    "crate_version": "=7.0.0-dev",
+    "default_features": false,
+    "features": [
+      "noembed"
+    ],
+    "archive_sha256": "9d7e671cd96b9fd9ff928c9b70bc4d74868b759a96fa56c7326bfb3efbb294ee"
+  },
+  "sdk": {
+    "package": "typescript",
+    "version": "5.9.3",
+    "archive_sha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+    "runtime_is_candidate_dependency": false
+  },
+  "frozen_qualification": {
+    "index_sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1",
+    "freeze_sha256": "5d70d1bbaf4bcd1c53f5f6a60641adcad8b49bdc9d2a93124edd4b734bd11e04",
+    "records": 268,
+    "scenarios": 354,
+    "supports": 51
+  },
+  "initial_scope": [
+    "Development alias interfile target with local homonym",
+    "Development SDK map callback declaration provenance versus own map method",
+    "Captured-filesystem reads and compiler options through native engine"
+  ],
+  "unimplemented_obligations": "Remain required and unknown; initial probe is not R0 coverage or profile reduction.",
+  "first_execution_trigger": "First execution of a native compiler semantic query in this composition. Cargo metadata/build/typecheck and pure captured-FS unit tests do not exercise the composition and are recorded separately.",
+  "first_execution": {
+    "startUtc": "2026-10-17T16:11:59.813193+00:00",
+    "scope": [
+      "t00Development01UniqueAlias",
+      "t00Development05SdkCallback",
+      "t00Development05OwnMethod"
+    ],
+    "command": [
+      "/private/tmp/semctx-t00-native-composition1-20261017/observer/target/debug/deps/development_probe-6d5cd04eb48e6b2d",
+      "--exact",
+      "observes_three_authored_development_boundaries_once",
+      "--nocapture",
+      "--test-threads=1"
+    ],
+    "cwd": "/private/tmp/semctx-t00-native-composition1-20261017",
+    "producerSha256": "8dcbb22f1dbd528917d300462a681a253e45f66f5831dc536f8fe10044255791",
+    "observerSha256": "10da5166b30e202f02f3db607f0bfab2350a0a48511cdc2031920629805bf3d7",
+    "canonicalHelperSha256": "d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+    "sdkInputSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "all100SdkLibrariesIndependentlyMatchedPublishedBytes": true,
+    "perQueryTimeoutMs": 30000,
+    "perStreamOutputCapBytes": 4194304,
+    "nativeCompositionsConsumed": 1,
+    "correctionPassesConsumed": 0,
+    "qualificationOrReservedInputs": false,
+    "optimized": false,
+    "environment": "macOS27.0.1 ARM64; Rust1.95.0; exact debug artifact; captured case-sensitive FS and actual native-case/cwd observation remain distinct; not Windows/Linux or R0 coverage",
+    "endUtc": "2026-10-17T16:12:27.995110+00:00",
+    "observerExitCode": 101,
+    "observerReportSha256": "c7df0e4a3c3babcdbe026ccd097db87eeca40282dc22844f6410566ba85cd528",
+    "initialResult": "Three native processes exited101 before structured semantic output. Diagnosis required; no semantic infeasibility conclusion.",
+    "observerReportPathAfterArchive": "/private/tmp/semctx-t00-native-composition1-20261017/observer/evidence/initial-trial-failed-20261017T161159Z/report.json"
+  },
+  "correction_passes": [
+    {
+      "number": 1,
+      "startUtc": "2026-10-17T16:16:43.593101+00:00",
+      "status": "CLOSED",
+      "effortLimitSecondsCumulative": 43200,
+      "globalEffortLimitStillApplies": true,
+      "scope": [
+        "Correct native startup optimization configuration for captured SDK5.9.3, then rerun the same three authored development controls once with unchanged binary/inputs.",
+        "Close remaining ordinary facts/imports/calls/scopes/outline/diagnostic behaviors required by the inventoried baseline, using development inputs only.",
+        "Close required qualified reason predicates and minimal captured-input/identity/receiver boundary, without full T02/services/storage/transports.",
+        "Native unit/integration development iterations remain within these fixed baseline families and this cumulative12h limit; qualification expectations and all268records/354units/51supports remain unchanged."
+      ],
+      "startupCorrection": {
+        "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+        "GOPORT_LIB_SNAPSHOT": "0",
+        "source": "Pinned upstream lib_parse_snapshot::load mode guard and binder::lib_snapshot::load; noembed::bundled_lib_name otherwise requires lib.d.ts beside binary.",
+        "prediction": "Same native artifact and same captured SDK input proceed past the bundled lib.d.ts panic without native disk SDK packaging or SDK7 fallback.",
+        "producerBinaryChanged": false,
+        "sdkOrRequestBytesChanged": false
+      },
+      "initialFailureArchive": "/private/tmp/semctx-t00-native-composition1-20261017/observer/evidence/initial-trial-failed-20261017T161159Z",
+      "initialRetryOutput": "/private/tmp/semctx-t00-native-composition1-20261017/observer/evidence/first-development-observation",
+      "reservedInputsExposed": false,
+      "remainingCorrectionPassesAfterThis": 1,
+      "interpretation": "One bounded correction pass, not an unlimited campaign; journal elapsed cumulative effort and results before extending scope.",
+      "startupObservations": [
+        {
+          "trial": "snapshot-options-disabled",
+          "producerSha256": "8dcbb22f1dbd528917d300462a681a253e45f66f5831dc536f8fe10044255791",
+          "reportSha256": "bc2fc965a576fbf8544b4f1b7a60977d360e43a0f6b001b80e8d46f5e84d739e",
+          "archivedReport": "/private/tmp/semctx-t00-native-composition1-20261017/observer/evidence/pass1-snapshot-options-fixed-case-mismatch/report.json",
+          "result": "BundledSDKpanic eliminated; three requests source-not-loaded due to injected/native case mismatch; no success and no hidden replay."
+        }
+      ],
+      "nextStartupTrial": {
+        "startUtc": "2026-10-17T16:23:05.779846+00:00",
+        "producerSha256": "94cabe36fac8773fc519c9a08d06edb62b2266b5cdbe23f9a9306c9b32591637",
+        "change": "Align declared captured FS case with observed native FS; preserve realpath and directory-entry spelling. Only case_sensitive flag changes in three bootstrap requests, no source/SDK/root/options/expected bytes changed.",
+        "configuration": {
+          "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+          "GOPORT_LIB_SNAPSHOT": "0"
+        },
+        "outcomeDirectory": "/private/tmp/semctx-t00-native-composition1-20261017/observer/evidence/first-development-observation",
+        "correctionPassCountStill": 1,
+        "qualificationInputsUsed": false,
+        "endUtc": "2026-10-17T16:26:33.750024+00:00",
+        "observerExitCode": 0,
+        "reportSha256": "031ad9726e131b97b4f8801dd4c818740f9810d245401edde8841caf196a7253",
+        "result": "All3 authored development controls matched; no qualification credit or R0 admission. Startup blockage cleared."
+      },
+      "startupBlockageClosed": true,
+      "developmentImplementationInterval": {
+        "startUtc": "2026-10-17T16:27:05.015126+00:00",
+        "scope": [
+          "ordinary.rs native symbol/import/call development microcases",
+          "outline.rs native AST development microcases",
+          "qualified.rs native reason development microcases",
+          "root capture/configuration/assembly and development integration"
+        ],
+        "authorization": "Workers may execute owned development-only native tests with exact input/artifact/command/raw-outcome evidence. No frozenqualification or reserved input is authorized for initialimplementation. Pure tests/build also recorded.",
+        "sameBoundedPass": 1,
+        "effortLimitSecondsCumulative": 43200,
+        "remainingPassesAfterThis": 1
+      },
+      "bounded_es5_experiment": {
+        "startUtc": "2026-10-17T17:22:34Z",
+        "maximumAgentEffortSeconds": 2700,
+        "owner": "/root/qualified_ts_inventory",
+        "scope": "Faithful owned Rust projection of SDK5.9.3 ES5 import-helper decision over native transformed AST; no qualification or heldout inputs; unsupported remains blocking until closure.",
+        "sameComposition": 1,
+        "sameCorrectionPass": 1,
+        "completedUtc": "2026-10-17T18:01:01Z",
+        "secondsCharged": 2307
+      },
+      "bounded_legacy_experiment": {
+        "startUtc": "2026-10-17T17:33:08.065745+00:00",
+        "maximumAgentEffortSeconds": 9000,
+        "owner": "/root/ordinary_ts_inventory",
+        "proposalSha256": "01351f4bcc10ec56dbcd333f2b9ec629685eb3e02d54a50295668805548457fc",
+        "scope": "Five source-backed SDK5.9 resolver adapter checkpoints; checkpoint1 cap20min public native primitive proof, no fake Bundler flags, no qualification/heldout and no global stop inference.",
+        "sameComposition": 1,
+        "sameCorrectionPass": 1,
+        "completedUtc": "2026-10-17T18:15:09Z",
+        "secondsCharged": 2528
+      },
+      "review_corrections": [
+        {
+          "scope": "Two source-established ES5 template projection defects",
+          "startUtc": "2026-10-17T18:07:21Z",
+          "endUtc": "2026-10-17T18:14:10Z",
+          "secondsCharged": 409,
+          "initialEs5BudgetReset": false,
+          "sameCorrectionPass": 1,
+          "reportSha256": "fe259ac3fe1b3750d384793f4de8eb40630f8f1f9e2fa1429af98deea21f6f38"
+        },
+        {
+          "scope": "Receiver graph-payload/envelope validation F1",
+          "startUtc": "2026-10-17T18:11:29Z",
+          "endUtc": "2026-10-17T18:16:43Z",
+          "secondsCharged": 314,
+          "sameCorrectionPass": 1,
+          "greenTests": 27
+        }
+      ],
+      "endUtc": "2026-10-17T18:58:42+00:00",
+      "chargedConservativeWallEnvelopeSecondsThroughClose": 32534.813,
+      "effortLimitSatisfied": true
+    }
+  ],
+  "budget": {
+    "max_compositions": 2,
+    "max_correction_passes_per_composition": 2,
+    "max_cumulative_working_days": 5,
+    "effort_journal": "/private/tmp/semctx-t00-20261017/evidence/effort-ledger.json"
+  },
+  "risks": [
+    "Native engine reports7.1.0-dev; SDK5.9.3 injection is not a checker-version parity proof.",
+    "Library Fs returns Rust String; profile-specific decoding and UTF16 support require owned handling.",
+    "Actual cwd/native case remain ambient inputs and must be named.",
+    "Windows native/Linux semantic behavior and optimized artifacts not tested."
+  ],
+  "process_scope": "Rust native engine + owned Rust adapters; no mandatoryJS/Go analysis. Actual process/read inventory still requires observation.",
+  "preflight_only": "Earlier cargo check on pinned source passedmacOS; no semantic native query executed then.",
+  "initial_development_information_exposure": {
+    "recordedUtc": "2026-10-17T18:17:00Z",
+    "actor": "/root",
+    "operation": "Bounded index.json read while locating development allocations",
+    "exposed": "First four qualification record metadata/expected projections N01,N04,N06,N07b (fourth partial); no referenced input fixture opened and no qualification query executed.",
+    "response": "No expectations/allocations changed; newly authored DEV work remained derived from independent source reviews and previously assigned defects. Do not claim those four metadata projections were blind to the root implementer. Reserved custody unchanged.",
+    "qualificationInputUseForTdd": false,
+    "frozenFilesModified": false
+  },
+  "portable_adoption": {
+    "path": "tools/rust-ts-r0",
+    "status": "LOCAL_DEVELOPMENT_CHECKS_AND_FOUR_CANONICAL_VERIFY_SHARDS_PASSED",
+    "initial_source_copy_map": "/private/tmp/semctx-t00-20261017/portable-adoption-source-map.json",
+    "processController": "existing #383 semctx-gates; no second controller",
+    "no_force_push_or_restack": true,
+    "nativeWindowsLinux": "Configured in existing CI, not executed yet"
+  },
+  "optimized_preparation": {
+    "artifact_sha256": "c037a6a24183a64c50fb83d29e28e2531a6275638701a1c0ee98fc1dfbd0f37e",
+    "status": "BUILD_ONLY_NOT_SELECTED_OR_QUALIFIED",
+    "profile": "Cargo default release opt-level3",
+    "pendingObservability": "Component reason projections still needed by independent qualifier before selected freeze; no golden change."
+  },
+  "selectedFreeze": {
+    "path": "/private/tmp/semctx-t00-20261017/selected-c1-pass1/FREEZE.json",
+    "sha256": "08b21830ea567442d8767e813419490bb311158b9df51074c3df740377208996",
+    "sourceManifestSha256": "d2c96aeb197283698c7b7be3acb49264236a45ec1d74ee7936055531dc2f2208",
+    "sameComposition": 1,
+    "samePass": 1
+  }
+}

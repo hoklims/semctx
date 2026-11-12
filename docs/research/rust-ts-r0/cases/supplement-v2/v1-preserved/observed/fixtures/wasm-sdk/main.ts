@@ -1,0 +1,1 @@
+export function main(bytes) { return WebAssembly.instantiate(bytes); }

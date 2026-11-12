@@ -834,9 +834,9 @@ export function isCanonicalClaudeMarketplaceRecord(
 interface RawTraversalEntry {
   path: string;
   exists: boolean;
-  dev?: number;
-  ino?: number;
-  mode?: number;
+  dev?: string;
+  ino?: string;
+  mode?: string;
 }
 
 interface RawTraversalObservation {
@@ -865,9 +865,9 @@ function captureRawTraversal(
   const observations: RawTraversalEntry[] = [];
   const observe = (path: string, requireDirectory: boolean, allowMissing: boolean): boolean => {
     try {
-      const stats = lstatSync(path);
+      const stats = lstatSync(path, { bigint: true });
       if (stats.isSymbolicLink() || (requireDirectory && !stats.isDirectory())) return false;
-      observations.push({ path, exists: true, dev: stats.dev, ino: stats.ino, mode: stats.mode });
+      observations.push({ path, exists: true, dev: stats.dev.toString(), ino: stats.ino.toString(), mode: stats.mode.toString() });
       return true;
     } catch (cause) {
       const missing = cause !== null && typeof cause === "object" && "code" in cause
@@ -2274,7 +2274,7 @@ function observeCodexLatestAlias(
   observations: string[],
 ): boolean {
   try {
-    const before = lstatSync(alias);
+    const before = lstatSync(alias, { bigint: true });
     if (!before.isSymbolicLink()) return false;
     const beforeTarget = readlinkSync(alias);
     if (beforeTarget.length === 0 || hasIdentityControlCharacter(beforeTarget)
@@ -2284,7 +2284,7 @@ function observeCodexLatestAlias(
       || lexicalPathIdentity(realpathSync.native(alias)) !== lexicalPathIdentity(realpathSync.native(selectedRoot))) {
       return false;
     }
-    const after = lstatSync(alias);
+    const after = lstatSync(alias, { bigint: true });
     const afterTarget = readlinkSync(alias);
     if (!after.isSymbolicLink() || after.dev !== before.dev || after.ino !== before.ino
       || after.mode !== before.mode || afterTarget !== beforeTarget
@@ -2295,9 +2295,9 @@ function observeCodexLatestAlias(
       latestAlias: alias,
       target: beforeTarget,
       resolvedTarget,
-      dev: before.dev,
-      ino: before.ino,
-      mode: before.mode,
+      dev: before.dev.toString(),
+      ino: before.ino.toString(),
+      mode: before.mode.toString(),
     }));
     return true;
   } catch {
@@ -2315,15 +2315,15 @@ function readCodexMetadataFile(
   if (observed.status === "unsafe" && traversal !== null && isWithin(file, root)) {
     let descriptor: number | undefined;
     try {
-      const before = lstatSync(file);
+      const before = lstatSync(file, { bigint: true });
       const physical = traversal.at(-1);
-      if (before.isFile() && !before.isSymbolicLink() && before.size === 0
-        && physical?.exists === true && before.dev === physical.dev && before.ino === physical.ino) {
+      if (before.isFile() && !before.isSymbolicLink() && before.size === 0n
+        && physical?.exists === true && before.dev.toString() === physical.dev && before.ino.toString() === physical.ino) {
         descriptor = openSync(file, "r");
-        const opened = fstatSync(descriptor);
-        if (opened.dev === before.dev && opened.ino === before.ino && opened.size === 0
+        const opened = fstatSync(descriptor, { bigint: true });
+        if (opened.dev === before.dev && opened.ino === before.ino && opened.size === 0n
           && readSync(descriptor, Buffer.alloc(1), 0, 1, 0) === 0
-          && fstatSync(descriptor).size === 0) observed = { status: "ok", bytes: Buffer.alloc(0) };
+          && fstatSync(descriptor, { bigint: true }).size === 0n) observed = { status: "ok", bytes: Buffer.alloc(0) };
       }
     } catch { /* The empty-file observation remains unsafe. */ }
     finally {
@@ -2817,13 +2817,13 @@ function defaultCodexSystemFiles(
     let systemRoot = "/etc";
     if (process.platform === "darwin") {
       try {
-        const stats = lstatSync(systemRoot);
+        const stats = lstatSync(systemRoot, { bigint: true });
         if (stats.isSymbolicLink()) {
           const target = readlinkSync(systemRoot);
           if ((target !== "private/etc" && target !== "/private/etc")
             || realpathSync.native(systemRoot) !== "/private/etc"
             || !isLocalFilesystemPath("/private/etc")) return null;
-          observations.push(JSON.stringify({ systemAlias: "/etc", target, dev: stats.dev, ino: stats.ino }));
+          observations.push(JSON.stringify({ systemAlias: "/etc", target, dev: stats.dev.toString(), ino: stats.ino.toString() }));
           systemRoot = "/private/etc";
         }
       } catch { return null; }

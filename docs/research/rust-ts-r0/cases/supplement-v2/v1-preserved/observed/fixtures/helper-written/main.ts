@@ -1,0 +1,1 @@
+import { register } from 'opaque'; let helper = () => 1; helper = () => 2; export function main() { return register(helper()); }

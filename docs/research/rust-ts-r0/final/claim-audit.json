@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 1,
+  "audit": "T00/R0 terminal claim audit",
+  "generatedUtc": "2026-10-18T07:02:30Z",
+  "mode": "read-only evidence audit; no test, query, replay, source, index or GitHub mutation",
+  "verdict": "STOP_BUDGET_DECISION_HELD_NO_CURRENT_CLAIM_FINDING",
+  "blockingFindings": [],
+  "findings": [],
+  "correctedDuringAudit": [
+    {
+      "location": "docs/research/rust-ts-r0/final/README.md:C1 archive paragraph",
+      "historicalFinding": "The earlier draft claimed compound preservation of source, both qualification campaigns, raw observations and reproduction sources without a supplied full-archive oracle.",
+      "correction": "The final prose now limits itself to the exercised C1 result and delegates earlier archives to their own manifests and limitations."
+    },
+    {
+      "location": "docs/research/rust-ts-r0/final/README.md:C2 source archive paragraph",
+      "historicalFinding": "The earlier draft presented a broad compound source-archive inventory beyond the supplied final replay oracle.",
+      "correction": "The final prose names the bounded 188-source/458-identity preflight and source-bound DEV receipt, links the archive's own manifest, and explicitly disclaims source-archive completeness and toolchain-distribution certification."
+    }
+  ],
+  "changedClaimLedger": [
+    {
+      "claim": "The terminal R0 result is STOP_BUDGET; READY_TS_NATIVE is false and T01 remains closed.",
+      "authority": "Owner-approved issue #365 section 2.4 defines STOP_BUDGET when an effort, candidate or correction limit is reached without passage.",
+      "mechanism": "C1 and C2 each ended after correction pass 2 with NONPASS and zero qualified obligations.",
+      "scope": "T00/R0 only; no claim about universal Rust feasibility or G01-G28.",
+      "namedBehavioralOracle": {
+        "name": "Terminal budget reconciliation",
+        "evidence": [
+          "docs/research/rust-ts-r0/final/effort-ledger.json",
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json",
+          "docs/research/rust-ts-r0/composition2/pass2-replay/correction-closure.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "The claim would fail if either composition retained an authorized correction, if fewer than two native compositions had started, or if R0 had passed."
+    },
+    {
+      "claim": "STOP_BUDGET rests on the two-composition and two-corrections-per-composition limits, not on exhaustion of five working days.",
+      "authority": "Issue #365 section 2.4 approves maxima of two native compositions, two correction passes after first execution for each, and five cumulative working days.",
+      "mechanism": "The ledger records 2 compositions, 4 started/closed corrections split C1=2 and C2=2, while effortLimitActuallyExhausted=false.",
+      "scope": "Research stop basis; 8 hours/day is explicitly a journal conversion convention.",
+      "namedBehavioralOracle": {
+        "name": "Composition/correction closure counter",
+        "evidence": [
+          "docs/research/rust-ts-r0/final/effort-ledger.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Double-counted passes, an unclosed correction, or representing the 8-hour conversion as owner authority would invalidate the stop basis."
+    },
+    {
+      "claim": "C1 final pass2 contains 354 units: 283 limited passes, 7 observed nonpasses and 64 gaps; 51 supports: 42 limited passes, 4 nonpasses and 5 gaps; zero obligations are qualified.",
+      "authority": "The frozen R0 qualification denominator and independent C1 pass2 verifier output.",
+      "mechanism": "The native replay classified every unit/support while preserving frozen expected bytes and recorded zero remaining C1 corrections.",
+      "scope": "macOS ARM64 final C1 pass2 qualification replay; limited projections and controls do not become full obligation credit.",
+      "namedBehavioralOracle": {
+        "name": "C1 pass2 independent replay summary",
+        "evidence": [
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json",
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-triage.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Transport or projection success could be incorrectly promoted to property or obligation passage, hiding gaps and observed nonpasses."
+    },
+    {
+      "claim": "The final obligation materialization contains 240 obligations in 27 overlapping families, with 54 GAP, 178 review-required limited-pass associations, 8 NONPASS and 0 qualified.",
+      "authority": "Issue #365 section 2.2 requires a frozen obligation denominator; C1 pass2 is the terminal observed state source.",
+      "mechanism": "obligation-states.json materializes the terminal C1 classifications and explicitly prevents additive counting of overlapping families.",
+      "scope": "Observed C1 state only; C2 adds no qualified obligation.",
+      "namedBehavioralOracle": {
+        "name": "Final obligation-state reconciliation",
+        "evidence": [
+          "docs/research/rust-ts-r0/final/obligation-states.json",
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Summing overlapping family associations or treating review-required associations as qualified would overstate the denominator closure."
+    },
+    {
+      "claim": "C2 final pass2 executed once on macOS ARM64 DEV with exit 0 in 357 ms, 63 exact SDK reads and 458 unchanged identities, yet produced 541 errors, 17 warnings, no project module/read/mapping and two unexercised semantic targets.",
+      "authority": "Independent final C2 pass2 verifier and its explicit correction closure.",
+      "mechanism": "Native SDK initialization accumulates diagnostics and returns before the entry-module loop; transport completion only yields an observation document.",
+      "scope": "Pinned Ezno 0.0.18 plus recorded patches, TS 5.9.3 ES2022 63-file SDK closure, macOS ARM64 DEV.",
+      "namedBehavioralOracle": {
+        "name": "C2 final independent native replay",
+        "evidence": [
+          "docs/research/rust-ts-r0/composition2/pass2-replay/report.json",
+          "docs/research/rust-ts-r0/composition2/pass2-replay/correction-closure.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Equating process exit 0 with semantic passage would conceal the early return and the complete absence of target witnesses."
+    },
+    {
+      "claim": "The final C2 replay publication is byte-bound to the independent external report and closure and preserves a 23-member deterministic evidence archive.",
+      "authority": "Issue #365 section 2.5 requires an autonomous evidence dossier; the authorized publication copied the independent result without rerun.",
+      "mechanism": "Repository report and closure hashes equal their external originals; the publication record binds encoded and decoded archive identities and member count.",
+      "scope": "C2 replay evidence publication only; compiled executables and host toolchains remain omitted as recorded.",
+      "namedBehavioralOracle": {
+        "name": "C2 replay byte-identity binding",
+        "evidence": [
+          "docs/research/rust-ts-r0/composition2/pass2-replay/record.json",
+          "docs/research/rust-ts-r0/composition2/pass2-replay/members-manifest.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "A copied report, closure or encoded archive differing from the independently produced bytes would break the evidence chain."
+    },
+    {
+      "claim": "C1 has bounded optimized native evidence on Linux x86_64 ELF, Windows AMD64 PE and macOS ARM64 Mach-O for the same four DEV vectors and receiver controls; this is not full R0 qualification.",
+      "authority": "Issue #365 section 2.4 requires optimized native Windows and Linux portability attempts; no authority extends DEV vectors to full semantic parity.",
+      "mechanism": "Independent artifact inspection binds each binary identity and checks the same four frozen DEV projections plus bounded receiver outcomes.",
+      "scope": "Exact head 49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9, Actions run 39103858448; empty-PATH is not credited on Windows.",
+      "namedBehavioralOracle": {
+        "name": "Exact-head three-platform artifact dossier",
+        "evidence": [
+          "docs/research/rust-ts-r0/selection/platforms-49fa/report-original.json",
+          "docs/research/rust-ts-r0/selection/platforms-49fa/report-followup.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Promoting four DEV projections or receiver transport controls to full semantic qualification would create unsupported portability credit."
+    },
+    {
+      "claim": "The completed general Actions run failed because Windows shard 1/4 failed an unchanged Codex plugin inode-replacement test and the required aggregate failed; all three rust-gates jobs succeeded, with no retry, skip, correction, root-cause/intermittency conclusion or aggregate-green claim.",
+      "authority": "Owner scope excludes the unrelated unchanged test from T00 correction credit while requiring the failure to remain visible.",
+      "mechanism": "The completion record binds the terminal run/job conclusions; the archived job observation identifies the failed unchanged test and binds its raw log receipt at exact head 49fa.",
+      "scope": "Completed general CI run at exact head 49fa, separate from bounded C1 semantic credit and from merge-context checks.",
+      "namedBehavioralOracle": {
+        "name": "Completed exact-head Actions run reconciliation",
+        "evidence": [
+          "docs/research/rust-ts-r0/selection/platforms-49fa/completion.json",
+          "docs/research/rust-ts-r0/selection/platforms-49fa/windows-shard1-observation.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Suppressing the failed required aggregate, hiding the three successful rust-gates jobs, or inferring intermittency/root cause would misstate the completed run."
+    },
+    {
+      "claim": "The reserved set has 23 cases and 26 variants and was neither exposed nor executed; it yields no R0 credit.",
+      "authority": "Issue #365 sections 2.3-2.4 require reserved cases to run only on a frozen passing candidate and forbid treating partial qualification as READY_TS_NATIVE.",
+      "mechanism": "The final denominator records 23/26, C1 reports reserved_access=false and zero reserved reads, and C2 assigns no reserved credit.",
+      "scope": "The independently prepared two-repository holdout, including one monorepo.",
+      "namedBehavioralOracle": {
+        "name": "Reserved-corpus no-access receipts",
+        "evidence": [
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json",
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-triage.json",
+          "docs/research/rust-ts-r0/composition2/pass2-replay/report.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Any unrecorded exposure or execution would invalidate reserved status; treating nonexecution as passage would violate the R0 criterion."
+    },
+    {
+      "claim": "The observed failures do not establish STOP_SEMANTIC, universal Rust impossibility, G01-G28, full Bundler/configuration parity, atomic capture, distribution or economic/frontier performance.",
+      "authority": "Issue #365 sections 2.1, 2.4 and 2.5 bound R0 to actual obligations/corpora and distinguish STOP_SEMANTIC from STOP_BUDGET.",
+      "mechanism": "C1 retains gaps/nonpasses and C2 fails before project targets; neither mechanism observes the broader properties.",
+      "scope": "Negative boundary on terminal claims.",
+      "namedBehavioralOracle": {
+        "name": "R0 claim-boundary reconciliation",
+        "evidence": [
+          "docs/research/rust-ts-r0/final/decision.json",
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json",
+          "docs/research/rust-ts-r0/composition2/pass2-replay/correction-closure.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Inferring universal impossibility from SDK diagnostics, transport behavior, DEV projections or partial qualification would exceed observed scope."
+    },
+    {
+      "claim": "No JavaScript/Go semantic fallback is configured or observed in the recorded candidate runs.",
+      "authority": "Issue #365 section 2.1 permits TypeScript as an experimental oracle but forbids a permanent JS/Go semantic dependency in a terminal candidate.",
+      "mechanism": "Recorded C1 optimized process identities are native binaries; the C2 plan and canonical supervisor bind the native producer and Rust helper without inherited GIT_CONFIG_GLOBAL.",
+      "scope": "The recorded C1/C2 runs only; build-time and verifier tooling are outside the semantic candidate process claim.",
+      "namedBehavioralOracle": {
+        "name": "Recorded candidate process-identity receipts",
+        "evidence": [
+          "docs/research/rust-ts-r0/selection/platforms-49fa/report-original.json",
+          "docs/research/rust-ts-r0/selection/platforms-49fa/report-followup.json",
+          "docs/research/rust-ts-r0/composition2/pass2-replay/report.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Crediting verifier/build tooling as candidate runtime, or omitting an invoked semantic subprocess from the process receipts, would invalidate the claim."
+    },
+    {
+      "claim": "The effort ledger is a conservative upper-bound journal totaling 104685.659 seconds (29.079 hours) against a conventional 144000-second conversion; it does not claim five-day effort exhaustion.",
+      "authority": "Owner approved five cumulative working days; no owner decision defined an 8-hour day, so that conversion is explicitly accounting-only.",
+      "mechanism": "The ledger sums 168 nonnegative entries, includes bounded publication/delivery allowances and excludes the identified overnight idle interval.",
+      "scope": "Research accounting through the terminal snapshot; allowances are not represented as measured active work.",
+      "namedBehavioralOracle": {
+        "name": "Final effort-ledger arithmetic reconciliation",
+        "evidence": [
+          "docs/research/rust-ts-r0/final/effort-ledger.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Double-charging prior windows, charging idle waits, or presenting reserved allowances as measured effort would make the total misleading."
+    },
+    {
+      "claim": "The final README confines C1 evidence to the exercised final checkpoint/report and assigns earlier archives their own manifests and limitations rather than certifying full archive completeness.",
+      "authority": "Issue #365 section 2.5 requires an autonomous dossier without turning partial evidence into a broader guarantee.",
+      "mechanism": "The final prose cites the C1 pass2 report for exercised behavior and contains no compound full-archive certification.",
+      "scope": "Terminal claim boundary only; this audit does not independently inspect every C1 archive member.",
+      "namedBehavioralOracle": {
+        "name": "C1 terminal claim-scope reconciliation",
+        "evidence": [
+          "docs/research/rust-ts-r0/final/README.md",
+          "docs/research/rust-ts-r0/qualification/c1-pass2/second-replay-summary.json"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Reintroducing an exhaustive preservation claim without a named member-integrity oracle would exceed the supplied evidence."
+    },
+    {
+      "claim": "The final README limits C2 source claims to the bounded 188-source/458-identity preflight and source-bound 33-test DEV receipt and explicitly disclaims source-archive completeness and toolchain-distribution certification.",
+      "authority": "Issue #365 section 2.5 requires source/pin/reproduction evidence while the R0 oracle governs only exercised behavior.",
+      "mechanism": "Independent preflight identities and the separately reviewed source-bound DEV receipt support the stated bounded facts; the prose states the omitted guarantee.",
+      "scope": "C2 final preflight/DEV receipt only; no full archive or distributed-toolchain certification.",
+      "namedBehavioralOracle": {
+        "name": "C2 source-bound final DEV receipt and preflight",
+        "evidence": [
+          "docs/research/rust-ts-r0/composition2/pass2-replay/report.json",
+          "docs/research/rust-ts-r0/composition2/pass2-producer/README.md"
+        ],
+        "green": true
+      },
+      "status": "held",
+      "failureMechanism": "Promoting these bounded receipts to exhaustive archive or toolchain-distribution certification would outrun the named oracles."
+    },
+    {
+      "claim": "Any further candidate/correction, reserved execution, T01 work or substantial port requires a new explicit budget and separately registered experiment.",
+      "authority": "Approved issue #365 section 2.4 states that STOP_BUDGET archives the checkpoint and any new research tranche needs explicit budget; the owner also limited publication to normal pushes and PR body updates with no comments/merge/release/deploy.",
+      "mechanism": "Research is closed at 2 compositions and 4 corrections; publication is restricted to the approved branch/PR description channel.",
+      "scope": "Future work and publication policy after this terminal checkpoint.",
+      "namedBehavioralOracle": {
+        "name": "Approved continuation boundary",
+        "evidence": [
+          "/private/tmp/semctx-t00-20261017/issue365-current-body.md",
+          "docs/research/rust-ts-r0/final/decision.json"
+        ],
+        "green": null
+      },
+      "status": "target",
+      "failureMechanism": "An automatic third candidate/pass, holdout execution, T01 opening, GitHub comment, merge, release or deployment would exceed the cited authorization."
+    }
+  ],
+  "statusCounts": {
+    "held": 14,
+    "target": 1,
+    "debt": 0,
+    "contradicted": 0
+  },
+  "hashBindings": {
+    "finalREADME": "36f77b16d4fd9442315eaa5932f8ad4501582e476be289951c2938c9e3afd9bf",
+    "decision": "47703e0cba7a59ea8a11b99b2388beef0e644e91d13d72e65924e66e99f15ef6",
+    "obligationStates": "9f048619f3a295dd6ec22fc34ab86b3969fbd3c9f1d007d6fc6857fa0d6639bc",
+    "effortLedger": "761888119787d138d8463512bd0d3a015b5e2c543eea73394fa1eb05701a3424",
+    "c1SecondReplaySummary": "24e3b49b1e0d528b2ac86f4d8e1716370aaff7289eab488559029291aa942386",
+    "c1SecondReplayTriage": "38ddb512dcfd8b674fb751942e87fdc9f08855edc05841c79b6446ca7bc871cb",
+    "c2ExternalAndRepositoryReport": "02c404b4b9c63ab61432d2ee171871521024c411134aa8cad529602ed89e6bb3",
+    "c2ExternalAndRepositoryClosure": "078d54f6c5f8976d2d1db05438cd32d5ba3f97b6e6448a37f4e206ae24890ed4",
+    "c2ReplayEncodedArchive": "b577738ab701fdd25d0f76b046f452b965be93c321a3a621a4863d5926d3a4cf",
+    "c2ReplayDecodedArchive": "cd12ebd0bad54c65868b211e293ce93ede6d5a0b0d3d257d4125731007c14bb4",
+    "platformOriginal": "7a3abb803d24117bd6112f750f85d9f833f8a3f317043b0239e990bc6cac5746",
+    "platformFollowup": "a8fba38fb923fc4f06383d4039447ce5a76cf05374e49b29bc43c718545eb17a",
+    "platformCompletion": "9e9f3541bc36dc72e1c961df2ce69062a1957eb3107c3332821a7d6e7ed92dd6",
+    "windowsShardObservation": "d3c609aab3969f68bd4167bb2f222815867c114b06548d48d0394498514b4de4",
+    "issue365Body": "829462ad45660c0d3f614557be4690fd391420bed9e7ea5300e83253bfefca3a"
+  },
+  "freshEffort": {
+    "chargedSeconds": 300,
+    "basis": "Pre-registered conservative upper allowance for this bounded audit; not claimed as measured active duration.",
+    "waitSecondsCharged": 0,
+    "testsQueriesOrReruns": 0,
+    "repositoryOrExternalMutations": 0,
+    "reportMutation": "/private/tmp/semctx-t00-20261017/final-r0-claim-audit.json only"
+  },
+  "recommendation": "Keep the final bounded STOP_BUDGET language and explicit non-certification limits. No terminal claim correction remains from this audit."
+}

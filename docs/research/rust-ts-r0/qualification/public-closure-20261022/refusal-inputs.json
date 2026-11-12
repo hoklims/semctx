@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "units": [
+    {"id":"import-escape-retained","owner":"extractTypeScript","retained":true,"qualified":false,"files":{"main.ts":"import { secret } from '../outside'; export function entry() { return secret(); }"},"outside":{"outside.ts":"export function secret() { return 73; }"},"obligation_indices":[169]},
+    {"id":"reference-escape-retained","owner":"extractTypeScript","retained":true,"qualified":false,"files":{"main.ts":"/// <reference path=\"../outside.ts\" />\nexport function entry() { return 1; }"},"outside":{"outside.ts":"export function secret() { return 73; }"},"obligation_indices":[169]},
+    {"id":"import-escape-ordinary","owner":"extractTypeScript","retained":false,"qualified":false,"files":{"main.ts":"import { secret } from '../outside'; export function entry() { return secret(); }"},"outside":{"outside.ts":"export function secret() { return 73; }"},"obligation_indices":[169]},
+    {"id":"reference-escape-ordinary","owner":"extractTypeScript","retained":false,"qualified":false,"files":{"main.ts":"/// <reference path=\"../outside.ts\" />\nexport function entry() { return 1; }"},"outside":{"outside.ts":"export function secret() { return 73; }"},"obligation_indices":[169]},
+    {"id":"in-root-call-control","owner":"extractTypeScript","retained":true,"qualified":false,"files":{"main.ts":"import { leaf } from './leaf'; export function entry() { return leaf(); }","leaf.ts":"export function leaf() { return 1; }"},"outside":{},"obligation_indices":[169]},
+    {"id":"snapshot-required-qualified","owner":"analyzeRepository","retained":false,"qualified":true,"files":{"main.ts":"export function entry() { return 1; }"},"outside":{},"obligation_indices":[4]},
+    {"id":"snapshot-absent-ordinary","owner":"analyzeRepository","retained":false,"qualified":false,"files":{"main.ts":"export function entry() { return 1; }"},"outside":{},"obligation_indices":[4]}
+  ]
+}

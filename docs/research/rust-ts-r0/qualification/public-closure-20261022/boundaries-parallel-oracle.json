@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3",
+    "sourceSha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e",
+    "inputsSha256": "8a0e8d88dc0faf9b014ccca8120cb8bc3884cbdfac409f618fd2c79b0c9d77c1"
+  },
+  "units": [
+    {
+      "id": "PUBLIC-parallel-two-components",
+      "files": {
+        "a.ts": "export function a() { return 1; }",
+        "b.ts": "export function b() { return 2; }",
+        "ambient.d.ts": "declare const ambient: string;"
+      },
+      "roots": [
+        "a.ts",
+        "b.ts",
+        "ambient.d.ts"
+      ],
+      "workers": 2,
+      "obligation_indices": [
+        192,
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "a.ts",
+            "b.ts"
+          ],
+          "symbols": [
+            {
+              "name": "a",
+              "kind": "function",
+              "relPath": "a.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "b",
+              "kind": "function",
+              "relPath": "b.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 2,
+          "mode": "parallel"
+        }
+      }
+    },
+    {
+      "id": "PUBLIC-parallel-mixed-js",
+      "files": {
+        "a.ts": "export function a() { return 1; }",
+        "b.js": "export function b() { return 2; }"
+      },
+      "roots": [
+        "a.ts",
+        "b.js"
+      ],
+      "workers": 2,
+      "obligation_indices": [
+        192
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "a.ts",
+            "b.js"
+          ],
+          "symbols": [
+            {
+              "name": "a",
+              "kind": "function",
+              "relPath": "a.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "b",
+              "kind": "function",
+              "relPath": "b.js",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 1,
+          "mode": "preflight-fallback",
+          "reason": "mixed JavaScript/TypeScript extraction requires one semantic Program"
+        }
+      }
+    },
+    {
+      "id": "PUBLIC-parallel-connected-through-unselected",
+      "files": {
+        "a.ts": "import { middle } from \"./middle\"; export function a() { return middle(); }",
+        "middle.ts": "import { b } from \"./b\"; export function middle() { return b(); }",
+        "b.ts": "export function b() { return 2; }"
+      },
+      "roots": [
+        "a.ts",
+        "b.ts"
+      ],
+      "workers": 2,
+      "obligation_indices": [
+        170,
+        210,
+        211,
+        212,
+        213
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "b.ts",
+            "a.ts"
+          ],
+          "symbols": [
+            {
+              "name": "b",
+              "kind": "function",
+              "relPath": "b.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "a",
+              "kind": "function",
+              "relPath": "a.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [
+            {
+              "fromRelPath": "a.ts",
+              "moduleSpecifier": "./middle",
+              "resolvedRelPath": "middle.ts",
+              "names": [
+                "middle"
+              ],
+              "line": 1
+            }
+          ],
+          "calls": [
+            {
+              "callerRelPath": "a.ts",
+              "callerSymbolPath": "a",
+              "calleeName": "middle",
+              "calleeRelPath": "middle.ts",
+              "calleeSymbolPath": "middle",
+              "line": 1
+            }
+          ]
+        },
+        "parallelism": {
+          "requested": 2,
+          "used": 1,
+          "mode": "single",
+          "reason": "TypeScript root module graph has one connected component"
+        }
+      }
+    },
+    {
+      "id": "PUBLIC-parallel-single-control",
+      "files": {
+        "a.ts": "export function a() { return 1; }",
+        "b.ts": "export function b() { return 2; }",
+        "ambient.d.ts": "declare const ambient: string;"
+      },
+      "roots": [
+        "a.ts",
+        "b.ts",
+        "ambient.d.ts"
+      ],
+      "workers": 1,
+      "obligation_indices": [
+        192,
+        210
+      ],
+      "expected": {
+        "extraction": {
+          "modules": [
+            "a.ts",
+            "b.ts"
+          ],
+          "symbols": [
+            {
+              "name": "a",
+              "kind": "function",
+              "relPath": "a.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            },
+            {
+              "name": "b",
+              "kind": "function",
+              "relPath": "b.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "imports": [],
+          "calls": []
+        },
+        "parallelism": {
+          "requested": 1,
+          "used": 1,
+          "mode": "single"
+        }
+      }
+    }
+  ]
+}

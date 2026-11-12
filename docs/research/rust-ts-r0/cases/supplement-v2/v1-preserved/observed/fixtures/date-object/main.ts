@@ -1,0 +1,1 @@
+const original = {}; const copy = new Date(original); export {};

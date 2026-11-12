@@ -1,0 +1,1 @@
+[1].map.apply([1], [value => value]); export {};

@@ -1,0 +1,201 @@
+{
+  "sourceHeadBeforeCheckpoint5Commit": "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+  "pendingSourceChangesExplicit": true,
+  "files": [
+    {
+      "path": "clippy.toml",
+      "sha256": "637674406714e6494d5774cc85fb00303daafdeafb6520977d0cf1e9769f26ec",
+      "bytes": 92
+    },
+    {
+      "path": "docs/research/rust-ts-r0/cases/sources/development-cases.json",
+      "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+      "bytes": 56848
+    },
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a",
+      "bytes": 86
+    },
+    {
+      "path": "tools/gates/Cargo.lock",
+      "sha256": "d7c34e58e5bb2e5a0da55fad216b90a0eba6c6b612224be80a6e469ffe455277",
+      "bytes": 5342
+    },
+    {
+      "path": "tools/gates/Cargo.toml",
+      "sha256": "3011dca3a2ff977b1adda3931f1a1ce3a859e1f38bac747625c9a5304749ff26",
+      "bytes": 862
+    },
+    {
+      "path": "tools/gates/src/process.rs",
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+      "bytes": 23993
+    },
+    {
+      "path": "tools/rust-ts-r0/.gitignore",
+      "sha256": "64c94088bff99e8f75106676fcbb9a8614d90105ec177ded0b63c44f967c3230",
+      "bytes": 32
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.lock",
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2",
+      "bytes": 22559
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.toml",
+      "sha256": "4463a58893448d2faf6580925256fe64174302659a930d6f2eb963dd7006db3b",
+      "bytes": 551
+    },
+    {
+      "path": "tools/rust-ts-r0/README.md",
+      "sha256": "512bc650cc8b077d1d9eba2db76290ecea1f18f6f27bba77d2e70fc3458cf1f4",
+      "bytes": 2576
+    },
+    {
+      "path": "tools/rust-ts-r0/builtin-modules.json",
+      "sha256": "79db033d1873d73a41c2045fcb2bb893f8d0c7cf214a1f4b1d3b99cc562b7eb2",
+      "bytes": 4535
+    },
+    {
+      "path": "tools/rust-ts-r0/development/review-controls.json",
+      "sha256": "705f985c832686b22bb35870f4cba6544a4f3e4c6719669f70db862e1b173991",
+      "bytes": 3167
+    },
+    {
+      "path": "tools/rust-ts-r0/provenance.json",
+      "sha256": "51f6fc05b14ca9f04d7410999e8ee2a608847f72ada973a21d0ed35c61d6780d",
+      "bytes": 2563
+    },
+    {
+      "path": "tools/rust-ts-r0/sdk/LICENSE.txt",
+      "sha256": "527adf9d4c760f7367c2aeffed6a89afba8ba40ea1b0efbc8f56496ad30ea9cf",
+      "bytes": 9141
+    },
+    {
+      "path": "tools/rust-ts-r0/sdk/ThirdPartyNoticeText.txt",
+      "sha256": "f7d7409c091d9d5c09a8bafbc4a27dc30ce2da6e19b7c0f91c59754a7c4b195b",
+      "bytes": 37608
+    },
+    {
+      "path": "tools/rust-ts-r0/sdk/sdk-input.json",
+      "sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "bytes": 3218481
+    },
+    {
+      "path": "tools/rust-ts-r0/src/assembly.rs",
+      "sha256": "ab6612af4562e651ed3f7fb00122cd71cb5f689af9150edbf5dea7988041d799",
+      "bytes": 41032
+    },
+    {
+      "path": "tools/rust-ts-r0/src/batch.rs",
+      "sha256": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4",
+      "bytes": 12276
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured.rs",
+      "sha256": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+      "bytes": 717
+    },
+    {
+      "path": "tools/rust-ts-r0/src/component_observations.rs",
+      "sha256": "5f7051d69de1ca9a4b07738ec588a2da5757f4ab8cae8255bf36cab9423cdfa8",
+      "bytes": 5397
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configuration.rs",
+      "sha256": "af4b8bd70fd1133eca067d84d82767d2f40b41afc8494ce0817fc92b799f0dd7",
+      "bytes": 21629
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configured_resolver.rs",
+      "sha256": "9662a49eb72ff114ecf054c99bf2db3d8a839aa81cb746c77ec7f4a2438199a0",
+      "bytes": 46400
+    },
+    {
+      "path": "tools/rust-ts-r0/src/development.rs",
+      "sha256": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca",
+      "bytes": 2517
+    },
+    {
+      "path": "tools/rust-ts-r0/src/es5_helpers.rs",
+      "sha256": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54",
+      "bytes": 16237
+    },
+    {
+      "path": "tools/rust-ts-r0/src/identity.rs",
+      "sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+      "bytes": 2859
+    },
+    {
+      "path": "tools/rust-ts-r0/src/javascript.rs",
+      "sha256": "d1d123c4567240bbce7228ff75ec2ec6fbad5055c6f3b5346151d16403948525",
+      "bytes": 43160
+    },
+    {
+      "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+      "sha256": "94e0436de9440c8cc77c2a4abebe5c72612ea5b9e4c64d892b0c355e92afcbe1",
+      "bytes": 58144
+    },
+    {
+      "path": "tools/rust-ts-r0/src/lib.rs",
+      "sha256": "ca837cdbbbf9eb7aa1ad2eb110f331ff02aa334cb2e7ea5a970f787695738dd8",
+      "bytes": 50
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "sha256": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46",
+      "bytes": 75427
+    },
+    {
+      "path": "tools/rust-ts-r0/src/ordinary.rs",
+      "sha256": "ee22fe8d5df67b31c7bc2c05434c36cc22910cecdd62c7537e84eca928b0cc50",
+      "bytes": 66070
+    },
+    {
+      "path": "tools/rust-ts-r0/src/outline.rs",
+      "sha256": "1dea2737e5d1f33604a045f52d4a4864ad85bc01833c02a7a789d8aecd74741c",
+      "bytes": 36401
+    },
+    {
+      "path": "tools/rust-ts-r0/src/qualified.rs",
+      "sha256": "01e93d020a13ad8b4c437ee320133399a9db8de8711a088d157f10e12fd9d662",
+      "bytes": 151471
+    },
+    {
+      "path": "tools/rust-ts-r0/src/receiver.rs",
+      "sha256": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d",
+      "bytes": 76544
+    },
+    {
+      "path": "tools/rust-ts-r0/src/runtime_configuration.rs",
+      "sha256": "3ec763a02dc7ceb51358beeeac5f399fba460c85f421fdbd309bc3cb1f346e5b",
+      "bytes": 71034
+    },
+    {
+      "path": "tools/rust-ts-r0/src/source_text.rs",
+      "sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+      "bytes": 2942
+    },
+    {
+      "path": "tools/rust-ts-r0/src/wire.rs",
+      "sha256": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+      "bytes": 2871
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/fixtures/native-development-flow/cases.json",
+      "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a",
+      "bytes": 5639
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_common_portability.rs",
+      "sha256": "90d946fc3d8b28b5fd67114df8044989ad994bd7dafb6fa7d0fac5eea94fb845",
+      "bytes": 7494
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+      "bytes": 38768
+    }
+  ]
+}

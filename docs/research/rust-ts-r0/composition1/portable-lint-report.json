@@ -1,0 +1,649 @@
+{
+  "schema": "semctx-t00-portable-lint-report-v1",
+  "producedAtUtc": "2026-10-17T18:26:09.193905+00:00",
+  "producer": "/root/portable_native_lint",
+  "worktree": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+  "head": "9494388269ed1b3220ce4bde247e58543c6ffd87",
+  "scope": "tools/rust-ts-r0/src/*.rs exclusively",
+  "environment": {
+    "os": "Darwin",
+    "release": "27.0.0",
+    "machine": "arm64",
+    "toolchain": "rustc 1.95.0 (59807616e 2026-04-14)\nbinary: rustc\ncommit-hash: 59807616e1fa2540724bfbac14d7976d7e4a3860\ncommit-date: 2026-04-14\nhost: aarch64-apple-darwin\nrelease: 1.95.0\nLLVM version: 22.1.2\n",
+    "cargoHome": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home",
+    "cargoTargetDir": "/private/tmp/semctx-t00-20261017/portable-target"
+  },
+  "baseline": "/private/tmp/semctx-t00-20261017/portable-lint-before.json",
+  "changedFiles": [
+    {
+      "path": "tools/rust-ts-r0/src/assembly.rs",
+      "beforeSha256": "89646b787269213a722fdc9887dd6a5857fef24cd986c378ad39cf4469eb9c5d",
+      "afterSha256": "ab6612af4562e651ed3f7fb00122cd71cb5f689af9150edbf5dea7988041d799",
+      "diffSha256": "3a90dc43c959275c9e9c5137ca2674dde633906f2a571606f59b67973a89285b",
+      "addedLines": 36,
+      "removedLines": 35,
+      "changes": [
+        "Collapse nested conditions with unchanged short-circuit order.",
+        "Use rfind for pure reverse search and is_none_or for a negated optional predicate.",
+        "Expect excessive_nesting only on assemble to retain explicit declaration/marker traversal."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configuration.rs",
+      "beforeSha256": "f38e0422e5c520584e0ed1fa615890d4580b84ff7e7d9ac39b610b7bf0c08132",
+      "afterSha256": "af4b8bd70fd1133eca067d84d82767d2f40b41afc8494ce0817fc92b799f0dd7",
+      "diffSha256": "59c9a69196996f8adfd06fb0aa5718406c5de177dc5eb97430b916a5a8ccf6b7",
+      "addedLines": 1,
+      "removedLines": 1,
+      "changes": [
+        "Replace borrowed temporary Vec with a slice in an existing test."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configured_resolver.rs",
+      "beforeSha256": "7f38ffe48639916a308d6ad7c9316acdcfd04000dfbfcebf6ed03358965aa405",
+      "afterSha256": "9662a49eb72ff114ecf054c99bf2db3d8a839aa81cb746c77ec7f4a2438199a0",
+      "diffSha256": "20e979c837cf548cc070b120233e4a2daff7bcf5639a7835c5f5e6043c645ea7",
+      "addedLines": 3,
+      "removedLines": 3,
+      "changes": [
+        "Remove production-unused ResolutionHost import; qualify the same trait explicitly in the existing test implementation.",
+        "Use next_back instead of last over a pure double-ended configuration iterator."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/es5_helpers.rs",
+      "beforeSha256": "1a90184d7071cee6f8f9f28f6f996db26d39ebb8babd677b144dd79755fa58a4",
+      "afterSha256": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54",
+      "diffSha256": "d16a2630b1a0b165f5923ec3209242929784eb15212c37299ce3cb708749509d",
+      "addedLines": 9,
+      "removedLines": 10,
+      "changes": [
+        "Collapse class heritage condition into its match guard.",
+        "Collapse the single-segment return condition without changing evaluation order."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/javascript.rs",
+      "beforeSha256": "22339abce6f00649f593ff32e16459f10725f9f08eb6b04e4ebadd17feec3d33",
+      "afterSha256": "d1d123c4567240bbce7228ff75ec2ec6fbad5055c6f3b5346151d16403948525",
+      "diffSha256": "d614009dc3ed9ac5578d49a9e3014e4a99f648c5e91c5da712300f2e70fc7b5c",
+      "addedLines": 12,
+      "removedLines": 0,
+      "changes": [
+        "Expect excessive_nesting only on origin, reexports, static_exports; keep syntax dispatch unchanged."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+      "beforeSha256": "4724b6f4605fbc7a6a10e51119f24330e704afde146e9edb057aa1ccf1456309",
+      "afterSha256": "94e0436de9440c8cc77c2a4abebe5c72612ea5b9e4c64d892b0c355e92afcbe1",
+      "diffSha256": "8b0e21b5c2bfbdc0c5c4b89bf32da55118b35b2acf07ffbb0830b05230de2bf8",
+      "addedLines": 93,
+      "removedLines": 78,
+      "changes": [
+        "Collapse nested conditions and simplify a negated optional predicate without changing resolution precedence.",
+        "Name the existing closure trait-object signature ModuleLoader; no argument/type behavior changed.",
+        "Expect excessive_nesting on three resolution functions and too_many_arguments on modern_target/modern_lookup.",
+        "Qualify ResolutionHost in its existing test implementation after removal of a parent production-unused import."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "beforeSha256": "86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+      "afterSha256": "01a27bf6cb77413620334e6c64cfd9fe4cda533eb3c72bb7cddd1b954d468fd9",
+      "diffSha256": "51bc42edca0c310769c181e34a60cd7bbd71ad24d5878300ab949fca6ffe37e1",
+      "addedLines": 8,
+      "removedLines": 0,
+      "changes": [
+        "Expect too_many_arguments only on inspect_subject and excessive_nesting only on analyze."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/ordinary.rs",
+      "beforeSha256": "74c16a29d00ee2d4cb3e7a2dd5b59cb086220a5fc97bdd8cfb76c7ac0a9c4de3",
+      "afterSha256": "ee22fe8d5df67b31c7bc2c05434c36cc22910cecdd62c7537e84eca928b0cc50",
+      "diffSha256": "6bf279e81bc09201fbceaa48aeb6fd275ef9a6617e64fc2207c81f55adae1d08",
+      "addedLines": 24,
+      "removedLines": 18,
+      "changes": [
+        "Collapse nested conditions without changing short-circuit order.",
+        "Use rfind for the final matching JSDoc text; closures read immutable text only.",
+        "Expect excessive_nesting on export_ambiguities, import, visit."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/outline.rs",
+      "beforeSha256": "31d9e04a9d65bc0c9fd40e86efb8394d386f54af51d0f379c60bbf193850c767",
+      "afterSha256": "1dea2737e5d1f33604a045f52d4a4864ad85bc01833c02a7a789d8aecd74741c",
+      "diffSha256": "74043b85af85b31a09e51bc6e70588b6455a6497204777d2fda3852627424d68",
+      "addedLines": 4,
+      "removedLines": 8,
+      "changes": [
+        "Remove utf16_offset, which had no production consumer, and only its dead-helper assertion; retain the useful coordinate/directive test.",
+        "Expect excessive_nesting only on import_details."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/qualified.rs",
+      "beforeSha256": "e76b1961a4554b70c531b2b2e4c6e7e173a0923d9bbc1303574630ad38817023",
+      "afterSha256": "01e93d020a13ad8b4c437ee320133399a9db8de8711a088d157f10e12fd9d662",
+      "diffSha256": "0c509a5d49611e8fd7be477068f5ce477b6d1f71120a80faa2edb204b4ad293a",
+      "addedLines": 96,
+      "removedLines": 39,
+      "changes": [
+        "Collapse nested conditions and apply Boolean identities preserving original left-to-right short-circuit calls.",
+        "Expect excessive_nesting only on 12 runtime AST/SDK functions and the captured-SDK test helper; too_many_arguments only on visit_inline_reference."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/receiver.rs",
+      "beforeSha256": "54647334d11900665f96c1b808e34db68f36ba4d7405d77031015be2f7de8095",
+      "afterSha256": "8ef6d5ca16c27d169f7d07a79ed63a42eaabe0781deee5cebeb7c5166ce18638",
+      "diffSha256": "1c4ce926f0bff5554feb8899ae364b0053de76be8e943b4aaf40b73e695632ad",
+      "addedLines": 21,
+      "removedLines": 26,
+      "changes": [
+        "Express the existing pathless/source path/range cases as a match; rejection codes and validation order remain the same.",
+        "Expect excessive_nesting only on the local serde visit_map that still rejects duplicate keys."
+      ]
+    },
+    {
+      "path": "tools/rust-ts-r0/src/runtime_configuration.rs",
+      "beforeSha256": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+      "afterSha256": "3ec763a02dc7ceb51358beeeac5f399fba460c85f421fdbd309bc3cb1f346e5b",
+      "diffSha256": "842ac1d401e3f8ff94351396ad97beeecc7c006fe931a844376c10ddf08b802d",
+      "addedLines": 6,
+      "removedLines": 8,
+      "changes": [
+        "Express the close-brace template-stack branch as a guarded match arm; scanner re-scan remains limited to a TemplateHead stack top."
+      ]
+    }
+  ],
+  "sourceFiles": [
+    {
+      "path": "tools/rust-ts-r0/src/assembly.rs",
+      "sha256": "ab6612af4562e651ed3f7fb00122cd71cb5f689af9150edbf5dea7988041d799"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/batch.rs",
+      "sha256": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured.rs",
+      "sha256": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configuration.rs",
+      "sha256": "af4b8bd70fd1133eca067d84d82767d2f40b41afc8494ce0817fc92b799f0dd7"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configured_resolver.rs",
+      "sha256": "9662a49eb72ff114ecf054c99bf2db3d8a839aa81cb746c77ec7f4a2438199a0"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/development.rs",
+      "sha256": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/es5_helpers.rs",
+      "sha256": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/identity.rs",
+      "sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/javascript.rs",
+      "sha256": "d1d123c4567240bbce7228ff75ec2ec6fbad5055c6f3b5346151d16403948525"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+      "sha256": "94e0436de9440c8cc77c2a4abebe5c72612ea5b9e4c64d892b0c355e92afcbe1"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/lib.rs",
+      "sha256": "ca837cdbbbf9eb7aa1ad2eb110f331ff02aa334cb2e7ea5a970f787695738dd8"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "sha256": "01a27bf6cb77413620334e6c64cfd9fe4cda533eb3c72bb7cddd1b954d468fd9"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/ordinary.rs",
+      "sha256": "ee22fe8d5df67b31c7bc2c05434c36cc22910cecdd62c7537e84eca928b0cc50"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/outline.rs",
+      "sha256": "1dea2737e5d1f33604a045f52d4a4864ad85bc01833c02a7a789d8aecd74741c"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/qualified.rs",
+      "sha256": "01e93d020a13ad8b4c437ee320133399a9db8de8711a088d157f10e12fd9d662"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/receiver.rs",
+      "sha256": "8ef6d5ca16c27d169f7d07a79ed63a42eaabe0781deee5cebeb7c5166ce18638"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/runtime_configuration.rs",
+      "sha256": "3ec763a02dc7ceb51358beeeac5f399fba460c85f421fdbd309bc3cb1f346e5b"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/source_text.rs",
+      "sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/wire.rs",
+      "sha256": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987"
+    }
+  ],
+  "aggregateSourceSha256": "89d0e439849bb3d42aadbb705f5854b873a16e26ee8b5ce8b930a715017270ff",
+  "deltaPatch": {
+    "path": "/private/tmp/semctx-t00-20261017/portable-lint.delta.patch",
+    "sha256": "a0250bf0bbc1328e6b9908bf87bd732d29c39e76834c687ee36c08394eedddc3",
+    "addedLines": 313,
+    "removedLines": 226
+  },
+  "checks": [
+    {
+      "command": "PATH=/Users/sebastien/.cargo/bin:$PATH CARGO_HOME=/private/tmp/semctx-t00-native-composition1-20261017/cargo-home CARGO_TARGET_DIR=/private/tmp/semctx-t00-20261017/portable-target RUSTUP_TOOLCHAIN=1.95.0 cargo clippy --manifest-path tools/rust-ts-r0/Cargo.toml --locked --all-targets -- -D warnings",
+      "exitCode": 0,
+      "log": "evidence/portable-clippy-final2.log",
+      "covers": "Typecheck/lint of every Cargo target; does not execute tests."
+    },
+    {
+      "command": "PATH=/Users/sebastien/.cargo/bin:$PATH RUSTUP_TOOLCHAIN=1.95.0 cargo fmt --manifest-path tools/rust-ts-r0/Cargo.toml --check",
+      "exitCode": 0,
+      "log": "evidence/portable-fmt-check.log",
+      "covers": "Native rustfmt check including all manifest targets."
+    },
+    {
+      "command": "git diff --cached --check -- tools/rust-ts-r0/src",
+      "exitCode": 0,
+      "covers": "Whitespace checks of indexed source files."
+    }
+  ],
+  "intermediateRuns": [
+    {
+      "log": "evidence/portable-clippy-fix.log",
+      "exitCode": 0,
+      "purpose": "Native machine-applicable source fixes; compile warnings remain intentionally visible."
+    },
+    {
+      "log": "evidence/portable-clippy-inventory.jsonl",
+      "exitCode": 101,
+      "purpose": "Observed actual excessive_nesting failures from inherited repository clippy.toml."
+    },
+    {
+      "log": "evidence/portable-clippy-inventory2.jsonl",
+      "exitCode": 101,
+      "purpose": "Observed remaining nesting failures and a test-only ResolutionHost qualification error; fixed afterward."
+    },
+    {
+      "log": "evidence/portable-clippy-final.jsonl",
+      "exitCode": 101,
+      "purpose": "Observed only collapsible_match on simplified template stack; fixed afterward."
+    }
+  ],
+  "lintAttenuations": {
+    "counts": {
+      "clippy::excessive_nesting": 26,
+      "clippy::too_many_arguments": 4
+    },
+    "inventory": [
+      {
+        "path": "tools/rust-ts-r0/src/assembly.rs",
+        "line": 171,
+        "lint": "clippy::excessive_nesting",
+        "function": "assemble",
+        "reason": "The native graph assembly keeps declaration and marker traversal explicit in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/javascript.rs",
+        "line": 213,
+        "lint": "clippy::excessive_nesting",
+        "function": "origin",
+        "reason": "The native JavaScript AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/javascript.rs",
+        "line": 384,
+        "lint": "clippy::excessive_nesting",
+        "function": "reexports",
+        "reason": "The native JavaScript AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/javascript.rs",
+        "line": 678,
+        "lint": "clippy::excessive_nesting",
+        "function": "static_exports",
+        "reason": "The native JavaScript AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+        "line": 16,
+        "lint": "clippy::excessive_nesting",
+        "function": "resolve",
+        "reason": "The native SDK resolution branches retain their explicit precedence in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+        "line": 207,
+        "lint": "clippy::excessive_nesting",
+        "function": "version_mappings",
+        "reason": "The native SDK resolution branches retain their explicit precedence in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+        "line": 531,
+        "lint": "clippy::excessive_nesting",
+        "function": "nearest_packages",
+        "reason": "The native SDK resolution branches retain their explicit precedence in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+        "line": 748,
+        "lint": "clippy::too_many_arguments",
+        "function": "modern_target",
+        "reason": "The native SDK resolution inputs remain explicit in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+        "line": 852,
+        "lint": "clippy::too_many_arguments",
+        "function": "modern_lookup",
+        "reason": "The native SDK resolution inputs remain explicit in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/main.rs",
+        "line": 472,
+        "lint": "clippy::too_many_arguments",
+        "function": "inspect_subject",
+        "reason": "The feasibility probe keeps captured subject inputs explicit at its boundary.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/main.rs",
+        "line": 770,
+        "lint": "clippy::excessive_nesting",
+        "function": "analyze",
+        "reason": "The feasibility probe retains explicit captured request and fact assembly branches.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/ordinary.rs",
+        "line": 297,
+        "lint": "clippy::excessive_nesting",
+        "function": "export_ambiguities",
+        "reason": "The native symbol and import AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/ordinary.rs",
+        "line": 644,
+        "lint": "clippy::excessive_nesting",
+        "function": "import",
+        "reason": "The native symbol and import AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/ordinary.rs",
+        "line": 764,
+        "lint": "clippy::excessive_nesting",
+        "function": "visit",
+        "reason": "The native symbol and import AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/outline.rs",
+        "line": 372,
+        "lint": "clippy::excessive_nesting",
+        "function": "import_details",
+        "reason": "The native import AST traversal retains its explicit syntax dispatch in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 848,
+        "lint": "clippy::excessive_nesting",
+        "function": "inspect_sdk_callbacks",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 1121,
+        "lint": "clippy::excessive_nesting",
+        "function": "safe_await_seen",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 1424,
+        "lint": "clippy::excessive_nesting",
+        "function": "inspect_descriptor",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 1587,
+        "lint": "clippy::excessive_nesting",
+        "function": "inspect_mutation",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 1649,
+        "lint": "clippy::excessive_nesting",
+        "function": "builtin_module_value",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 1744,
+        "lint": "clippy::excessive_nesting",
+        "function": "runtime_primitive",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 1948,
+        "lint": "clippy::excessive_nesting",
+        "function": "original_import",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 2152,
+        "lint": "clippy::too_many_arguments",
+        "function": "visit_inline_reference",
+        "reason": "The recursive AST visitor keeps its independent traversal inputs explicit.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 2156,
+        "lint": "clippy::excessive_nesting",
+        "function": "visit_inline_reference",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 2247,
+        "lint": "clippy::excessive_nesting",
+        "function": "inspect_opaque_callbacks",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 2528,
+        "lint": "clippy::excessive_nesting",
+        "function": "timer_value",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 2789,
+        "lint": "clippy::excessive_nesting",
+        "function": "inspect_sdk_coercion",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 3172,
+        "lint": "clippy::excessive_nesting",
+        "function": "visit",
+        "reason": "The native SDK and AST traversal retains its explicit semantic branches in this feasibility port.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/qualified.rs",
+        "line": 3446,
+        "lint": "clippy::excessive_nesting",
+        "function": "scan_code_with_proof_state",
+        "reason": "The captured SDK test context requires nested program and checker callbacks.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      },
+      {
+        "path": "tools/rust-ts-r0/src/receiver.rs",
+        "line": 925,
+        "lint": "clippy::excessive_nesting",
+        "function": "visit_map",
+        "reason": "The local recursive serde visitor preserves duplicate-key rejection.",
+        "scope": "function",
+        "kind": "style advisory, no behavior oracle suppressed"
+      }
+    ],
+    "authorization": "Parent explicitly authorized function-scoped expect for native AST/SDK feasibility control flow; no module/crate blanket allow.",
+    "proofMechanism": "Clippy observed the unsuppressed diagnostics in retained native logs; #[expect] remains checked for fulfillment under -D warnings.",
+    "limitation": "Shape/style diagnostics in these functions are intentionally advisory; Clippy does not prove runtime equivalence.",
+    "independentReview": "Delegation attempted, thread limit reached; parent informed and asked to reuse its independent reviewer.",
+    "proofIntegrityVerdict": "PROOF_WEAK until independent review is supplied; final compile/lint success is established, runtime behavior is not certified."
+  },
+  "authorSemanticReview": {
+    "findings": [],
+    "unintendedBehaviorChangesObserved": [],
+    "rationale": [
+      "Collapsed let chains preserve original condition and ? evaluation order.",
+      "Boolean rewrites use De Morgan identities and retain the same short-circuit operand sequence.",
+      "last/next_back/rfind closures inspect immutable values only.",
+      "Receiver pathless or absent-source cases still reject any path/range with InvalidRange; sourced case still checks path before bounds.",
+      "Template scanner is re-scanned only for a close brace with TemplateHead on top, and stack pop behavior is preserved.",
+      "Dead utf16_offset had only one direct test assertion and no runtime call site."
+    ]
+  },
+  "commentsAdded": [],
+  "testsExecuted": [],
+  "notExercised": [
+    "Runtime native tests and qualification intentionally reserved to parent.",
+    "Linux and Windows were not exercised.",
+    "Remote CI was not run."
+  ],
+  "notTouched": [
+    "tools/rust-ts-r0/tests/native_development_flow.rs",
+    "tools/rust-ts-r0/Cargo.toml",
+    "tools/rust-ts-r0/Cargo.lock",
+    "Documentation/workflow files",
+    "External prototype source or its frozen CLI target/debug"
+  ],
+  "logs": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-final.jsonl",
+      "sha256": "bf9179339e27891f3c0c1b776355ae69271a26b610261bbc44b3ff68b56705dd"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-final.log",
+      "sha256": "fe6c31b27c4d32709d99e872ed1ba0bc6d76b9cf3432aed4d82e13dc897ccdaf"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-final2.log",
+      "sha256": "3b63f73065f9cf07a6fb90cc9747a694e6415e1c32a496ccbba1396ee9d52569"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-fix.log",
+      "sha256": "09b523e66d2f4d5881e8aa8e8b31f3e788e0618aa2c3e454e6a460c39978e3cb"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-inventory.jsonl",
+      "sha256": "d65872db1b1027458a07d4ad1cdf3c3f1ef84885c9e494f48536b0c451ebcd64"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-inventory.log",
+      "sha256": "6de5a9ad5ff8eeb8fc0c65b4f14426308126b9dcae65810e8aec2dec79a9a043"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-inventory2.jsonl",
+      "sha256": "66a18bf8e708c8e91f43c11d6eaef6aea8df7fb71118bbe86b9beb290c845e51"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-inventory2.log",
+      "sha256": "9477b1ea6579f426eda5f1b0611b935465ecbe86447e9c12f3d9392b41f0752b"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-rustfmt-template.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-rustfmt.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-fmt-check.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-toolchain.log",
+      "sha256": "e61cba8ded8c60e985f759f74a221c4773649021477d00b44c7af411eb8c218c"
+    }
+  ],
+  "indexStatus": "All 19 owned source paths are indexed; no unstaged source delta at completion."
+}

@@ -1,0 +1,152 @@
+{
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "sourceVariants": 67,
+  "publicVectors": 25,
+  "primary": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "original50Preserved": true,
+    "preservedV1Files": 173,
+    "additionalSources": 17,
+    "digestPairs": 5,
+    "publicTestCount": 25,
+    "publicInvocations": 11,
+    "materializedPublicVectors": 25,
+    "mappingUnknown": [
+      {
+        "id": "scope-admission-01",
+        "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+      },
+      {
+        "id": "scope-admission-02",
+        "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+      },
+      {
+        "id": "scope-admission-03",
+        "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+      }
+    ],
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "source50ProjectionSha256": "39492e38f634ca86bc7b6be6b342d44828fd791d2d52134a6ba624baa0c7126c",
+    "additionsSha256": "a0725aa55768527d9746d473e01e5e8dac192042f6262bc6e1cc0d7434338930",
+    "publicProjectionSha256": "8b4bec44d3da099fea512831de00aa23d5b03ea4913a163287d95ddaa98b6f3f",
+    "candidateObserved": false
+  },
+  "reproduction": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "original50Preserved": true,
+    "preservedV1Files": 173,
+    "additionalSources": 17,
+    "digestPairs": 5,
+    "publicTestCount": 25,
+    "publicInvocations": 11,
+    "materializedPublicVectors": 25,
+    "mappingUnknown": [
+      {
+        "id": "scope-admission-01",
+        "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+      },
+      {
+        "id": "scope-admission-02",
+        "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+      },
+      {
+        "id": "scope-admission-03",
+        "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+      }
+    ],
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/reproduction/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/reproduction/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/reproduction/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/reproduction/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/reproduction/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "source50ProjectionSha256": "39492e38f634ca86bc7b6be6b342d44828fd791d2d52134a6ba624baa0c7126c",
+    "additionsSha256": "a0725aa55768527d9746d473e01e5e8dac192042f6262bc6e1cc0d7434338930",
+    "publicProjectionSha256": "8b4bec44d3da099fea512831de00aa23d5b03ea4913a163287d95ddaa98b6f3f",
+    "candidateObserved": false
+  },
+  "projectionHashesEqual": true,
+  "rawOutputsRetained": true,
+  "candidateObserved": false
+}

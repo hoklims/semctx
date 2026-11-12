@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "status": "DERIVED_ASSERTIONS_EXISTING_INPUTS_ONLY_NOT_QUALIFICATION",
+  "authority": "docs/research/rust-ts-r0/resumption/owner-execution-and-custody-20261020.json#/assertionDecision",
+  "provenance": "New assertions authorized on existing frozen inputs; original frozen assertions are unchanged.",
+  "obligations": [
+    {
+      "index": 156,
+      "property": 2,
+      "field": "moduleLinks.whole"
+    },
+    {
+      "index": 158,
+      "property": 1,
+      "field": "moduleLinks.whole"
+    }
+  ],
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "source_path": "packages/ts-analyzer/src/top-level-outline.ts",
+    "source_git_blob_sha": "1cdb234b7647b11cc1c6b8923c36236973613e35",
+    "source_sha256": "2d75f2a99e91aec60ef7baea52e2a62b53c492eed7976c39570dbd6a396b8647",
+    "typescript": "5.9.3"
+  },
+  "frozen_documents": {
+    "scenarios": {
+      "path": "qualification/scenarios.json",
+      "sha256": "b17b5ea68e702a2d45c6b04ae50654a93611584ec84e60a318ac3bce9d609906"
+    },
+    "inputs": {
+      "path": "allocation/input-index.json",
+      "sha256": "2b661e61877daf5a4ce14ab76a3ce31f0703f288b01b0853cbc3a8b448c0cded"
+    }
+  },
+  "assertions": [
+    {
+      "unit_id": "OL-M06::base",
+      "frozen_unit_pointer": "/execution_units/214",
+      "frozen_unit_sha256": "55f529fa81289ea564285a4641c6d9b6661933d6e0864572e2e04b879366c372",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "57f62f1755fc21ad13577985850d917c03d05c38f4836387883b9e51c9bb1b3f",
+      "module_links": [
+        {
+          "kind": "import",
+          "specifier": "./mod",
+          "line": 1,
+          "whole": true
+        }
+      ],
+      "indexed_field_absences": []
+    },
+    {
+      "unit_id": "OL-M07::base",
+      "frozen_unit_pointer": "/execution_units/215",
+      "frozen_unit_sha256": "9b5d62a7facbdac87049555eab14637268f62b39fe514bde32d73af9167037e1",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "f94bc51851123d1fddf47c2b44629bfee1c3ccab65af62c3cd122c2f2126f681",
+      "module_links": [
+        {
+          "kind": "import",
+          "specifier": "./mod",
+          "line": 1
+        }
+      ],
+      "indexed_field_absences": [
+        {
+          "index": 0,
+          "fields": [
+            "whole"
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "OL-M13::base",
+      "frozen_unit_pointer": "/execution_units/221",
+      "frozen_unit_sha256": "3bfed5754a90f31c593fa60547ac67afadaee055e9dae29b37a5566f0647a097",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "6621d6e5a06d0c334239a537af397b8355270deaf8de251afb66a46f2b371369",
+      "module_links": [
+        {
+          "kind": "require",
+          "specifier": "./mod",
+          "line": 1,
+          "whole": true
+        }
+      ],
+      "indexed_field_absences": []
+    },
+    {
+      "unit_id": "OL-M14::base",
+      "frozen_unit_pointer": "/execution_units/222",
+      "frozen_unit_sha256": "ab8c4941a7d6e6ac86dd380581519b22f157934f44db9948addac18fa871bc00",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "72ef6d9841f93b745b2e5577ca4bcadb1a6300ccc85547912b348c7c22af03c3",
+      "module_links": [
+        {
+          "kind": "require",
+          "specifier": "./mod",
+          "line": 1
+        }
+      ],
+      "indexed_field_absences": [
+        {
+          "index": 0,
+          "fields": [
+            "whole"
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "OL-M21::base",
+      "frozen_unit_pointer": "/execution_units/229",
+      "frozen_unit_sha256": "b047c0ad7a97e61812ff2e5776a9572b5014f1a260d7334d7d5ca09b5795e29a",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "7a95700b7a575f5725a721ebe8b628944a1c17933eef436427da3244bbdb1747",
+      "module_links": [
+        {
+          "kind": "reexport",
+          "specifier": "./mod",
+          "line": 1,
+          "whole": true
+        }
+      ],
+      "indexed_field_absences": []
+    },
+    {
+      "unit_id": "OL-M23::base",
+      "frozen_unit_pointer": "/execution_units/231",
+      "frozen_unit_sha256": "a2481176e3e45571783b3610bd55b245b33f3bab63a3424de0333858b8b78121",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "6bb2f4357bd2ac9bcedf019625465a07c73b93da45b7fdcc9b1e971607180bcf",
+      "module_links": [
+        {
+          "kind": "reexport",
+          "specifier": "./mod",
+          "line": 1,
+          "whole": true
+        }
+      ],
+      "indexed_field_absences": []
+    },
+    {
+      "unit_id": "OL-M24::base",
+      "frozen_unit_pointer": "/execution_units/232",
+      "frozen_unit_sha256": "0645856254172485e75377559cf7da8ac1db97037d785ff74c69262177b959e9",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "88aed750ef434feebbe23ed57973a9957de5302909a9f9ad45bbf4da66a91003",
+      "module_links": [
+        {
+          "kind": "reexport",
+          "specifier": "./mod",
+          "line": 1
+        }
+      ],
+      "indexed_field_absences": [
+        {
+          "index": 0,
+          "fields": [
+            "whole"
+          ]
+        }
+      ]
+    },
+    {
+      "unit_id": "OL-M25::base",
+      "frozen_unit_pointer": "/execution_units/233",
+      "frozen_unit_sha256": "55a6739d50fdcba1d0b1422421586b01e92ad3af735978a40da9b8a803bad3ab",
+      "source_path": "src/specimen.ts",
+      "input_source_sha256": "64d45bd4ea347ef9ab716c4017183d11c7b85611b05138345e650bc4894b35d4",
+      "module_links": [
+        {
+          "kind": "reexport",
+          "specifier": "./mod",
+          "line": 1
+        }
+      ],
+      "indexed_field_absences": [
+        {
+          "index": 0,
+          "fields": [
+            "whole"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,842 @@
+{
+  "kind": "NATIVE_SOURCE_EQUIVALENCE_WITH_SEPARATE_WINDOWS_DRIVER",
+  "native_execution_source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "windows_driver_source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc",
+  "unchanged_native_protocol_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+  "windows_driver_protocol_sha256": "5067e4e537f182aed74bb6a3684b1e2e731c4f558f399667cb10b91d7537460f",
+  "verified_native_source_count": 139,
+  "native_sources": [
+    {
+      "path": "rust-toolchain.toml",
+      "sha256": "24ef3b9d3edbd850aa386cb0a98e10450b0030991a4537cb359f54d49dbbb33a",
+      "bytes": 86
+    },
+    {
+      "path": "tools/gates/Cargo.lock",
+      "sha256": "d7c34e58e5bb2e5a0da55fad216b90a0eba6c6b612224be80a6e469ffe455277",
+      "bytes": 5342
+    },
+    {
+      "path": "tools/gates/Cargo.toml",
+      "sha256": "3011dca3a2ff977b1adda3931f1a1ce3a859e1f38bac747625c9a5304749ff26",
+      "bytes": 862
+    },
+    {
+      "path": "tools/gates/src/lib.rs",
+      "sha256": "277eefd94272d0b3d9cc709b7dcff1936b89b0de8330aeb30948e2a5d2383709",
+      "bytes": 287
+    },
+    {
+      "path": "tools/gates/src/main.rs",
+      "sha256": "dbeb66f67bf8973e7ef7116a9d00e1fb0857121e44e14752447c5aa261a72a6e",
+      "bytes": 9218
+    },
+    {
+      "path": "tools/gates/src/os_boundaries.rs",
+      "sha256": "711ba37fcb800cdbcdfd824fddaeea94e4facae9a0774984e4b82539ebffe098",
+      "bytes": 4229
+    },
+    {
+      "path": "tools/gates/src/plan.rs",
+      "sha256": "c031a5544c155a9f4bf16436e3210128dcd41d2ff192ceebc6050094ff8abeff",
+      "bytes": 16840
+    },
+    {
+      "path": "tools/gates/src/process.rs",
+      "sha256": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+      "bytes": 23993
+    },
+    {
+      "path": "tools/gates/src/receipt.rs",
+      "sha256": "c72b69fe78bc08dc952eccd23469020a41ddd4e9d63d79aa29e97ab649e6fa79",
+      "bytes": 24326
+    },
+    {
+      "path": "tools/gates/src/rust_workspace.rs",
+      "sha256": "103abe240384051b49e2770e2d6316b3b21e8a0d174bd51ec74c405e8bcd1838",
+      "bytes": 9816
+    },
+    {
+      "path": "tools/gates/tests/owned_process.rs",
+      "sha256": "b64c4514282ce9fb2957cb07be5c2a1c2b3a71f48b376f5a13b3841c214238e6",
+      "bytes": 3931
+    },
+    {
+      "path": "tools/gates/tests/planning.rs",
+      "sha256": "61877a3ab6835730acf0363c7758048df7216992801d92919188812633c1d1c3",
+      "bytes": 27143
+    },
+    {
+      "path": "tools/gates/tests/process.rs",
+      "sha256": "906a57196db59a2f821cf77262926b85876f5d0121417ba0c02803ae4c163a8a",
+      "bytes": 10012
+    },
+    {
+      "path": "tools/gates/tests/rust_product.rs",
+      "sha256": "26be681a3822ddf82e727c3b5f8a85137761ca908fd3c73ad8a0cd537517eeea",
+      "bytes": 7744
+    },
+    {
+      "path": "tools/gates/tests/support/fixture.rs",
+      "sha256": "89f41ea7a6e89e634c7dc5058cec0940cc20339eebf9e51ad65487c45c60454b",
+      "bytes": 12338
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.lock",
+      "sha256": "e546a8b8b66614920c3d7ebd52e4ed5bbd1ee134e9053e3e198e02dfcf10dc0e",
+      "bytes": 22551
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.toml",
+      "sha256": "0bba2899af73f61b69b5daf92ba8e4afb55234dd5f538abdb8036742352617c1",
+      "bytes": 723
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/ambiguous_exports_replay.rs",
+      "sha256": "2801338b5805cc07656d8d642460e73eaf3e5e3486b26e6c3420b2ca339ecbd3",
+      "bytes": 13616
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/consumer_retained_aliases.rs",
+      "sha256": "a8cad94672ca6887a6fd102a963bab0735649e2e47220b623e902b279e0a6189",
+      "bytes": 2235
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/existing_semantic_reason_comparator_tests.rs",
+      "sha256": "6549493e78ca7dee4d4369f595a83aca4b8ce8b88246206aaf52aea4c4cd7e30",
+      "bytes": 5336
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/identity_support_replay.rs",
+      "sha256": "64c14196c17359181d645cf993e8d3c946b4ba3518b267c2a85f9263281730ee",
+      "bytes": 13189
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/legacy_identity_replay.rs",
+      "sha256": "3c33b61832e6a5630974be6ffc753b4a65bf088321fae2327c859aa5b6c12225",
+      "bytes": 22296
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/native_build_identity.py",
+      "sha256": "f6e08e557676476a5c82ae35068dfa66c79da2dc4d2692435bb6ec30a0f319f9",
+      "bytes": 16699
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/obligation_closure.rs",
+      "sha256": "8195a72d5aaafe4044df5d1a15c7fbba6e59586d4d390a62da9c02d0244c4ba0",
+      "bytes": 35874
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/observation_comparator_scope.rs",
+      "sha256": "d9897c5f4b4847be13aaf7ec2202033b82f6ddaf802b81a7206c08ab5e19a4ab",
+      "bytes": 4234
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/ordinary_physical_capture.rs",
+      "sha256": "506258fdcbc438a4c608f594ab41f5edc281d7f7803638b271f76906df94f703",
+      "bytes": 11542
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/parallel_replay.rs",
+      "sha256": "bdda4fedb5ba36b491a1c1a8557fb0ae7574fe3c44377ba26df9e61a1215ef95",
+      "bytes": 28163
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/physical_uncaptured_replay.rs",
+      "sha256": "d66e459472d475cc9cc6570ae54fab2bb7ac6d74e9e032c5b2f522065d090d8a",
+      "bytes": 6595
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public_batch_binding.rs",
+      "sha256": "81a188fe4027179118244056e5eac175eb3bd8b3ca6100b206eb2d74a6d73b22",
+      "bytes": 17176
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public_runtime_consumers.rs",
+      "sha256": "c8a7d089c21ed1058e6591b6962c09fb807ba1bddea96a4831433e7f1f2123cd",
+      "bytes": 15544
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public_scope_ast.rs",
+      "sha256": "9deec14bc9b49c2d155dfe3a75d8af9752caac9e65f2cacf560c95c0214a1d21",
+      "bytes": 21943
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public_working_tree_replay.rs",
+      "sha256": "b38b786ee9052d8fef2b47298377603fddc191a7e2072e4e841bea062601399a",
+      "bytes": 50326
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/qualification_replay.rs",
+      "sha256": "9e18973e08bd0918fb71f060d140d6221bcd602544a1ef782a8f1dc59457ae54",
+      "bytes": 309883
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/qualified_flow_replay.rs",
+      "sha256": "7b6446f1a5eef5d7227fdc4fe0c031a9d171d83bce541b940e9cb8a7e263b7ed",
+      "bytes": 12649
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/qualified_public_replay.rs",
+      "sha256": "6b0ad16cc6531602c94882bd2cb5f2eb439b3226e9c02b37258a13c58ba3de48",
+      "bytes": 18510
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/reader_error_replay.rs",
+      "sha256": "b7095cd6fe89c6418314a2c593c84b7346cd828d58b84c0f719ac14ab5bfdf38",
+      "bytes": 7356
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/repository_replay.rs",
+      "sha256": "3dbd0450f14c44b9270f6f0dbf77d9b038eba3ab2e9e517ee191503463a46f11",
+      "bytes": 28823
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/retained_runtime_replay.rs",
+      "sha256": "819f574ada3d063ba77c6634bee52c3ad2eed4432a8dd3589c6d716e981d611d",
+      "bytes": 10457
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/sdk_origin_assertions.rs",
+      "sha256": "9022cea278b984a79d3d786a2e699580e00bcd018fd5ad405cb7f4cffdf516ab",
+      "bytes": 5800
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/sdk_origin_assertions_tests.rs",
+      "sha256": "70cb2e8bcc3711dfc549fbd5d5b778287e03407226640ad9a494029954d1e4ef",
+      "bytes": 8731
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/source_confinement_replay.rs",
+      "sha256": "ae8b242c23165e9ba7bc2ce34edcb6e9702e07e60ec70d77f0127b11e19f9bb8",
+      "bytes": 8898
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/source_scope_replay.rs",
+      "sha256": "254a6f91b7031765ec501ef2616edd77136f88a66d0024052756b130572cd57c",
+      "bytes": 3036
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/directory_closure.py",
+      "sha256": "3b911e8225fdbd442a9be44f007b57986b3fe16f6ac5ee289dfdfeaa83aaed71",
+      "bytes": 12112
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/full_admission_adapter.py",
+      "sha256": "ed51a3af5df739d25014bfb3e51f21ad882cc5e9c74883fe3893729b064f61ef",
+      "bytes": 6328
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/lifecycle_adapter_29_frozen.py",
+      "sha256": "3d7766a464cfec5792e22d159f1f21432c5fe04fc7699979cc2803344900356f",
+      "bytes": 20620
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/ownership_adapter.py",
+      "sha256": "96b968c6b1029141f2a8421e646006bcbbfce42ba7f6127b50a7cfcd1460be57",
+      "bytes": 17868
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/public_adapter.py",
+      "sha256": "7d784fdca3268b60edd7e1db0d115f013449a4b2f4073b1a8ce1ea02fed0d45f",
+      "bytes": 13793
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/public_graph_projection.cjs",
+      "sha256": "d9792d5f5926d280044c28db79f0e19145b08b17b336958550483895c5c04b7c",
+      "bytes": 1029
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement/public_runtime.py",
+      "sha256": "9cd48fadd3eb3666852829f3042d71c9304382c3222624d4ded509d0bfe328f5",
+      "bytes": 28733
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement_public_bridge.rs",
+      "sha256": "e46ba9da87e1fe92cddf7137a5c3a712d0a069f6b23dade3dde2c2af856206c4",
+      "bytes": 30512
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/supplement_replay.rs",
+      "sha256": "eb93a64016c60842929d23e366cade7ba515b7a505048bb524e76966ccc747e8",
+      "bytes": 19939
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/t00_admission_consumer.rs",
+      "sha256": "dbf311c8692ddb1797786f3991bf291261136572d4be50f271699778e52c4a34",
+      "bytes": 42281
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/t00_token_consumer.rs",
+      "sha256": "25acc06780a1ab49cbc8483da10cb80dd206ec2d44147cc0bc2467119351ec2d",
+      "bytes": 20724
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/token_family_replay.rs",
+      "sha256": "d4073b87a0d83db26e88e1b3cde161abdcc5dfc158771fd67c020fe501d21a92",
+      "bytes": 10269
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/workspace_system_replay.rs",
+      "sha256": "ca36c7ee3a7336d482e8ac6aeb3e58573e4fdff26abcd554b2b3b899f848c2b7",
+      "bytes": 19432
+    },
+    {
+      "path": "tools/rust-ts-r0/src/assembly.rs",
+      "sha256": "f8011d67c16290a0d8d06bd6e35ddfd9de163cdc4d16f86877cdb04fcfe14641",
+      "bytes": 23058
+    },
+    {
+      "path": "tools/rust-ts-r0/src/assembly_observations.rs",
+      "sha256": "b2c84ebb8d957806713262d9059b282002ad30482c8ee0c4d34a5c33e0259640",
+      "bytes": 6364
+    },
+    {
+      "path": "tools/rust-ts-r0/src/baseline_identity.rs",
+      "sha256": "54d0a2c6059253878f84715487ca1bf5619c6bb630514f5c5021ae914fed8784",
+      "bytes": 8013
+    },
+    {
+      "path": "tools/rust-ts-r0/src/batch.rs",
+      "sha256": "1c51e7fb5b5a0760b7a81a80c42ad256891c883d4f78dd5dbc49f8d6da08fc71",
+      "bytes": 13980
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured.rs",
+      "sha256": "12c88307a5b456ca9a523780a251a21b6408fa6ec75cd5f7fbb8e18b783be859",
+      "bytes": 371
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured_confinement.rs",
+      "sha256": "dff796f6e2d4d6c86481ed19f1566d5864b77a2e8852a3c35f4966ef9c96d6b0",
+      "bytes": 10259
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured_system_observations.rs",
+      "sha256": "baae941aad4ba967c41781936e8993b9c81227a344d46006926eac594acfb2fe",
+      "bytes": 30843
+    },
+    {
+      "path": "tools/rust-ts-r0/src/component_observations.rs",
+      "sha256": "7fcc9445d8f9450eb48f00995c9c8405778647250e39f4a2f9b9a3ac1cd008aa",
+      "bytes": 14999
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configuration.rs",
+      "sha256": "c7131286815bc56c1d0910fdf47b449608cdc46e87204d6fb01f7f8bbc76a251",
+      "bytes": 14877
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configured_resolution_observations.rs",
+      "sha256": "666e1042ee5f3ad2741059efb983fc452a32723b85b4288027966dae5e644047",
+      "bytes": 8703
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configured_resolver.rs",
+      "sha256": "472a84da8e7db016b16356933300b8f10faafeb6c30c1bcaa3dedf50b0dfb49e",
+      "bytes": 17111
+    },
+    {
+      "path": "tools/rust-ts-r0/src/development.rs",
+      "sha256": "2594ec1d483d40c0201d2174df357feab53a6cebb0bcb11a34832db5355690ef",
+      "bytes": 2545
+    },
+    {
+      "path": "tools/rust-ts-r0/src/discovery_globs.rs",
+      "sha256": "f96373a98ca0f3578eff5df836558961f857cb87feb8dadce2e7290142e20684",
+      "bytes": 6782
+    },
+    {
+      "path": "tools/rust-ts-r0/src/discovery_resolution.rs",
+      "sha256": "0ff5ec3d06835f52f6315c0d334e905eed63014de2dd6b6c9a83d19a47ecc174",
+      "bytes": 7335
+    },
+    {
+      "path": "tools/rust-ts-r0/src/es5_helpers.rs",
+      "sha256": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54",
+      "bytes": 16237
+    },
+    {
+      "path": "tools/rust-ts-r0/src/identity.rs",
+      "sha256": "cc9778a0024759cf4f93ea81944409e2235beefbfb253adcd1c66c14cafea882",
+      "bytes": 2071
+    },
+    {
+      "path": "tools/rust-ts-r0/src/input_identity.rs",
+      "sha256": "d1ce51bce46a56dd6977358a4dfaf7bced8bcc8a8956570915ccc31331119c95",
+      "bytes": 2811
+    },
+    {
+      "path": "tools/rust-ts-r0/src/javascript.rs",
+      "sha256": "e725c0071d962f7523129cc58cde8ca1fb3793652796c42a0e0a9f81256ee648",
+      "bytes": 35230
+    },
+    {
+      "path": "tools/rust-ts-r0/src/legacy_resolution.rs",
+      "sha256": "712c481101aed589b14e09e9aaf225aefd8823c5db867f122d9f654a33406f80",
+      "bytes": 37860
+    },
+    {
+      "path": "tools/rust-ts-r0/src/lib.rs",
+      "sha256": "0bf0b70f2e7af7f03c9fc4b9f1cb08b45b21ea05152ac5460a38df1d85098bdc",
+      "bytes": 156
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "sha256": "00c0e9cd2f9665b25eb8881f289d0409ab65f34086abe08f9c365005bf375805",
+      "bytes": 76055
+    },
+    {
+      "path": "tools/rust-ts-r0/src/native_program.rs",
+      "sha256": "e10e7209004e2f908efca08370f53166c7e41ebce06524dbff805b3af1915605",
+      "bytes": 1580
+    },
+    {
+      "path": "tools/rust-ts-r0/src/ordinary.rs",
+      "sha256": "db6cb5086ec4733cb365553ce1b6dc937a1690f92afc626b1086ad849548d91c",
+      "bytes": 48023
+    },
+    {
+      "path": "tools/rust-ts-r0/src/outline.rs",
+      "sha256": "131004bf44b9aa795869019fdd8a8fc77f9e6cc1628d88d20c7b75662880538e",
+      "bytes": 25953
+    },
+    {
+      "path": "tools/rust-ts-r0/src/parallel_observations.rs",
+      "sha256": "014e2b432971791d656e472f4eeb9774e89290b4f953943b48d056f599399b94",
+      "bytes": 17709
+    },
+    {
+      "path": "tools/rust-ts-r0/src/partition_observations.rs",
+      "sha256": "2005e4aa731bee3628b62fdd81e81d0137c1422a103a715f62ad28ef95adb98f",
+      "bytes": 5168
+    },
+    {
+      "path": "tools/rust-ts-r0/src/primitive_observations.rs",
+      "sha256": "2cc786f33a27916d19b86f611e1ec54880b99be80f5815733fd1bda1450ce543",
+      "bytes": 14880
+    },
+    {
+      "path": "tools/rust-ts-r0/src/qualified.rs",
+      "sha256": "327ecdb74de7f31e0a81d76b783b36a9979d0d7a830c2d58fd6cf4b0c9b5e0c7",
+      "bytes": 139565
+    },
+    {
+      "path": "tools/rust-ts-r0/src/qualified_path_eligibility.rs",
+      "sha256": "7e7f8af71f9f73819bd5b0b7c9c95c12ef7021f9521dfc1c92aa1c559c4a4e4f",
+      "bytes": 9175
+    },
+    {
+      "path": "tools/rust-ts-r0/src/qualified_verification.rs",
+      "sha256": "65ea9a17c36a64f773119bb48420adbbdb895f04e0bee6071a7ed9518f05e910",
+      "bytes": 18132
+    },
+    {
+      "path": "tools/rust-ts-r0/src/receiver.rs",
+      "sha256": "806ef548b26f774b4169705a35175e8b37c49dc5cde8ba189047e77431614cd8",
+      "bytes": 33332
+    },
+    {
+      "path": "tools/rust-ts-r0/src/repository_discovery.rs",
+      "sha256": "717739c3d082ba24bdc103630ba8bf50a267b3d559a921e560f9efa190721bb0",
+      "bytes": 17073
+    },
+    {
+      "path": "tools/rust-ts-r0/src/retained_aliases.rs",
+      "sha256": "6bd510abf6f576a641470442c88c0a74b27adf2bbbf6c794502e3b80f4a84e5f",
+      "bytes": 2279
+    },
+    {
+      "path": "tools/rust-ts-r0/src/retained_discovery_observations.rs",
+      "sha256": "52044ae2e8f5c50754ace5643a98897267636baff8cf46a82392b384874badba",
+      "bytes": 3758
+    },
+    {
+      "path": "tools/rust-ts-r0/src/retained_manifest.rs",
+      "sha256": "8e05c71e88512a91aaccb295e996facc0cf521ecbaac4998078a57e8c2b0bd32",
+      "bytes": 8048
+    },
+    {
+      "path": "tools/rust-ts-r0/src/retained_scope.rs",
+      "sha256": "7d08d2c65d274764d90d24c5c136793e313b6f8e35881801b77aa92f4b39ff9e",
+      "bytes": 39302
+    },
+    {
+      "path": "tools/rust-ts-r0/src/runtime_configuration.rs",
+      "sha256": "771790de1b01f7901ae51176a8a86bc438e6450fd6ee9126f0772d1440d8a62f",
+      "bytes": 22751
+    },
+    {
+      "path": "tools/rust-ts-r0/src/source_text.rs",
+      "sha256": "751df5eae15be107bca647666dd3cdada1fa47e81882f11969f91bc20a061a49",
+      "bytes": 2569
+    },
+    {
+      "path": "tools/rust-ts-r0/src/test_dynamic_imports.rs",
+      "sha256": "ea946beb80827f6b10dcc06d474e85416ee29466b1e68809d48fc59966cf3bf7",
+      "bytes": 3793
+    },
+    {
+      "path": "tools/rust-ts-r0/src/vendor/bun_1_4_3_glob.rs",
+      "sha256": "a4844a6ae8a856e80217ea1b4d3f52a388feea3ff5a8cca4893a48dc8660fb4f",
+      "bytes": 20881
+    },
+    {
+      "path": "tools/rust-ts-r0/src/wire.rs",
+      "sha256": "f66af715915d3d7c28bfdc60d1b7bd0c676b069c236197d840699c9922a89a2a",
+      "bytes": 4179
+    },
+    {
+      "path": "tools/rust-ts-r0/src/worker_observations.rs",
+      "sha256": "24c485fe4571419d1051544c92ac5d1214bd82b444488c74279ea9608053eaee",
+      "bytes": 12862
+    },
+    {
+      "path": "tools/rust-ts-r0/src/worker_response.rs",
+      "sha256": "fe6c2e86f9df9102dd7ce87e25c1b0441c598f587eb9fb469d6c09f17c770b48",
+      "bytes": 7957
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_common_portability.rs",
+      "sha256": "90d946fc3d8b28b5fd67114df8044989ad994bd7dafb6fa7d0fac5eea94fb845",
+      "bytes": 7494
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "sha256": "fa6588e0abe17359f47613288e53b1aba6f16569aad08f309d2da233b027e39a",
+      "bytes": 51683
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_discovery_flow.rs",
+      "sha256": "b4f1a837a696fcdbfaaec9ff54600043cbe505624d7fbde840e59e17b566b9a9",
+      "bytes": 19102
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_parallel_flow.rs",
+      "sha256": "6fcad597a64d670e12f961a8ad7a76949699654e177196186f2d98ad2c19dcff",
+      "bytes": 11471
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_qualified_flow.rs",
+      "sha256": "3d9228fb2f25eede5e31c4279f652484ca901c85f7274e8f031d2d3ed41aa3d3",
+      "bytes": 30912
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_transport_flow.rs",
+      "sha256": "21429e0a65a4f53e7652a7a5f52ddec369311a011b253ea7bd79c9b1db4918ee",
+      "bytes": 2398
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/support/legacy_identity_flow.rs",
+      "sha256": "8cfeec87ab325470d595f6acff6dd80a752f4dbe24b4aa11fdbc704a43e65226",
+      "bytes": 11630
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/support/receiver_context.rs",
+      "sha256": "de8df94f730ef3dd65d592333cf81c31d21ffbb0ab66d5a4997608b142661d22",
+      "bytes": 8613
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/support/retained_scope_flow.rs",
+      "sha256": "a200d368a945ac80adfa95afc427407158e2e30f110c8ad647efa060eb6f09da",
+      "bytes": 5685
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/support/transport_process.rs",
+      "sha256": "a7e4d33e6472dd0502719a488a56a6eb50221ff48d990c716bf307facc838911",
+      "bytes": 18615
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/assembly.rs",
+      "sha256": "89e007ae29a10ed9f68608a04b409f003180a118b21e9c13aca08ea3ada96886",
+      "bytes": 16089
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/assembly_observations.rs",
+      "sha256": "db3b1ff144096208abb3613122a7dc89fabe80a04e6cb442af11764ffe30651d",
+      "bytes": 7883
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/captured.rs",
+      "sha256": "ea976b8a6f02108657cca27ad76f8f366b3d30f40c718faa57aa5a8b52f30e85",
+      "bytes": 341
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/captured_system_observations.rs",
+      "sha256": "2e806f78bc90dc9020ab63ab3baa9f43bec136bacd6e04dd6266d00c4dd99219",
+      "bytes": 20398
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/configuration.rs",
+      "sha256": "7d0af32396ee399cda2ce007c1c0cdb4ac81733fadcef8c791af46f230151fa9",
+      "bytes": 8793
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/configured_resolution_observations.rs",
+      "sha256": "ffd2ba4de0b0a84d365ac8a1b7171949c6bb6968f1e6e64fb7cc2c2eaeee3f58",
+      "bytes": 11234
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/configured_resolver.rs",
+      "sha256": "b7abfc03c57531e485dee09303fc7461d0ff0cb67782bdf4ac9923f97879bd1b",
+      "bytes": 35030
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/declaration_root.rs",
+      "sha256": "9fc491663cb36b12ee4e6463b0a258aa59713f389a674d2870586689cffd07f0",
+      "bytes": 2468
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/discovery_globs.rs",
+      "sha256": "c500505bea9f91fe8b3afd1f107bf2394214f40113c21265a067b0be7a2ed3dd",
+      "bytes": 1217
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/discovery_resolution.rs",
+      "sha256": "13af4185a0948cb441b2d346bde208ff045bd4cb6a1fd43bbd4000b0834f44be",
+      "bytes": 490
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/identity.rs",
+      "sha256": "1bfc89274ec591215bb46bf92393b87b6654785f927a04edf0d8eb1a06e0f340",
+      "bytes": 1349
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/input_identity.rs",
+      "sha256": "188022eb0522eaafba33800e91577968943bf7cd4642feab05a196f44cd78cf5",
+      "bytes": 4059
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/javascript.rs",
+      "sha256": "0d48790ca6a54ef5216bb3624ebba626a494fa60b1a6fcca656fa033d9a2b8d0",
+      "bytes": 13050
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/legacy_resolution.rs",
+      "sha256": "e69d247896f9f97a89fbb152e269f98a3d75dc1a5d7cbe651e4619743669f8b4",
+      "bytes": 18692
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/main_pass2_javascript.rs",
+      "sha256": "b06b0efee26ba6d230efd22026e37deb949d61d1c5ece9751eec7ab176f0cb13",
+      "bytes": 7368
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/main_tests.rs",
+      "sha256": "623f40ac746d8f8888043ab6d32f2ca271a330309747d62236b9e34f88419502",
+      "bytes": 101507
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/native_program.rs",
+      "sha256": "76cb10c7753a5b6620b0489dd2577108aa4c8207158480a2f4d6a8be72429e1e",
+      "bytes": 3595
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/ordinary.rs",
+      "sha256": "a440659d3f32703f5a7ad6c2ff48468b6c8c8a48c227a917710ba15dbd83bf26",
+      "bytes": 20387
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/outline.rs",
+      "sha256": "ce7b0b6466bff01ed977eb00ee1755199f0118ac30cf2f9248203053278c6d64",
+      "bytes": 9530
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/primitive_observations.rs",
+      "sha256": "671084898d40f18fd9035703d368005600cf2cfd8b0bd9d61ca5d3799bd20040",
+      "bytes": 18638
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/qualified.rs",
+      "sha256": "2b97f77aa63371f5678043fc67efcc31baa01791727fa0a6562fe6c939b1379d",
+      "bytes": 20776
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/qualified_path_eligibility.rs",
+      "sha256": "d7b1b8d97243e8ac859b02ac86296fcb7bbb8ddcd789ad68ea98e0500da1d3a0",
+      "bytes": 3675
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/receiver.rs",
+      "sha256": "3d30041dd5111dbaed15d26e0a138786ce5a93358a034a162678d3e5522cbeb4",
+      "bytes": 44023
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/repository_discovery.rs",
+      "sha256": "45a3c7dd865590c6b1388b12f557432ac84ee89990032379c9a23e3f26e15165",
+      "bytes": 2870
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/retained_aliases.rs",
+      "sha256": "a6f6fcdb37945141916b488fa1182f82f6b0a6468387eba0f6e6c621378c637d",
+      "bytes": 1488
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/retained_discovery_observations.rs",
+      "sha256": "bf6ab9a3e977179ffc58efb0bab4fc16fe9e043977b8ddaa050dc076f1be73d5",
+      "bytes": 7224
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/runtime_configuration.rs",
+      "sha256": "057b674da44a79bcf44366ac68583051baa0e3b7a9672e937b1e7ff2fcbc4c8c",
+      "bytes": 48639
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/source_component.rs",
+      "sha256": "506fd9edce80663c4a2ae205c09c2f8a6eeb45282c83b11f81c09c5c892b6c9d",
+      "bytes": 1903
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/source_text.rs",
+      "sha256": "98be86299947fb17276f7107832ee10a257a274151152e52a11ed446f808adfd",
+      "bytes": 1963
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/worker_observations.rs",
+      "sha256": "7fd38aa18ae653d9b20b929fb4c7b894051530011aa0389cc88817d059f1d0a8",
+      "bytes": 14333
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/unit/worker_response.rs",
+      "sha256": "8b9c91df7ddaf7d49b2e84ccaa8cb44fa4753efa609e940fbdeefa4ae87b464c",
+      "bytes": 9364
+    }
+  ],
+  "other_changed_paths": [
+    "docs/research/rust-ts-r0/README.md",
+    "docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/.gitattributes",
+    "docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/capsule.tar.gz",
+    "docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/manifest.frozen.json",
+    "docs/research/rust-ts-r0/cases/supplement-as-expression-20261022/public-package-index.json",
+    "docs/research/rust-ts-r0/evidence/README.md",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/.gitattributes",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/README.md",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/additional-publication-manifest.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/CONTROLLER-PREFLIGHT-FREEZE.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/PUBLIC-ACTUAL-RESULTS.md",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/PUBLIC-ACTUAL-TWO-HOST.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/archived-source/baseline.cjs.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/archived-source/identity_scope_reader.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/archived-source/prepare_oracle.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/archived-source/read_public.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/baseline.actual.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/capsule.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/expected-oracle.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/manifest.frozen.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/raw-linux-one-shot.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/raw-linux-one-shot.tar.gz.receipt.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/raw-macos-one-shot.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/raw-macos-one-shot.tar.gz.receipt.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-as-expression/reader-controls.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/CONTROLLER-PREFLIGHT-FREEZE.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/PUBLIC-ACTUAL-TWO-HOST.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/archived-source/identity_scope_reader.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/archived-source/prepare_oracle.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/archived-source/read_public.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/archived-source/reference.cjs.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/baseline.actual.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/capsule.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/expected-oracle.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/manifest.frozen.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/raw-linux-one-shot.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/raw-linux-one-shot.tar.gz.receipt.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/raw-macos-one-shot.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/raw-macos-one-shot.tar.gz.receipt.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/public-named-default/reader-controls.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/additional-public/root-acceptance/root-property221-1-acceptance.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/assembly-manifest.original.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/assembly-preparation/README.md",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/assembly-preparation/assemble.py",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/capture-tool/capture_pack.py",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/capture-tool/original-capture_pack.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/capture-tool/test_capture_pack.py",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/draft-ledger/current-96-draft-v1.original.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/existing-native-factory-fields.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/index.initial.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/index.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/other-finite-review.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/qualified-outline-finite-review.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/raw-reference-authentication.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/root-finite-adequacy-394.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/source-execution-group-review.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/execution-review/token-guard-finite-review.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux-custody/assessment-linux.native.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux-custody/complete-export-receipt.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux-custody/complete-import-receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux-custody/linux-assessment-driver.receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux-custody/linux-hosts.native.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux-custody/transport-receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux/capture.part0001",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux/capture.part0002",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux/capture.part0003",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux/manifest.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/linux/pack.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos-custody/assessment-macos.native.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos-custody/complete-export-receipt.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos-custody/complete-import-receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos-custody/macos-assessment-driver.receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos-custody/macos-hosts.native.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos-custody/public-download-receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos/capture.part0001",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos/capture.part0002",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos/capture.part0003",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos/manifest.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/macos/pack.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/portable-index-join/build_index.py",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/portable-index-join/join-validation.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/portable-public-index.original.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/preparation/prepared-linux.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/preparation/prepared-macos.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/preparation/prepared-two-os-summary.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/protocol/native/freeze-receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/protocol/native/native-assessor.zip",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/protocol/windows/freeze-receipt.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/protocol/windows/windows-assessor.zip",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-regression/PUBLIC-96-LINUX-RAW.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-regression/PUBLIC-96-MACOS-RAW.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-regression/PUBLIC-96-RAW-ADJUDICATION.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-regression/final-proof-index.original.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/PUBLIC-ACTUAL-TWO-HOST.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/baseline.actual.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/baseline.cjs.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/expected-oracle.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/identity_scope_reader.py.source",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/manifest.frozen.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/raw-linux-one-shot.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/public-scoped-method/raw-macos-one-shot.tar.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/publication-location-map.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/publication-storage-index.initial.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/publication-storage-index.json",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/publication-storage-index.v2.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/publication-storage-index.v3.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/publication/publish.py",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/source-selection/current-source-mechanisms.original.json.gz",
+    "docs/research/rust-ts-r0/evidence/current-96fedbbe/source-selection/current-source-mechanisms.root-v2.json.gz",
+    "docs/research/rust-ts-r0/resumption/owner-delivery-decision-20261022.json",
+    "docs/research/rust-ts-r0/resumption/record.json",
+    "tools/rust-ts-r0/qualification/public_as_expression_witness.py",
+    "tools/rust-ts-r0/qualification/run_windows_milestone.py"
+  ],
+  "only_non_documentary_changes": [
+    "tools/rust-ts-r0/qualification/public_as_expression_witness.py",
+    "tools/rust-ts-r0/qualification/run_windows_milestone.py"
+  ],
+  "build_manifests_and_rust_sources_changed": false,
+  "windows_driver_binding": {
+    "bytes": 25012,
+    "git_blob_id": "2a3a03856ef6e33a65d1356014f8037cff047407",
+    "path": "tools/rust-ts-r0/qualification/run_windows_milestone.py",
+    "sha256": "147be1d63805505691b86d269e762efed042a93422ae22429d2d59b7a96f70f1",
+    "source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc"
+  },
+  "additional_helper_binding": {
+    "bytes": 21247,
+    "git_blob_id": "b56b59c73f7fb5eaa54a5e4ca41e72aa13bceab8",
+    "path": "tools/rust-ts-r0/qualification/public_as_expression_witness.py",
+    "sha256": "ab9b10ecbc0aa322dc0138b5682f37bca160eedfaab93622160be9e1e3a02228",
+    "source_content_head": "ffb7d6ef1df04813705543066f50476f998059cc"
+  },
+  "qualification_credit": 0,
+  "R0_decision": null,
+  "limits": "Source equivalence only. Native Mac/Linux records retain their actual 96fedbbe execution identity. The separate Windows driver has no acquired candidate results yet."
+}

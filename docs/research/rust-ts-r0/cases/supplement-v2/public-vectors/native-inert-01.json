@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 1,
+  "id": "native-inert-01",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "publicTest": "type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim",
+  "authority": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "file": "packages/ts-analyzer/test/create-require.test.ts"
+  },
+  "rawStream": {
+    "file": "native-inert.operations.jsonl",
+    "sha256": "3725c0d5a437b220a3406765861944f79be7913d854275f3a168c54f1bf6a121"
+  },
+  "pathNormalization": {
+    "roots": [],
+    "separator": "forward slash",
+    "sdkCaseMode": "recorded per actual semantic Program"
+  },
+  "operations": [
+    {
+      "sequence": 1,
+      "parent": null,
+      "baselineFunction": "inspectNativeModuleBindings",
+      "request": {
+        "operation": "native-bindings.inspect",
+        "arguments": [
+          {
+            "$ast": true,
+            "fileName": "/fixture/main.ts",
+            "text": "import type { _resolveFilename as Native } from 'node:module'; export type Alias = Native;",
+            "kind": 308
+          }
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      "normalizedProjection": {
+        "commonJsUnsupported": false,
+        "unmodeledMembers": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 2,
+      "parent": null,
+      "baselineFunction": "inspectNativeModuleBindings",
+      "request": {
+        "operation": "native-bindings.inspect",
+        "arguments": [
+          {
+            "$ast": true,
+            "fileName": "/fixture/main.ts",
+            "text": "import type { default as p } from 'node:process'; export type Alias = typeof p.getBuiltinModule; export type { getBuiltinModule } from 'node:process';",
+            "kind": 308
+          }
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      "normalizedProjection": {
+        "commonJsUnsupported": false,
+        "unmodeledMembers": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 3,
+      "parent": null,
+      "baselineFunction": "inspectNativeModuleBindings",
+      "request": {
+        "operation": "native-bindings.inspect",
+        "arguments": [
+          {
+            "$ast": true,
+            "fileName": "/fixture/main.ts",
+            "text": "import type { binding } from 'node:process'; export type Alias = typeof binding;",
+            "kind": 308
+          }
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      "normalizedProjection": {
+        "commonJsUnsupported": false,
+        "unmodeledMembers": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 4,
+      "parent": null,
+      "baselineFunction": "inspectNativeModuleBindings",
+      "request": {
+        "operation": "native-bindings.inspect",
+        "arguments": [
+          {
+            "$ast": true,
+            "fileName": "/fixture/main.ts",
+            "text": "export type Getter = typeof globalThis.process.getBuiltinModule;",
+            "kind": 308
+          }
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": []
+        }
+      },
+      "normalizedProjection": {
+        "commonJsUnsupported": false,
+        "unmodeledMembers": []
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 5,
+      "parent": null,
+      "baselineFunction": "inspectNativeModuleBindings",
+      "request": {
+        "operation": "native-bindings.inspect",
+        "arguments": [
+          {
+            "$ast": true,
+            "fileName": "/fixture/main.mjs",
+            "text": "import M from 'node:module'; const loader = M.prototype.require;",
+            "kind": 308
+          }
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": [
+            "prototype"
+          ]
+        }
+      },
+      "normalizedProjection": {
+        "commonJsUnsupported": false,
+        "unmodeledMembers": [
+          "prototype"
+        ]
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    },
+    {
+      "sequence": 6,
+      "parent": null,
+      "baselineFunction": "inspectNativeModuleBindings",
+      "request": {
+        "operation": "native-bindings.inspect",
+        "arguments": [
+          {
+            "$ast": true,
+            "fileName": "/fixture/main.mjs",
+            "text": "import M from 'node:module'; const loader = M.prototype.require;",
+            "kind": 308
+          }
+        ],
+        "fixtureClosure": [],
+        "snapshotIdentity": "$mapIdentity preserves baseline Map identity within this process/test; use a handle registry when adapting"
+      },
+      "expectedBaseline": {
+        "output": {
+          "commonJsUnsupported": false,
+          "unmodeledMembers": [
+            "prototype"
+          ]
+        }
+      },
+      "normalizedProjection": {
+        "commonJsUnsupported": false,
+        "unmodeledMembers": [
+          "prototype"
+        ]
+      },
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "concreteNativeExecution": "NOT_OBSERVED"
+    }
+  ],
+  "actualSemanticPrograms": [],
+  "programStatus": "BASELINE_DID_NOT_CREATE_RETAINED_SEMANTIC_PROGRAM_ON_THIS_OPERATION_PATH",
+  "residualMappingGap": null,
+  "baselineCompilerContract": {
+    "authority": "3e94997f:packages/ts-analyzer/src/ts-symbols.ts COMPILER_OPTIONS; actual-use-site Program events take precedence when present",
+    "options": {
+      "target": 9,
+      "module": 99,
+      "moduleResolution": 100,
+      "allowJs": true,
+      "jsx": 1,
+      "skipLibCheck": true,
+      "noEmit": true,
+      "strict": false
+    }
+  },
+  "sourceFileParserContracts": [
+    {
+      "operationSequence": 1,
+      "fileName": "/fixture/main.ts",
+      "sourceSha256": "799a3d75d73eec852c885474dc3b01aa6753b3546a35be0da547f584b898c328",
+      "languageVersion": 99,
+      "scriptKind": 3,
+      "isDeclarationFile": false,
+      "setParentNodes": true,
+      "authority": "Exact baseline public test createSourceFile(..., ScriptTarget.Latest, true), re-exercised with pinned Compiler API; distinct from actual semantic Program records"
+    },
+    {
+      "operationSequence": 2,
+      "fileName": "/fixture/main.ts",
+      "sourceSha256": "1c2440f53063316c79273ac2b62ea9c641f212a27327dc162ab36bb2a38b4376",
+      "languageVersion": 99,
+      "scriptKind": 3,
+      "isDeclarationFile": false,
+      "setParentNodes": true,
+      "authority": "Exact baseline public test createSourceFile(..., ScriptTarget.Latest, true), re-exercised with pinned Compiler API; distinct from actual semantic Program records"
+    },
+    {
+      "operationSequence": 3,
+      "fileName": "/fixture/main.ts",
+      "sourceSha256": "74080d5ea850e8788d31e5b1d58dcd055cbd32b6a1151200a289d3ad20c4fc07",
+      "languageVersion": 99,
+      "scriptKind": 3,
+      "isDeclarationFile": false,
+      "setParentNodes": true,
+      "authority": "Exact baseline public test createSourceFile(..., ScriptTarget.Latest, true), re-exercised with pinned Compiler API; distinct from actual semantic Program records"
+    },
+    {
+      "operationSequence": 4,
+      "fileName": "/fixture/main.ts",
+      "sourceSha256": "3f286fb34fa32b7dce605c9fdb51f77d58a38896585b8b8a001049e22dcc3641",
+      "languageVersion": 99,
+      "scriptKind": 3,
+      "isDeclarationFile": false,
+      "setParentNodes": true,
+      "authority": "Exact baseline public test createSourceFile(..., ScriptTarget.Latest, true), re-exercised with pinned Compiler API; distinct from actual semantic Program records"
+    },
+    {
+      "operationSequence": 5,
+      "fileName": "/fixture/main.mjs",
+      "sourceSha256": "76c2773d845cd1139b330634e6b164b4bb75ff2a6f9fcac05bb8608d4ecc3c9a",
+      "languageVersion": 99,
+      "scriptKind": 1,
+      "isDeclarationFile": false,
+      "setParentNodes": true,
+      "authority": "Exact baseline public test createSourceFile(..., ScriptTarget.Latest, true), re-exercised with pinned Compiler API; distinct from actual semantic Program records"
+    },
+    {
+      "operationSequence": 6,
+      "fileName": "/fixture/main.mjs",
+      "sourceSha256": "76c2773d845cd1139b330634e6b164b4bb75ff2a6f9fcac05bb8608d4ecc3c9a",
+      "languageVersion": 99,
+      "scriptKind": 1,
+      "isDeclarationFile": false,
+      "setParentNodes": true,
+      "authority": "Exact baseline public test createSourceFile(..., ScriptTarget.Latest, true), re-exercised with pinned Compiler API; distinct from actual semantic Program records"
+    }
+  ]
+}

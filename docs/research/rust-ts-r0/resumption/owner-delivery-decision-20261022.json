@@ -1,0 +1,45 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-22",
+  "kind": "CURRENT_USER_DELIVERY_AND_WINDOWS_BUDGET_DECISION",
+  "authority": {
+    "source": "Direct human instructions and structured answers in the current PR386 review session",
+    "initialRequestVerbatim": "review, fix et merge la t00 de semctx, sois malin",
+    "completionConditionVerbatim": "Terminer T00 avant de fusionner",
+    "windowsBudgetAnswerVerbatim": "Autoriser 60 min pour Windows uniquement ; conserver 20 min sur Linux et Mac (recommandé)",
+    "precedence": "These current direct instructions supersede earlier documentary delivery prohibitions only within the explicit scope below. They supply authority, not technical evidence."
+  },
+  "scope": {
+    "repository": "hoklims/semctx",
+    "pullRequest": 386,
+    "workline": "T00 / C1",
+    "reviewAndBoundedCorrections": true,
+    "mergeAfterCompletedT00AndRequiredGates": true,
+    "T01": false,
+    "release": false,
+    "deployment": false
+  },
+  "nativeCiBudget": {
+    "existingJob": "rust-gates",
+    "windowsMinutes": 60,
+    "linuxMinutes": 20,
+    "macosMinutes": 20,
+    "windowsFinalAcquisitionsMaximum": 1,
+    "newJob": false,
+    "newMatrixEntry": false,
+    "manualDispatch": false,
+    "manualRerun": false,
+    "selection": "T00_NATIVE_CANDIDATE_SHA must equal the natural pull_request event head; T00_NATIVE_REVIEW_SHA256 must pin the actual prerequisite review.",
+    "implementation": ".github/workflows/ci.yml, rust-gates.timeout-minutes and the existing conditional Windows milestone steps"
+  },
+  "preservedRules": [
+    "Publish a complete coherent milestone only after the required local checks pass under Bun 1.4.3 with GIT_CONFIG_GLOBAL absent.",
+    "Preserve frozen expectations, denominators, raw differences, historical outcomes and scoped arbitrations.",
+    "Keep reserved payloads and mappings outside the lead's context and outside Git.",
+    "Require actual native results, property and support adequacy, reserved results, independent proof admission and exact-head required CI before the authorized merge.",
+    "No routine GitHub progress comments are added by this decision."
+  ],
+  "qualificationCredit": 0,
+  "R0Decision": null,
+  "limits": "This record does not assert a Windows execution, a green current CI run, a qualified obligation, a terminal R0 result or a completed merge."
+}

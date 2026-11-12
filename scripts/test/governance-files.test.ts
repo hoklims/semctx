@@ -237,6 +237,29 @@ describe("CI governance", () => {
     expect(ci).not.toMatch(/uses:\s+\S+@v\d/);
   });
 
+  test("runs the T00 Windows campaign only on the explicitly selected final head", () => {
+    const condition = "matrix.os == 'windows-latest' && github.event.pull_request.number == 386 && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha";
+    const verify = (workflow: Workflow): void => {
+      const steps = job(workflow, "rust-gates").steps;
+      const setup = steps.find((step) => step.uses?.startsWith("actions/setup-node@"));
+      const acquire = steps.find((step) => step.name === "Acquire the ordered T00 Windows milestone");
+      const upload = steps.find((step) => step.name === "Retain the T00 Windows milestone raw evidence");
+      expect(setup?.if).toBe(condition);
+      expect(acquire?.if).toBe(condition);
+      expect(upload?.if).toBe(`always() && ${condition}`);
+      expect(acquire?.env?.T00_EVENT_HEAD).toBe("${{ github.event.pull_request.head.sha }}");
+      expect(acquire?.env?.T00_PRIOR_NATIVE_REVIEW_SHA256).toBe("${{ vars.T00_NATIVE_REVIEW_SHA256 }}");
+    };
+    verify(ciWorkflow);
+    for (const name of ["setup", "Acquire the ordered T00 Windows milestone", "Retain the T00 Windows milestone raw evidence"]) {
+      const mutant = structuredClone(ciWorkflow);
+      const step = job(mutant, "rust-gates").steps.find((step) => name === "setup"
+        ? step.uses?.startsWith("actions/setup-node@") : step.name === name)!;
+      step.if = step.if!.replace(" && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha", "");
+      expect(() => verify(mutant)).toThrow();
+    }
+  });
+
   test("refuses wiring mutants that drop the planner or accept skipped gates", () => {
     const assertRequired = (source: string) => {
       const workflow = Bun.YAML.parse(source) as Workflow;

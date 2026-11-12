@@ -1,0 +1,12 @@
+{
+  "mechanism": "Manual entry into existingci with explicit immutable base; remove3 declaration mirrors only",
+  "baseHead": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "reviewer": "/root",
+  "independenceLimit": "Rootauthorsdispatchconfig; independentreviewofentryandnativeplanneralreadyretained. Rootinspectedmirrorremovaldiffauthoredbydispatchdiagnosisworker; no new independent reviewer of finaldocumentaryannex.",
+  "standards": "3removedassertions only restatedformertriggers/baseexpression. Nochangedpermissions/headbinding/actions/pins/aggregate. Existing USER forbidsmirrorchecks.",
+  "spec": "Dispatchselects sameplannerandgateswithbaseinput; nativeinvalidbaseexit2vsvalidbaseexit0independentprivatecloneproof retained. Nativepublicexecutionstillrequired.",
+  "verdict": "PROOF_WEAK_PENDING_PUBLIC_RUN",
+  "newSourceCommentCount": 0,
+  "environmentRecovery": "PATHqualitytoolsomissionandmissingSEMCTX_PROCESS_HELPER wereobservedlocally,notcandidatefixes. Rawfailuresretained.",
+  "windowsLinuxResult": "NOT_RUN"
+}

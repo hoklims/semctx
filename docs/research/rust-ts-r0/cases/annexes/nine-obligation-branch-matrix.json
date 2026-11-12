@@ -1,0 +1,689 @@
+{
+  "schema_version": 1,
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "status": "SOURCE_EXPECTATION_DISCRIMINATORS_PRESENT_NATIVE_UNKNOWN",
+  "case_file": "outline-case-proposals.json",
+  "obligation_count": 9,
+  "case_count": 56,
+  "obligations": [
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-bindingnames-edafe22e53",
+      "consumer": "bindingNames",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 93
+      },
+      "branches": [
+        {
+          "branch_id": "binding.identifier",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 93,
+            "end_line": 95
+          },
+          "activating_cases": [
+            "OL-B01"
+          ],
+          "controls": [
+            "OL-B02",
+            "OL-B03"
+          ],
+          "discriminating_observable": "declaredNames scalar versus recursive binding names",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "binding.recursion",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 97,
+            "end_line": 100
+          },
+          "activating_cases": [
+            "OL-B02",
+            "OL-B03"
+          ],
+          "controls": [
+            "OL-B01"
+          ],
+          "discriminating_observable": "complete ordered declaredNames including nested and rest names",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "binding.omitted-array-element",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 98,
+            "end_line": 98
+          },
+          "activating_cases": [
+            "OL-B03"
+          ],
+          "controls": [
+            "OL-B02"
+          ],
+          "discriminating_observable": "first/deep/tail only; no hole entry",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-732578b356",
+      "consumer": "classExecutes",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 295
+      },
+      "branches": [
+        {
+          "branch_id": "class.none",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 308,
+            "end_line": 308
+          },
+          "activating_cases": [
+            "OL-C00"
+          ],
+          "controls": [
+            "OL-C01",
+            "OL-C02",
+            "OL-C05",
+            "OL-C08",
+            "OL-C10",
+            "OL-C11",
+            "OL-C12"
+          ],
+          "discriminating_observable": "executesOnLoad false versus isolated trigger true",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "class.decorator",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 295,
+            "end_line": 295
+          },
+          "activating_cases": [
+            "OL-C10"
+          ],
+          "controls": [
+            "OL-C00"
+          ],
+          "discriminating_observable": "true versus false, no call initializer",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "class.static-block",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 300,
+            "end_line": 300
+          },
+          "activating_cases": [
+            "OL-C01"
+          ],
+          "controls": [
+            "OL-C00"
+          ],
+          "discriminating_observable": "empty static block still true",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "class.member-decorator",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 301,
+            "end_line": 301
+          },
+          "activating_cases": [
+            "OL-C11"
+          ],
+          "controls": [
+            "OL-C15"
+          ],
+          "discriminating_observable": "decorated method definition true versus body call deferred",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "class.computed-name",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 304,
+            "end_line": 304
+          },
+          "activating_cases": [
+            "OL-C08"
+          ],
+          "controls": [
+            "OL-C09"
+          ],
+          "discriminating_observable": "computed call true versus identifier-only computed name false",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "class.static-initializer",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 305,
+            "end_line": 306
+          },
+          "activating_cases": [
+            "OL-C02",
+            "OL-C23"
+          ],
+          "controls": [
+            "OL-C03",
+            "OL-C04",
+            "OL-C17",
+            "OL-C18",
+            "OL-C21",
+            "OL-C22"
+          ],
+          "discriminating_observable": "static call true versus instance/literal/method/deferred-arrow/missing initializer false",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-297-aa8fb35d4c",
+      "consumer": "classExecutes > <callback@297>",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 297
+      },
+      "branches": [
+        {
+          "branch_id": "class.extends-evaluation",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 296,
+            "end_line": 297
+          },
+          "activating_cases": [
+            "OL-C05"
+          ],
+          "controls": [
+            "OL-C06",
+            "OL-C07"
+          ],
+          "discriminating_observable": "extends call true, extends identifier false, implements ignored",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-303-1841c36108",
+      "consumer": "classExecutes > <callback@303>",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 303
+      },
+      "branches": [
+        {
+          "branch_id": "class.parameter-decorator",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 303,
+            "end_line": 303
+          },
+          "activating_cases": [
+            "OL-C12",
+            "OL-C14"
+          ],
+          "controls": [
+            "OL-C13",
+            "OL-C15",
+            "OL-C19"
+          ],
+          "discriminating_observable": "constructor/method parameter decorators true; body/default calls deferred",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-classexecutes-callback-305-0015a1aed0",
+      "consumer": "classExecutes > <callback@305>",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 305
+      },
+      "branches": [
+        {
+          "branch_id": "class.static-modifier",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 305,
+            "end_line": 306
+          },
+          "activating_cases": [
+            "OL-C02",
+            "OL-C04",
+            "OL-C17",
+            "OL-C18",
+            "OL-C21",
+            "OL-C23"
+          ],
+          "controls": [
+            "OL-C22"
+          ],
+          "discriminating_observable": "Explicit public modifier invokes callback false, public static invokes false then true. Compare complete projection: instance initializer false versus static call true. Empty modifier list is tracked separately and is not a false-callback witness.",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified",
+          "additional_zero_iteration_control": [
+            "OL-C03"
+          ]
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-importdetails-3a3f671705",
+      "consumer": "importDetails",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 359
+      },
+      "branches": [
+        {
+          "branch_id": "details.reexport",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 359,
+            "end_line": 360
+          },
+          "activating_cases": [
+            "OL-M16",
+            "OL-M17",
+            "OL-M19",
+            "OL-M21",
+            "OL-M23"
+          ],
+          "controls": [
+            "OL-M22"
+          ],
+          "discriminating_observable": "external moduleSpecifier present with importBindings absent; local export has neither",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "details.external-import-equals",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 362,
+            "end_line": 366
+          },
+          "activating_cases": [
+            "OL-M13",
+            "OL-M14"
+          ],
+          "controls": [
+            "OL-M15"
+          ],
+          "discriminating_observable": "external moduleSpecifier and equals binding; internal alias has neither",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "details.default",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 372,
+            "end_line": 372
+          },
+          "activating_cases": [
+            "OL-M05",
+            "OL-M08",
+            "OL-M12"
+          ],
+          "controls": [
+            "OL-M04"
+          ],
+          "discriminating_observable": "default-first binding and clause type-only flag",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "details.namespace",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 375,
+            "end_line": 375
+          },
+          "activating_cases": [
+            "OL-M06",
+            "OL-M07",
+            "OL-M08"
+          ],
+          "controls": [
+            "OL-M04"
+          ],
+          "discriminating_observable": "star binding versus named binding",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "details.named",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 377,
+            "end_line": 382
+          },
+          "activating_cases": [
+            "OL-M01",
+            "OL-M02",
+            "OL-M03",
+            "OL-M04"
+          ],
+          "controls": [
+            "OL-M09",
+            "OL-M10"
+          ],
+          "discriminating_observable": "exact ordered aliases/type flags versus present empty array",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "details.clause-type-only",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 371,
+            "end_line": 381
+          },
+          "activating_cases": [
+            "OL-M01",
+            "OL-M07",
+            "OL-M12"
+          ],
+          "controls": [
+            "OL-M03",
+            "OL-M04",
+            "OL-M06"
+          ],
+          "discriminating_observable": "typeOnly is whole-clause OR inline flag",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "details.fallthrough",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 368,
+            "end_line": 368
+          },
+          "activating_cases": [
+            "OL-M15",
+            "OL-M22"
+          ],
+          "controls": [
+            "OL-M01",
+            "OL-M13"
+          ],
+          "discriminating_observable": "moduleSpecifier/importBindings absent versus present",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-290c49f289",
+      "consumer": "moduleLoad",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 339
+      },
+      "branches": [
+        {
+          "branch_id": "load.side-effect",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 341,
+            "end_line": 341
+          },
+          "activating_cases": [
+            "OL-M09"
+          ],
+          "controls": [
+            "OL-M10",
+            "OL-M11"
+          ],
+          "discriminating_observable": "yes side-effect versus maybe empty import versus never clause type-only",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "load.clause-type-only",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 342,
+            "end_line": 342
+          },
+          "activating_cases": [
+            "OL-M01",
+            "OL-M07",
+            "OL-M11",
+            "OL-M12"
+          ],
+          "controls": [
+            "OL-M02",
+            "OL-M04",
+            "OL-M06"
+          ],
+          "discriminating_observable": "never versus inline maybe and value yes",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "load.default-namespace",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 344,
+            "end_line": 344
+          },
+          "activating_cases": [
+            "OL-M05",
+            "OL-M06",
+            "OL-M08"
+          ],
+          "controls": [
+            "OL-M02",
+            "OL-M10"
+          ],
+          "discriminating_observable": "yes early default/namespace versus named-only maybe",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "load.import-equals",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 347,
+            "end_line": 348
+          },
+          "activating_cases": [
+            "OL-M13"
+          ],
+          "controls": [
+            "OL-M14",
+            "OL-M15"
+          ],
+          "discriminating_observable": "yes external value versus never external type versus absent internal alias",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "load.reexport",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 350,
+            "end_line": 353
+          },
+          "activating_cases": [
+            "OL-M19",
+            "OL-M21",
+            "OL-M23"
+          ],
+          "controls": [
+            "OL-M16",
+            "OL-M17",
+            "OL-M20",
+            "OL-M22",
+            "OL-M24"
+          ],
+          "discriminating_observable": "yes versus never/maybe/absent; syntax-only no canonical resolution",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        },
+        {
+          "branch_id": "load.fallthrough",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 355,
+            "end_line": 355
+          },
+          "activating_cases": [
+            "OL-B01",
+            "OL-C00",
+            "OL-M15",
+            "OL-M22"
+          ],
+          "controls": [
+            "OL-M01",
+            "OL-M09"
+          ],
+          "discriminating_observable": "loadsModule absent for non-module-loader statements",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-callback-345-442515a84c",
+      "consumer": "moduleLoad > <callback@345>",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 345
+      },
+      "branches": [
+        {
+          "branch_id": "load.named-some",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 345,
+            "end_line": 345
+          },
+          "activating_cases": [
+            "OL-M03",
+            "OL-M04"
+          ],
+          "controls": [
+            "OL-M02",
+            "OL-M10"
+          ],
+          "discriminating_observable": "some not-type-only true/false; mixed order exercises false then true; empty uses no callback",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    },
+    {
+      "obligation_id": "T00-OBL-packages-ts-analyzer-src-top-level-outline-ts-moduleload-callback-353-1f45a0381a",
+      "consumer": "moduleLoad > <callback@353>",
+      "source": {
+        "path": "packages/ts-analyzer/src/top-level-outline.ts",
+        "line": 353
+      },
+      "branches": [
+        {
+          "branch_id": "load.export-every",
+          "source": {
+            "path": "packages/ts-analyzer/src/top-level-outline.ts",
+            "line": 353,
+            "end_line": 353
+          },
+          "activating_cases": [
+            "OL-M17"
+          ],
+          "controls": [
+            "OL-M18",
+            "OL-M19",
+            "OL-M20",
+            "OL-M21"
+          ],
+          "discriminating_observable": "every type-only true versus mixed false; empty vacuously true and star has no named callback",
+          "expectation_pair_status": "specified_source_backed_not_runtime_qualified"
+        }
+      ],
+      "expectation_discriminator_verdict": "PRESENT_FOR_NAMED_BRANCHES",
+      "closure_scope": "Source-derived expected projected observable pairs authored; not execution coverage, full semantic equivalence or native qualification.",
+      "native_qualification": "unknown",
+      "full_obligation_closure": "pending_independent_review_and_case_freeze",
+      "uncovered_by_design": [
+        "Exact token digest bytes.",
+        "Unenumerated helpers outside these nine and broader expressionExecutes operator matrix.",
+        "Caller admission/impact and resolved imports/checker endpoint."
+      ]
+    }
+  ],
+  "overall_verdict": "All nine named helper groups now have source-specific activating/control expectations. This is proposed expectation closure only, pending independent review/freeze; zero runtime/native branches qualified.",
+  "native_targets_required": [
+    "Windows native",
+    "Linux"
+  ],
+  "native_targets_exercised": []
+}

@@ -1,0 +1,53 @@
+{
+  "reviewer": "/root/qualification383",
+  "author_is_root": true,
+  "scope": "Independent bounded workflow context relocation review; no producer main.rs review, build, query or repository edit",
+  "time_utc": "2026-10-17T18:52:59.035223+00:00",
+  "verdict": "NO_DEMONSTRATED_BLOCKER_IN_BOUNDED_DELTA",
+  "delta": "SEMCTX_NATIVE_EVIDENCE moved from jobs.env to env of existing native-product discovery/execution step only",
+  "evidence": {
+    "red": {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/stage4-workflow-context-red.log",
+      "claim": "actionlint1.7.12 rejects runner context at jobs.env"
+    },
+    "green": {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/stage4-workflow-context-green.log",
+      "claim": "root-provided actionlint log empty; no command re-executed by reviewer"
+    }
+  },
+  "source_trace": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "lines": "173-176",
+      "finding": "runner.temp evaluated at step env then shell invokes cargo run semctx-gates rust-test"
+    },
+    {
+      "path": "tools/gates/src/rust_workspace.rs",
+      "lines": "121-136",
+      "finding": "native product execution builds cargo test argv then calls process::run, no env filtering"
+    },
+    {
+      "path": "tools/gates/src/process.rs",
+      "lines": "661-676,548-563",
+      "finding": "run_mode uses Environment::Inherited(None); spawn_owned_mode retains SEMCTX_NATIVE_EVIDENCE while removing only GIT/GCM variable families"
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "lines": "806-810",
+      "finding": "test resolves SEMCTX_NATIVE_EVIDENCE from inherited environment; fallback retained"
+    }
+  ],
+  "limits": [
+    "Remote Windows/Linux jobs have not been exercised by this review; the rejected run had no jobs.",
+    "Native product discovery itself and unrelated workflow lines not reviewed.",
+    "Upload step retains native-product-tests.json; detailed native evidence directory retention is outside this context-only delta."
+  ],
+  "source_sha256": {
+    ".github/workflows/ci.yml": "15d5fa29f0bb9da2cdb0e8e867a4cd6138f048ebba9cf1a94ca8bd7f12535214",
+    "tools/gates/src/rust_workspace.rs": "d7ffeb14b2f74494d3d4ddc01ccc438b0d5dac841f4f4f80562588e6b00af053",
+    "tools/gates/src/process.rs": "1a8468c26a66662142d5d2945b5001466c52703929d5e1e609235ff2ee0e5c13",
+    "tools/rust-ts-r0/tests/native_development_flow.rs": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561"
+  },
+  "read_only": true,
+  "native_queries": 0
+}

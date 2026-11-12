@@ -2,9 +2,10 @@
 use semctx_gates::process::{spawn_owned, spawn_owned_with_env};
 use std::{
     collections::BTreeMap,
-    io::{Read, Write},
+    io::{BufRead, BufReader, Read, Write},
     path::Path,
     process::{Command, Stdio},
+    sync::mpsc,
     thread,
     time::{Duration, Instant},
 };
@@ -75,16 +76,21 @@ fn timeout_cleanup_kills_streaming_grandchild_before_joining_pipe_readers() {
         Path::new(HELPER),
     )
     .unwrap();
-    let mut stdout = owned.take_stdout().unwrap();
+    let stdout = owned.take_stdout().unwrap();
+    let (ready_sender, ready_receiver) = mpsc::channel();
     let reader = thread::spawn(move || {
+        let mut stdout = BufReader::new(stdout);
         let mut text = String::new();
+        stdout.read_line(&mut text).unwrap();
+        let _ = ready_sender.send(());
         stdout.read_to_string(&mut text).unwrap();
         text
     });
     let start = Instant::now();
-    thread::sleep(Duration::from_secs(1));
+    let ready = ready_receiver.recv_timeout(Duration::from_secs(3));
     owned.cleanup().unwrap();
     let text = reader.join().unwrap();
+    assert!(ready.is_ok(), "target did not announce its grandchild");
     assert!(text.contains("grandchild"));
     assert!(start.elapsed().as_secs() < 5);
 }

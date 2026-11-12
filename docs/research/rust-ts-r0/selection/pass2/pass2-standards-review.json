@@ -1,0 +1,144 @@
+{
+  "review": "standards",
+  "author_agent": "/root/pass2_standards_review",
+  "base_commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "scope": [
+    {
+      "path": "tools/rust-ts-r0/src/batch.rs",
+      "beforeSha256": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4",
+      "afterSha256": "fc667a1acf5577a767dbcb37d8dfc3e133b32b1b2f1238ade5000bfefa99a9eb",
+      "lines": 352,
+      "reviewAfterSha256": "fc667a1acf5577a767dbcb37d8dfc3e133b32b1b2f1238ade5000bfefa99a9eb"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/captured_system_observations.rs",
+      "beforeSha256": null,
+      "afterSha256": "5183806941a4ce47fbc70b158c078c4b92227844e8a562e7d8e3f2a24731fc5f",
+      "lines": 1263,
+      "reviewAfterSha256": "5183806941a4ce47fbc70b158c078c4b92227844e8a562e7d8e3f2a24731fc5f"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/component_observations.rs",
+      "beforeSha256": "5f7051d69de1ca9a4b07738ec588a2da5757f4ab8cae8255bf36cab9423cdfa8",
+      "afterSha256": "d0c311b2e8b555e49e5b0ca9785456a851b4da56cee9192d6b6ef05dbff04053",
+      "lines": 173,
+      "reviewAfterSha256": "d0c311b2e8b555e49e5b0ca9785456a851b4da56cee9192d6b6ef05dbff04053"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/configuration.rs",
+      "beforeSha256": "af4b8bd70fd1133eca067d84d82767d2f40b41afc8494ce0817fc92b799f0dd7",
+      "afterSha256": "7ba5ce64b25ab3e7117084713d5459202f8684eac6811b3630f79ade272554bf",
+      "lines": 646,
+      "reviewAfterSha256": "7ba5ce64b25ab3e7117084713d5459202f8684eac6811b3630f79ade272554bf"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/input_identity.rs",
+      "beforeSha256": null,
+      "afterSha256": "6d19329c0728e4189f16593d76f3f270ca2df9494e8837f8a146b4df0e998455",
+      "lines": 174,
+      "reviewAfterSha256": "6d19329c0728e4189f16593d76f3f270ca2df9494e8837f8a146b4df0e998455"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/javascript.rs",
+      "beforeSha256": "d1d123c4567240bbce7228ff75ec2ec6fbad5055c6f3b5346151d16403948525",
+      "afterSha256": "73f679b7a86804fca8a0c7afa3c678b43f31de264657d1ddca79213fd01280e6",
+      "lines": 1361,
+      "reviewAfterSha256": "73f679b7a86804fca8a0c7afa3c678b43f31de264657d1ddca79213fd01280e6"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/lib.rs",
+      "beforeSha256": "ca837cdbbbf9eb7aa1ad2eb110f331ff02aa334cb2e7ea5a970f787695738dd8",
+      "afterSha256": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0",
+      "lines": 5,
+      "reviewAfterSha256": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "beforeSha256": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46",
+      "afterSha256": "a73d573cdccea38588b1ff9097550d662c9f8f745a7a3bcd099d0a976974e98c",
+      "lines": 2283,
+      "reviewAfterSha256": "a73d573cdccea38588b1ff9097550d662c9f8f745a7a3bcd099d0a976974e98c"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/ordinary.rs",
+      "beforeSha256": "ee22fe8d5df67b31c7bc2c05434c36cc22910cecdd62c7537e84eca928b0cc50",
+      "afterSha256": "6a28b56966fcda7d0e4d90dc9c0baf27fa26f62b64c85237226aa4ab506c9fa5",
+      "lines": 1696,
+      "reviewAfterSha256": "6a28b56966fcda7d0e4d90dc9c0baf27fa26f62b64c85237226aa4ab506c9fa5"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/primitive_observations.rs",
+      "beforeSha256": null,
+      "afterSha256": "26e13109961a68d8b88f10a0471571dad7be7d4a8ae8415a9fe99c730f1e7a50",
+      "lines": 565,
+      "reviewAfterSha256": "26e13109961a68d8b88f10a0471571dad7be7d4a8ae8415a9fe99c730f1e7a50"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/worker_observations.rs",
+      "beforeSha256": null,
+      "afterSha256": "a8402188d8dc38d2bae9bf8484f8508a51d9952f8d1a11da6a767ead071facba",
+      "lines": 497,
+      "reviewAfterSha256": "8c103a3ae41c39a73ae3175e5efd5651a314320addae4f8d39b49e33490ee474"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/worker_response.rs",
+      "beforeSha256": null,
+      "afterSha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f",
+      "lines": 452,
+      "reviewAfterSha256": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f"
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "beforeSha256": "b832d6abb1e8afab1e3191be21e45103c3339410358b3182944fc6b2cdbfc8bb",
+      "afterSha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762",
+      "lines": 1221,
+      "reviewAfterSha256": "7d8e1b17ec02c539c38108f8ddf8492e998e988095211fd87e75bb9565e97762"
+    }
+  ],
+  "patch_sha256": "01f36c6134722f99af23cebe36796b478ecbfe5c862b5f3919979fc1a426e473",
+  "review_closed_at": "2026-10-17T20:21:16.603657+00:00",
+  "verdict": "FINDINGS",
+  "findings": [
+    {
+      "id": "STANDARDS-01",
+      "severity": "P2",
+      "location": "tools/rust-ts-r0/src/worker_observations.rs:22-82",
+      "rule": "CONTRIBUTING: sort collections before output; determinism is a hard invariant",
+      "mechanism": "Native read_dir iteration directly populated public read_observations without sorting. Native directory iteration order is not a stable logical input.",
+      "status": "producer correction present after review snapshot; targeted execution not independently observed yet",
+      "correction_observed": "Entries sorted by file_name and read_observations sorted by logical path; sorted/oversized-file test added by root."
+    },
+    {
+      "id": "STANDARDS-02",
+      "severity": "P2",
+      "location": "tools/rust-ts-r0/src/worker_observations.rs:75-79",
+      "rule": "AGENTS/USER: validate external values at the boundary; make failure paths explicit; invalid input must not silently overwrite captured bytes",
+      "mechanism": "Path::to_string_lossy followed by slash replacement and unchecked files.insert can merge a non-UTF-8 Unix name with its replacement-character spelling, or a literal backslash name with a directory path. Successful observation can therefore silently lose or relabel captured bytes.",
+      "status": "open; root authorized narrowly owned correction after this initial review closes",
+      "expected_correction": "Refuse unrepresentable native paths and normalized-key collisions; preserve actual native rejection witnesses."
+    }
+  ],
+  "checks_observed": {
+    "release_log": "evidence/pass2-all-targets-release-helper.log",
+    "results": "42 library, 172 binary, 1 native-common, 2 native-development tests passed before worker review corrections; no results attributed to the changed worker source",
+    "clippy_log": "evidence/pass2-all-targets-clippy.log",
+    "identity_red_log": "evidence/pass2-input-identity-red-2.log",
+    "identity_green_log": "evidence/pass2-input-identity-green.log",
+    "changed_verification_assessment": "The expected logical paths in integration are reconstructed from frozen fixture keys, not producer path helpers; actual Receiver and real producer relocation are exercised. RED collision and relocation witnesses observed before implementation, GREEN 4/4 after."
+  },
+  "positive_standards_observations": [
+    "No source comments added in supplied diff.",
+    "No dependency or Cargo lock changes in the 13-file scope; inspected Cargo.toml dependencies retain exact versions and full git revision.",
+    "New primitive and system request schemas are closed; failures are explicit unsupported/non-executed results or nonzero process failures. Historical worker DTO intentionally retains baseline unknown-field acceptance.",
+    "Missing component capabilities remain unsupported; experimental observations explicitly claim development status and do not assert qualification or READY.",
+    "System filesystem operations use captured data with explicit SDK keys; no ambient filesystem fallback was introduced there.",
+    "Logical content identity and physical scope binding remain distinct; normalization collisions are refused before manifest production."
+  ],
+  "limits": [
+    "Standards axis only; independent spec review belongs to another agent.",
+    "No SUT, frozen corpus, or reserved input queried by this reviewer.",
+    "Review and retained logs were inspected on macOS; native Linux and Windows evidence remains required.",
+    "No merge or PR verdict.",
+    "Initial read-only review is closed before narrowly authorized worker correction starts."
+  ]
+}

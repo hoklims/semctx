@@ -1,0 +1,2865 @@
+{
+  "architecture": "aarch64",
+  "artifact_sha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+  "formalR0ObligationQualified": false,
+  "helper_sha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+  "manifest_sha256": "f3a339ec31a96ed00def0972a91ebac25f4992df565ce46989de98207a741b58",
+  "platform": "macos",
+  "schema_version": 1,
+  "units": [
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-000/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declarations-active"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-001/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declarations-control"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.ts",
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-002/workspace/dep.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-002/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-imports-active"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-003/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-imports-control"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-004/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-object-members-active"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-005/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-object-members-control"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-006/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-targets-active"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-007/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-targets-control"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.js",
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-008/workspace/dep.d.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-008/workspace/dep.js",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-008/workspace/main.js",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declaration-runtime-ts"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-009/workspace/dep.d.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-009/workspace/main.js",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declaration-only-ts"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.mjs",
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-010/workspace/dep.d.mts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-010/workspace/dep.mjs",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-010/workspace/main.js",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declaration-runtime-mts"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-011/workspace/dep.d.mts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-011/workspace/main.js",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declaration-only-mts"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.cjs",
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-012/workspace/dep.cjs",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-012/workspace/dep.d.cts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-012/workspace/main.js",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declaration-runtime-cts"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-013/workspace/dep.d.cts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-013/workspace/main.js",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-declaration-only-cts"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts",
+                "src/dep.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-014/workspace/main.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-014/workspace/src/dep.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-014/workspace/tsconfig.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-config-alias-retained"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts",
+                "src/control.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-015/workspace/main.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-015/workspace/src/control.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-015/workspace/tsconfig.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-config-missing-retained"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.ts",
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-016/workspace/dep.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-016/workspace/main.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-016/workspace/tsconfig.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-config-invalid-retained"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.js",
+                "src/dep.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-017/workspace/main.js",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-017/workspace/src/dep.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-017/workspace/tsconfig.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-config-alias-live"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.js",
+                "src/control.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-018/workspace/main.js",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-018/workspace/src/control.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-018/workspace/tsconfig.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-config-missing-live"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.ts",
+                "main.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-019/workspace/dep.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-019/workspace/main.js",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-019/workspace/tsconfig.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-config-invalid-live"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "dep.ts",
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-020/workspace/dep.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-020/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-no-config-live"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.js",
+                "node_modules/public-probe/index.js"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-021/workspace/main.js",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-021/workspace/node_modules/public-probe/index.d.ts",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-021/workspace/node_modules/public-probe/index.js",
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-021/workspace/node_modules/public-probe/package.json",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "raw_extraction"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-live-package"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-022/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ]
+          },
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline",
+              "hasSyntaxErrors"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-outline-active"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-023/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ]
+          },
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline",
+              "hasSyntaxErrors"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-outline-control"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-024/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ]
+          },
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline",
+              "hasSyntaxErrors"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-outline-empty"
+    },
+    {
+      "result": {
+        "bound_observations": [
+          {
+            "native_product_capability": {
+              "paths": [
+                "main.ts"
+              ],
+              "requires_global_analyzed": false,
+              "state": "NO_REPORTED_NATIVE_PRODUCT_INCAPACITY_IN_CREDITED_SCOPE"
+            },
+            "observation": 0,
+            "read_provenance": {
+              "all_supplied_sdk_consumed_claimed": false,
+              "os_sandbox_claimed": false,
+              "read_paths": [
+                "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/symbols/macos-v5/unit-025/workspace/main.ts",
+                "/sdk/lib/lib.decorators.d.ts",
+                "/sdk/lib/lib.decorators.legacy.d.ts",
+                "/sdk/lib/lib.dom.asynciterable.d.ts",
+                "/sdk/lib/lib.dom.d.ts",
+                "/sdk/lib/lib.dom.iterable.d.ts",
+                "/sdk/lib/lib.es2015.collection.d.ts",
+                "/sdk/lib/lib.es2015.core.d.ts",
+                "/sdk/lib/lib.es2015.d.ts",
+                "/sdk/lib/lib.es2015.generator.d.ts",
+                "/sdk/lib/lib.es2015.iterable.d.ts",
+                "/sdk/lib/lib.es2015.promise.d.ts",
+                "/sdk/lib/lib.es2015.proxy.d.ts",
+                "/sdk/lib/lib.es2015.reflect.d.ts",
+                "/sdk/lib/lib.es2015.symbol.d.ts",
+                "/sdk/lib/lib.es2015.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2016.array.include.d.ts",
+                "/sdk/lib/lib.es2016.d.ts",
+                "/sdk/lib/lib.es2016.intl.d.ts",
+                "/sdk/lib/lib.es2017.arraybuffer.d.ts",
+                "/sdk/lib/lib.es2017.d.ts",
+                "/sdk/lib/lib.es2017.date.d.ts",
+                "/sdk/lib/lib.es2017.intl.d.ts",
+                "/sdk/lib/lib.es2017.object.d.ts",
+                "/sdk/lib/lib.es2017.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2017.string.d.ts",
+                "/sdk/lib/lib.es2017.typedarrays.d.ts",
+                "/sdk/lib/lib.es2018.asyncgenerator.d.ts",
+                "/sdk/lib/lib.es2018.asynciterable.d.ts",
+                "/sdk/lib/lib.es2018.d.ts",
+                "/sdk/lib/lib.es2018.intl.d.ts",
+                "/sdk/lib/lib.es2018.promise.d.ts",
+                "/sdk/lib/lib.es2018.regexp.d.ts",
+                "/sdk/lib/lib.es2019.array.d.ts",
+                "/sdk/lib/lib.es2019.d.ts",
+                "/sdk/lib/lib.es2019.intl.d.ts",
+                "/sdk/lib/lib.es2019.object.d.ts",
+                "/sdk/lib/lib.es2019.string.d.ts",
+                "/sdk/lib/lib.es2019.symbol.d.ts",
+                "/sdk/lib/lib.es2020.bigint.d.ts",
+                "/sdk/lib/lib.es2020.d.ts",
+                "/sdk/lib/lib.es2020.date.d.ts",
+                "/sdk/lib/lib.es2020.intl.d.ts",
+                "/sdk/lib/lib.es2020.number.d.ts",
+                "/sdk/lib/lib.es2020.promise.d.ts",
+                "/sdk/lib/lib.es2020.sharedmemory.d.ts",
+                "/sdk/lib/lib.es2020.string.d.ts",
+                "/sdk/lib/lib.es2020.symbol.wellknown.d.ts",
+                "/sdk/lib/lib.es2021.d.ts",
+                "/sdk/lib/lib.es2021.intl.d.ts",
+                "/sdk/lib/lib.es2021.promise.d.ts",
+                "/sdk/lib/lib.es2021.string.d.ts",
+                "/sdk/lib/lib.es2021.weakref.d.ts",
+                "/sdk/lib/lib.es2022.array.d.ts",
+                "/sdk/lib/lib.es2022.d.ts",
+                "/sdk/lib/lib.es2022.error.d.ts",
+                "/sdk/lib/lib.es2022.full.d.ts",
+                "/sdk/lib/lib.es2022.intl.d.ts",
+                "/sdk/lib/lib.es2022.object.d.ts",
+                "/sdk/lib/lib.es2022.regexp.d.ts",
+                "/sdk/lib/lib.es2022.string.d.ts",
+                "/sdk/lib/lib.es5.d.ts",
+                "/sdk/lib/lib.scripthost.d.ts",
+                "/sdk/lib/lib.webworker.importscripts.d.ts"
+              ],
+              "state": "JOINED_REPORTED_SUCCESSFUL_READS_ONLY",
+              "supplied_sdk_files": 100
+            }
+          }
+        ],
+        "checks": [
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline"
+            ]
+          },
+          {
+            "expected_origin": "typescript-5.9.3",
+            "observation": 0,
+            "result": {
+              "state": "PASS_PROJECTED_PROPERTY"
+            },
+            "target": [
+              "outlines",
+              "main.ts",
+              "outline",
+              "hasSyntaxErrors"
+            ]
+          }
+        ],
+        "global_admission_inferred": false,
+        "pass": true,
+        "relations": [],
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "version_arbitration": null
+      },
+      "unit_id": "PUBLIC-symbols-outline-recovery"
+    }
+  ]
+}

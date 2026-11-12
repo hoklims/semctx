@@ -1,0 +1,369 @@
+{
+  "schema_version": 1,
+  "verdict": "PROOF_ADEQUATE",
+  "reviewer": "/root/native_verifier_independent_review",
+  "recorded_utc": "2026-10-17T18:33:20.142735+00:00",
+  "credited_scope": "Independent proof-integrity delta review of the adopted native DEV verifier/receiver on macOS arm64, plus static CI routing/retention review. This is not a PR merge verdict, R0 decision, full compiler parity, public ownership/admission guarantee or cross-OS execution proof.",
+  "mode": "READ_ONLY_SOURCE_AND_RETAINED_DEV_EVIDENCE; reviewer performed no source mutation, Cargo/build/test/native query, qualification/reserved read/run, or GitHub action.",
+  "base_head": "9494388269ed1b3220ce4bde247e58543c6ffd87",
+  "historical_semantic_baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "indexed_review_diff": {
+    "pathspecs": [
+      ".github/workflows/ci.yml",
+      "tools/rust-ts-r0"
+    ],
+    "sha256": "ce98925a96e4b22304d6a8fa774348e8a81b02acf46f42a7499c53072a9d1d64",
+    "unstaged_delta_at_close": false
+  },
+  "anchors": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "c1a207a4843a8b0ebd9b27067be4508df8885e52c942f9c6ceb0741ef3e169f2"
+    },
+    {
+      "path": "tools/gates/src/rust_workspace.rs",
+      "sha256": "d7ffeb14b2f74494d3d4ddc01ccc438b0d5dac841f4f4f80562588e6b00af053"
+    },
+    {
+      "path": "tools/gates/src/plan.rs",
+      "sha256": "98b3c3f8fe3e314839e01ce21bff63b45af08954a58d0fc9e4a81f0a6b619084"
+    },
+    {
+      "path": "tools/gates/src/main.rs",
+      "sha256": "dbeb66f67bf8973e7ef7116a9d00e1fb0857121e44e14752447c5aa261a72a6e"
+    },
+    {
+      "path": "tools/gates/src/receipt.rs",
+      "sha256": "27509340a5c239a3031c9e7f2735402a0931089514c0bc4b0f97bfb0ef318f4b"
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.toml",
+      "sha256": "4463a58893448d2faf6580925256fe64174302659a930d6f2eb963dd7006db3b"
+    },
+    {
+      "path": "tools/rust-ts-r0/Cargo.lock",
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "sha256": "01a27bf6cb77413620334e6c64cfd9fe4cda533eb3c72bb7cddd1b954d468fd9"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/receiver.rs",
+      "sha256": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d"
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/native_development_flow.rs",
+      "sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561"
+    },
+    {
+      "path": "tools/rust-ts-r0/tests/fixtures/native-development-flow/cases.json",
+      "sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a"
+    }
+  ],
+  "findings": [],
+  "resolved_findings": [
+    {
+      "id": "F1",
+      "original_report": "/private/tmp/semctx-t00-20261017/native-verifier-independent-review.json",
+      "resolution": "The independent semantic oracle now reads reconstructed graph payload node IDs, relation kinds, endpoints and exact source-line evidence, while checking private wire UTF16 ranges separately. Receiver validates payload/envelope correspondence, graph projection identity and canonical EvidenceRef members. Coherent hashes and seals no longer authorize a relabeled relation or missing/changed node payload identity.",
+      "source_anchors": [
+        "tools/rust-ts-r0/tests/native_development_flow.rs:76-218",
+        "tools/rust-ts-r0/tests/native_development_flow.rs:538-627",
+        "tools/rust-ts-r0/tests/native_development_flow.rs:630-747",
+        "tools/rust-ts-r0/src/receiver.rs:238-460",
+        "tools/rust-ts-r0/src/receiver.rs:826-845"
+      ],
+      "negative_witnesses": [
+        "edge-kind payload relabel",
+        "node payload id changed",
+        "node payload id removed",
+        "function graph evidence source line changed",
+        "call evidence valid but wrong source line",
+        "read content hash forged",
+        "successful foreign-path read reported",
+        "consumed bytes claimed by non-read probe",
+        "private UTF16 and noncanonical line fields inserted into Graph EvidenceRef"
+      ],
+      "restoration": "Final adopted source passes 30 library cases (27 receiver + 3 identity), 124 binary cases, and both native pipeline cases. After the poisoned clones, the same unchanged frozen case is analyzed successfully again with empty PATH on Unix and accepted semantically by the receiver.",
+      "boundary": "The in-range wrong call line is intentionally structurally accepted by the generic receiver but rejected by the exact frozen semantic oracle; these prove different properties."
+    }
+  ],
+  "observations": {
+    "final_main_native_run": {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-native-all-stage4-1.log",
+      "sha256": "db57037533f2ffd1b49e07928fb2476178e930c5a76f90abcd18a977704b3b00",
+      "summaries": [
+        "test result: ok. 30 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.13s",
+        "test result: ok. 124 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 68.46s",
+        "test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 131.40s",
+        "test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s"
+      ],
+      "pipeline_duration_seconds": 131.4,
+      "process_exit_code": {
+        "value": 0,
+        "provenance": "Root reported completed native process exit0; reviewer independently read all completed lib/bin/pipeline/doc summaries. Parent tool-session retrieval remains parent-owned."
+      },
+      "source_test_sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561"
+    },
+    "final_main_raw_outcomes": [
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/native-0.json",
+        "sha256": "6dba3034ecc1c982ac1aa0eea03932990d2a846c986b361717521d98e4826ecf",
+        "kind": "success",
+        "exit_code": 0,
+        "duration_ms": 5859,
+        "producer_before": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "producer_after": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "helper_before": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "helper_after": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "stdout_count": 29450,
+        "retained_stdout_bytes": 29450,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/real-native-empty-path.json",
+        "sha256": "5123d9d991864db88ce2e2c326eea42ec6007666bdb7f45f9a04a1cb07c391c9",
+        "kind": "success",
+        "exit_code": 0,
+        "duration_ms": 5145,
+        "producer_before": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "producer_after": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "helper_before": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "helper_after": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "stdout_count": 29450,
+        "retained_stdout_bytes": 29450,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/real-native-failure.json",
+        "sha256": "a02634b93d03445bbd9e0ee00d9813025c5f130afe86dad20c216b5daec8a2f4",
+        "kind": "nonzero",
+        "exit_code": 1,
+        "duration_ms": 15,
+        "producer_before": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "producer_after": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "helper_before": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "helper_after": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "stdout_count": 0,
+        "retained_stdout_bytes": 0,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/real-native-output-cap.json",
+        "sha256": "0be2e0dbd31e9da133e6e0d3596216c51597ab4e6ffe33fca23dd1fb43c62621",
+        "kind": "output_limit",
+        "exit_code": null,
+        "duration_ms": 5147,
+        "producer_before": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "producer_after": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "helper_before": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "helper_after": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "stdout_count": 29450,
+        "retained_stdout_bytes": 1,
+        "stdout_hash_matches_retained": false,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/real-native-timeout.json",
+        "sha256": "c80f449ba671800b0763eb412b0ea720d3183f9c13a868f5f9f03eaf9ee56f23",
+        "kind": "timeout",
+        "exit_code": null,
+        "duration_ms": 15,
+        "producer_before": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "producer_after": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "helper_before": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "helper_after": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "stdout_count": 0,
+        "retained_stdout_bytes": 0,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261876330824000/native-1.json",
+        "sha256": "fe88c2a7c1749f1b8f21016afbb479f818e6fa082d33ca5d3066aa733bfeb421",
+        "kind": "success",
+        "exit_code": 0,
+        "duration_ms": 4499,
+        "producer_before": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "producer_after": "sha256:7ca7e8e28cf46aab927b82297dd46ad4ca6f0a622a4d5a0f4eb7f1ed8940afb5",
+        "helper_before": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "helper_after": "sha256:d82631e122f41b375990e3a78ad6158c34380de72ce1e598ad4d01a62183aca8",
+        "stdout_count": 20659,
+        "retained_stdout_bytes": 20659,
+        "stdout_hash_matches_retained": true,
+        "stderr_hash_matches_retained": true
+      }
+    ],
+    "final_main_coherent_poisons": [
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/coherent-payload-and-input-poisons.json",
+        "sha256": "e37d14015fd1f225831ad19d68b19568a3b9264fe04e53e0ca90c6bf21d20048",
+        "source_stdout_hash": "0536ba45e84593ee56402a623dd9c3e77a998048ae89922d4edc21c0186d298d",
+        "results": [
+          {
+            "disposition": "receiver-and-semantic-oracle-rejected",
+            "facts_hash_refreshed": "sha256:e22dd170e84a042874d4c013a521b5032c3f10177065b6e8f607c4170ed1a710",
+            "freshness_seal_refreshed": true,
+            "graph_hash_refreshed": "sha256:ff98502fb5a0e7a10db040fda1e298795e7d30b3ff598ef5f7ecb23253ff1297",
+            "mutation": "edge-kind"
+          },
+          {
+            "disposition": "receiver-and-semantic-oracle-rejected",
+            "facts_hash_refreshed": "sha256:4e058784dae0c4ca774ce42d0b80a3d93e705a6918209d793e7e312844b11678",
+            "freshness_seal_refreshed": true,
+            "graph_hash_refreshed": "sha256:630ccb8d0de1891052fbfa275efc616f21a6c77319b70b97c2325ed16de086e3",
+            "mutation": "node-id-changed"
+          },
+          {
+            "disposition": "receiver-and-semantic-oracle-rejected",
+            "facts_hash_refreshed": "sha256:852ad9a8cfda744e561b4361b5facb3ea70884974bd457b4e99cfc580d7b54d5",
+            "freshness_seal_refreshed": true,
+            "graph_hash_refreshed": "sha256:5e8aa1890a117141d3b6906b46eec1899288a7430dc808916ae691d5f6bbf82f",
+            "mutation": "node-id-missing"
+          },
+          {
+            "disposition": "receiver-and-semantic-oracle-rejected",
+            "facts_hash_refreshed": "sha256:e30afb9b04f430da915f358b4a80313b171bc3b565270c4eaddc9d5c0c2a5ca1",
+            "freshness_seal_refreshed": true,
+            "graph_hash_refreshed": "sha256:a703c52e8e464eba78c5b8ee7e5d68ea2713ccceeb98e252c779dfc0408b4400",
+            "mutation": "function-evidence-lines"
+          },
+          {
+            "disposition": "structurally-valid-semantic-oracle-rejected",
+            "facts_hash_refreshed": "sha256:4a5e23f55f2f8b99fe81f0bb4ea33a5e8932a8f4e78a1ae3d56bd7b612c6862b",
+            "freshness_seal_refreshed": true,
+            "graph_hash_refreshed": "sha256:8a7a2b0ff0975bedf853bae7f60753cdb72c3c73613fa9ae3f5ec6b0206e2e95",
+            "mutation": "call-evidence-in-range"
+          },
+          {
+            "disposition": "independent-byte-join-rejected",
+            "mutation": "read-hash"
+          },
+          {
+            "disposition": "independent-byte-join-rejected",
+            "mutation": "read-foreign-path"
+          },
+          {
+            "disposition": "independent-byte-join-rejected",
+            "mutation": "nonread-content"
+          }
+        ]
+      }
+    ],
+    "final_main_input_byte_joins": [
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261760523594000/input-provenance-0.json",
+        "sha256": "a811014be4d8c8985d73a0ed9331c82d277b1ed0f43741b9be881a15dde63f05",
+        "successful_read_paths": 65,
+        "sdk_read_paths": 63,
+        "supplied_sdk_files": 100,
+        "observations": 100
+      },
+      {
+        "path": "/private/tmp/semctx-t00-20261017/portable-native-dev/run-29221-1792261876330824000/input-provenance-1.json",
+        "sha256": "585dc9b8a75f3c4cc958681f22c33b914c3c46bcf29fa944b6a1834420091620",
+        "successful_read_paths": 64,
+        "sdk_read_paths": 63,
+        "supplied_sdk_files": 100,
+        "observations": 98
+      }
+    ],
+    "reproduction": {
+      "summary": "Old and corrected semantic-oracle functions were verified as verbatim excerpts of their anchored sources and evaluated against the same retained actual batch with payload-kind-only poison and recomputed facts/graph digests. Old oracle accepted the poison, so its reproduction failed; corrected oracle rejected it and reproduction passed.",
+      "old_source_sha256": "8a6715dbf9b883f4ca16a5b7a686ed5834686f50b750d4a76fcf41cd223b5f79",
+      "functional_corrected_source_sha256": "6b3b8d73aa822113732a9416614f7de3bfbafcd79941ec681ca68eda8d503665",
+      "final_source_sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+      "functional_to_final_delta_exact": "Only completion-proof label InvalidEndpoint becomes InvalidFact:forged-endpoint-payload; final bytes subsequently exercised by the complete adopted run.",
+      "old_log": {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/old-oracle-reproduction.log",
+        "sha256": "302689871414b3488f5055d5e0c52350f9eb1aa9c856ee8aa656b9765dc328f3",
+        "exit_code": 101
+      },
+      "corrected_log": {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/corrected-oracle-reproduction.log",
+        "sha256": "3220b9112f37ead32e3817b65785fdc4aa425f455c132697a149ea90f67ebe7b",
+        "exit_code": 0
+      },
+      "author_correction_report": {
+        "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/correction-report.json",
+        "sha256": "c6a695036f90398ac3c613f2cf6f0ee5caecfe62439ca521c7d321fc232a561b"
+      }
+    },
+    "canonical_evidence_ref_red_green": {
+      "red": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/portable-receiver-extra-fields-red.log",
+        "sha256": "09f1c7d679beccde99227d1959187c331c42df1d4036e3da5ea80e4314dd5de6",
+        "observed": "New actual receiver negative test fails with None versus expected Some(InvalidRange)."
+      },
+      "green": {
+        "path": "/private/tmp/semctx-t00-20261017/evidence/portable-receiver-extra-fields-green-1.log",
+        "sha256": "9841a0d84e9e2bfb7bf267efb7e84184f7c75a7747dd8fc03b05672312bd1a18",
+        "observed": "27 receiver cases pass after the key guard is added; same cases also pass in final complete library run."
+      }
+    },
+    "post_guard_clippy": {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/portable-clippy-after-payload-guard.log",
+      "sha256": "1b1b047b98e30c65d7a9828c4387b0eb9c073972d00bf59be9a3cc6f46db71a2",
+      "observed": "Native all-target lint/typecheck completes on the final receiver source."
+    },
+    "frozen_fixture_sha256": "9e7646eeb7938ee4831cd2314af2140b73100b4a059e51f3c8de6c59e9682c7a"
+  },
+  "ci_adoption_review": {
+    "source_anchors": [
+      ".github/workflows/ci.yml:133-175",
+      ".github/workflows/ci.yml:176-191",
+      ".github/workflows/ci.yml:213-228",
+      "tools/gates/src/rust_workspace.rs:13,23-35,88-129,138-156,178-220,228-258",
+      "tools/gates/src/main.rs:52-60",
+      "tools/gates/src/plan.rs:45-71,318-348"
+    ],
+    "conclusion": "No skip, discovery exclusion or fail-open route found for the new tracked Cargo product. Existing source discovery excludes only gates/qualification; tools/rust-ts-r0 is indexed and has a tracked lockfile. cargo run builds the debug helper before rust-test can spawn it. Three native OS jobs are unconditional after plan; snapshots disabled, libtest serial, job45min. Native test command failure fails the job, and missing observation files make the always-run upload fail. The required job demands success from rust-gates.",
+    "action_pin": "actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9, identical to existing pinned uploads",
+    "observation_boundary": "CI configuration was reviewed statically. The adopted native suite ran locally; the GitHub rust-test discovery command and hosted Linux/Windows/macOS job orchestration were not executed by this reviewer. Remote CI remains required before merge.",
+    "supported_targets_configured": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-15"
+    ]
+  },
+  "lint_delta_review": {
+    "report": {
+      "path": "/private/tmp/semctx-t00-20261017/portable-lint-report.json",
+      "sha256": "f905d2de36f0eacfdcf56a3eac99356b17ae746cd84eb446211f1a387a66c9d1"
+    },
+    "delta": {
+      "path": "/private/tmp/semctx-t00-20261017/portable-lint.delta.patch",
+      "sha256": "a0250bf0bbc1328e6b9908bf87bd732d29c39e76834c687ee36c08394eedddc3"
+    },
+    "assessment": "Function-scoped expect attenuates 26 excessive_nesting and4 too_many_arguments style diagnostics; no test outcome or behavioral oracle is skipped. Receiver pathless/range branches retain the same refusals, and its final guards and duplicate-key handling run in the final native cases. Other lint edits are control-flow/iterator/name cleanup with observed native coverage, not a certification of all producer semantics. The report predates only the separately reviewed receiver EvidenceRef key guard.",
+    "no_mirror_gate_added": true
+  },
+  "reviewer_checks": {
+    "final_relevant_index_whitespace_check": "pass",
+    "source_index_identity": "no unstaged relevant delta",
+    "read_only_hash_and_raw_outcome_checks": "pass",
+    "intermediate_inspection_failures": "A broad JSON evidence reader encountered the intentionally malformed request fixture; it was narrowed to the six named Outcome artifacts. Initial SDK-notice whitespace warnings were later resolved by root with updated provenance; final indexed whitespace check passes."
+  },
+  "environment": {
+    "review_host": "Darwin arm64",
+    "native_run": "macOS arm64, Rust1.95.0, unoptimized DEV candidate, existing #383 release supervisor; final raw artifacts bind exact producer/helper bytes before and after each subprocess.",
+    "configured_ci_helper": "debug gate helper built in CI before product workspace execution; this configured path was not hosted-executed here."
+  },
+  "limits": [
+    "Only two frozen DEV cases and owned native tests are credited; no qualification or reserved reads/runs.",
+    "Native Linux/Windows and hosted CI have not been executed in the evidence reviewed.",
+    "The byte join proves reported successful captured-Fs reads match supplied source/SDK bytes, including63 SDK paths of100 supplied for each case; it does not prove all100 were consumed, exhaustive ambient-read exclusion or coherent acquisition.",
+    "Freshness, build/binding booleans and receipt guards are controlled private consumer state, not the full public indexing/ownership lifecycle.",
+    "Empty PATH proves named-tool lookup exclusion only; no OS sandbox guarantee.",
+    "No READY_TS_NATIVE/T01 opening, R0 decision, optimized delivery proof or universal TypeScript parity is supplied."
+  ],
+  "source_mutations_by_reviewer": 0,
+  "native_queries_by_reviewer": 0,
+  "builds_or_cargo_by_reviewer": 0,
+  "qualification_or_reserved_reads_by_reviewer": 0,
+  "recommendation": "The F1 proof gap is closed for the anchored macOS DEV composition. Preserve explicit scope limits and obtain fresh hosted CI on each configured target before any merge."
+}

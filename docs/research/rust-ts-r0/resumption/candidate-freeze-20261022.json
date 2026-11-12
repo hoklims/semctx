@@ -1,0 +1,250 @@
+{
+  "schemaVersion": 1,
+  "state": "FINAL_CANDIDATE_FROZEN_STEP_C_REVIEW_COMPLETE_HOLDOUT_UNOPENED",
+  "recordedUTC": "2026-10-22T06:16:48.273298+00:00",
+  "sourceCommit": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
+  "sourceTree": "9bebc1c716938bfc422716fe1022e5cf19083d24",
+  "scope": "C1 current source, optimized native macOS arm64 and Linux aarch64; freeze gives no qualification or holdout credit",
+  "producerHelperComparatorRulesChanged": false,
+  "holdoutPayloadAccessed": false,
+  "references": {
+    "extraction": {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/resumption/unit-test-extraction-20261020.json",
+      "sha256": "09d808143ebfcc54152711a712b4fb4155ad6d1c90fa1916950fa86a82651b7a",
+      "bytes": 30772
+    },
+    "formatCorrection": {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/resumption/format-ci-repair-20261021.json",
+      "sha256": "8623a948012bc766011c20334b98a752be25c8ef637eae8fe4629ccec771a94d",
+      "bytes": 5618
+    },
+    "trackedInputMembers": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/candidate-input-members.json",
+      "sha256": "f8c6019cc20d25a8a2ad7084e4559efc3fdc16938ca3ed6ac19f897767b07b75",
+      "bytes": 33597
+    }
+  },
+  "toolchain": {
+    "rust": "1.95.0 (59807616e 2026-04-14)",
+    "cargo": "1.95.0 (f2d3ce0bd 2026-03-21)",
+    "bun": "1.4.3",
+    "macos": "27.0.1 arm64; Python 3.15.0",
+    "linux": "OrbStack Docker aarch64; Python 3.11.2",
+    "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "linuxImageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977",
+    "linuxNetwork": "none"
+  },
+  "lanes": {
+    "macos": {
+      "freeze": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/freeze.json",
+        "sha256": "9a46d37cf2751d9682aca6c9eac2adfe3dc105bcc303bd0425797de529da6d1e",
+        "bytes": 1798
+      },
+      "manifest": {
+        "optimized_frozen": true,
+        "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+        "source_head": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
+        "platform": "macOS",
+        "artifact_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/semctx-r0-probe",
+        "artifact_sha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+        "helper_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/semctx-gates",
+        "helper_sha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+        "transport_fixture_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/semctx-gates-fixture",
+        "transport_fixture_sha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+        "qualification_observer_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/qualification_replay-f9e27f9b0849f013",
+        "qualification_observer_sha256": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+        "sdk_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/sdk-input.json",
+        "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+        "recipes_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-campaign-recipes/replay-recipes.json",
+        "recipes_sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+        "legacy_identity_inputs_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-macos/t00-original-campaign/identity-inputs.json",
+        "legacy_identity_inputs_sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"
+      },
+      "identityComparison": [
+        {
+          "identity": "artifact_sha256",
+          "current": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "extraction20261020": "471379b3c6267dd9da11cb0b88e2d7fddbff5428cd1451a94f15b17cf060899c",
+          "sameAsExtraction": false,
+          "format20261021": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+          "sameAsFormat": true,
+          "explanation": "27 extracted test modules lost a leading LF in the recorded 21 October format-only correction; compiler identity can change despite unchanged production logic. Current producer comparison with that correction is explicit."
+        },
+        {
+          "identity": "helper_sha256",
+          "current": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+          "extraction20261020": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "transport_fixture_sha256",
+          "current": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+          "extraction20261020": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "qualification_observer_sha256",
+          "current": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+          "extraction20261020": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+          "sameAsExtraction": true,
+          "format20261021": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+          "sameAsFormat": true,
+          "explanation": "Observer includes the gates dependency; unchanged hash expected when rebuilding with the historical Cargo cache path."
+        },
+        {
+          "identity": "sdk_sha256",
+          "current": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+          "extraction20261020": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "recipes_sha256",
+          "current": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+          "extraction20261020": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "legacy_identity_inputs_sha256",
+          "current": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+          "extraction20261020": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        }
+      ]
+    },
+    "linux": {
+      "freeze": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-linux/freeze.json",
+        "sha256": "f00651f5e9e02590df0ffd9281ac93b82cd831d5c6632581f17f66847b56fa3b",
+        "bytes": 1742
+      },
+      "manifest": {
+        "optimized_frozen": true,
+        "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+        "source_head": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
+        "platform": "Linux",
+        "artifact_path": "/work/evidence/qualification-20261022/campaign-linux/t00-original-campaign/semctx-r0-probe",
+        "artifact_sha256": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+        "helper_path": "/work/evidence/qualification-20261022/campaign-linux/t00-original-campaign/semctx-gates",
+        "helper_sha256": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+        "transport_fixture_path": "/work/evidence/qualification-20261022/campaign-linux/t00-original-campaign/semctx-gates-fixture",
+        "transport_fixture_sha256": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+        "qualification_observer_path": "/work/evidence/qualification-20261022/campaign-linux/t00-original-campaign/qualification_replay-3e8b4fe2e7321767",
+        "qualification_observer_sha256": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+        "sdk_path": "/work/evidence/qualification-20261022/campaign-linux/t00-original-campaign/sdk-input.json",
+        "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+        "recipes_path": "/work/evidence/qualification-20261022/campaign-linux/t00-campaign-recipes/replay-recipes.json",
+        "recipes_sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+        "legacy_identity_inputs_path": "/work/evidence/qualification-20261022/campaign-linux/t00-original-campaign/identity-inputs.json",
+        "legacy_identity_inputs_sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"
+      },
+      "identityComparison": [
+        {
+          "identity": "artifact_sha256",
+          "current": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "extraction20261020": "69b6c59278a516b9f7477ef08d73b7f5ab9f519dd7a7d0848076bf3fcf70689b",
+          "sameAsExtraction": false,
+          "format20261021": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+          "sameAsFormat": true,
+          "explanation": "27 extracted test modules lost a leading LF in the recorded 21 October format-only correction; compiler identity can change despite unchanged production logic. Current producer comparison with that correction is explicit."
+        },
+        {
+          "identity": "helper_sha256",
+          "current": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+          "extraction20261020": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "transport_fixture_sha256",
+          "current": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+          "extraction20261020": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "qualification_observer_sha256",
+          "current": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+          "extraction20261020": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+          "sameAsExtraction": true,
+          "format20261021": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+          "sameAsFormat": true,
+          "explanation": "Observer includes the gates dependency; unchanged hash expected when rebuilding with the historical Cargo cache path."
+        },
+        {
+          "identity": "sdk_sha256",
+          "current": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+          "extraction20261020": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "recipes_sha256",
+          "current": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+          "extraction20261020": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        },
+        {
+          "identity": "legacy_identity_inputs_sha256",
+          "current": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+          "extraction20261020": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+          "sameAsExtraction": true,
+          "explanation": "No input or source change for this identity; exact-byte equality checked against extraction freeze."
+        }
+      ]
+    }
+  },
+  "limits": [
+    "Hashes identify retained bytes; no reproducible-build, atomic capture, source-to-binary attestation, complete SDK consumption or R0 claim.",
+    "Windows native remains final milestone only; no CI requested or triggered."
+  ],
+  "rebuildNotes": [
+    "Offline builds only. Default macOS cache lacked ts-rust; old temporary cache had lost Git metadata and pinned registry versions. Existing complete Linux Git/registry caches restored to the historical macOS CARGO_HOME; no lock/dependency/source changes or downloads.",
+    "A preliminary isolated-CARGO_HOME build embedded its new cache path in all four macOS executables, changing their digests. Those unused binaries are retained outside the repository in candidate-path-trial. Final artifacts were rebuilt with the historical cache path before any campaign."
+  ],
+  "finalizedUTC": "2026-10-22T06:24:09.685073+00:00",
+  "finalization": {
+    "sourceCommitUnchanged": true,
+    "producerHelperAndComparatorBytesUnchanged": true,
+    "currentCampaignsCompleted": [
+      "macos-arm64",
+      "linux-aarch64"
+    ],
+    "formalR0Qualified": 0,
+    "registeredFiniteProjectionsGreen": 82,
+    "holdoutOpened": false,
+    "holdoutInvocationComparatorContract": "ABSENT_BLOCKING_BEFORE_ACCESS",
+    "policy": "No producer, helper, expectation, threshold or comparison-rule change is permitted after any future reserved access; this freeze does not supply the missing reserved invocation/comparison contract."
+  },
+  "metadataCorrection": {
+    "recordedUTC": "2026-10-22T06:27:39.884511+00:00",
+    "field": "toolchain.macos Python version",
+    "previous": "3.9.6",
+    "observed": "Python 3.15.0",
+    "evidence": "python3 --version on the same shell used for prepare/freeze/campaign orchestration",
+    "definitiveArtifactFreezeCommitUnchanged": "84c46592",
+    "producerHelperFixtureObserverSdkRecipesChanged": false,
+    "reservedArchiveOnlyHashedNoPayloadInspected": true
+  },
+  "documentaryReviewCorrection": {
+    "recordedUTC": "2026-10-22T06:33:19.844777+00:00",
+    "previousProvisionalProjectionCount": 86,
+    "reconciledProjectionCount": 82,
+    "downgradedRegistryIndices": [
+      156,
+      158,
+      230,
+      231
+    ],
+    "cause": "Per-property evidence join omitted existing case/unit observations and treated four historical-only property branches as green.",
+    "artifactFreezeCommitUnchanged": "84c46592",
+    "producerHelperFixtureObserverSdkRecipesOrComparisonRulesChanged": false,
+    "reservedPayloadOpened": false
+  }
+}

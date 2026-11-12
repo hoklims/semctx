@@ -1,0 +1,93 @@
+{
+  "recordVersion": 1,
+  "state": "ONE_CONTROLLED_SYSTEM_CANONICAL_KEY_COMPONENT_PASS_MACOS_DEV_NOT_QUALIFICATION",
+  "sourceHead": "95cde3846e804dc59182f7f7136d62c9642a1167",
+  "reviewedDiffSha256": "f4d17e430864785bd4db349343a63d5af54da8a03af344f572f1124e6f514755",
+  "archive": {
+    "path": "gap-canonical-system-evidence.tar.gz.b64",
+    "bytes": 1080278,
+    "sha256": "8a6be0e821f4035d0b170b6f8b825cb523d073c2885f9ad42c0b851dff61bf60",
+    "decodedSha256": "c99475c8da9f79b449a91f3f5809ce2ea387606ef4e5e4cc0cc90016591114b4",
+    "files": 134
+  },
+  "units": [
+    "ORD-CANONICAL-IDENTITY-PAIR::base"
+  ],
+  "nativeArtifactSha256": "c1de5d6d33b11acdfe22c4dc8b4131be057916a0c33098f107f3f9dbf2387c9b",
+  "engineSourceSha256": {
+    "tools/rust-ts-r0/src/assembly.rs": "ab6612af4562e651ed3f7fb00122cd71cb5f689af9150edbf5dea7988041d799",
+    "tools/rust-ts-r0/src/assembly_observations.rs": "d0adef54804e7e0321e4e7028176dc6d427f7a9c89ea8fde7ef41fad11a7a470",
+    "tools/rust-ts-r0/src/batch.rs": "fc667a1acf5577a767dbcb37d8dfc3e133b32b1b2f1238ade5000bfefa99a9eb",
+    "tools/rust-ts-r0/src/captured.rs": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+    "tools/rust-ts-r0/src/captured_system_observations.rs": "3f571889b2c4fec33cfb4a8ccdf347905ee46a28efd85e73197edaec8112f171",
+    "tools/rust-ts-r0/src/component_observations.rs": "dc05fa17dd3baf4aee3ee0151636784438bc11abb93b1131b2a2f4ea2916a482",
+    "tools/rust-ts-r0/src/configuration.rs": "f50a77417ed576356542443582564a975b9f4949f8985b55f210f5dbcbd04008",
+    "tools/rust-ts-r0/src/configured_resolution_observations.rs": "0322d8355e79f27a9bf47fae4ec8fa41f54195e113c3bb5d3c0b480c140c76ef",
+    "tools/rust-ts-r0/src/configured_resolver.rs": "f8d4ecad98e9cedb210831bf399ce3a46318a2396d7cd9fa1d48b7796ddc8828",
+    "tools/rust-ts-r0/src/development.rs": "4d4c3a861bd0529d8381b65e4e50f416240f67c28913890f71234457cb781bca",
+    "tools/rust-ts-r0/src/es5_helpers.rs": "ab932667c4dc89bd7c30fbdcdba4390b4cef5f4ce9b0b33436b9e625b831ae54",
+    "tools/rust-ts-r0/src/identity.rs": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+    "tools/rust-ts-r0/src/input_identity.rs": "6d19329c0728e4189f16593d76f3f270ca2df9494e8837f8a146b4df0e998455",
+    "tools/rust-ts-r0/src/javascript.rs": "73f679b7a86804fca8a0c7afa3c678b43f31de264657d1ddca79213fd01280e6",
+    "tools/rust-ts-r0/src/legacy_resolution.rs": "94e0436de9440c8cc77c2a4abebe5c72612ea5b9e4c64d892b0c355e92afcbe1",
+    "tools/rust-ts-r0/src/lib.rs": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0",
+    "tools/rust-ts-r0/src/main.rs": "78f45b90d7b4c8b71b15416df7c6521477751fda648af14ea895dbf0d010b9c1",
+    "tools/rust-ts-r0/src/ordinary.rs": "e7c31d16cc56f704220ac7e49346745cb5308c0180b930f8255857a7fef3088b",
+    "tools/rust-ts-r0/src/outline.rs": "1dea2737e5d1f33604a045f52d4a4864ad85bc01833c02a7a789d8aecd74741c",
+    "tools/rust-ts-r0/src/primitive_observations.rs": "a3da1c76f44b906fc05b9b0598bce1f4dea6b6ddc7d338f851cc18e167130ce4",
+    "tools/rust-ts-r0/src/qualified.rs": "01e93d020a13ad8b4c437ee320133399a9db8de8711a088d157f10e12fd9d662",
+    "tools/rust-ts-r0/src/receiver.rs": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d",
+    "tools/rust-ts-r0/src/runtime_configuration.rs": "53b177ac1b2119987cad42f15a7fab268401bdee5ebc393676c2fc8659aef6dc",
+    "tools/rust-ts-r0/src/source_text.rs": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+    "tools/rust-ts-r0/src/wire.rs": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+    "tools/rust-ts-r0/src/worker_observations.rs": "8455b1697f51233507eaf0d4a986171cf6cfebd74502e18cf9a3a40940960c5d",
+    "tools/rust-ts-r0/src/worker_response.rs": "47d221e88fc23d8687b224216a404e465684712d9483724ca91d48247a098c5f"
+  },
+  "recipesSha256": "a7683f88a8850ab4ffb8e195977546f68d559bbcfb751ff503a31cdcea5c1a9b",
+  "nativeResults": "raw/component-replay/units-ORD-CANONICAL-IDENTITY-PAIR/repair-results.json",
+  "qualificationCredit": 0,
+  "mechanism": "Actual native canonical_file_key primitive looks up the exact supplied successful System realpath observation, applies source-defined slash/one-leading-./ normalization and controlled JS casefold. Three actual invocations produce frozen exact keys; existing relation comparator checks alias=target and target!=other. Exact descriptor/artifact bindings remain enforced by the existing primitive runner.",
+  "authority": "Frozen ordinary component unit/input plus historical ts-symbols.ts318-330 at3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b (current584-597), normalizePath core ids.ts10. Root freeze adoption is current authority; source author metadata remains historical.",
+  "scope": "Controlled successful realpath observations only; missing/throwing System realpath parity, physical-host aliases and extraction/partition consumers remain outside this component evidence. Existing native lexical semantic_key is unchanged and distinct.",
+  "failurePaths": [
+    "Unknown/missing/malformed descriptor fields or controlled realpath values refuse.",
+    "Unmapped query refuses instead of assuming lexical identity or supplying a host result.",
+    "Empty/NUL raw query/result refuses as unavailable controlled context. A raw nonempty ./ result can normalize to empty, matching historical utility behavior; frozen expected keys are nonempty and checked exactly."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64 Rust1.95.0 Bun1.4.3 Python3.10.22; GIT_CONFIG_GLOBAL unset; GOPORT snapshots0 RUST_TEST_THREADS1",
+    "nativeBinaryTests": 195,
+    "nativeLibraryTests": 45,
+    "nativeProcessFlowIntegrationTests": 3,
+    "observerComparators": 39,
+    "recipeCliTests": 7,
+    "focusedComponentUnits": 1,
+    "actualPrimitiveInvocations": 3,
+    "formatClippyRuffExitCode": 0,
+    "newFullVerifyPr": false
+  },
+  "history": [
+    "Initial --bin filter discovered0tests and is not a red witness. Correct --lib test failed unknown canonical_file_key operation before implementation, then passed.",
+    "Initial recipe placement was skipped by raw-request-only loop and left316mapped/38GAP. Move to own component loop yields317mapped/37GAP; actual component replay passes. Initial summary retained without success credit."
+  ],
+  "review": {
+    "standards": "review/standards/report.json",
+    "specProofAdversarial": "review/spec-proof/report.md",
+    "boundedVerdict": "PROOF_ADEQUATE for controlled successful-System logical component only",
+    "independentNativeComponentUnits": 1,
+    "independentPrimitiveInvocations": 3,
+    "nativeAdversarialProbes": 25,
+    "nativeRefusals": 19,
+    "sourceFaultRejectedThenRestored": "Normalize the original query path instead of the supplied resolved result: actual owning native test fails, restore exact source and both owning tests pass.",
+    "restoredOwningTests": 2,
+    "candidateUnchangedDuringReview": true,
+    "localCorrectionPassesUsed": 0
+  },
+  "limits": [
+    "27 of64 initial GAP units mapped:26 limited PASS and unchanged N17c version-attributed NONPASS;37 static GAP units remain.",
+    "All240 obligations remain unqualified;178-obligation review,full354three-OS campaign,reserved run and R0 pending.",
+    "Current source exercised on macOS only. Windows/Linux and exact-head remote CI for this component pending.",
+    "No physical-host alias, whole graph/input identity, acquisition, consumer coverage or global admission inferred.",
+    "Additional C1 pass1 remains OPEN, pass2 unused; no budget reset or new TS-version arbitration."
+  ]
+}

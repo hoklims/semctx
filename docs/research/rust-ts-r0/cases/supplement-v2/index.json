@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 2,
+  "id": "semctx-t00-qualification-supplement-v2",
+  "kind": "independent-complementary-qualification",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "author": "independent_gap_witnesses / Codex native independent author",
+  "candidateObserved": false,
+  "original354unchanged": true,
+  "v1FrozenUnchanged": true,
+  "originalSupports": 51,
+  "notReservedHoldout": true,
+  "rejectedComplementsAdopted": false,
+  "counts": {
+    "preservedSourceVariants": 50,
+    "additionalActivationSources": 7,
+    "digestSources": 10,
+    "totalSourceVariants": 67,
+    "digestPairs": 5,
+    "publicInvocations": 11,
+    "publicTests": 25,
+    "publicStructuredVectors": 25,
+    "publicCapturedOperations": 677,
+    "negativeWitnesses": 5,
+    "actualSemanticProgramRecords": 124
+  },
+  "expectations": {
+    "preserved50": "v1-preserved/expected-observables.json (byte-identical)",
+    "additional17": "expected-additional-observables.json",
+    "public25": "public-vectors/index.json and expected-public-projections.json",
+    "actualPrograms": "actual-semantic-programs.json",
+    "dependencyBytes": "v1-preserved/observed/oracle-runtime-dependency-manifest.json",
+    "SDKBytes": "v1-preserved/observed/typescript-sdk-manifest.json"
+  },
+  "obligation166": {
+    "property0": {
+      "authority": "3e94997f:packages/ts-analyzer/test/top-level-outline.test.ts:56-71",
+      "witnesses": [
+        "digest-operator",
+        "digest-keyword-flags",
+        "digest-type-keyword",
+        "digest-raw-template"
+      ],
+      "operation": "outlineTopLevel",
+      "observedRelation": "different"
+    },
+    "property1": {
+      "authority": "3e94997f:packages/ts-analyzer/test/top-level-outline.test.ts:74-82 and same helper",
+      "witnesses": [
+        "digest-trivia"
+      ],
+      "changes": [
+        "whitespace",
+        "trailing list comma",
+        "final semicolon"
+      ],
+      "observedRelation": "equal"
+    }
+  },
+  "activationAdditions": [
+    "constructor-dot",
+    "constructor-bracket",
+    "callback-call",
+    "callback-apply",
+    "callback-bind",
+    "sdk-math-primitive",
+    "sdk-math-callable"
+  ],
+  "publicMappings": [
+    {
+      "id": "directory-alias-01",
+      "publicTest": "keeps missing in-repository imports selected when the repository root has a directory alias",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "directory-alias-01.json"
+    },
+    {
+      "id": "directory-alias-02",
+      "publicTest": "still rejects genuinely escaping missing paths under a directory alias",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "directory-alias-02.json"
+    },
+    {
+      "id": "directory-alias-03",
+      "publicTest": "still rejects missing targets below an existing external directory symlink",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "directory-alias-03.json"
+    },
+    {
+      "id": "reference-confinement-01",
+      "publicTest": "records relative imports and reference paths escaping the repository as failed",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "reference-confinement-01.json"
+    },
+    {
+      "id": "native-inert-01",
+      "publicTest": "type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "native-inert-01.json"
+    },
+    {
+      "id": "mixed-fallback-01",
+      "publicTest": "keeps mixed extraction in one semantic Program when workers are requested",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "mixed-fallback-01.json"
+    },
+    {
+      "id": "external-partition-01",
+      "publicTest": "does not connect independent roots through the same external node_modules package",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "external-partition-01.json"
+    },
+    {
+      "id": "namespace-owners-01",
+      "publicTest": "non-call namespace members retain barrel/default owners and reject shadows or unmodeled homonyms",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "namespace-owners-01.json"
+    },
+    {
+      "id": "namespace-owners-02",
+      "publicTest": "namespace destructuring preserves leaf/default owners and rejects a local shadow or unmodeled homonym",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "namespace-owners-02.json"
+    },
+    {
+      "id": "namespace-owners-03",
+      "publicTest": "unmodeled object members cannot claim namespace test coverage of a global homonym",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "namespace-owners-03.json"
+    },
+    {
+      "id": "runtime-erased-01",
+      "publicTest": "unused, erased and shadowed import occurrences do not prove runtime use",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "runtime-erased-01.json"
+    },
+    {
+      "id": "workspace-boundaries-01",
+      "publicTest": "an installed dependency keeps precedence over the workspace link",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "workspace-boundaries-01.json"
+    },
+    {
+      "id": "workspace-boundaries-02",
+      "publicTest": "a workspace declared above the repository boundary receives no link",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "workspace-boundaries-02.json"
+    },
+    {
+      "id": "workspace-boundaries-03",
+      "publicTest": "legacy TS-only extraction does not consume live workspace configuration",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "workspace-boundaries-03.json"
+    },
+    {
+      "id": "opaque-ownership-01",
+      "publicTest": "opaque inline ownership register(() => helper())",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-01.json"
+    },
+    {
+      "id": "opaque-ownership-02",
+      "publicTest": "opaque inline ownership register(() => helper)",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-02.json"
+    },
+    {
+      "id": "opaque-ownership-03",
+      "publicTest": "opaque inline ownership helper(); register(() => helper)",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-03.json"
+    },
+    {
+      "id": "opaque-ownership-04",
+      "publicTest": "opaque inline ownership register(() => unknown)",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-04.json"
+    },
+    {
+      "id": "opaque-ownership-05",
+      "publicTest": "opaque inline ownership register(() => 1)",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-05.json"
+    },
+    {
+      "id": "opaque-ownership-06",
+      "publicTest": "actual test binding ownership preserves the unchanged public Vitest callback",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-06.json"
+    },
+    {
+      "id": "opaque-ownership-07",
+      "publicTest": "anonymous default declaration owns its already modeled inline call",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "opaque-ownership-07.json"
+    },
+    {
+      "id": "scope-admission-01",
+      "publicTest": "round2 unretained generated reference returns structured rejected admission",
+      "mappingStatus": "UNKNOWN_NATIVE_LIFECYCLE_MAPPING",
+      "file": "scope-admission-01.json"
+    },
+    {
+      "id": "scope-admission-02",
+      "publicTest": "manifest optional dependencies are admitted as opaque external boundaries",
+      "mappingStatus": "UNKNOWN_NATIVE_LIFECYCLE_MAPPING",
+      "file": "scope-admission-02.json"
+    },
+    {
+      "id": "scope-admission-03",
+      "publicTest": "excluded parse-failed or computed importers cannot silently disappear from dependency scope",
+      "mappingStatus": "UNKNOWN_NATIVE_LIFECYCLE_MAPPING",
+      "file": "scope-admission-03.json"
+    },
+    {
+      "id": "pilot-builtin-01",
+      "publicTest": "extractRelativeImportSpecifiers keeps only relative specifiers",
+      "mappingStatus": "ABSTRACT_REQUEST_SPECIFIED",
+      "file": "pilot-builtin-01.json"
+    }
+  ],
+  "unknown": [
+    {
+      "id": "scope-admission-01",
+      "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+    },
+    {
+      "id": "scope-admission-02",
+      "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+    },
+    {
+      "id": "scope-admission-03",
+      "reason": "Native Git/index/freshness lifecycle adapter and private .semctx state not exposed or observed"
+    }
+  ],
+  "concreteNativeInterface": {
+    "status": "NOT_OBSERVED",
+    "scope": "Abstract request vocabulary and original baseline observables only; no native candidate, ABI adapter, privateOutcome, ALLOW or R0 claim"
+  },
+  "dependencyRecovery": {
+    "authorized": true,
+    "command": "Bun 1.4.3 install --frozen-lockfile --ignore-scripts --registry https://registry.npmjs.org",
+    "source": "Fresh Git-baseline-only extraction with no pre-existing node_modules or junctions",
+    "lockSha256BeforeAfter": "bd3521077148963ad09287236efb77c161efd73ddd33180359a599562196f5b2",
+    "initialFailuresRetained": "v1-preserved/observed/scope-admission.stderr and scope-admission-initial-unknown.json",
+    "correction": "The inherited v1 index sentence No network install is historical and inaccurate; authorized locked public-registry recovery did occur. This v2 statement supersedes it without editing v1."
+  },
+  "projectionRules": {
+    "graph": "Canonical kind/name/filePath/scope and endpoint relationships; full raw graphs retained",
+    "paths": "Root aliases and normalized separators; full physical paths and case mode retained in raw records",
+    "verify": "Portable projection excludes only analysisAdmission.identity (Git commit/time/path-bound digests); full baseline identity retained raw; native lifecycle mapping remains UNKNOWN"
+  },
+  "reproduction": {
+    "entrypoint": "reproduce.ts",
+    "evidence": "observed/reproduction/reproduction-executions.json",
+    "validation": "observed/reproduction/validation.json",
+    "projectionHashes": "expected-reproduction.json",
+    "source50": true,
+    "additional17": true,
+    "public25": true
+  },
+  "boundaries": [
+    "No candidate/Rust/source/output or reserved holdout read or executed",
+    "No original354 or original51 support modified",
+    "Only authorized locked oracle dependency recovery; no paid tools, accounts, administrative action, globally installed packages or profile/configuration edits. Bun package cache may be reused/populated by the authorized install."
+  ]
+}

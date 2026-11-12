@@ -1,0 +1,213 @@
+{
+  "kind": "PUBLIC_LOCATION_MAP_ORIGINAL_RECEIPTS_UNCHANGED",
+  "original_workspace_root": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re",
+  "repository_destination": "docs/research/rust-ts-r0/evidence/current-96fedbbe",
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "files": [
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/PORTABLE-PUBLIC-INDEX.json",
+      "published_relative_path": "portable-public-index.original.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/macos/manifest.json.gz",
+      "published_relative_path": "macos/manifest.json.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/macos/pack.json",
+      "published_relative_path": "macos/pack.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/macos/capture.part0001",
+      "published_relative_path": "macos/capture.part0001"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/macos/capture.part0002",
+      "published_relative_path": "macos/capture.part0002"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/macos/capture.part0003",
+      "published_relative_path": "macos/capture.part0003"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-import-receipt.json",
+      "published_relative_path": "macos-custody/complete-import-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-export-receipt.json",
+      "published_relative_path": "macos-custody/complete-export-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-prepared-export/prepared-macos.tar.gz",
+      "published_relative_path": "preparation/prepared-macos.tar.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/linux/manifest.json.gz",
+      "published_relative_path": "linux/manifest.json.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/linux/pack.json",
+      "published_relative_path": "linux/pack.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/linux/capture.part0001",
+      "published_relative_path": "linux/capture.part0001"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/linux/capture.part0002",
+      "published_relative_path": "linux/capture.part0002"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable/linux/capture.part0003",
+      "published_relative_path": "linux/capture.part0003"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-import-receipt.json",
+      "published_relative_path": "linux-custody/complete-import-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-export-receipt.json",
+      "published_relative_path": "linux-custody/complete-export-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-prepared-export/prepared-linux.tar.gz",
+      "published_relative_path": "preparation/prepared-linux.tar.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-assessment/download-v1/assessment-macos.native.json",
+      "published_relative_path": "macos-custody/assessment-macos.native.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-assessment/download-v1/public-download-receipt.json",
+      "published_relative_path": "macos-custody/public-download-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-assessment/download-v1/macos-hosts.native.json",
+      "published_relative_path": "macos-custody/macos-hosts.native.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-assessment/download-v1/macos-assessment-driver.receipt.json",
+      "published_relative_path": "macos-custody/macos-assessment-driver.receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/assessment-linux.native.json",
+      "published_relative_path": "linux-custody/assessment-linux.native.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/transport-receipt.json",
+      "published_relative_path": "linux-custody/transport-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/linux-hosts.native.json",
+      "published_relative_path": "linux-custody/linux-hosts.native.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/linux-assessment-driver.receipt.json",
+      "published_relative_path": "linux-custody/linux-assessment-driver.receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/retained-scope-observer-fix/native-freeze-c01cb627/freeze-receipt.json",
+      "published_relative_path": "protocol/native/freeze-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/retained-scope-observer-fix/native-freeze-c01cb627/native-assessor.zip",
+      "published_relative_path": "protocol/native/native-assessor.zip"
+    },
+    {
+      "original_workspace_relative_path": "work/retained-scope-observer-fix/windows-freeze-c01cb627/freeze-receipt.json",
+      "published_relative_path": "protocol/windows/freeze-receipt.json"
+    },
+    {
+      "original_workspace_relative_path": "work/retained-scope-observer-fix/windows-freeze-c01cb627/windows-assessor.zip",
+      "published_relative_path": "protocol/windows/windows-assessor.zip"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-prepared-export/prepared-two-os-summary.json",
+      "published_relative_path": "preparation/prepared-two-os-summary.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-native-regression-96fedbbe/PUBLIC-96-FINAL-PROOF-INDEX.json",
+      "published_relative_path": "public-regression/final-proof-index.original.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-native-regression-96fedbbe/execution-v3/PUBLIC-96-RAW-ADJUDICATION.json",
+      "published_relative_path": "public-regression/PUBLIC-96-RAW-ADJUDICATION.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-native-regression-96fedbbe/execution-v3/raw-archives/PUBLIC-96-MACOS-RAW.tar.gz",
+      "published_relative_path": "public-regression/PUBLIC-96-MACOS-RAW.tar.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/public-native-regression-96fedbbe/execution-v3/raw-archives/PUBLIC-96-LINUX-RAW.tar.gz",
+      "published_relative_path": "public-regression/PUBLIC-96-LINUX-RAW.tar.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/PUBLIC-ACTUAL-TWO-HOST.json",
+      "published_relative_path": "public-scoped-method/PUBLIC-ACTUAL-TWO-HOST.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/manifest.frozen.json",
+      "published_relative_path": "public-scoped-method/manifest.frozen.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/expected-oracle.json",
+      "published_relative_path": "public-scoped-method/expected-oracle.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/identity_scope_reader.py",
+      "published_relative_path": "public-scoped-method/identity_scope_reader.py"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/baseline.actual.json",
+      "published_relative_path": "public-scoped-method/baseline.actual.json"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/baseline.cjs",
+      "published_relative_path": "public-scoped-method/baseline.cjs"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/staging-v1/raw-macos-one-shot.tar.gz",
+      "published_relative_path": "public-scoped-method/raw-macos-one-shot.tar.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/public-scoped-call-witness/staging-v1/raw-linux-one-shot.tar.gz",
+      "published_relative_path": "public-scoped-method/raw-linux-one-shot.tar.gz"
+    },
+    {
+      "original_workspace_relative_path": "work/r0-source-selection-96fedbbe/root-source-review-v1/current-source-mechanisms.json",
+      "published_relative_path": "source-selection/current-source-mechanisms.original.json"
+    },
+    {
+      "original_workspace_relative_path": "work/r0-terminal-ledger-preparation-v3/current-96-draft-v1.json",
+      "published_relative_path": "draft-ledger/current-96-draft-v1.original.json"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable-index/build_index.py",
+      "published_relative_path": "portable-index-join/build_index.py"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable-index/join-validation.json",
+      "published_relative_path": "portable-index-join/join-validation.json"
+    },
+    {
+      "original_workspace_relative_path": "work/portable-public-capture-delivery/capture_pack.py",
+      "published_relative_path": "capture-tool/capture_pack.py"
+    },
+    {
+      "original_workspace_relative_path": "work/portable-public-capture-delivery/test_capture_pack.py",
+      "published_relative_path": "capture-tool/test_capture_pack.py"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable-index/assemble.py",
+      "published_relative_path": "assemble.py"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable-index/README.md",
+      "published_relative_path": "README.md"
+    },
+    {
+      "original_workspace_relative_path": "work/native-96fedbbe-portable-index/publication-location-map.json",
+      "published_relative_path": "publication-location-map.json"
+    }
+  ],
+  "rule": "This map relocates only these files. Absolute native paths inside raw receipts remain original evidence coordinates; no traversal or recursive dependency copy is implied."
+}

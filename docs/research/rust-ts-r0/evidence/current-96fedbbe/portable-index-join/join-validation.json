@@ -1,0 +1,125 @@
+{
+  "kind": "PUBLIC_PORTABLE_METADATA_AND_BYTE_JOIN",
+  "script": {
+    "path": "work/native-96fedbbe-portable-index/build_index.py",
+    "sha256": "9b1ac6f8e0efd81625b047d0ad2a37a96413cb567706c13a3aaa71fbef6bf381",
+    "bytes": 9326
+  },
+  "index": {
+    "path": "work/native-96fedbbe-portable/PORTABLE-PUBLIC-INDEX.json",
+    "sha256": "8bbaa3ec83ca5a0e37bd64cac5c91215e4f3ff80ace91b37484d9a1d4c036b96",
+    "bytes": 9911
+  },
+  "freshly_checked_files": [
+    {
+      "path": "work/native-96fedbbe-portable/macos/capture.part0001",
+      "sha256": "697567f3dc50eb3ddf41b328feb0183ffb9311d4756a5ef4ce6734d0483c889d",
+      "bytes": 24000000
+    },
+    {
+      "path": "work/native-96fedbbe-portable/macos/capture.part0002",
+      "sha256": "2670c7f68aaa72f71a8c00773296a7a16bbee244d77ffa30cc44d5d955dd07f5",
+      "bytes": 24000000
+    },
+    {
+      "path": "work/native-96fedbbe-portable/macos/capture.part0003",
+      "sha256": "5421747e53521518ebcbe40b88ee5739b3c57f2184fbf6c8d383e00d96fe0ee7",
+      "bytes": 10974966
+    },
+    {
+      "path": "work/native-96fedbbe-portable/macos/pack.json",
+      "sha256": "9ff02caa05b430231e86f8771f0f8fdbd9f6f89958f990cba9e126aa876acecb",
+      "bytes": 1521
+    },
+    {
+      "path": "work/native-96fedbbe-portable/macos/manifest.json.gz",
+      "sha256": "0f05602549bc7cf5c8f20f7f3d0821e757ed54fd56fe222e6ee362a96c5e3a76",
+      "bytes": 3973298
+    },
+    {
+      "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-import-receipt.json",
+      "sha256": "ab12c0567a6c81b371c2ec32f7f77d96c4523c8bcaaa33ac20a9334360ea8e5a",
+      "bytes": 785
+    },
+    {
+      "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-macos-import-f1/complete-export-receipt.json",
+      "sha256": "9b7f529e422e80bacee8b7be813999e4c8c34daddf506e16523550b0cdbe6d2e",
+      "bytes": 10631728
+    },
+    {
+      "path": "work/native-96fedbbe-assessment/download-v1/public-download-receipt.json",
+      "sha256": "55bb13526bf979977879bf10f29dab2a8cb87b3745b6591148648582db11f186",
+      "bytes": 1619
+    },
+    {
+      "path": "work/native-96fedbbe-assessment/download-v1/assessment-macos.native.json",
+      "sha256": "f07710107109f559681c14bcbe3b7b742d748a329c094192ca0ce5e2d17e7380",
+      "bytes": 47239571
+    },
+    {
+      "path": "work/native-96fedbbe-portable/linux/capture.part0001",
+      "sha256": "4eae7135d11c4157a5fa01dd6ff91f13c9e893c49978eeadda47b7617aeba60c",
+      "bytes": 24000000
+    },
+    {
+      "path": "work/native-96fedbbe-portable/linux/capture.part0002",
+      "sha256": "cd887463c390650a6886a413619abb0f2ccf85ed890c92834f07a66ead19dab7",
+      "bytes": 24000000
+    },
+    {
+      "path": "work/native-96fedbbe-portable/linux/capture.part0003",
+      "sha256": "7f102244ab9dbbcaecb2ed521f986367e764fdb0b81e359c3b0b45f6d16422c9",
+      "bytes": 11069485
+    },
+    {
+      "path": "work/native-96fedbbe-portable/linux/pack.json",
+      "sha256": "ccf90c62ebf8e947eb01f5355452fdeecaba1b603c67a5a4326ba420c9713f22",
+      "bytes": 1521
+    },
+    {
+      "path": "work/native-96fedbbe-portable/linux/manifest.json.gz",
+      "sha256": "c17d70ec53a3d5d1510067a89cd161047bef832c0e5081e16438ced23cb449e7",
+      "bytes": 3972966
+    },
+    {
+      "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-import-receipt.json",
+      "sha256": "41c92bafe635f6de1769bebd0ee54e80d438817b8d530d46f921514d3223c81c",
+      "bytes": 877
+    },
+    {
+      "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/complete-export-receipt.json",
+      "sha256": "4c1d9235428cdde5d4df2cd536dcba32dae81e1f8a10eb3e5c7b20d95ed502b8",
+      "bytes": 10629805
+    },
+    {
+      "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/transport-receipt.json",
+      "sha256": "0c86a13fbd1598acace65285a38be4541c9dfda7f38328c05301519af8cc2a2e",
+      "bytes": 5748
+    },
+    {
+      "path": "work/native-final-stage-96fedbbe14e8585ae1c89e2656604bf5ecabf2c3/complete-linux-import-f1/assessment-linux.native.json",
+      "sha256": "5bd9f1014e1872dd4bd1ffcf5706e2e78cde7839eb0644ec0b3258fe0091f71b",
+      "bytes": 45463312
+    },
+    {
+      "path": "work/public-native-regression-96fedbbe/PUBLIC-96-FINAL-PROOF-INDEX.json",
+      "sha256": "1d9920b5ef80dab084e8ccf07d18e60687824cab329dce8adb394a383abe7031",
+      "bytes": 4626
+    },
+    {
+      "path": "work/public-native-regression-96fedbbe/execution-v3/PUBLIC-96-RAW-ADJUDICATION.json",
+      "sha256": "11630b7ee0fb290d99c83e05229e5343044d1822b14c0cde250058e42e264ea8",
+      "bytes": 3066
+    },
+    {
+      "path": "work/public-scoped-call-witness/PUBLIC-ACTUAL-TWO-HOST.json",
+      "sha256": "bfcf5090773c5dbd3c1c119d0040f7cda2b362a56feec8fa7c19b84143449052",
+      "bytes": 10503
+    }
+  ],
+  "native_queries": 0,
+  "builds": 0,
+  "pack_or_full_verify_reruns": 0,
+  "qualification_credit": 0,
+  "R0_decision": null
+}

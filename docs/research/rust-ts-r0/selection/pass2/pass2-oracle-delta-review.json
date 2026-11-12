@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/pass2_oracle_delta_review",
+  "recorded_utc": "2026-10-17T20:10:31.229044+00:00",
+  "verdict": "PROOF_ADEQUATE",
+  "verdict_scope": "Bounded review of two preparation-only oracle deltas and comparator-owned DEV execution; not native candidate qualification, R0, READY_TS_NATIVE, or merge approval.",
+  "base_head": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "skills": [
+    "proof-integrity-review",
+    "code-review"
+  ],
+  "review_scope": [
+    "Non-reason projections require executed=true and unsupported=[] on the exact same component and observation index.",
+    "Independent logical T00-logical-input-v2 binding and literal, relocation, canonical collision and SDK-mutation DEV tests."
+  ],
+  "source_bindings": {
+    "oracle": {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/qualification_replay.rs",
+      "sha256": "1cdbd9f5dd246b875425a2c0e5cc9859fcb405e5a81606a816493662b001de12"
+    },
+    "checkpoint": {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/prepared-source-checkpoint/qualification_replay.rs",
+      "sha256": "1cdbd9f5dd246b875425a2c0e5cc9859fcb405e5a81606a816493662b001de12"
+    },
+    "recipes": {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-recipes.json",
+      "sha256": "a721938acc8619d866f2d0ca9f5916d48c581086e1f5942877b000f27e2f8dd8"
+    },
+    "preparation_report": {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/preparation-report.json",
+      "sha256": "fbcf53a6bb82f1d26c8f7f8c3c57d559fc38a683f1e61f4f739267627f970764"
+    },
+    "provided_dev_log": {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/comparator-development-green-25.log",
+      "sha256": "e7cf6d09f0b033122cfc6ac8b66b9f7a95204a0e8ccd57afc68516ece176a636"
+    },
+    "dev_observer": {
+      "path": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/adapter-owned-tests-logical-binding",
+      "sha256": "b302b98832102576d9428f483ea06295fb57fc5bfa8690a1fcad8c4db664dad4"
+    },
+    "producer_identity": {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/input_identity.rs",
+      "sha256": "291d4e82ca86e1533ce0aa3fa93121b614b48ed5cff9c27972a46da6df862da7"
+    }
+  },
+  "findings": [],
+  "observations": [
+    {
+      "claim": "Unknown or unexecuted component cannot pass non-reason property projection.",
+      "source": "qualification_replay.rs:2161-2212 and 2679-2696",
+      "evidence": {
+        "execution_guards": 133,
+        "unsupported_guards": 133,
+        "all_guards_exact_eq_unfiltered_untransformed": true,
+        "nonreason_projections": [
+          [
+            "N14-javascript-parse-recovery-not-success::base",
+            [
+              "subjects",
+              {
+                "path": "entry.mjs"
+              },
+              "javascriptObservation",
+              "parseFailed"
+            ]
+          ],
+          [
+            "P14-valid-javascript-parse::base",
+            [
+              "subjects",
+              {
+                "path": "entry.mjs"
+              },
+              "javascriptObservation",
+              "parseFailed"
+            ]
+          ]
+        ],
+        "negative_witnesses": [
+          "Missing paired completeness guards rejected.",
+          "Same component guards from another observation rejected.",
+          "parseFailed=false with executed=false and unsupported nonempty fails the actual checks."
+        ]
+      }
+    },
+    {
+      "claim": "Verifier computes logical content binding independently while preserving exact physical request digest.",
+      "source": "qualification_replay.rs:2215-2328, 2093-2104, 2699-2723; producer input_identity.rs and actual batch/main consumers inspected.",
+      "evidence": {
+        "producer_helper_called_by_verifier": false,
+        "literal_json_expected_independently_authored": true,
+        "negative_witnesses": [
+          "Same-label different-source request refused before projection.",
+          "Cross-representation case/dot aliases refused.",
+          "Project/SDK canonical physical key collision refused.",
+          "SDK version, archive identity and file text change logical binding.",
+          "UNC explicitly refused by verifier."
+        ],
+        "positive_witnesses": [
+          "Relocated rooted repository descriptors retain logical input value.",
+          "Physical request digest differs after relocation."
+        ]
+      }
+    }
+  ],
+  "execution": {
+    "environment": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "command": [
+      "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/adapter-owned-tests-logical-binding",
+      "comparator_",
+      "--nocapture"
+    ],
+    "exit_code": 0,
+    "stdout": "\nrunning 25 tests\ntest comparator_absence_marker_does_not_accept_null_or_present_value ... ok\ntest comparator_config_diagnostic_projection_retains_unexpected_18003_and_rejects_malformed_codes ... ok\ntest comparator_indexed_absence_checks_real_binding_field ... ok\ntest comparator_missing_fields_and_unmapped_constraints_are_unknown ... ok\ntest comparator_exact_projection_detects_missing_extra_and_wrong_properties ... ok\ntest comparator_never_promotes_admission_from_reason_constraints ... ok\ntest comparator_explicit_filter_preserves_only_declared_output_scope ... ok\ntest comparator_identity_support_rejects_forged_fixed_digest ... ok\ntest comparator_graph_projection_uses_actual_endpoint_nodes_and_rejects_orphans ... ok\ntest comparator_matching_is_injective_and_handles_overlapping_projections ... ok\ntest comparator_coupled_relations_use_two_actual_observations_and_exact_cardinality ... ok\ntest comparator_prefix_count_and_projection_filters_observe_extra_rows ... ok\ntest comparator_reasons_preserve_exact_set_contains_and_excludes_strength ... ok\ntest comparator_reported_reads_require_known_input_bytes_and_nonread_absence ... ok\ntest comparator_subject_selector_rejects_ambiguous_native_observation ... ok\ntest comparator_nonreason_component_flag_needs_execution_and_no_unsupported ... ok\ntest comparator_products_do_not_pass_with_identical_rows_and_unimplemented_context ... ok\ntest comparator_reason_routing_rejects_empty_wrong_component_and_missing_authority ... ok\ntest comparator_worker_refusal_and_descriptor_binding_do_not_promote_useful_success ... ok\ntest comparator_primitive_binding_rejects_swapped_descriptor_artifact_and_incapacity ... ok\ntest comparator_component_projection_rejects_missing_unsupported_observation ... ok\ntest comparator_logical_binding_preserves_relocation_but_rejects_aliases_and_sdk_changes ... ok\ntest comparator_same_label_different_input_is_rejected_before_projection ... ok\ntest comparator_private_guard_carrier_detects_missing_seal_with_new_dev_input ... ok\ntest comparator_post_capture_setup_changes_physical_bytes_and_preserves_request ... ok\n\ntest result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 1 filtered out; finished in 0.00s\n\n",
+    "stderr": "",
+    "tests_passed": 25,
+    "tests_failed": 0,
+    "qualification_test_filtered_out": 1,
+    "observer_sha256": "b302b98832102576d9428f483ea06295fb57fc5bfa8690a1fcad8c4db664dad4"
+  },
+  "limits": [
+    "No producer query, reserved-corpus read, expectation edit, tracked write, commit, push, or GitHub publication performed.",
+    "Optimized pass2 artifact and observer compiled against final release rlibs are not yet frozen; production replay remains unexecuted.",
+    "Native Windows and Linux not exercised.",
+    "Independent lexical verifier is intentionally narrower than producer CaptureFs: UNC and above-root dotdot are refused. For Windows external paths producer normalizer prefixes /C:/ while verifier preserves C:/; path exactly equal to root is external in producer and repository-empty in verifier. These discrepancies cause input binding refusal, not a demonstrated false PASS, and need explicit coverage if such descriptors are admitted.",
+    "Guard checker itself does not ban filtered guards in arbitrary future recipes; all 266 guards in the reviewed immutable recipe file are exact, unfiltered and untransformed. This is not a generic untrusted-recipe validator claim.",
+    "Overall T00 evidence remains incomplete; bounded adequate verdict cannot be promoted to R0 or READY_TS_NATIVE."
+  ],
+  "source_stability": {
+    "oracle_matches_prepared_checkpoint": true,
+    "all_reviewed_files_unchanged_during_final_execution": true
+  }
+}

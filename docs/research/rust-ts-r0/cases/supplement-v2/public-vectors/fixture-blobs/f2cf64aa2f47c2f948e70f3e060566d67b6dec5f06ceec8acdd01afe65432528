@@ -1,0 +1,1 @@
+import {FLAG} from './dep';export type Mode=typeof FLAG;export function run(){return 1;}

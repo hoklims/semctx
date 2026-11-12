@@ -1,0 +1,577 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-20",
+  "scope": "C1 / rust/365-t00 / PR386; additive record for the owner-authorized extraction of existing internal Rust unit test modules only.",
+  "authority": {
+    "owner": "Sébastien",
+    "source": "Owner message 2026-10-20 19:04 in the active T00 session, relayed by /root to the document author.",
+    "approvedScope": "Move only existing internal unit tests from tools/rust-ts-r0/src into dedicated unit files, preserving behavior. Recalculate changed producer/observer identities using repository commands and record them.",
+    "executionOrder": "Complete the fresh local ORIGINAL 354/51 replays on native macOS and OrbStack/Docker Linux and the complete local gate before coordinated restack/push. Conventional commits, lease pushes of both existing PR branches, PR-description updates and automatic CI remain within their existing authorization. No relative ordering between the local campaigns and local gate start is asserted.",
+    "excluded": "No other audit candidates 2–7, new case, rejected 14 witness pairs/3 complements, reserved execution, manual CI launch, GitHub comment, release, tag or remote evidence upload."
+  },
+  "sourceRecorded": {
+    "parent": "4f20438b79acadfb65487c16f42fe67380c3ad5e",
+    "codeCommit": "37cdaed802d63132cb8b7d738d7b79344c0124f0",
+    "codeTree": "5135b5bfd2044ae9861e1d2e1c3fc459d5c41c1d",
+    "codePatch": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/test-move-staged-v1.patch",
+      "sha256": "f3983c662131fc4ca3debeb3944f39defdf7dc94b6145c96afdc9f5499b531e9"
+    },
+    "limit": "Code commit identity is separate from subsequent additive documentation and any restacked PR head. No commit-to-binary attestation is implied."
+  },
+  "extraction": {
+    "sourceFiles": 28,
+    "movedModules": 29,
+    "commitPaths": 57,
+    "mechanism": "Each original cfg(test) parent retains the same module identifier and loads its dedicated tests/unit file through path. The original logical parent and use super::* access are retained.",
+    "comparison": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/pure-move-comparison.json",
+      "sha256": "971f9e0da0e5b3712dd8f63fbd9f7b1d1e9fba4d255f2040a632417d35bcdd83"
+    },
+    "comparisonScope": "All 29 original bodies compare equal after native rustfmt and outer blank-line normalization; production portions compare byte-identical. Two include_str paths in the ordinary test module are adjusted to resolve to the unchanged development/review-controls.json fixture.",
+    "limit": "A bounded source comparison plus named runtime checks; no general equivalence theorem and no semantic or oracle change."
+  },
+  "discovery": {
+    "macosBefore": 324,
+    "macosAfter": 324,
+    "linuxAfter": 326,
+    "platformInventory": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/test-discovery-platforms.json",
+      "sha256": "df42d18070e408e7387d823e815f98712174f912f02309a31da9f87401f0f806"
+    },
+    "beforeList": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-list-before.log",
+      "sha256": "16495df9eb14c8c51f01a4d3a209c8c83d9933bb4c1453251bbdc21ccab485d8"
+    },
+    "macosAfterList": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-list-after-v2.log",
+      "sha256": "daac958e5aa2b473951781dccf0415f1ade809d388e1becdaaf260e732978bf7"
+    },
+    "linuxAfterList": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-list-linux-after-v1.log",
+      "sha256": "02af9618609e3fc69d2ee073d068dff9ebf9519e643bd9f608fd554fdcd98cb6"
+    },
+    "linuxOnlyExistingTests": [
+      "legacy_identity_flow::native_legacy_identity_refuses_non_utf8_filesystem_names",
+      "worker_observations::tests::native_worker_refuses_lossy_utf8_capture_paths_before_extraction"
+    ],
+    "limit": "Exact ordered macOS test-name comparison; Linux discovery includes two pre-existing cfg(target_os = linux) tests. Discovery alone is not execution."
+  },
+  "nativeChecks": {
+    "macos": {
+      "environment": "Native Darwin arm64",
+      "oracle": "cargo test --locked --manifest-path tools/rust-ts-r0/Cargo.toml --release",
+      "result": "PASS",
+      "passed": 324,
+      "failed": 0,
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-release-macos-v1.log",
+        "sha256": "4d853e269df6f77e705a946f54ce04fa8adf2e7c3085d4ef6b108db130fc3336"
+      },
+      "provenanceLimit": "Root reports this candidate execution; the plain Cargo log does not independently bind commit, process or source-to-binary identity."
+    },
+    "linux": {
+      "environment": "OrbStack/Docker Linux aarch64",
+      "state": "PASS",
+      "attempts": [
+        {
+          "name": "v1",
+          "exitCodeReported": 101,
+          "result": "FAIL",
+          "log": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-release-linux-v1.log",
+            "sha256": "38724b319ccd80771cc7bd592848b0656820da0c824b619d7894dfa9cd0c53d9"
+          },
+          "failure": "Two native_transport_flow tests fail at tests/native_transport_flow.rs:62 with ENOENT. Root attributes this to a missing debug sibling fixture; no code correction is part of this record."
+        },
+        {
+          "name": "v2",
+          "result": "FAIL",
+          "log": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-release-linux-v2.log",
+            "sha256": "559cb30ca40319f0c26113a4bde401bc292bdc7ccd23b07f00d80d2ee0b2145d"
+          },
+          "failure": "native_common_portability fails at tests/native_common_portability.rs:69:67 with ENOENT after the library and binary tests pass. This attempt predates the successful v3 setup below."
+        }
+      ],
+      "oracle": "cargo test --locked --manifest-path tools/rust-ts-r0/Cargo.toml --release",
+      "exitCodeReported": 0,
+      "passed": 326,
+      "failed": 0,
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/cargo-release-linux-v3.log",
+        "sha256": "3ae47fc57087e2f488e69bf147670bfd73a5224ff332e7624fbf3faacd6506c9"
+      },
+      "helperSetup": "Both release semctx-gates and semctx-gates-fixture built and executable paths checked before the successful v3 invocation.",
+      "setupReceipt": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-setup-reflection.json",
+        "sha256": "8c4006598ba72502a43d13386deb4e9e4b15765ff22e8c25e3a8509592dc3c25"
+      },
+      "provenanceLimit": "Root reports the successful v3 command and candidate execution; the plain Cargo log does not independently bind commit, process or source-to-binary identity.",
+      "rawEvidenceArchive": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/native-release-linux-v3.tar.gz",
+        "sha256": "8ae12fc3c7a1a39d6f1fb10729f91713f91d0318ef9bf729221539efb896bfeb"
+      },
+      "rawEvidenceLimit": "The retained tar.gz is the complete copied native raw evidence. Its expanded macOS directory is partial because a deliberate non-UTF-8 Linux fixture name cannot be fully extracted there; do not use that partial directory as complete evidence."
+    }
+  },
+  "campaigns": {
+    "state": "BOTH_LOCAL_ORIGINAL_CAMPAIGNS_COMPLETE",
+    "behavioralOracle": "qualification_replay_requires_explicit_optimized_freeze",
+    "historicalReference": {
+      "path": "docs/research/rust-ts-r0/resumption/local-campaigns-5fc644c6.json",
+      "sha256": "ced7dbe2dbf0b10b474962e57ca2274bf0d6ee71223d76ba401d83eb273fd00f"
+    },
+    "historicalReferenceLimit": "Historical outcomes remain attached to their prior candidates; only unchanged corpus identities are reused.",
+    "runs": [
+      {
+        "lane": "macos-unit-extraction-v1",
+        "sourceHeadRecorded": "37cdaed802d63132cb8b7d738d7b79344c0124f0",
+        "platformRecorded": "macos",
+        "architectureRecorded": "aarch64",
+        "result": {
+          "aggregate": "PASS 1/1",
+          "elapsedSeconds": 137.86,
+          "reportTimestampUnixMs": 1792516891061,
+          "rawUnits": {
+            "PASS": 352,
+            "NONPASS": 2
+          },
+          "rawSupports": {
+            "PASS": 50,
+            "NONPASS": 1
+          },
+          "associatedUnitsAllPassed": 239,
+          "qualifiedObligations": 0,
+          "obligationDenominator": 240,
+          "qualified": false,
+          "R0_decision": "NOT_MADE_BY_ADAPTER"
+        },
+        "files": {
+          "freeze": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/freeze.json",
+            "sha256": "7e40cc3e3ba7d0041b6a0c5f57fcb36bc1d4ac533579bef9b0c60daaa654bc20"
+          },
+          "report": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/evidence/report.json",
+            "sha256": "626bfa685b6b3618c52607ec7178ace2a2566223d9cfc11c8bcc071d3161a508"
+          },
+          "log": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/campaign.log",
+            "sha256": "17e2c7c6b40ee5b33d54a4041d8ad65b2216ea3c71a6ef5df4e891d51eced668"
+          },
+          "preparationLog": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/prepare.log",
+            "sha256": "349f7ba33855dd172904adfdec5dbca6b2375ac8b461f2b362f6515c97eee51b"
+          },
+          "observerBuildLog": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-observer-build.jsonl",
+            "sha256": "9dbcc98f6fe85837d7fbdf0e0a28f16bf9bccf4b1d27a4ed46781c934647d69f"
+          },
+          "observerBuildStderr": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-observer-build.stderr",
+            "sha256": "ccc3aee9d8ee2a5ea3e87bb4f3ff5438af26bd2ac720e25d38560260e06c064d"
+          },
+          "producerBuildLog": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-producer-build.log",
+            "sha256": "9576f1f7e73fc2bb1ec2336aae60cb485c591eadc60a1b998573411c34057e08"
+          },
+          "helperBuildLog": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-helper-build.log",
+            "sha256": "222a02ed477d249a21359df8cae975864a62d848f4739cadc5b00b6190a963c6"
+          },
+          "producer": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/semctx-r0-probe",
+            "sha256": "471379b3c6267dd9da11cb0b88e2d7fddbff5428cd1451a94f15b17cf060899c"
+          },
+          "helper": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/semctx-gates",
+            "sha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d"
+          },
+          "fixture": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/semctx-gates-fixture",
+            "sha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87"
+          },
+          "observer": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/qualification_replay-f9e27f9b0849f013",
+            "sha256": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727"
+          },
+          "sdk": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/sdk-input.json",
+            "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"
+          },
+          "recipes": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-campaign-recipes/replay-recipes.json",
+            "sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068"
+          },
+          "identityInputs": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/t00-original-campaign/identity-inputs.json",
+            "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"
+          },
+          "environmentAfter": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/macos-campaign-v1/environment-after.json",
+            "sha256": "edee70e8382b7683800d48469e4c431c726c8627cca234be56de68a5411b3746"
+          }
+        },
+        "environmentRecorded": {
+          "recordedAtUTC": "2026-10-20T17:24:34.355628+00:00",
+          "collectionTiming": "after completed macOS campaign; not pre-run attestation",
+          "head": "37cdaed802d63132cb8b7d738d7b79344c0124f0",
+          "treeClean": true,
+          "OS": "macOS-27.0.1-arm64-arm-64bit",
+          "arch": "arm64",
+          "python": "3.10.22",
+          "bun": "1.4.3",
+          "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+          "cargo": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+          "GIT_CONFIG_GLOBAL": "unset in invoked command",
+          "invocationEnvironment": {
+            "RUSTUP_TOOLCHAIN": "1.95.0",
+            "CARGO_BUILD_JOBS": "2",
+            "RUST_TEST_THREADS": "1",
+            "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+            "GOPORT_LIB_SNAPSHOT": "0"
+          },
+          "runnerSHA256": "b9dd68adb3a0601c4430499597787453c69c417ae930efd837551bbd5deb269b",
+          "limit": "Recorded tool/context metadata; no process-to-toolchain or commit-to-binary attestation."
+        }
+      },
+      {
+        "lane": "linux-unit-extraction-v1",
+        "sourceHeadRecorded": "37cdaed802d63132cb8b7d738d7b79344c0124f0",
+        "platformRecorded": "linux",
+        "architectureRecorded": "aarch64",
+        "result": {
+          "exitCodeReported": 0,
+          "aggregate": "PASS 1/1",
+          "elapsedSeconds": 148.59,
+          "reportTimestampUnixMs": 1792517241016,
+          "rawUnits": {
+            "PASS": 352,
+            "NONPASS": 2
+          },
+          "rawSupports": {
+            "PASS": 50,
+            "NONPASS": 1
+          },
+          "associatedUnitsAllPassed": 239,
+          "qualifiedObligations": 0,
+          "obligationDenominator": 240,
+          "qualified": false,
+          "R0_decision": "NOT_MADE_BY_ADAPTER"
+        },
+        "files": {
+          "freeze": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/freeze.json",
+            "sha256": "eb5207e7ddbea3b761eb6fa8d51c33f6b25b99abd73ff99b91109a069b1dd268"
+          },
+          "report": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/evidence/report.json",
+            "sha256": "c190bc789ff231c84b318f0ae61a5be4090750851bd6678a6273737097c580b1"
+          },
+          "log": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1.log",
+            "sha256": "b5e7bfe036056de821365b235ce4374e6b253525fc5ca20e8ef1907e103d55d5"
+          },
+          "environmentBefore": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/environment-before.json",
+            "sha256": "dce24d9496cb486ef38ce6980f65cb12b9d2f928f0c1f12b8e4ff5f84216dce2"
+          },
+          "observerBuildLog": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-observer-build.jsonl",
+            "sha256": "f2500779e20cd21ab02b42e875e71df8b8f3b32f30449c993d40d31d9bb16069"
+          },
+          "observerBuildStderr": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/observer-build.stderr",
+            "sha256": "1f401b1bad7d651dfb07102aa053b894d50a30049a781664528e66acc30b8b8a"
+          },
+          "buildPreparationLog": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-build-v1.log",
+            "sha256": "ada2c442515f5b7bf30a7a4d72cdd5b33ffc66ad2c0191451f6e9a02ee3b4203"
+          },
+          "producer": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/semctx-r0-probe",
+            "sha256": "69b6c59278a516b9f7477ef08d73b7f5ab9f519dd7a7d0848076bf3fcf70689b",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-original-campaign/semctx-r0-probe"
+          },
+          "helper": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/semctx-gates",
+            "sha256": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-original-campaign/semctx-gates"
+          },
+          "fixture": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/semctx-gates-fixture",
+            "sha256": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-original-campaign/semctx-gates-fixture"
+          },
+          "observer": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/qualification_replay-3e8b4fe2e7321767",
+            "sha256": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-original-campaign/qualification_replay-3e8b4fe2e7321767"
+          },
+          "sdk": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/sdk-input.json",
+            "sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-original-campaign/sdk-input.json"
+          },
+          "recipes": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-campaign-recipes/replay-recipes.json",
+            "sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-campaign-recipes/replay-recipes.json"
+          },
+          "identityInputs": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-v1/t00-original-campaign/identity-inputs.json",
+            "sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+            "campaignPath": "/work/evidence/test-modules-1904/linux-campaign-v1/t00-original-campaign/identity-inputs.json"
+          }
+        },
+        "environmentRecorded": {
+          "recordedAtUTC": "2026-10-20T17:24:34.730310+00:00",
+          "OS": "Linux-7.2.9-orbstack-00391-g2b298d05fbd4-aarch64-with-glibc2.36",
+          "arch": "aarch64",
+          "python": "3.11.2",
+          "rustc": "rustc 1.95.0 (59807616e 2026-04-14)",
+          "cargo": "cargo 1.95.0 (f2d3ce0bd 2026-03-21)",
+          "uid": "uid=501 gid=20(dialout) groups=20(dialout)",
+          "timing": "before Linux campaign; after Linux full cargo v3"
+        },
+        "dockerContextRecorded": {
+          "recordedAfterUTC": "2026-10-20T17:28:11.061756+00:00",
+          "containerId": "90f194e7a6db418def44420f845947b879b4db1e907ac1dbeed31dff0362ef4c",
+          "containerName": "/semctx-t00-oct20-linux-v1",
+          "image": "rust@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+          "imageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977",
+          "imageOS": "linux",
+          "imageArchitecture": "arm64",
+          "imageVariant": "v8",
+          "networkMode": "none",
+          "invocationUser": "501:20",
+          "sourceHeadRecorded": "37cdaed802d63132cb8b7d738d7b79344c0124f0",
+          "sourceWorktreeCleanAfter": true,
+          "campaignExitCodeReported": 0,
+          "cargoReleaseV3ExitCodeReported": 0,
+          "invocationTranscript": [
+            "docker",
+            "exec",
+            "--user",
+            "501:20",
+            "--workdir",
+            "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility",
+            "-e",
+            "RUNNER_TEMP=/work/evidence/test-modules-1904/linux-campaign-v1",
+            "-e",
+            "SEMCTX_PROCESS_HELPER=/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/gates/target/release/semctx-gates",
+            "-e",
+            "T00_LOCAL_LEGACY_ARCHIVE=/work/evidence/test-modules-1904/legacy-inputs.tar.gz",
+            "semctx-t00-oct20-linux-v1",
+            "python3",
+            "/work/evidence/test-modules-1904/local-campaign-runner.py"
+          ],
+          "limit": "Selected post-run Docker context and command transcription; no exec-ID/PID or process-to-image/network attestation."
+        },
+        "dockerContextReceipt": {
+          "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/linux-campaign-context-after.json",
+          "sha256": "796b7f5a08fd2fbc2753d7ec6aff64f9b2d2dd3e031d14d88fc363baba84c69f"
+        }
+      }
+    ],
+    "identityLimit": "Replay checks producer/helper/SDK/recipes and exercised fixture/identity-input hashes; source_head, platform and observer self-hash are recorded metadata, not checked by replay(). No process-to-image or commit-to-binary attestation.",
+    "preservedRawFailures": [
+      {
+        "kind": "unit",
+        "id": "N17c-importhelpers-es5-actual-emission::base",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "arbitration": {
+          "id": "T00-ARB-003",
+          "qualification_credit": 0,
+          "recipe_signature": "sha256:a694332d35bf83f827f20e33161e4d945761bdedd14df12fdafcdc7a9c70c353",
+          "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+        },
+        "mismatches": [
+          {
+            "expected_origin": "/assertions/independent_emission_facts",
+            "target": [
+              "subjects",
+              {
+                "path": "main.ts"
+              },
+              "runtimeConfiguration",
+              "emission",
+              "observation",
+              "output_text"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "unit",
+        "id": "ORD-DIALECT-CAPABILITY::base",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "arbitration": {
+          "id": "T00-ARB-004",
+          "qualification_credit": 0,
+          "recipe_signature": "sha256:1463a1fa2b44e777715f7b295d4177c24a5900726ac42a71d3df8c4998a4f147",
+          "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+        },
+        "mismatches": [
+          {
+            "expected_origin": "/assertions/every_typescript_or_javascript_capability_scope_dialectVersion + /assertions/declarative_scope",
+            "target": []
+          },
+          {
+            "expected_origin": "/assertions/compiler_package_version_input",
+            "target": [
+              "native_compiler_version"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "support",
+        "id": "ENC::UTF16LE-lone-high-surrogate::ordinary",
+        "state": "NONPASS_PRIMITIVE_PROJECTED_UNIT",
+        "arbitration": {
+          "id": "T00-ARB-002",
+          "qualification_credit": 0,
+          "recipe_signature": "sha256:5444f7b661f66a4271763fd39ec771fd7e1f308e4d0120fd8731ccda5238d4ed",
+          "state": "INDIVIDUAL_VERSION_DIFFERENCE_RAW_NONPASS_PRESERVED"
+        },
+        "mismatches": [
+          {
+            "expected_origin": "/payload/vector/mode_syntax_error_codes",
+            "target": [
+              "source_parsing_observation",
+              "diagnostics"
+            ]
+          }
+        ]
+      }
+    ],
+    "comparison": {
+      "receipt": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261020/test-modules-1904/campaign-comparison-v1.json",
+        "sha256": "0a539d541ff9f5279e83387732251d6c31faa7fe4544b615e8f6832ca49b335d"
+      },
+      "projectionFields": [
+        "unit_id",
+        "support_id",
+        "state",
+        "pass",
+        "checks",
+        "relations",
+        "gaps",
+        "version_arbitration"
+      ],
+      "bothUnitSupportProjectionsEqual": true,
+      "bothObligationListsEqual": true,
+      "identities": [
+        {
+          "lane": "macos",
+          "identities": {
+            "artifact": {
+              "before": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+              "after": "471379b3c6267dd9da11cb0b88e2d7fddbff5428cd1451a94f15b17cf060899c",
+              "changed": true
+            },
+            "helper": {
+              "before": "79a5c6ea1eb4298209fe5a94dc68cc00eb84dd825a12a8c9ceffa504657c4438",
+              "after": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+              "changed": true
+            },
+            "transport_fixture": {
+              "before": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+              "after": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+              "changed": false
+            },
+            "qualification_observer": {
+              "before": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+              "after": "0b9946c49c56f45753c33198a5d7cc0b0f4e76dadb86f430c79d7cc9c6499727",
+              "changed": false
+            },
+            "sdk": {
+              "before": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+              "after": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+              "changed": false
+            },
+            "recipes": {
+              "before": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+              "after": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+              "changed": false
+            },
+            "legacy_identity_inputs": {
+              "before": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+              "after": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+              "changed": false
+            }
+          }
+        },
+        {
+          "lane": "linux",
+          "identities": {
+            "artifact": {
+              "before": "b708c68bb94757b5cd8dc7ebeb7092c286824625ff277cd06ac71133d4ce226c",
+              "after": "69b6c59278a516b9f7477ef08d73b7f5ab9f519dd7a7d0848076bf3fcf70689b",
+              "changed": true
+            },
+            "helper": {
+              "before": "80a9e2477e7e847f9e1fc25a6f3c249d56051996fb8f6079e8bcde8a5b753e15",
+              "after": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+              "changed": true
+            },
+            "transport_fixture": {
+              "before": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+              "after": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+              "changed": false
+            },
+            "qualification_observer": {
+              "before": "ab498b6957205d0cdbd08f6b2bebb9adc2ae53915dfaad8a187066adc63ab80f",
+              "after": "c6d02d193838355873e11d0024a7c1982550ee66f30b26e37c99d17222b4fa2e",
+              "changed": true
+            },
+            "sdk": {
+              "before": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+              "after": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+              "changed": false
+            },
+            "recipes": {
+              "before": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+              "after": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+              "changed": false
+            },
+            "legacy_identity_inputs": {
+              "before": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+              "after": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177",
+              "changed": false
+            }
+          }
+        }
+      ],
+      "limit": "Recorded frozen hashes checked against retained copied bytes; structural result projection excludes path-dependent bindings, timestamps and provenance; no source-to-binary attestation."
+    }
+  },
+  "completeLocalGate": {
+    "state": "PENDING",
+    "required": "bun run verify:pr with Bun 1.4.3 and GIT_CONFIG_GLOBAL absent; stage all intended new files first."
+  },
+  "remoteCI": {
+    "state": "PENDING",
+    "required": "Existing automatic checks on both final pushed/restacked PR heads; semctx-required and applicable native matrix.",
+    "windows": "CI only at the final milestone before R0, within the existing Windows job; no local Windows execution or present pass is claimed."
+  },
+  "limits": [
+    "Formal qualification remains 0/240 in both fresh campaign reports; this extraction grants no qualification credit, waiver or R0 decision.",
+    "Existing T00-ARB-002/003/004 retain their exact scope and raw NONPASS; no frozen input, expectation, corpus or recipe is changed.",
+    "The 240-obligation existing-input assertion work is a subsequent task, bounded to TypeScript 5.9.3; this record claims no such execution. Reserved 23 cases / 26 variants and rejected 14 pairs / 3 complements remain outside this extraction replay.",
+    "No mandatory root-read, complete capture, all-SDK consumption, universal parity, public-product equivalence or merge readiness claim.",
+    "Local artifacts and hashes provide identity checks for retained bytes, not durable retention, public availability, process attestation or recovery after local loss.",
+    "All historical records remain byte-unchanged. Existing continuation authority has no fixed pass ceiling; counters are not reset."
+  ],
+  "audit": {
+    "authorTask": "/root/test_move_records_author",
+    "auditorTask": "/root/test_move_records_author/unit_move_claim_auditor",
+    "agentType": "design-claim-auditor",
+    "forkTurns": "none",
+    "ledger": "unit-test-extraction-20261020-claim-audit.md",
+    "state": "COMPLETE_BOUNDED_LEDGER_LOCAL_GATE_AND_CI_PENDING"
+  }
+}

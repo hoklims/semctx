@@ -1,0 +1,93 @@
+{
+  "verdict": "PROOF_WEAK",
+  "reviewer": "/root/native_verifier_independent_review",
+  "recorded_utc": "2026-10-17T19:19:38.861807+00:00",
+  "scope": "Read-only review of the per-scenario Receiver deadline change in the DEV test only; no PR/R0, qualification, reserved, producer semantic or frozen-candidate certification.",
+  "candidate_head": "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+  "anchors": {
+    "test_before": {
+      "path": "/private/tmp/semctx-t00-20261017/native-verifier/correction-f1/native_development_flow.final.rs",
+      "sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+      "status": "Historical pre-correction validation bytes retained; same SHA as HEAD test."
+    },
+    "test_after": {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/tests/native_development_flow.rs",
+      "sha256": "6a77547bf05ab94dcf47f176e869ff751b29b5e130bffbcc5eaf8585c37880b9",
+      "status": "New post-freeze validation delta; index and working bytes match."
+    },
+    "test_delta_from_HEAD_sha256": "62911e0b05ca331200b2013f8e9370fbd1300ad7a6434ed8dc1e58616a8e3f93",
+    "receiver": {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/src/receiver.rs",
+      "sha256": "3a67bdffb513e0f58c6dc0b900c49a00f1f9e57fd0f586ada605d15de8a15f8d"
+    },
+    "main_context": {
+      "path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/tools/rust-ts-r0/src/main.rs",
+      "sha256": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46",
+      "limit": "Main/component_observations have independently existing changes outside HEAD and outside this test-only review; not audited here."
+    }
+  },
+  "source_review": {
+    "conclusion": "No defect found in the targeted Receiver-per-scenario delta itself. It prevents earlier independent poison scenarios consuming the MissingSeal scenario deadline.",
+    "deadline": "The factory at test424-431 retains30 seconds for each independent scenario. No timeout was enlarged; no retry, skip, assertion or expected rejection was removed.",
+    "negative_deadline_witness": "The explicit receiver deadline in the past and expected LateResult remain unchanged at test490-496.",
+    "issuer": "The graph-mutation test stores one receipt_receiver at514, receives at515 and revalidates through that same instance at524. This preserves Arc issuer identity; receiver.rs855-868 still rejects ForeignReceipt and mismatched current bindings.",
+    "standards_review": {
+      "reviewer": "/root/native_verifier_independent_review/deadline_test_standards",
+      "independent_of_fix_author": true,
+      "result": "Conforming to requested standards:30s unchanged, no retry/skip/assertion removed, explicit LateResult retained, same issuer for receipt/revalidate."
+    }
+  },
+  "execution_evidence": {
+    "initial_red": {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/native-cache-rebound-debug.log",
+      "sha256": "a056989fa5f1f5d32fd3de7e4f5938dcce515c87532546b5f471aa9dcba27e96",
+      "observed": "Serial run fails LateResult versus expected MissingSeal in rejected(), then refusal case passes;1 passed/1 failed,65.75s. This is consistent with the shared30s scenario deadline masking a later independent guard."
+    },
+    "candidate_run": {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/native-deadline-isolated-debug-green.log",
+      "sha256": "a3185a1f36e09d4804722dc2fbf103e2446ad8167fc4c26f67412bd99a01adbe",
+      "filename_is_not_result": true,
+      "observed": "Complete log reports0 passed/2 failed in179.83s. Alias pipeline reaches its expected coherent-poison panics, then fails receiving empty-PATH result with LateResult at test1026. Refusal pipeline fails LateResult at test921. This log is not GREEN."
+    }
+  },
+  "findings": [
+    {
+      "severity": "blocking-proof",
+      "title": "The candidate complete DEV pipeline remains red at unchanged wall-clock deadlines",
+      "anchors": [
+        "tools/rust-ts-r0/tests/native_development_flow.rs:905-921",
+        "tools/rust-ts-r0/tests/native_development_flow.rs:1006-1026",
+        "tools/rust-ts-r0/src/receiver.rs:542-547"
+      ],
+      "mechanism": "A successful supervised native Outcome is not sufficient for Receiver acceptance: bound_current independently compares current wall time with the test deadline. The empty-PATH deadline is created from isolated_started before supervision, then parsing, semantic/provenance checks and expected binding creation occur before receive. The same class of postprocessing deadline exposure exists on the main actual-result receive. This review does not assert which remaining interval accounts for each observed delay.",
+      "impact": "Per-scenario isolation repairs the demonstrated shared-deadline masking, but this candidate has no green full pipeline execution. Do not carry forward the historical f20 green as proof for the corrected bytes.",
+      "recommendation": "Diagnose the two remaining Receiver deadline boundaries using the retained actual Outcome timing and observation/postprocessing timeline. Preserve real late-result rejection and avoid retries/skips or unexplained deadline widening; obtain a complete green run of the final validation delta."
+    }
+  ],
+  "freeze_handling": {
+    "historical_manifest_oracle_sha256": "f20f1c05958521dfeb90dd9c888a2bbfacb2f9b0027bdebf5361703043506561",
+    "new_validation_delta_sha256": "6a77547bf05ab94dcf47f176e869ff751b29b5e130bffbcc5eaf8585c37880b9",
+    "instruction": "Retain the historical frozen manifest unchanged; attach this correction as a separately hashed validation delta. Reviewer did not overwrite any frozen source, manifest or previous review.",
+    "frozen_binary_prefix_reported_by_root": "6fa6484b",
+    "frozen_candidate_manifest_independently_read_in_this_review": false
+  },
+  "checks": {
+    "targeted_index_and_worktree_whitespace": "pass",
+    "test_before_after_hashes": "verified",
+    "receiver_and_main_context_hashes_unchanged_during_review": true,
+    "new_queries_or_cargo_or_builds_by_reviewer": 0,
+    "source_mutations_by_reviewer": 0,
+    "github_comments": 0
+  },
+  "environment": {
+    "evidence": "macOS arm64 debug DEV build, serial native test log; no cross-OS result credited.",
+    "unexercised": [
+      "Linux",
+      "native Windows",
+      "optimized frozen binary execution by reviewer",
+      "qualification",
+      "reserved"
+    ]
+  },
+  "recommendation": "Accept the local delta design as addressing the first masked guard, but keep overall proof status weak until the newly observed actual-result deadline failures are resolved and final validation bytes pass."
+}

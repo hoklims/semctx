@@ -1,0 +1,23 @@
+{
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "mode": "full",
+  "transport_receipt_sha256": "0c86a13fbd1598acace65285a38be4541c9dfda7f38328c05301519af8cc2a2e",
+  "fetched_files": 11,
+  "assessment_sha256": "5bd9f1014e1872dd4bd1ffcf5706e2e78cde7839eb0644ec0b3258fe0091f71b",
+  "all_selected_regular_bytes_verified": true,
+  "native_queries": 0,
+  "qualification_credit": 0,
+  "R0_decision": null,
+  "regular_members": 25853,
+  "directory_members": 7985,
+  "links_retained_only_in_archive": 24,
+  "total_members": 33862,
+  "casefold_collision_groups": [],
+  "case_preserved": true,
+  "extraction_performed": false,
+  "all_four_ELF_binaries_verified": true,
+  "archive_sha256": "162c9980c87fc0520c8aec12f452027b80beed81eaa800ec2421d38cf3be6539",
+  "archive_bytes": 195461669,
+  "archive_verified_not_extracted": true,
+  "owned_fetch_caffeinate_stopped": true
+}

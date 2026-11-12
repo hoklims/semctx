@@ -1,0 +1,121 @@
+{
+  "R0_decision": null,
+  "ROOT_source_input": {
+    "path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\four-findings-candidate-preparation\\ROOT-source-pins-1fd566c8.json",
+    "sha256": "270e9cd656c0e526d400bf42fe6f54c6c87b28dec64d8a3b378e61a52a985424"
+  },
+  "Windows_assessor_sha256": "b98f4c3cebcc2f49c1374c2c45c373d0e5da6ee201903d8929d2db881eb32de4",
+  "actual_windows_expected_head": null,
+  "actual_windows_expected_head_rule": "Use the later final packaging commit at actual collection; source_content_head identifies source bytes only.",
+  "all_non_source_protocol_fields_exactly_unchanged": true,
+  "current_scope_sha256": "23109f8f6c8b609a8111f8bc7ba2c55bccf8559b9282c3acc409aa632b39f1c4",
+  "evaluator_reader_code_changed": false,
+  "kind": "FOUR_FINDINGS_SOURCE_PIN_EVALUATOR_SUCCESSOR_NO_OUTCOMES",
+  "legacy_package_reused_unchanged_sha256": "efcc74d7da31a5df6e1fbcc3e6a7124ea130540c851ace809bc794964d230b2c",
+  "native_assessor_sha256": "d0d7e39ebbe11ebfb46d86ea74935f85b39923058a27dca0f5a008f76962a3fa",
+  "native_queries": 0,
+  "parent_head": "763f6dc08f1add01f4074b1d476197b1df8a986a",
+  "previous_native_scope_sha256": "7e7f98ccd15668d7b38fccbe59e5df1a7e5c4e368aed7be20507ed6c5b3f34a7",
+  "previous_native_zip_sha256": "4b477a8ddbe3ba531c93b3502ba1a932979c788a03643ed37ad17bf815be7061",
+  "previous_windows_protocol_sha256": "2535c75211e6b784daa06c79d37244af2adc0ac566824e1095b201b5bb75798c",
+  "previous_windows_zip_sha256": "6961edebfe8b271061e601f49b458cef2ed77d615c3c5e912fd62d929d621ba8",
+  "qualification_credit": 0,
+  "reviewed_status_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "source_content_head": "1fd566c87718f576e35816a4361eebb8bb28eb58",
+  "source_delta": [
+    {
+      "after": {
+        "sha256": "25a1291615c8acb08e31f7ba9354686ca5aceee1d8b82a12719c1c37bc39527a",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "00c0e9cd2f9665b25eb8881f289d0409ab65f34086abe08f9c365005bf375805",
+        "source_epoch": "PRE_QUERY_WORKTREE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/src/main.rs"
+    },
+    {
+      "after": {
+        "sha256": "d84b59f7e0b83aa3b2416618d6e9e567df1700e3ac0a0a6e1c433f4b4fc7a441",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "724e032b0c06e7736b0c4ae3538c7c8984df7d15c8e2131aed76f3ae8e097d33",
+        "source_epoch": "COMMITTED_CASEFOLD_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/src/qualified.rs"
+    },
+    {
+      "after": {
+        "sha256": "caa50372c0883136bd9ee44c91a2ff215dcd7f975d6b116e83176aa9c53c19e6",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "65ea9a17c36a64f773119bb48420adbbdb895f04e0bee6071a7ed9518f05e910",
+        "source_epoch": "PRE_QUERY_WORKTREE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/src/qualified_verification.rs"
+    },
+    {
+      "after": {
+        "sha256": "32f03f9c74d702b0b3d36636d7abe7b595f6c661c1e8fe453b99c15f135d119c",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "7d08d2c65d274764d90d24c5c136793e313b6f8e35881801b77aa92f4b39ff9e",
+        "source_epoch": "PRE_QUERY_COMMITTED_SOURCE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/src/retained_scope.rs"
+    },
+    {
+      "after": {
+        "sha256": "2221cae6c131fb28935daeef2d4d9ac5205134f0f3bbb199f954605da5254077",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "3d9228fb2f25eede5e31c4279f652484ca901c85f7274e8f031d2d3ed41aa3d3",
+        "source_epoch": "PRE_QUERY_WORKTREE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/tests/native_qualified_flow.rs"
+    },
+    {
+      "after": {
+        "sha256": "41cb482bd997e5af79512853fd3f962d5919ed4e84f59da0d6bfa22c78ac9298",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "b06b0efee26ba6d230efd22026e37deb949d61d1c5ece9751eec7ab176f0cb13",
+        "source_epoch": "PRE_QUERY_WORKTREE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/tests/unit/main_pass2_javascript.rs"
+    },
+    {
+      "after": {
+        "sha256": "f584fefca8eba12f7eee3f54c85ae169e0e36d872e1806ef717384e12b6ed11d",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "623f40ac746d8f8888043ab6d32f2ca271a330309747d62236b9e34f88419502",
+        "source_epoch": "PRE_QUERY_WORKTREE_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/tests/unit/main_tests.rs"
+    },
+    {
+      "after": {
+        "sha256": "2266273d6a81d059ce206c4ca528ba0c8b6a419b7d1ccfa187e5cedbc35ce532",
+        "source_epoch": "COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "before": {
+        "sha256": "27a957b17165855c9d20cfa2384ea2fd024b5993cadf15f28994c9469aab8f11",
+        "source_epoch": "COMMITTED_CASEFOLD_SOURCE_SUCCESSOR_CONTENT_PIN"
+      },
+      "path": "tools/rust-ts-r0/tests/unit/qualified.rs"
+    }
+  ],
+  "source_mode": "EXACT_CLEAN_COMMITTED_FOUR_FINDINGS_SOURCE_SUCCESSOR",
+  "source_pin_install_commit_pending": false,
+  "source_pins_byte_identical_to_parent": 131,
+  "source_pins_changed_from_parent": 8,
+  "source_tree": "405993fb7ebc250db66b16101aa4666310bec8b5",
+  "verifier_inventory_unchanged": 139
+}

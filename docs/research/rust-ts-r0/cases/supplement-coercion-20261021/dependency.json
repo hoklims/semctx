@@ -1,0 +1,12 @@
+{
+  "relativeRoot": "../t00-supplement-sdk-assignment-addendum",
+  "manifestSha256": "a302eb10889e2c14f38f5736894a44d817b7fc14362fa569100a8fb3c820db1d",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "used": [
+    "authority baseline source",
+    "vendor/typescript 5.9.3 SDK and runtime",
+    "vendor/zod 3.25.76",
+    "run.ts authoring template",
+    "verify.ts exact comparison"
+  ]
+}

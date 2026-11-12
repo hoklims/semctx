@@ -1,0 +1,38 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "base": "76e80479a38c18d8b23277a7972ea3f305c1a688",
+  "scope": [
+    "workspace-oracle.mjs",
+    "workspace-replay.py",
+    "refusal-capture.mjs",
+    "refusal-discovery-capture.mjs",
+    "public-native-context.mjs",
+    "scope-oracle.mjs",
+    "scope-replay.py",
+    "scripts/t00-public-workspace.test.ts",
+    "scripts/t00-public-native-context.test.ts"
+  ],
+  "sourceHashes": {
+    "workspace-oracle.mjs": "81255fe5d7ea1ef558d2c5a4d0183113d3efddf11129e76775b87128bf7885f6",
+    "workspace-replay.py": "d3cc17ba0955b3ea0951a2d1f79025bef7adc997fa77f70e67c7445aab5f6acd",
+    "refusal-capture.mjs": "69fe32aa2504a3ab3be4f51f0c1ce06f90070c8a46f403d7c592f9001b767b8f",
+    "refusal-discovery-capture.mjs": "29aae5fdeb1d30fdd236f1da8d4dbc1af56395571e40a44c910c238eefb0cbc8",
+    "public-native-context.mjs": "d074a20c93efbbb794e5d5039b753f1a74370f992510925955e6d94a828b51c9",
+    "scope-oracle.mjs": "c338cc3dfdcb4a23c0d3f2dc64ba29b9c37476cd62f1d0200c3684e1b553c425",
+    "scope-replay.py": "8da8c56a62a2879b8a8ccccdeb308005798a158f5d3afdb6f9a8a42096e42997"
+  },
+  "standards": "No blocking standards finding; nine Bun tests, targeted ESLint and Ruff independently passed on macOS arm64",
+  "evidence": [
+    "workspace/refresh/result.json",
+    "workspace/retained-review.json",
+    "refusal/context-negative.json",
+    "refusal/refusal-fixed-regenerated/result.json",
+    "refusal/refusal-discovery-fixed-regenerated/result.json",
+    "scope-review.json"
+  ],
+  "limits": [
+    "Bounded capture/evaluator adequacy only; no new consumer certification/R0/ARB",
+    "Reviewer executions macOS arm64; Linux captures reviewed read-only; Windows unexercised",
+    "Prior weak verdict superseded only for repaired workspace/refusal mechanisms"
+  ]
+}

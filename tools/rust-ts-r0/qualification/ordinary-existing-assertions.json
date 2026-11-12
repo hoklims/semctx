@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "status": "BASELINE_DERIVED_EXISTING_INPUT_ASSERTIONS_NO_NATIVE_EXECUTION",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "typescript_version": "5.9.3",
+  "typescript_runtime_sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+  "sdk_library_manifest_sha256": "571e92f4688395c0d44b48ff94416c04944e6187c0bb84f037d18a0c5068b7e9",
+  "derivation_recipe_origin_sha256": "1820a9fbce9772a74dd15f83842b30eb796a44fe24944f53cb80a24278d01bde",
+  "source_index": {
+    "path": "docs/research/rust-ts-r0/cases/index.json",
+    "sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1"
+  },
+  "units_document": {
+    "path": "docs/research/rust-ts-r0/cases/qualification/scenarios.json",
+    "sha256": "b17b5ea68e702a2d45c6b04ae50654a93611584ec84e60a318ac3bce9d609906"
+  },
+  "baseline_sources": {
+    "packages/core/src/canonical.ts": "148147c7e2a1fa6fb8d781512dac193091b76ba2b49e320e5918a46bf771a375",
+    "packages/core/src/change-impact.ts": "c2d20e82fe76c71e4d5860ef7dc8b70b9aca487864eab45c87b001c36d9b07e3",
+    "packages/core/src/config-defaults.ts": "9122d905b9c6a617e3363a61e2a3120ccffbc16056ff031356fd2e56099fb3fd",
+    "packages/core/src/errors.ts": "6f110387fa0e1d7df83d76c59d7c723384b5ba2ee6b2c978ac99ea01c9e758a4",
+    "packages/core/src/feedback-report.ts": "457fa8e7e97cea23c1b27c290b976e7644fc380d5b3a36ce0cf66078c5bb0efe",
+    "packages/core/src/ids.ts": "bb95f80a8fc2152e36e1e8f6603454c4a102338d10b040e57514614204802257",
+    "packages/core/src/index.ts": "a1bb0bbef7e4895dbcf2ed27f0c11c5a386a918ede7d991d1edd3b75cd1fa507",
+    "packages/core/src/repository-schemas.ts": "3ce89534bea2a34b9db48d0c1902057d970f32b14cb41abb884edf2a0bd9acbb",
+    "packages/core/src/schemas.ts": "b8ecd8b279bf9db7c4bfd423705d305e636ca05c372ed8c3e11ba85daafa3d0d",
+    "packages/core/src/support-report.ts": "2694d52a594f68f51fc6c9bf5cc91caf5476c1dc4fc036f91e41ec01f40a72e3",
+    "packages/core/src/verify-report.ts": "eeaa88e28cae923f05b3c3effdfe2b15e1109bffdcc94ba61034d623d5f11a01",
+    "packages/ts-analyzer/src/javascript-diagnostics.ts": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+    "packages/ts-analyzer/src/markers.ts": "1f7347877ea94915f5ba56c69cb6b042355b59ea31bd622f6ce078a5f8b09ffc",
+    "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782",
+    "packages/ts-analyzer/src/ts-symbols.ts": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e",
+    "packages/ts-analyzer/src/workspace-links.ts": "2fd5a793412ddcb5301724c016bbbf00c03f460d38e8a247266eb1081e249c3e"
+  },
+  "assertions": [
+    {
+      "unit_id": "P04-small-complete-symbol-set::base",
+      "frozen_unit_pointer": "/execution_units/7",
+      "frozen_unit_sha256": "6fb79f208633b5313573f528c29f524ae90382b260e046210f49a33d56569959",
+      "request_sha256": "1160190fb1f4f4da3b4b3b7adae49a78d1c82733bda97995a94ec8216f5c922f",
+      "input_documents": [
+        {
+          "path": "entry.ts",
+          "sha256": "c8d8c55e366f1cf3fe0bfb169d543448e124b51772951c489763437a2342b48c"
+        }
+      ],
+      "observed_program_options": [
+        {
+          "target": 9,
+          "module": 99,
+          "moduleResolution": 100,
+          "allowJs": true,
+          "jsx": 1,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction",
+            "symbols"
+          ],
+          "mode": "ordered_projected_eq",
+          "expected": [
+            {
+              "name": "leaf",
+              "kind": "function",
+              "relPath": "entry.ts",
+              "startLine": 2,
+              "endLine": 2
+            },
+            {
+              "name": "Shape",
+              "kind": "interface",
+              "relPath": "entry.ts",
+              "startLine": 3,
+              "endLine": 3
+            },
+            {
+              "name": "Flag",
+              "kind": "type",
+              "relPath": "entry.ts",
+              "startLine": 4,
+              "endLine": 4
+            }
+          ],
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction",
+            "symbols"
+          ],
+          "mode": "indexed_field_absences",
+          "expected": [
+            {
+              "index": 1,
+              "fields": [
+                "jsdoc"
+              ]
+            },
+            {
+              "index": 2,
+              "fields": [
+                "jsdoc"
+              ]
+            }
+          ],
+          "actual_transform": "none"
+        }
+      ]
+    },
+    {
+      "unit_id": "P07-namespace-real-owner::base",
+      "frozen_unit_pointer": "/execution_units/11",
+      "frozen_unit_sha256": "25c7a99c904a0e2d861ece48bbab4fe0fc5e3846b5d890b84995a7021a263ad3",
+      "request_sha256": "3906097c75f7dd86a0cd38aa34d4cb17023452af265650de7ebd018edee45b13",
+      "input_documents": [
+        {
+          "path": "lib.mjs",
+          "sha256": "8bf93fcfc964203908efdf4309133279b37e3b159e7c8a4d9d74ef534c88f588"
+        },
+        {
+          "path": "lib.test.js",
+          "sha256": "f8e1a995fd392e98a6342ccb93b2b3fb209de09eaae85211e2887f98256b72f0"
+        }
+      ],
+      "observed_program_options": [
+        {
+          "target": 9,
+          "module": 99,
+          "moduleResolution": 100,
+          "allowJs": true,
+          "jsx": 1,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction",
+            "calls"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [
+            {
+              "callerRelPath": "lib.test.js",
+              "calleeName": "helper",
+              "calleeRelPath": "lib.mjs",
+              "calleeSymbolPath": "helper",
+              "line": 1
+            }
+          ],
+          "actual_transform": "none"
+        }
+      ]
+    },
+    {
+      "unit_id": "P21-local-sdk-shaped-callback-method::base",
+      "frozen_unit_pointer": "/execution_units/12",
+      "frozen_unit_sha256": "e3a60c515c76a478099f64d7aac560d903f073dd7d953d4b15193c16532f72a3",
+      "request_sha256": "499a4b75c7f2852415c6760c52aa6ecb28dbfda21c0e56beabc074efe6baf9bb",
+      "input_documents": [
+        {
+          "path": "main.ts",
+          "sha256": "26d488c2c2743a2796646d7ffb656bb3b6b676b81312fb524dc54b5025707e5c"
+        }
+      ],
+      "observed_program_options": [
+        {
+          "target": 9,
+          "module": 99,
+          "moduleResolution": 100,
+          "allowJs": true,
+          "jsx": 1,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        },
+        {
+          "target": 9,
+          "module": 99,
+          "moduleResolution": 100,
+          "allowJs": true,
+          "jsx": 1,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction",
+            "calls"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [
+            {
+              "callerRelPath": "main.ts",
+              "callerUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+              "calleeName": "callback",
+              "calleeRelPath": "main.ts",
+              "calleeSymbolPath": "map.callback",
+              "line": 1
+            },
+            {
+              "callerRelPath": "main.ts",
+              "callerSymbolPath": "run",
+              "calleeName": "map",
+              "calleeRelPath": "main.ts",
+              "calleeSymbolPath": "map",
+              "calleeUnmodeledReason": "OBJECT_LITERAL_MEMBER",
+              "line": 1
+            }
+          ],
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "moduleConfigurationObservations",
+            "retainedWithoutSource",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "actual_transform": "none"
+        }
+      ]
+    },
+    {
+      "unit_id": "N21-actual-sdk-map-callback::base",
+      "frozen_unit_pointer": "/execution_units/4",
+      "frozen_unit_sha256": "ab54985f12b30d46789e139bb2aa89425caf0051bce47cccb6575a5a99182251",
+      "request_sha256": "0e1707e5105b1a5bfa9815172f92bd71f8d76ef49dc8a909a43540c92a8c1920",
+      "input_documents": [
+        {
+          "path": "main.ts",
+          "sha256": "fc2c7d54395f955dcb17b7c42866232cd7251ef8d48457f7481afe9d06044ce1"
+        }
+      ],
+      "observed_program_options": [
+        {
+          "target": 9,
+          "module": 99,
+          "moduleResolution": 100,
+          "allowJs": true,
+          "jsx": 1,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        },
+        {
+          "target": 9,
+          "module": 99,
+          "moduleResolution": 100,
+          "allowJs": true,
+          "jsx": 1,
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        }
+      ],
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction",
+            "calls"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [
+            {
+              "callerRelPath": "main.ts",
+              "callerSymbolPath": "run",
+              "calleeName": "map",
+              "calleeSymbolPath": "Array.map",
+              "line": 1
+            }
+          ],
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "raw_extraction",
+            "calls"
+          ],
+          "mode": "indexed_field_absences",
+          "expected": [
+            {
+              "index": 0,
+              "fields": [
+                "calleeRelPath"
+              ]
+            }
+          ],
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "subjects",
+            {
+              "path": "main.ts"
+            },
+            "moduleConfigurationObservations",
+            "retainedWithoutSource",
+            "reasons"
+          ],
+          "mode": "eq",
+          "expected": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "actual_transform": "none"
+        }
+      ]
+    }
+  ]
+}

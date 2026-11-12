@@ -53,7 +53,7 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
       { label: "compatibility", argv: ["bun", "scripts/compatibility.ts"] },
       { label: "documentation", argv: ["bun", "scripts/documentation-integrity.ts"] },
       { label: "quality", argv: ["bun", "run", "quality"] },
-      { label: "routing regressions", argv: ["bun", "test", "--timeout", "60000", ...ROUTING_TESTS] },
+      { label: "routing regressions", argv: ["bun", "test", "--timeout", "60000", ...ROUTING_TESTS.map((path) => `./${path}`)] },
     ];
   }
   if (lane.profile === "full") {
@@ -77,7 +77,7 @@ export function commandsForLane(lane: CiLane, base: string, targetExists: (path:
   }
   const commands: CiCommand[] = [
     { label: "affected cross-platform tests", argv: ["bun", "test", "--timeout", "60000",
-      ...(lane.shard === "" ? [] : [`--shard=${lane.shard}`, `--timings=${TEST_TIMINGS}`]), ...targets] },
+      ...(lane.shard === "" ? [] : [`--shard=${lane.shard}`, `--timings=${TEST_TIMINGS}`]), ...targets.map((path) => `./${path}`)] },
   ];
   if (targets.includes("plugins")) {
     commands.push({ label: "plugin runtime parity", argv: ["bun", "run", "plugin:check"] });

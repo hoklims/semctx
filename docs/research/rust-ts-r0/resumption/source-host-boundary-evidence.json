@@ -1,0 +1,59 @@
+{
+  "recordVersion": 1,
+  "state": "OWNED_SOURCE_HOST_DEFECT_CORRECTED_MACOS_DEV_NOT_QUALIFICATION",
+  "sourceHead": "02e0930a0c4ad6090e62da1658972908d33ff79e",
+  "reviewedDiffSha256": "b18f6d8813e11c53e2b3db956e8e090d75a570bcbafd6b1f82656bd060b8be8a",
+  "archive": {
+    "path": "source-host-boundary-evidence.tar.gz.b64",
+    "sha256": "e9134315fbc4458c64278db7a22ee40d76bf1800c6f35dfea81ded1232799a04",
+    "decodedSha256": "d02255e48c821b289a2d5a61ee2bbd05e7050cf122440f07239832f2e2b409aa",
+    "bytes": 95683,
+    "files": 33
+  },
+  "requirement": "Historical implemented3e94997 packages/ts-analyzer/src/ts-symbols.ts227-310: virtual workspace links may serve configuration inheritance; final module source resolution requires a physically captured target under the existing workspace admission boundary.",
+  "cause": "The C1 configured native resolver reused the workspace-capable filesystem for final source resolution and therefore accepted a synthetic source package link.",
+  "correction": "Only the final source ResolutionHost uses physical captured membership. Configuration keeps the workspace host. Root/SDK/nested-repository admission, actual probes and readonly refusal remain shared. Retained profile is unchanged.",
+  "nativeRegression": {
+    "test": "configured_resolver::tests::configured_source_resolution_does_not_create_workspace_source_package_links",
+    "red": "logs/semctx-t00-gap-explicit-source-link-bound-red.log",
+    "green": "logs/semctx-t00-source-host-boundaries-final.log",
+    "controls": [
+      "Virtual workspace alias is actually available for configuration",
+      "Physical installed package still resolves",
+      "Virtual inherited configuration still selects its physical source alias",
+      "Outside-root and nested-repository source targets are refused"
+    ],
+    "retainedInvalidAttempts": "Earlier compile-error/non-workspace-consumer fixtures are archived but are not regression witnesses."
+  },
+  "checks": {
+    "environment": "macOS27.0.1 arm64; Rust1.95.0; Bun1.4.3; Python3.10.22; GIT_CONFIG_GLOBAL unset; GOPORT_LIB_PARSE_SNAPSHOT=0 GOPORT_LIB_SNAPSHOT=0",
+    "nativeBinTests": 185,
+    "nativeLibraryTests": 43,
+    "observerComparators": 33,
+    "recipeCliTests": 7,
+    "formatAndClippyAllTargetsExitCode": 0,
+    "newFullVerifyPr": false,
+    "scope": "Affected local checks only; previous full verify:pr remains bound to63397c7b. Current source native Linux/Windows execution pending."
+  },
+  "review": {
+    "standards": "/root/source_host_standards",
+    "specProof": "/root/source_host_spec_proof",
+    "verdict": "PROOF_ADEQUATE for this owned host boundary; no demonstrated findings",
+    "candidateStable": true,
+    "negativeWitness": "In a disposable copy the reviewer removes only the source host substitution: actual regression fails101 returning the virtual source; restored source passes0. Candidate unchanged.",
+    "reports": [
+      "review/standards/report.json",
+      "review/spec-proof/report.json"
+    ]
+  },
+  "qualificationCredit": 0,
+  "newGapMappings": 0,
+  "staticGapUnitsRemaining": 45,
+  "additionalC1Pass": 1,
+  "passStillOpen": true,
+  "limits": [
+    "P11/N11 private explicit query and empty-directory capture remain pending.",
+    "No full354-unit campaign, reserved access/execution, R0 or merge decision.",
+    "This is an owned adapter defect, with no compiler-version arbitration."
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "scope": "T00 coordinate 115:0 SDK global variable assignment only",
+  "gitArchiveSha256": "651ae99154126436e7e698ea902b3059efdcd1d4129048ea5670f0f5b56cab61",
+  "dependencies": [
+    {
+      "name": "typescript",
+      "version": "5.9.3"
+    },
+    {
+      "name": "zod",
+      "version": "3.25.76"
+    }
+  ],
+  "bun": "1.4.3",
+  "node": "26.3.0",
+  "archiveCommand": [
+    "git",
+    "archive",
+    "--format=tar",
+    "-o",
+    "baseline.tar",
+    "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "packages/ts-analyzer/src",
+    "packages/core/src",
+    "packages/core/package.json"
+  ],
+  "forbiddenObserved": false
+}

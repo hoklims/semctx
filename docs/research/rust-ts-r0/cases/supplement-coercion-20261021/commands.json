@@ -1,0 +1,59 @@
+{
+  "toolchain": {
+    "bun": "1.4.3",
+    "node": "26.3.0",
+    "platform": "win32",
+    "arch": "x64"
+  },
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\run.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\reproduction",
+        "--dependency-root",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-sdk-assignment-addendum"
+      ],
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\"cases\":2,\"programRecords\":4,\"normalizedSha256\":\"3d30b5f01d59e886ec8427b13602f7a33ced27baa5520f3a0848b1e180f37e6e\"}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\verify.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\expected.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\primary\\normalized.json"
+      ],
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\"equal\":true,\"cases\":2,\"programRecords\":4}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\verify.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\expected.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\reproduction\\normalized.json"
+      ],
+      "exitCode": 0,
+      "expectedExit": 0,
+      "stdout": "{\"equal\":true,\"cases\":2,\"programRecords\":4}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\verify.ts",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\wrong-expected.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-supplement-coercion-addendum\\primary\\normalized.json"
+      ],
+      "exitCode": 1,
+      "expectedExit": 1,
+      "stdout": "",
+      "stderr": "\u001b[0m\u001b[31mORACLE_EXPECTATION_MISMATCH\u001b[0m\n"
+    }
+  ]
+}

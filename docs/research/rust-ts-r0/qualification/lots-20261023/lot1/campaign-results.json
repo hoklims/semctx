@@ -1,0 +1,855 @@
+{
+  "schemaVersion": 1,
+  "candidateCommit": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+  "oracleBaselineCommit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "scope": "Public authored fixtures, native macOS arm64 and Linux aarch64 only",
+  "platforms": {
+    "macos": {
+      "candidate": {
+        "optimized_frozen": true,
+        "source_head": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+        "source_tree": "38da45962a60d5ab415405f46ed837451e28cbd2",
+        "platform": "macOS arm64 Darwin27.0.0",
+        "recordedUTC": "2026-10-23T08:01:29.979229+00:00",
+        "rust": "1.95.0 (59807616e 2026-04-14)",
+        "cargo": "1.95.0",
+        "candidate_scope": "C1 lot1 only; no qualification credit inferred; Windows not exercised; 209 prior public obligations not re-campaigned",
+        "artifact_path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/artifacts/semctx-r0-probe",
+        "artifact_sha256": "d181acffcef2ea8a934ee719addcba4c5760c016474de0aaede3ae7296d3fdc4",
+        "artifact_bytes": 34293504,
+        "helper_path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/artifacts/semctx-gates",
+        "helper_sha256": "f5a45e483bb3b7607327416f4dca13e966006621dc21479aecd2f15bcaf0e231",
+        "helper_bytes": 1208400,
+        "transport_fixture_path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/artifacts/semctx-gates-fixture",
+        "transport_fixture_sha256": "7b4fe7dbc5d0157e16810998dcbb0d51bc5b7916dffd447ca5eb3ddc3a51a55a",
+        "transport_fixture_bytes": 772192,
+        "sdk_path": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/artifacts/sdk-input.json",
+        "sdk_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+        "sdk_bytes": 3218481
+      },
+      "scopeRunnerSha256": "8bab96f48eee1d719866e2cbe988c8ae77108f9117493027187c09d14035e94d",
+      "typescript": "5.9.3",
+      "scope": [
+        {
+          "id": "inherited-positive",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "unretained-reference",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/main.ts:../build/generated.ts",
+            "DEPENDENCY_SCOPE_CONFIGURATION:src/main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "declared-optional",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "undeclared-optional",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/main.ts:optional"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "excluded-dependent",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 3,
+          "nativeAdmission": "rejected",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [
+            "ANALYSIS_SCOPE_INCOMPLETE:hidden.ts:excluded"
+          ],
+          "nativeError": null
+        },
+        {
+          "id": "excluded-computed",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 3,
+          "nativeAdmission": "rejected",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": false,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:hidden.ts"
+          ],
+          "nativeAdmissionReasons": [
+            "DEPENDENCY_SCOPE_UNSUPPORTED:\"hidden.ts\""
+          ],
+          "nativeError": null
+        },
+        {
+          "id": "excluded-unresolved",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 3,
+          "nativeAdmission": "rejected",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": false,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:hidden.ts:./absent",
+            "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "nativeAdmissionReasons": [
+            "DEPENDENCY_SCOPE_UNSUPPORTED:\"hidden.ts\""
+          ],
+          "nativeError": null
+        },
+        {
+          "id": "import-type",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "type-only-control",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "external-import-equals",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "internal-alias-control",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "computed-import",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "two-arguments-import",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "literal-import-control",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "unresolved-literal-import",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/main.ts:./absent"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        }
+      ],
+      "opaque": [
+        {
+          "id": "inline-call",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "admitted",
+          "nativeAdmission": "admitted",
+          "nativeExit": 0,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        },
+        {
+          "id": "returned-value",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "rejected",
+          "nativeAdmission": null,
+          "nativeExit": 1,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        },
+        {
+          "id": "constant-return",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "rejected",
+          "nativeAdmission": null,
+          "nativeExit": 1,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        },
+        {
+          "id": "unknown-return",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "rejected",
+          "nativeAdmission": null,
+          "nativeExit": 1,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        }
+      ],
+      "scopeGuards": [
+        {
+          "fault": "stdout-hash",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"indexed extraction rejected: OutputIncomplete\"}\n"
+        },
+        {
+          "fault": "sdk-identity",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"indexed extraction rejected: UnacceptableFreshness\"}\n"
+        },
+        {
+          "fault": "missing-capture",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"qualified capture does not cover authored Git and configuration inputs\"}\n"
+        },
+        {
+          "fault": "changed-bytes",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"retained indexed bytes differ from current input\"}\n"
+        },
+        {
+          "fault": "base-commit",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"qualified index no longer refers to the current Git commit\"}\n"
+        }
+      ],
+      "opaqueProcessGuards": [
+        {
+          "name": "stdout-hash",
+          "exit": 1,
+          "rejected": true
+        },
+        {
+          "name": "nonzero-process",
+          "exit": 1,
+          "rejected": true
+        },
+        {
+          "name": "cancelled-process",
+          "exit": 1,
+          "rejected": true
+        },
+        {
+          "name": "truncated-stdout",
+          "exit": 1,
+          "rejected": true
+        }
+      ],
+      "wholeObligationQualified": false,
+      "runtimeEvidence": {
+        "scopeRetainedRoot": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/scope-final-bound",
+        "opaqueRetainedRoot": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/opaque/macos-final",
+        "scopeRuntimeRoot": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/macos/scope-final-bound",
+        "opaqueRuntimeRoot": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/opaque/macos-final",
+        "nativeFilesystem": true,
+        "uid": null
+      }
+    },
+    "linux": {
+      "candidate": {
+        "source_head": "b2350dac0e081cecad50bd5dd39991a33fb9b25f",
+        "optimized_frozen": true,
+        "artifact_path": "/work/lot1/artifacts/semctx-r0-probe",
+        "artifact_sha256": "b0f34ec5b90c9cbd2230dd59ddba9aed8f8480dcadcce2247bdd8baf288596dc",
+        "helper_path": "/work/lot1/artifacts/semctx-gates",
+        "helper_sha256": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+        "sdk_path": "/work/lot1/sdk-input.json",
+        "sdk_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654"
+      },
+      "scopeRunnerSha256": "8bab96f48eee1d719866e2cbe988c8ae77108f9117493027187c09d14035e94d",
+      "typescript": "5.9.3",
+      "scope": [
+        {
+          "id": "inherited-positive",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "unretained-reference",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRETAINED_REFERENCE:src/main.ts:../build/generated.ts",
+            "DEPENDENCY_SCOPE_CONFIGURATION:src/main.ts:SOURCE_REFERENCE_PATH_UNSUPPORTED"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "declared-optional",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "undeclared-optional",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/main.ts:optional"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "excluded-dependent",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 3,
+          "nativeAdmission": "rejected",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [
+            "ANALYSIS_SCOPE_INCOMPLETE:hidden.ts:excluded"
+          ],
+          "nativeError": null
+        },
+        {
+          "id": "excluded-computed",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 3,
+          "nativeAdmission": "rejected",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": false,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:hidden.ts"
+          ],
+          "nativeAdmissionReasons": [
+            "DEPENDENCY_SCOPE_UNSUPPORTED:\"hidden.ts\""
+          ],
+          "nativeError": null
+        },
+        {
+          "id": "excluded-unresolved",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 3,
+          "nativeAdmission": "rejected",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": false,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:hidden.ts:./absent",
+            "DEPENDENCY_SCOPE_CONFIGURATION:hidden.ts:SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "nativeAdmissionReasons": [
+            "DEPENDENCY_SCOPE_UNSUPPORTED:\"hidden.ts\""
+          ],
+          "nativeError": null
+        },
+        {
+          "id": "import-type",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_IMPORT_TYPE_UNSUPPORTED:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "type-only-control",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "external-import-equals",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMMONJS_UNSUPPORTED:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "internal-alias-control",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "computed-import",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "two-arguments-import",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/main.ts"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        },
+        {
+          "id": "literal-import-control",
+          "typescriptAdmission": "admitted",
+          "nativeExit": 0,
+          "nativeAdmission": "admitted",
+          "comparisons": {
+            "admissionStatus": true,
+            "cliExit": true,
+            "changeCoverage": true,
+            "completeAdmissionReasons": true,
+            "completeScopeReasons": false,
+            "completeUnresolvedImports": false,
+            "scopeLinks": true,
+            "excludedScopeRefusal": true,
+            "externalModuleSpecifiers": true,
+            "opaqueLimitation": true,
+            "executed": true
+          },
+          "typescriptScopeReasons": [],
+          "nativeAdmissionReasons": [],
+          "nativeError": null
+        },
+        {
+          "id": "unresolved-literal-import",
+          "typescriptAdmission": "rejected",
+          "nativeExit": 1,
+          "nativeAdmission": null,
+          "comparisons": null,
+          "typescriptScopeReasons": [
+            "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/main.ts:./absent"
+          ],
+          "nativeAdmissionReasons": null,
+          "nativeError": "{\"error\":\"indexed extraction rejected: UnexpectedOutcome\"}\n"
+        }
+      ],
+      "opaque": [
+        {
+          "id": "inline-call",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "admitted",
+          "nativeAdmission": "admitted",
+          "nativeExit": 0,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        },
+        {
+          "id": "returned-value",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "rejected",
+          "nativeAdmission": null,
+          "nativeExit": 1,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        },
+        {
+          "id": "constant-return",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "rejected",
+          "nativeAdmission": null,
+          "nativeExit": 1,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        },
+        {
+          "id": "unknown-return",
+          "phases": {
+            "compared": 3,
+            "pass": true,
+            "differences": []
+          },
+          "sourceAdmission": "rejected",
+          "nativeAdmission": null,
+          "nativeExit": 1,
+          "sourceTokenVariants": 16,
+          "nativePostIssuanceRevalidationObserved": false
+        }
+      ],
+      "scopeGuards": [
+        {
+          "fault": "stdout-hash",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"indexed extraction rejected: OutputIncomplete\"}\n"
+        },
+        {
+          "fault": "sdk-identity",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"indexed extraction rejected: UnacceptableFreshness\"}\n"
+        },
+        {
+          "fault": "missing-capture",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"qualified capture does not cover authored Git and configuration inputs\"}\n"
+        },
+        {
+          "fault": "changed-bytes",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"retained indexed bytes differ from current input\"}\n"
+        },
+        {
+          "fault": "base-commit",
+          "refused": true,
+          "exit": 1,
+          "stderr": "{\"error\":\"qualified index no longer refers to the current Git commit\"}\n"
+        }
+      ],
+      "opaqueProcessGuards": [
+        {
+          "name": "stdout-hash",
+          "exit": 1,
+          "rejected": true
+        },
+        {
+          "name": "nonzero-process",
+          "exit": 1,
+          "rejected": true
+        },
+        {
+          "name": "cancelled-process",
+          "exit": 1,
+          "rejected": true
+        },
+        {
+          "name": "truncated-stdout",
+          "exit": 1,
+          "rejected": true
+        }
+      ],
+      "wholeObligationQualified": false,
+      "runtimeEvidence": {
+        "scopeRetainedRoot": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/linux/scope-final-bound",
+        "opaqueRetainedRoot": "/Users/sebastien/semctx-evidence/t00/20261023/lot1/linux/opaque-final-native",
+        "scopeRuntimeRoot": "/work/target-t00-lot1/campaigns/scope-final-bound-user501",
+        "opaqueRuntimeRoot": "/work/target-t00-lot1/campaigns/opaque-final-user501",
+        "nativeFilesystem": true,
+        "uid": 501
+      }
+    }
+  },
+  "summary": {
+    "scopeFixturesPerPlatform": 15,
+    "structuredNativeScopeReportsPerPlatform": 8,
+    "nativeScopeCli1WithoutAdmissionPerPlatform": 7,
+    "opaqueFixturesPerPlatform": 4,
+    "opaquePhaseComparisonsPerPlatform": 12,
+    "sourceTokenVariantsPerPlatform": 64,
+    "scopeGuardsPerPlatform": 5,
+    "opaqueProcessGuardsPerPlatform": 4,
+    "qualifiedObligations": 0,
+    "totalObligations": 8,
+    "prior209RecampaignedOnCandidate": false
+  },
+  "arbitrationCredit": {
+    "ARB-002": 0,
+    "ARB-003": 0,
+    "ARB-004": 0
+  },
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "formalR0ObligationQualified": false,
+  "allTargetQualified": false
+}

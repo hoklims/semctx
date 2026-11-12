@@ -1,0 +1,118 @@
+"""Root DEV: compile frozen transport caller and run harmless fixed processes only."""
+import hashlib
+import importlib.util
+import json
+import os
+from pathlib import Path
+import subprocess
+import time
+
+BASE = Path(__file__).resolve().parent
+DRAFT = BASE / 'windows-as-expression-transport'
+OUT = BASE / 'windows-as-dev-real-v3'
+RUSTC = Path('C:/Users/Hokli/scoop/persist/rustup-gnu/.rustup/toolchains/1.95.0-x86_64-pc-windows-gnu/bin/rustc.exe')
+DEPS = Path('C:/maintenence/semctx.codex-t00-physical-20261022/tools/rust-ts-r0/target/release/deps')
+PYTHON = Path('C:/Python314/python.exe')
+HELPER = Path('C:/maintenence/semctx.codex-t00-review-20261021/tools/gates/target/release/semctx-gates.exe')
+
+def sha(path):
+    with Path(path).open('rb') as stream:
+        return hashlib.file_digest(stream, 'sha256').hexdigest()
+
+def save(path, value):
+    path.write_text(json.dumps(value, indent=2) + '\n', encoding='utf-8', newline='\n')
+
+def run(label, argv, env, timeout):
+    start = time.monotonic()
+    result = subprocess.run(argv, cwd=OUT, env=env, capture_output=True, timeout=timeout, check=False)
+    (OUT / (label + '.stdout')).write_bytes(result.stdout)
+    (OUT / (label + '.stderr')).write_bytes(result.stderr)
+    record = {'argv': argv, 'exit_code': result.returncode, 'seconds': time.monotonic()-start,
+              'stdout_sha256': hashlib.sha256(result.stdout).hexdigest(),
+              'stderr_sha256': hashlib.sha256(result.stderr).hexdigest()}
+    save(OUT / (label + '.receipt.json'), record)
+    return record
+
+def main():
+    assert sha(DRAFT / 'DRAFT-FREEZE-V3.json') == 'bef289a7d15fbdbedff091c5d025ba89641d8fe1c283938417fdf48ec94dc2f9'
+    for row in json.loads((DRAFT / 'DRAFT-FREEZE-V3.json').read_bytes())['files']:
+        path = DRAFT / row['path']
+        assert path.stat().st_size == row['bytes'] and sha(path) == row['sha256'], path
+    assert sha(HELPER) == 'b0e527b882ca874da005c7d96ad613a198a0113489b6d7f6a94280ad49bf146e'
+    spec = importlib.util.spec_from_file_location('public_as_dev', DRAFT/'public_as_expression_witness.py')
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert module.CALLER.encode() == (DRAFT/'caller.rs').read_bytes()
+    OUT.mkdir()
+    inputs = [RUSTC, PYTHON, HELPER, DRAFT/'caller.rs', DRAFT/'public_as_expression_witness.py']
+    inputs.extend(path for path in DEPS.iterdir() if path.is_file())
+    pins = {str(path.resolve()): sha(path) for path in inputs}
+    save(OUT/'input-pins.json', pins)
+    env = dict(os.environ)
+    env.pop('GIT_CONFIG_GLOBAL', None)
+    env.pop('GOPORT_BUILD_VERSION', None)
+    env.update({'CARGO_HOME': 'C:/Users/Hokli/scoop/persist/rustup-gnu/.cargo',
+                'RUSTUP_HOME': 'C:/Users/Hokli/scoop/persist/rustup-gnu/.rustup',
+                'GOPORT_LIB_PARSE_SNAPSHOT': '0', 'GOPORT_LIB_SNAPSHOT': '0',
+                'CARGO_BUILD_JOBS': '2', 'RUST_TEST_THREADS': '1'})
+    target = OUT/'public-as-caller.exe'
+    argv = [str(RUSTC), '--edition=2024', '--crate-name', 'public_as_caller', str(DRAFT/'caller.rs'),
+            '-O', '-L', 'dependency='+str(DEPS)]
+    for crate in ('semctx_gates', 'serde_json', 'sha2'):
+        choices = list(DEPS.glob('lib'+crate+'-*.rlib'))
+        assert len(choices) == 1, (crate, choices)
+        argv.extend(['--extern', crate+'='+str(choices[0])])
+    argv.extend(['-o', str(target)])
+    compile_record = run('compile', argv, env, 120)
+    assert compile_record['exit_code'] == 0 and target.is_file(), compile_record
+    pins[str(target)] = sha(target)
+    controls = [
+        ('success', "print('{\"dev\":true}')", True),
+        ('nonzero', "import sys;print('{}');sys.exit(7)", False),
+        ('invalid-utf8', "import sys;sys.stdout.buffer.write(bytes([255]))", False),
+        ('over-cap', "import sys;sys.stdout.buffer.write(b'x'*9437184)", False),
+        ('timeout', "import time;time.sleep(30)", False),
+    ]
+    records = []
+    for name, code, accepted in controls:
+        request = {'execution_authorized': True, 'timeout_ms': 20000, 'output_cap': 8388608,
+                   'argv': [str(PYTHON), '-c', code], 'cwd': str(OUT), 'helper': str(HELPER),
+                   'pins': [{'path': path, 'sha256': digest} for path, digest in pins.items()]}
+        request_path = OUT/(name+'.spec.json')
+        save(request_path, request)
+        output = OUT/(name+'-capture')
+        process = run(name, [str(target), str(request_path), str(output), sha(request_path)], env, 45)
+        assert process['exit_code'] == 0, process
+        failure = None
+        try:
+            value = module.validate_outcome(output)
+        except (AssertionError, ValueError, RuntimeError) as error:
+            failure = {'type': type(error).__name__, 'message': str(error)}
+        assert (failure is None) == accepted, (name, failure)
+        outcome = json.loads((output/'process-outcome.json').read_bytes())
+        if name == 'nonzero':
+            assert outcome['exit_code'] == 7
+        if name == 'invalid-utf8':
+            assert outcome['stdout_bytes'] == 1 and (output/'stdout.raw').read_bytes() == '\ufffd'.encode()
+        if name == 'timeout':
+            assert outcome['kind'] != 'success' and process['seconds'] < 35
+        records.append({'name': name, 'transport': process, 'adjudicator_accepted': failure is None,
+                        'refusal': failure, 'outcome_path': str(output/'process-outcome.json'),
+                        'outcome_sha256': sha(output/'process-outcome.json'), 'kind': outcome['kind']})
+    request['pins'][0]['sha256'] = '0'*64
+    request_path = OUT/'wrong-pin.spec.json'
+    save(request_path, request)
+    output = OUT/'wrong-pin-capture'
+    process = run('wrong-pin', [str(target), str(request_path), str(output), sha(request_path)], env, 10)
+    assert process['exit_code'] == 1 and not output.exists()
+    assert pins == {path: sha(path) for path in pins}, 'input drift'
+    receipt = {'kind': 'ACTUAL_WINDOWS_HARMLESS_DEV_TRANSPORT_V3', 'state': 'PASS',
+               'compile': compile_record, 'controls': records, 'wrong_pin': process,
+               'artifact_sha256': sha(target), 'input_pins_path': str(OUT/'input-pins.json'),
+               'native_candidate_queries': 0, 'candidate_builds': 0, 'transport_caller_builds': 1,
+               'qualification_credit': 0}
+    save(OUT/'public-dev-receipt.json', receipt)
+    print(json.dumps({'state': 'PASS', 'controls': len(records)+1, 'receipt_sha256': sha(OUT/'public-dev-receipt.json')}))
+
+if __name__ == '__main__':
+    main()

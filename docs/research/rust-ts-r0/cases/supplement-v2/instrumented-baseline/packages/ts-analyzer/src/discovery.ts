@@ -1,0 +1,586 @@
+import { observeOperation as __observeOperation, observeSemanticProgram as __observeSemanticProgram } from "../../../../../capture.ts";
+import { lstatSync, readFileSync, readdirSync, statSync } from "node:fs";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { normalizePath, SemctxError } from "@semantic-context/core";
+import type { SemctxConfig } from "@semantic-context/core";
+import ts from "typescript";
+import { canonicalFilesystemPath as canonicalPath, resolveTypeScriptModule } from "./ts-symbols";
+
+export type FileRole = "source" | "test" | "document" | "migration" | "other";
+export type SourceLanguage = "typescript" | "javascript" | "python" | "markdown" | "sql" | "unknown";
+
+export interface DiscoveredFile {
+  absPath: string;
+  /** Normalised path relative to the repository root. */
+  relPath: string;
+  role: FileRole;
+  content: string;
+  /**
+   * Present for the explicit v2 selection path. Omitted in legacy v1 so the historical discovery
+   * object shape and analysis-input fingerprint remain unchanged.
+   */
+  language?: Exclude<SourceLanguage, "unknown">;
+}
+
+export const DISCOVERY_CANDIDATE_REASONS = [
+  "LEGACY_UNSUPPORTED_EXTENSION",
+  "INCLUDE_MISS",
+  "EXCLUDE_MATCH",
+  "IGNORED_GENERATED_OUTPUT",
+  "LANGUAGE_DISABLED",
+  "LANGUAGE_UNSUPPORTED",
+  "READ_FAILED",
+  "IMPORT_OUTSIDE_REPOSITORY",
+  "REFERENCE_OUTSIDE_REPOSITORY",
+  "SOURCE_LINK_OUTSIDE_REPOSITORY",
+  "SELECTED",
+] as const;
+
+export interface DiscoveryCandidate {
+  relPath: string;
+  language: SourceLanguage;
+  selectionDecision: "selected" | "excluded";
+  /**
+   * Discovery can close outcomes that require no producer. Enabled selected files are finalized
+   * by the Plane-A producer ledger after analysis.
+   */
+  analysisOutcome?: "not_applicable" | "disabled" | "unsupported" | "failed";
+  reason: (typeof DISCOVERY_CANDIDATE_REASONS)[number];
+}
+
+export interface DiscoveryResult {
+  files: DiscoveredFile[];
+  candidates: DiscoveryCandidate[];
+}
+
+const IGNORED_SEGMENTS = new Set([
+  "node_modules",
+  ".git",
+  ".semctx",
+  "dist",
+  "build",
+  "coverage",
+  ".turbo",
+  ".next",
+]);
+const HARD_IGNORED_SEGMENTS = new Set(["node_modules", ".git", ".semctx"]);
+const OUTPUT_SEGMENTS = new Set(["dist", "build", "coverage", ".turbo", ".next"]);
+
+const TEST_FILENAME_RE = /\.(test|spec)\.(ts|tsx|mts|cts|js|jsx|mjs|cjs)$/;
+const TEST_DIR_SEGMENTS = new Set(["test", "tests", "__tests__"]);
+const TEST_IMPORT_RE = /from\s+["'](vitest|bun:test|node:test)["']/;
+const TS_FILE_RE = /\.(ts|tsx|mts|cts)$/;
+const JS_FILE_RE = /\.(js|jsx|mjs|cjs)$/;
+const PYTHON_FILE_RE = /\.py$/;
+const MARKDOWN_RE = /\.mdx?$/;
+const SQL_RE = /\.sql$/;
+const PYTHON_TEST_FILENAME_RE = /(?:^|\/)(?:test_[^/]+|[^/]+_test)\.py$/;
+
+function segments(relPath: string): string[] {
+  return relPath.split("/").filter((s) => s.length > 0);
+}
+
+function isExcludedLegacy(relPath: string, config: SemctxConfig): boolean {
+  const parts = segments(relPath);
+  if (parts.some((p) => IGNORED_SEGMENTS.has(p))) return true;
+  // Config excludes are matched as plain path substrings (simple + predictable).
+  return config.exclude.some((pattern) => relPath.includes(pattern.replace(/\*/g, "")));
+}
+
+function classify(relPath: string, content: string, config: SemctxConfig): FileRole {
+  const parts = segments(relPath);
+  const underMigrations =
+    parts.some((p) => p === "migrations" || p === "migration") ||
+    config.migrationsDirs.some((d) => relPath.startsWith(normalizePath(d)));
+  if (SQL_RE.test(relPath)) return "migration";
+  if (underMigrations && TS_FILE_RE.test(relPath)) return "migration";
+
+  if (MARKDOWN_RE.test(relPath)) return "document";
+
+  if (PYTHON_FILE_RE.test(relPath)) {
+    const isTest =
+      PYTHON_TEST_FILENAME_RE.test(relPath) ||
+      parts.some((part) => TEST_DIR_SEGMENTS.has(part));
+    return isTest ? "test" : "source";
+  }
+
+  if (TS_FILE_RE.test(relPath) || JS_FILE_RE.test(relPath)) {
+    const isTest =
+      TEST_FILENAME_RE.test(relPath) ||
+      parts.some((p) => TEST_DIR_SEGMENTS.has(p)) ||
+      TEST_IMPORT_RE.test(content);
+    return isTest ? "test" : "source";
+  }
+  return "other";
+}
+
+export function sourceLanguage(relPath: string): SourceLanguage {
+  if (TS_FILE_RE.test(relPath)) return "typescript";
+  if (JS_FILE_RE.test(relPath)) return "javascript";
+  if (PYTHON_FILE_RE.test(relPath)) return "python";
+  if (MARKDOWN_RE.test(relPath)) return "markdown";
+  if (SQL_RE.test(relPath)) return "sql";
+  return "unknown";
+}
+
+function matchesAny(relPath: string, patterns: readonly string[]): boolean {
+  return patterns.some((pattern) => new Bun.Glob(pattern.replaceAll("\\", "/")).match(relPath));
+}
+
+/**
+ * Whether configuration excludes every path below `relPath` (and `relPath` itself when
+ * `includingSelf`). Discovery may then skip that path when it cannot be read, e.g. a package
+ * store owned by another user, without losing any selectable source.
+ */
+function legacyExcludedSubtree(config: SemctxConfig): (relPath: string, includingSelf: boolean) => boolean {
+  // Legacy excludes match path substrings: one contained in `dir/` is contained in every descendant.
+  return (relPath, includingSelf) => relPath.length > 0 && isExcludedLegacy(`${relPath}/`, config)
+    && (!includingSelf || isExcludedLegacy(relPath, config));
+}
+
+function globExcludedSubtree(config: SemctxConfig): (relPath: string, includingSelf: boolean) => boolean {
+  // A matching `<prefix>/**` covers descendants of the prefix, including deeper directories.
+  const patterns = config.exclude.map((pattern) => pattern.replaceAll("\\", "/"));
+  const globallyExcluded = patterns.includes("**");
+  const subtrees = patterns
+    .filter((pattern) => pattern.endsWith("/**") && pattern.length > 3)
+    .map((pattern) => new Bun.Glob(pattern.slice(0, -3)));
+  return (relPath, includingSelf) => {
+    const parts = segments(relPath);
+    return (globallyExcluded || parts.length > 0 && parts.some((_, index) => subtrees.some((glob) => glob.match(parts.slice(0, index + 1).join("/")))))
+      && (!includingSelf || matchesAny(relPath, config.exclude));
+  };
+}
+
+/** Pure path-selection predicate shared by discovery and changed-file preflights. */
+export function isPathSelected(config: SemctxConfig, inputPath: string): boolean {
+  const relPath = normalizePath(inputPath);
+  if (config.version === 1) {
+    return !isExcludedLegacy(relPath, config)
+      && (TS_FILE_RE.test(relPath) || MARKDOWN_RE.test(relPath) || SQL_RE.test(relPath));
+  }
+  return config.include.length > 0
+    && matchesAny(relPath, config.include)
+    && !matchesAny(relPath, config.exclude);
+}
+
+/** Metadata and installed dependencies are outside the qualified repository source boundary. */
+export function isHardExcludedPath(inputPath: string): boolean {
+  return segments(normalizePath(inputPath)).some((part) => HARD_IGNORED_SEGMENTS.has(part));
+}
+
+/**
+ * The paths this configuration's discovery walk and excludes leave out, shared with workspace
+ * discovery so that a manifest under an excluded directory never claims a workspace identity
+ * (ADR 0010). Only recursive subtree globs can prune directories: matching a directory's name
+ * does not exclude its descendants in v2. Include globs select files and are not applied.
+ */
+export function createDiscoveryPathExclusion(config: SemctxConfig): (inputPath: string, kind?: "file" | "directory") => boolean {
+  if (config.version === 1) return (inputPath) => isExcludedLegacy(normalizePath(inputPath), config);
+  const walked = config.analysisProfile === "modelo-suite-static-v1" ? HARD_IGNORED_SEGMENTS : IGNORED_SEGMENTS;
+  const subtreeExcludes = config.exclude.filter((pattern) => /(?:^|\/)\*\*$/.test(pattern.replaceAll("\\", "/")));
+  return (inputPath, kind = "file") => {
+    const relPath = normalizePath(inputPath);
+    return segments(relPath).some((part) => walked.has(part))
+      || (kind === "directory"
+        ? matchesAny(`${relPath}/`, subtreeExcludes)
+        : matchesAny(relPath, config.exclude));
+  };
+}
+
+/**
+ * Output basenames are only hints, never evidence that an authored source is generated.
+ * Use repository-local ignore files only: host-global and shared Git excludes cannot silently
+ * change this profile's source scope. The caller retains these ignore files in its input seal.
+ * Keep the original selector when broadening discovery for inbound dependency closure.
+ */
+export function createQualifiedPathEligibility(config: SemctxConfig): (relPath: string) => boolean {
+  const result = Bun.spawnSync(["git", "ls-files", "-z", "--cached", "--others", "--exclude-per-directory=.gitignore"], {
+    cwd: config.repositoryRoot, stdout: "pipe", stderr: "pipe",
+  });
+  if (result.exitCode !== 0) {
+    throw new SemctxError("IO_ERROR", "qualified discovery could not establish Git source eligibility");
+  }
+  const authored = new Set(new TextDecoder().decode(result.stdout).split("\0").filter(Boolean).map(normalizePath));
+  // Compiler/manifests are causal inputs even when Git ignores their output directory.
+  // Retain local extends chains as well; absence in the snapshot must not become defaults.
+  const paths: string[] = [];
+  walk(config.repositoryRoot, config.repositoryRoot, paths, true, undefined, true);
+  const available = new Map(paths.map(path => [normalizePath(relative(config.repositoryRoot, path)), path]));
+  const namedMetadata = /(?:^|\/)(?:tsconfig[^/]*\.json|package\.json|pyproject\.toml|bun\.lockb?|package-lock\.json|yarn\.lock|pnpm-lock\.yaml)$/;
+  const metadata = new Set([...available.keys()].filter(path => namedMetadata.test(path)));
+  const pending = [...metadata].filter(path => /(?:^|\/)tsconfig[^/]*\.json$/.test(path));
+  for (const relPath of pending) {
+    const absPath = available.get(relPath)!;
+    const parsed = ts.readConfigFile(absPath, path => readFileSync(path, "utf8"));
+    const configValue = parsed.config as { extends?: unknown } | undefined;
+    const extended = configValue?.extends;
+    for (const reference of Array.isArray(extended) ? extended : [extended]) {
+      if (typeof reference !== "string" || !reference.startsWith(".")) continue;
+      const target = resolve(dirname(absPath), reference);
+      const targetPath = normalizePath(relative(config.repositoryRoot, /\.json$/.test(target) ? target : `${target}.json`));
+      if (!available.has(targetPath) || metadata.has(targetPath)) continue;
+      metadata.add(targetPath);
+      pending.push(targetPath);
+    }
+  }
+  return (inputPath) => {
+    const relPath = normalizePath(inputPath);
+    if (isHardExcludedPath(relPath)) return false;
+    if (!segments(relPath).some((part) => OUTPUT_SEGMENTS.has(part))) return true;
+    // Ignore controls themselves must remain bound, including inside generated directories.
+    return /(?:^|\/)\.(?:gitignore|gitattributes)$/.test(relPath)
+      || namedMetadata.test(relPath) || metadata.has(relPath) || authored.has(relPath) || isPathSelected(config, relPath);
+  };
+}
+
+function enabledLanguage(
+  config: Extract<SemctxConfig, { version: 2 }>,
+  language: SourceLanguage,
+): "on" | "off" | undefined {
+  if (language === "unknown") return undefined;
+  return config.languages[language];
+}
+
+function isNestedGitWorktree(directory: string, root: string): boolean {
+  const marker = join(directory, ".git");
+  try {
+    const markerStat = lstatSync(marker);
+    return markerStat.isFile() || markerStat.isSymbolicLink();
+  } catch (error) {
+    if (error instanceof Error && "code" in error && error.code === "ENOENT") return false;
+    throw new SemctxError("IO_ERROR", "repository discovery could not inspect a Git marker", {
+      path: normalizePath(relative(root, marker)),
+      cause: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
+function isContained(root: string, candidate: string): boolean {
+  const rel = relative(root, candidate);
+  return rel === "" || (!isAbsolute(rel) && rel !== ".." && !rel.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`));
+}
+
+function escapedDependencyReason(
+  absPath: string,
+  root: string,
+  content: string,
+): "IMPORT_OUTSIDE_REPOSITORY" | "REFERENCE_OUTSIDE_REPOSITORY" | undefined {
+  const canonicalRoot = canonicalPath(root);
+  const preprocessed = ts.preProcessFile(content, true, true);
+  for (const imported of preprocessed.importedFiles) {
+    if (!imported.fileName.startsWith(".")) continue;
+    const lexical = resolve(dirname(absPath), imported.fileName);
+    if (!isContained(canonicalRoot, canonicalPath(lexical))) return "IMPORT_OUTSIDE_REPOSITORY";
+    const resolved = resolveTypeScriptModule(imported.fileName, absPath, undefined, undefined, undefined, undefined, root);
+    if (resolved !== undefined && !isContained(canonicalRoot, canonicalPath(resolved))) {
+      return "IMPORT_OUTSIDE_REPOSITORY";
+    }
+  }
+  for (const referenced of preprocessed.referencedFiles) {
+    const lexical = resolve(dirname(absPath), referenced.fileName);
+    if (!isContained(canonicalRoot, canonicalPath(lexical))) return "REFERENCE_OUTSIDE_REPOSITORY";
+  }
+  return undefined;
+}
+
+function walk(
+  dir: string,
+  root: string,
+  acc: string[],
+  strict = false,
+  refusedLinks?: string[],
+  qualified = false,
+  excludedSubtree?: (relPath: string, includingSelf: boolean) => boolean,
+): void {
+  let entries: string[];
+  try {
+    entries = readdirSync(dir).sort();
+  } catch (error) {
+    // Configuration excludes every path below this directory, so no selected source is lost.
+    if (excludedSubtree?.(normalizePath(relative(root, dir)), false) === true) return;
+    if (strict) {
+      throw new SemctxError("IO_ERROR", "repository discovery could not read a directory", {
+        path: normalizePath(relative(root, dir)) || ".",
+        cause: error instanceof Error ? error.message : String(error),
+      });
+    }
+    return;
+  }
+  for (const entry of entries) {
+    if ((qualified ? HARD_IGNORED_SEGMENTS : IGNORED_SEGMENTS).has(entry)) continue;
+    const abs = join(dir, entry);
+    let stat;
+    try {
+      stat = lstatSync(abs);
+    } catch (error) {
+      if (excludedSubtree?.(normalizePath(relative(root, abs)), true) === true) continue;
+      if (strict) {
+        throw new SemctxError("IO_ERROR", "repository discovery could not inspect a candidate", {
+          path: normalizePath(relative(root, abs)),
+          cause: error instanceof Error ? error.message : String(error),
+        });
+      }
+      continue;
+    }
+    // Never traverse links or read their target bytes. Metadata can distinguish an
+    // excluded directory from a selected file without importing external content.
+    if (stat.isSymbolicLink()) {
+      const relPath = normalizePath(relative(root, abs));
+      if (excludedSubtree?.(relPath, true) === true) continue;
+      if (excludedSubtree?.(relPath, false) === true) {
+        try {
+          if (statSync(abs).isDirectory()) continue;
+        } catch { /* An unobservable link kind cannot justify subtree exclusion. */ }
+      }
+      if (refusedLinks !== undefined && !isContained(canonicalPath(root), canonicalPath(abs))) {
+        refusedLinks.push(abs);
+      }
+      continue;
+    }
+    if (stat.isDirectory()) {
+      let nestedWorktree: boolean;
+      try {
+        nestedWorktree = isNestedGitWorktree(abs, root);
+      } catch (error) {
+        // Probing `<dir>/.git` needs search permission on the directory itself.
+        if (excludedSubtree?.(normalizePath(relative(root, abs)), false) === true) continue;
+        throw error;
+      }
+      if (nestedWorktree) continue;
+      walk(abs, root, acc, strict, refusedLinks, qualified, excludedSubtree);
+    } else if (stat.isFile()) {
+      acc.push(abs);
+    }
+  }
+}
+
+/**
+ * Fast count of the TypeScript files the analyzer will actually parse — the same whole-repo walk
+ * and ignore rules as `discoverFiles`, but without reading file contents. Used to announce the
+ * index scale before the (blocking) analysis. NOTE: discovery walks the whole tree and honours
+ * `config.exclude`/ignored dirs, not `config.include`.
+ */
+export function countTypeScriptFiles(config: SemctxConfig): number {
+  if (config.version === 2) {
+    const discovery = discoverRepository(config);
+    const failure = discovery.candidates.find((candidate) => candidate.analysisOutcome === "failed");
+    if (failure !== undefined) {
+      throw new SemctxError("IO_ERROR", "repository discovery refused an unreadable or unsafe source", {
+        path: failure.relPath,
+        reason: failure.reason,
+      });
+    }
+    return discovery.files.filter((file) => file.language === "typescript").length;
+  }
+  const root = config.repositoryRoot;
+  const absPaths: string[] = [];
+  const refusedLinks: string[] = [];
+  walk(root, root, absPaths, true, refusedLinks, false, legacyExcludedSubtree(config));
+  if (refusedLinks.length > 0) {
+    throw new SemctxError("IO_ERROR", "repository discovery refused a source link outside the repository", {
+      path: normalizePath(relative(root, refusedLinks[0]!)),
+      reason: "SOURCE_LINK_OUTSIDE_REPOSITORY",
+    });
+  }
+  let count = 0;
+  for (const absPath of absPaths) {
+    const relPath = normalizePath(relative(root, absPath));
+    if (isExcludedLegacy(relPath, config)) continue;
+    if (TS_FILE_RE.test(relPath)) count += 1;
+  }
+  return count;
+}
+
+/**
+ * Discover and classify repository files, deterministically (sorted order).
+ * Only source, test, document and migration files are returned; "other" is dropped.
+ */
+export function discoverFiles(config: SemctxConfig): DiscoveredFile[] {
+  if (config.version === 2) return discoverRepository(config).files;
+  const result = discoverLegacyRepository(config);
+  const failure = result.candidates.find((candidate) => candidate.analysisOutcome === "failed");
+  if (failure !== undefined) {
+    throw new SemctxError("IO_ERROR", "repository discovery refused an unreadable or unsafe source", {
+      path: failure.relPath,
+      reason: failure.reason,
+    });
+  }
+  return result.files;
+}
+
+function discoverLegacyRepository(config: Extract<SemctxConfig, { version: 1 }>): DiscoveryResult {
+  const root = config.repositoryRoot;
+  const absPaths: string[] = [];
+  const refusedLinks: string[] = [];
+  walk(root, root, absPaths, true, refusedLinks, false, legacyExcludedSubtree(config));
+  const files: DiscoveredFile[] = [];
+  const candidates: DiscoveryCandidate[] = [];
+
+  for (const absPath of absPaths.sort()) {
+    const relPath = normalizePath(relative(root, absPath));
+    if (isExcludedLegacy(relPath, config)) continue;
+    const language = sourceLanguage(relPath);
+    if (!TS_FILE_RE.test(relPath) && !MARKDOWN_RE.test(relPath) && !SQL_RE.test(relPath)) {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "excluded",
+        analysisOutcome: "not_applicable",
+        reason: "LEGACY_UNSUPPORTED_EXTENSION",
+      });
+      continue;
+    }
+    let content: string;
+    try {
+      content = readFileSync(absPath, "utf8");
+    } catch {
+      candidates.push({ relPath, language, selectionDecision: "selected", analysisOutcome: "failed", reason: "READ_FAILED" });
+      continue;
+    }
+    const boundaryFailure = TS_FILE_RE.test(relPath)
+      ? escapedDependencyReason(absPath, root, content)
+      : undefined;
+    if (boundaryFailure !== undefined) {
+      candidates.push({ relPath, language, selectionDecision: "selected", analysisOutcome: "failed", reason: boundaryFailure });
+      continue;
+    }
+    const role = classify(relPath, content, config);
+    if (role === "other") continue;
+    candidates.push({ relPath, language, selectionDecision: "selected", reason: "SELECTED" });
+    files.push({ absPath, relPath, role, content });
+  }
+  for (const absPath of refusedLinks.sort()) {
+    const relPath = normalizePath(relative(root, absPath));
+    if (isExcludedLegacy(relPath, config)) continue;
+    candidates.push({
+      relPath,
+      language: sourceLanguage(relPath),
+      selectionDecision: "selected",
+      analysisOutcome: "failed",
+      reason: "SOURCE_LINK_OUTSIDE_REPOSITORY",
+    });
+  }
+  candidates.sort((left, right) => left.relPath < right.relPath ? -1 : left.relPath > right.relPath ? 1 : 0);
+  return { files, candidates };
+}
+
+/**
+ * Discover repository candidates with an explicit, deterministic selection ledger.
+ *
+ * Version 1 preserves the historical selected file set. Version 2 applies normalized include
+ * globs first, then lets excludes win. Producer execution finalizes enabled selected candidates.
+ */
+function __baseline_discoverRepository(config: SemctxConfig, eligibilityConfig: SemctxConfig = config): DiscoveryResult {
+  if (config.version === 1) {
+    return discoverLegacyRepository(config);
+  }
+
+  const root = config.repositoryRoot;
+  const absPaths: string[] = [];
+  const refusedLinks: string[] = [];
+  const qualified = eligibilityConfig.version === 2 && eligibilityConfig.analysisProfile === "modelo-suite-static-v1";
+  const eligible = qualified ? createQualifiedPathEligibility(eligibilityConfig) : undefined;
+  walk(root, root, absPaths, true, refusedLinks, qualified, qualified ? undefined : globExcludedSubtree(config));
+  const files: DiscoveredFile[] = [];
+  const candidates: DiscoveryCandidate[] = [];
+
+  for (const absPath of absPaths.sort()) {
+    const relPath = normalizePath(relative(root, absPath));
+    const language = sourceLanguage(relPath);
+    if (eligible !== undefined && !eligible(relPath)) {
+      candidates.push({ relPath, language, selectionDecision: "excluded", analysisOutcome: "not_applicable", reason: "IGNORED_GENERATED_OUTPUT" });
+      continue;
+    }
+    const included = config.include.length > 0 && matchesAny(relPath, config.include);
+    const excluded = matchesAny(relPath, config.exclude);
+    if (!included || excluded) {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "excluded",
+        analysisOutcome: "not_applicable",
+        reason: excluded ? "EXCLUDE_MATCH" : "INCLUDE_MISS",
+      });
+      continue;
+    }
+
+    const mode = enabledLanguage(config, language);
+    if (mode === undefined) {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "selected",
+        analysisOutcome: "unsupported",
+        reason: "LANGUAGE_UNSUPPORTED",
+      });
+      continue;
+    }
+    if (mode === "off") {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "selected",
+        analysisOutcome: "disabled",
+        reason: "LANGUAGE_DISABLED",
+      });
+      continue;
+    }
+
+    let content: string;
+    try {
+      content = readFileSync(absPath, "utf8");
+    } catch {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "selected",
+        analysisOutcome: "failed",
+        reason: "READ_FAILED",
+      });
+      continue;
+    }
+    const boundaryFailure = language === "typescript" || language === "javascript"
+      ? escapedDependencyReason(absPath, root, content)
+      : undefined;
+    if (boundaryFailure !== undefined) {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "selected",
+        analysisOutcome: "failed",
+        reason: boundaryFailure,
+      });
+      continue;
+    }
+    const role = classify(relPath, content, config);
+    if (role === "other" || language === "unknown") {
+      candidates.push({
+        relPath,
+        language,
+        selectionDecision: "selected",
+        analysisOutcome: "unsupported",
+        reason: "LANGUAGE_UNSUPPORTED",
+      });
+      continue;
+    }
+    candidates.push({ relPath, language, selectionDecision: "selected", reason: "SELECTED" });
+    files.push({ absPath, relPath, role, content, language });
+  }
+
+  for (const absPath of refusedLinks.sort()) {
+    const relPath = normalizePath(relative(root, absPath));
+    candidates.push({
+      relPath,
+      language: sourceLanguage(relPath),
+      selectionDecision: "selected",
+      analysisOutcome: "failed",
+      reason: "SOURCE_LINK_OUTSIDE_REPOSITORY",
+    });
+  }
+  candidates.sort((left, right) => left.relPath < right.relPath ? -1 : left.relPath > right.relPath ? 1 : 0);
+
+  return { files, candidates };
+}
+
+export function discoverRepository(...args: any[]): any { return __observeOperation("discoverRepository", args, () => (__baseline_discoverRepository as any)(...args)); }

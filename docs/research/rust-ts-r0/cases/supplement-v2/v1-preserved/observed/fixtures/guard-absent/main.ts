@@ -1,0 +1,1 @@
+import { register } from 'opaque'; export function main(value:number) { return register(value); }

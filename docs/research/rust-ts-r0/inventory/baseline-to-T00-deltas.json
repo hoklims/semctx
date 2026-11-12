@@ -1,0 +1,176 @@
+{
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "initialT00Head": "d5ba8fdb3a3b8b8da7ceeb06c16db851d02ad950",
+  "scopedPaths": [
+    "packages/ts-analyzer/src/analyze.ts",
+    "packages/ts-analyzer/src/ts-symbols.ts",
+    "packages/ts-analyzer/src/discovery.ts",
+    "packages/ts-analyzer/src/top-level-outline.ts",
+    "packages/ts-analyzer/src/workspace-links.ts",
+    "packages/ts-analyzer/src/index-worker.ts",
+    "packages/ts-analyzer/src/javascript-diagnostics.ts",
+    "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+    "packages/app-services/src/qualified-analysis.ts",
+    "packages/ts-analyzer/src/symbol-grouping.ts",
+    "packages/ts-analyzer/src/markers.ts",
+    "packages/ts-analyzer/src/docs.ts",
+    "packages/ts-analyzer/src/migrations.ts",
+    "packages/ts-analyzer/src/index.ts",
+    "packages/app-services/src/index-health.ts",
+    "packages/app-services/src/freshness.ts",
+    "packages/app-services/src/analyzer-identity-generated.ts",
+    "scripts/analyzer-identity.ts",
+    "scripts/pilot/baselines.ts",
+    "packages/app-services/src/plane-a-runtime.ts",
+    "packages/app-services/src/verify.ts",
+    "scripts/build-plugin-runtime.ts",
+    "docs/adr/0034-javascript-static-esm.md",
+    "docs/adr/0035-qualified-static-analysis-admission.md"
+  ],
+  "changedCount": 17,
+  "changes": [
+    {
+      "path": "docs/adr/0034-javascript-static-esm.md",
+      "added": 65,
+      "deleted": 0,
+      "gitDiffSha256": "5660436e6027b8a2a97b88380350bb1029a18628f458bb7512456791b0ac17f4",
+      "observedChange": "Proposed TS-only paths/baseUrl amendment; not accepted baseline authority.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "docs/adr/0035-qualified-static-analysis-admission.md",
+      "added": 1,
+      "deleted": 1,
+      "gitDiffSha256": "f5157fc4e7bba366d0ea52b71ff8cc7aadd56f4822b49ed3c4191a6c73adb66c",
+      "observedChange": "Qualified profile rename from modelo-suite-static-v1 to public-monorepo-static-v1.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/app-services/src/analyzer-identity-generated.ts",
+      "added": 2,
+      "deleted": 2,
+      "gitDiffSha256": "6853a6570b4faa734b9f9880fc155dbb4025d32f59d5ec4c1afa5ca4ba351064",
+      "observedChange": "Generated implementation digest and input count changed from290 to292.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/app-services/src/freshness.ts",
+      "added": 3,
+      "deleted": 2,
+      "gitDiffSha256": "3f246f629a0a609586b871511aa02ef230fd23fbb58e145dc67d51586badb526",
+      "observedChange": "Qualified profile rename and bounded/sanitized Git process seam.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/app-services/src/index-health.ts",
+      "added": 9,
+      "deleted": 2,
+      "gitDiffSha256": "952b08418cbe571d73aa6eef2ebaf8bb30fbd888e0ffd52d8396acdc4e717271",
+      "observedChange": "Separate recovery freshness observation path.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/app-services/src/plane-a-runtime.ts",
+      "added": 1,
+      "deleted": 1,
+      "gitDiffSha256": "19e39c739020f730dd76ac2930cfd894d574941cb305d7e34d5ea2184a47e784",
+      "observedChange": "Qualified profile rename for migration outcome policy.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/app-services/src/qualified-analysis.ts",
+      "added": 2,
+      "deleted": 2,
+      "gitDiffSha256": "a82aae66bd6bef936071cf249ae15e301004b7c850e2b1a08c9120c0abe803e1",
+      "observedChange": "Qualified profile selector/report rename.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/app-services/src/verify.ts",
+      "added": 29,
+      "deleted": 13,
+      "gitDiffSha256": "f54e5c1009d1b3800fc8b8b5c9ad309d691ddd8a44b113f3a2f6cb2b1757d30b",
+      "observedChange": "Bounded/sanitized Git process seam and separate index recovery observation path.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/analyze.ts",
+      "added": 13,
+      "deleted": 1,
+      "gitDiffSha256": "923425c22940c0fc3dc5ec728b47b89c74887b001a0705c7a268eda5465a2e09",
+      "observedChange": "Config-v2 TS-only path-mapping opt-in and qualified profile rename.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/discovery.ts",
+      "added": 15,
+      "deleted": 5,
+      "gitDiffSha256": "f6ddd4733c358d9a633f5050d08d286d7ac48cdb5aa7d963947cfa14d0f8d42b",
+      "observedChange": "Bounded/sanitized Git eligibility, qualified profile rename and TypeScript relative-module predicate.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/index-worker.ts",
+      "added": 5,
+      "deleted": 2,
+      "gitDiffSha256": "90a4966369a88e464471f0e8e24420aa1f097d37e40155b670e32e4362ed3ca0",
+      "observedChange": "Path-mapping option forwarding and request validation.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/index.ts",
+      "added": 1,
+      "deleted": 0,
+      "gitDiffSha256": "0e61710a3a909315ac9a75c63906c49688ceb118abc009d56e26ee39ba7879db",
+      "observedChange": "Exports TypeScriptExtractionOptions.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "added": 14,
+      "deleted": 2,
+      "gitDiffSha256": "1a5434729e500f0b76a9e32cc2431458cc9c3580a22e029aab0e5e9d163a1c6c",
+      "observedChange": "Pass-local live configuration inspection cache.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "added": 348,
+      "deleted": 40,
+      "gitDiffSha256": "ca733073dbfb0e5c394c08029001b2eb4cc27f27a67884340daa0a559940ab03",
+      "observedChange": "Selected TS-only roots path/baseUrl resolution, confinement, Program/worker/preflight/component consistency and caches.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "packages/ts-analyzer/src/workspace-links.ts",
+      "added": 7,
+      "deleted": 1,
+      "gitDiffSha256": "5a15bd99214c06b10947e808a4d6966cf954ef405c7c11c6ce35af186928c014",
+      "observedChange": "Per-pass configuration-inspection cache.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "scripts/analyzer-identity.ts",
+      "added": 1,
+      "deleted": 1,
+      "gitDiffSha256": "05faf6fa5fad956419a483d00b9f6325fd71b21c7aa16264b16e8f7bf1a73e87",
+      "observedChange": "Adds process-budget helper to implementation identity inputs.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    },
+    {
+      "path": "scripts/build-plugin-runtime.ts",
+      "added": 2,
+      "deleted": 1,
+      "gitDiffSha256": "d05a51ac7b1ec0ebfa0a6970f064d385d4e5b69d829c0add9590c1f0d09b08de",
+      "observedChange": "Bun build pin1.4.3 and packaged process-budget helper.",
+      "R0Disposition": "Keep exact baseline behavior/inputs; this later-branch change is outside the strict baseline denominator."
+    }
+  ],
+  "status": "scoped_Git_deltas_inspected_not_a_new_baseline",
+  "schema_version": 1,
+  "reviewer": "/root",
+  "reviewEnvironment": "Darwin arm64; git source diff only; no runtime or native proof",
+  "scopeExplanation": "19 inventoried roots, two indirect consumer files, SDK packaging annex and accepted/proposed ADR documents; changedCount includes17 paths in this explicitly enumerated scope. The earlier reported16 was preliminary, not a global repository count.",
+  "newBaselineSelected": false,
+  "separateHistoricalArbitration": "../arbitrations.json#T00-ARB-001"
+}

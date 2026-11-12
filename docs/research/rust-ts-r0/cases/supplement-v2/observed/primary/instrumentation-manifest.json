@@ -1,0 +1,176 @@
+{
+  "behavior": "Unchanged function bodies; observational wrappers preserve returned values, errors and Promise outcomes. True retained semantic Program recorded at use site.",
+  "files": [
+    {
+      "path": "packages/ts-analyzer/src/analyze.ts",
+      "baselineSha256": "8d9f774cab04662b293bad3ff564303605a862fadb59f4e5d3ca2fcf20c6cea2",
+      "observedSha256": "7db4a23dad7728e4ad479bcb73d86c0d53981f99492808a97a9b53be801481de",
+      "originalBytes": 30851,
+      "instrumentedBytes": 31345,
+      "wrappers": 2
+    },
+    {
+      "path": "packages/ts-analyzer/src/discovery.ts",
+      "baselineSha256": "08069117cf26c6c2ca743af2bee3aaf6fb8f5959538c92c106150a18f52b881e",
+      "observedSha256": "ae202ed2d9a4710f633a4c976d0f36861deda7752eacb0d42c19c1bfb821f257",
+      "originalBytes": 23938,
+      "instrumentedBytes": 24249,
+      "wrappers": 1
+    },
+    {
+      "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+      "baselineSha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+      "observedSha256": "64f4513d91a101695e0a2541a188f6b26b1c856655a3036ae549e9651453e322",
+      "originalBytes": 35593,
+      "instrumentedBytes": 36318,
+      "wrappers": 3
+    },
+    {
+      "path": "packages/ts-analyzer/src/ts-symbols.ts",
+      "baselineSha256": "259b92fde8c66d72adb5dce767248bd8426f017c7885007f6ec6107a3b54716e",
+      "observedSha256": "c12eca42eeaceef82d603ff173e478fadff0e83d45cd668e2c4f9690ac703c2d",
+      "originalBytes": 61457,
+      "instrumentedBytes": 62377,
+      "wrappers": 4
+    },
+    {
+      "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+      "baselineSha256": "a13d3a244e75495592075379f2aa7c524f4c0157755459a8640240ea960ab782",
+      "observedSha256": "a155d847a6d099ee85f1e2ebeb27961ca39c694ab4b663a611421836157b24b4",
+      "originalBytes": 107955,
+      "instrumentedBytes": 108366,
+      "wrappers": 1
+    },
+    {
+      "path": "packages/app-services/src/indexing.ts",
+      "baselineSha256": "4f269ab376734d55f9e3c22420bb099f542bb6bb10076093518592ff7986e93b",
+      "observedSha256": "abb4abba321170fd9877b7f0fdb0bb4aa77c29da6a701fcc893394fc1b7f8e58",
+      "originalBytes": 17517,
+      "instrumentedBytes": 17819,
+      "wrappers": 1
+    },
+    {
+      "path": "packages/app-services/src/verify.ts",
+      "baselineSha256": "48b3b4b46fcfa49e59bac39eefeba764cf1901ceac37ded29341e086c41c5c18",
+      "observedSha256": "4fa6f9e97874b920a4ed7896cbb7ac6da5c612ffb60855a75b31157f816b40e2",
+      "originalBytes": 58218,
+      "instrumentedBytes": 58502,
+      "wrappers": 1
+    },
+    {
+      "path": "scripts/pilot/baselines.ts",
+      "baselineSha256": "c0f8b36efeda070078416261282fed97e70d635c142f55c7a30df6150b73adb9",
+      "observedSha256": "cdb99d39f7d70b1559358015adbadbd3b303c7605d7abb14d6fc140b343ed817",
+      "originalBytes": 4200,
+      "instrumentedBytes": 4547,
+      "wrappers": 1
+    },
+    {
+      "path": "packages/app-services/src/qualified-analysis.ts",
+      "baselineSha256": "da89277683016b7a956cc7b0fd91708f1dd1abc6d45a375449810790ebdface5",
+      "observedSha256": "3c1938f997800ac6be24ce118b9b94f6f863d9c902d9580e133b5884f1ae4c9d",
+      "originalBytes": 15205,
+      "instrumentedBytes": 15549,
+      "wrappers": 1
+    },
+    {
+      "path": "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts",
+      "baselineSha256": "831a47b07d71525991bca471bbcff80c6b6de7545e1fe709f8989df58dd44212",
+      "observedSha256": "ad488045ebdc08eff2169965f9daed4aaf30b60030d4e28fe6b6b0a285362b7a",
+      "originalBytes": 2617,
+      "instrumentedBytes": 3140,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 3
+    },
+    {
+      "path": "packages/ts-analyzer/test/discovery-selection.test.ts",
+      "baselineSha256": "a71442ac84c5038f620fafc33ece37db4108e5e858235d5c6cc63d86bc412969",
+      "observedSha256": "f6e00c900cf6e51cb557a7a7c7113092bb308efd2dcb8c558364d55a83b0f8d3",
+      "originalBytes": 25933,
+      "instrumentedBytes": 28225,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 22
+    },
+    {
+      "path": "packages/ts-analyzer/test/create-require.test.ts",
+      "baselineSha256": "211ca27cfaa8b9d4dba33c7f5c43bd1f599e4f77f758a1fd8c355c16817cd750",
+      "observedSha256": "22ea6534907b39f9367d6bf72c47a0baf7fcffe904a85c30f7dccb56db0d57fa",
+      "originalBytes": 21444,
+      "instrumentedBytes": 22851,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 13
+    },
+    {
+      "path": "packages/ts-analyzer/test/javascript.test.ts",
+      "baselineSha256": "8d4ad429dde03ae7e5f4cf375601ada1ff6d083a4b77fc00af044a94584a7e47",
+      "observedSha256": "3182c6d3c77c6fcff95407de54a9cb63f442493b0260f06a272f30643452a7e5",
+      "originalBytes": 6221,
+      "instrumentedBytes": 6986,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 6
+    },
+    {
+      "path": "packages/ts-analyzer/test/parallel-extraction.test.ts",
+      "baselineSha256": "56993fdc212ee8fadcd49641dd5f0620978c277305cf807c1557c560446fbc79",
+      "observedSha256": "d1482a4f945608ac2e15be7c80ef9e0ad1f062cb93312049f51db0954dc56e7a",
+      "originalBytes": 19827,
+      "instrumentedBytes": 21281,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 13
+    },
+    {
+      "path": "packages/ts-analyzer/test/semantic-js-contracts.test.ts",
+      "baselineSha256": "39f6372cf882cbab92f6df059fb4d6d9cc33a4984aea9f9763bba0eed510ef95",
+      "observedSha256": "17e586384d351945fbd20b41157ccc3c14859364ddf6a8acba724e129cf0a6e1",
+      "originalBytes": 12745,
+      "instrumentedBytes": 14615,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 17
+    },
+    {
+      "path": "packages/ts-analyzer/test/runtime-value-imports.test.ts",
+      "baselineSha256": "9d437ffb0eca12ceba88b487e9dfdf6e06e625295cfb3c19fafbb7700a870ca6",
+      "observedSha256": "e3233c47fa3720ae59dc4476ac9870e13d30f6a94e7cbefb7b55480a28f9b1c4",
+      "originalBytes": 3229,
+      "instrumentedBytes": 3749,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 3
+    },
+    {
+      "path": "packages/ts-analyzer/test/workspace-configuration-links.test.ts",
+      "baselineSha256": "affa90a74bd0b547db5da4c8fb2e88e6a3183dc570894aa0df63d007e4687393",
+      "observedSha256": "2068fbec61e15babd548996dbe313dc7c9aff0cf6524d5afb665534d6535c008",
+      "originalBytes": 45876,
+      "instrumentedBytes": 49463,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 36
+    },
+    {
+      "path": "packages/ts-analyzer/test/opaque-inline-ownership.test.ts",
+      "baselineSha256": "a3fbc5be4eec39c3f64a676a5da6a4e4f482e3c3eab94966543f7f844e500c10",
+      "observedSha256": "e7796ae68631af8cbd3b0b7750541e77066f3b6ffb00035112054ead1257563f",
+      "originalBytes": 5387,
+      "instrumentedBytes": 5848,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 3
+    },
+    {
+      "path": "packages/app-services/test/qualified-analysis.test.ts",
+      "baselineSha256": "51597928e1f9d7552bdb037d19b4df7410684ea597078400c53237b45c3ebef6",
+      "observedSha256": "ab600aed7703c33bf4c9fb3ca3b10ebeb2f4d7c227245264f8735ea06dc4ba7c",
+      "originalBytes": 28730,
+      "instrumentedBytes": 32434,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 35
+    },
+    {
+      "path": "scripts/test/impact-pilot.test.ts",
+      "baselineSha256": "368fba1eaa2e4ce944a65569929c754b71b113173705494d59342087edfb5b91",
+      "observedSha256": "b1f1ce1b2c8fec53ca16c6a151c70c8728cefd2d3faee25e2330354ccfed77e6",
+      "originalBytes": 85101,
+      "instrumentedBytes": 91584,
+      "role": "test-name observation only; test registration, assertions and original callbacks unchanged",
+      "callbacks": 72
+    }
+  ]
+}

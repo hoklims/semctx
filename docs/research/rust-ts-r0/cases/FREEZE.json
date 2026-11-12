@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_EXPECTATIONS_PRESELECTION",
+  "author": "/root",
+  "frozen_utc": "2026-10-17T15:53:22.507471+00:00",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "index": {
+    "path": "index.json",
+    "sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1",
+    "bytes": 817245
+  },
+  "counts": {
+    "qualification_records": 268,
+    "source_v3_execution_units": 349,
+    "support_units": 51,
+    "obligation_rows": 240,
+    "families": 27,
+    "development_records": 10,
+    "development_variants": 17,
+    "public_records": 7,
+    "public_payload_files": 10,
+    "historical_source_references": 111,
+    "execution_units": 354,
+    "records_frozen": 268
+  },
+  "review": {
+    "path": "annexes/stage3-global-freeze-review.json",
+    "sha256": "dfc84975e5b9ffd074e0f35241440d79829344f2d2911fbf23fa3d50c834db43",
+    "bytes": 41538
+  },
+  "semantic_candidate_state": {
+    "compositions_selected": 0,
+    "native_runs": 0,
+    "r0": "NOT_RUN"
+  },
+  "scope": "Freeze independent expectations and allocation only. No native mechanism, process, semantic success, coherent capture or Windows/Linux capability is proved.",
+  "source_authority": "Issue365 section2; approved envelope and explicit export-star arbitration. Independent source review plus root verification of actual baseline consumers.",
+  "independence": "268qualification records excluded from initial producer development;10bootstrap records/17variants separate; common SDK allowed. Reserved private contents remain with /root/reserved_corpus, who never authors producer.",
+  "runtime_obligations": "Every frozen unit/support remains required; no UNKNOWN can replace supported baseline behavior. Full upstream project typechecks and full T02 services are not claimed by bounded projections.",
+  "storage": "Raw public/encoding inputs and TypeScript license are base64 data; decode before analysis and require decoded identities. Semantic fixture bytes and frozen projections unchanged."
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "purpose": "Private C1 development prototype, not READY_TS_NATIVE or a production analyzer",
+  "composition": {
+    "repository": "https://github.com/pingdotgg/ts-rust",
+    "rev": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "declared_crate_version": "=7.0.0-dev",
+    "compiler_version": "7.1.0-dev",
+    "native_runtime": "Rust; SDK JS was a development oracle and is not invoked by this candidate"
+  },
+  "sdk": {
+    "version": "7.1.0-dev",
+    "source_repository": "https://github.com/pingdotgg/ts-rust",
+    "source_revision": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "source_path": "crates/ts_goport/libs",
+    "library_manifest": {
+      "path": "sdk/library-manifest.json",
+      "bytes": 16871,
+      "sha256": "b1fa7b60aa83d187453b26c0b56a096875a47e61977954aba7deba16161fd7ad"
+    },
+    "descriptor_sha256": "11a59ed615b5245c83aa8563bf4d820c9a98c6c7845b9879c0a382e07707b160",
+    "libraries": 115,
+    "library_bytes": 3861561,
+    "source_bytes_comparison": "All 115 library payloads match the pinned source and TS7 oracle manifest byte for byte. Inventory and content validation do not establish consumption of every library.",
+    "notices": [
+      {
+        "path": "sdk/LICENSE.txt",
+        "source_path": "licenses/TypeScript-LICENSE.txt",
+        "source_sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47",
+        "stored_sha256": "527adf9d4c760f7367c2aeffed6a89afba8ba40ea1b0efbc8f56496ad30ea9cf",
+        "transformation": "CRLF→LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
+      },
+      {
+        "path": "sdk/ThirdPartyNoticeText.txt",
+        "source_path": "licenses/TypeScript-NOTICE.txt",
+        "source_sha256": "317cd4d9d8a4de4971222bd232bc45c010424bf0dae61be830e49532e62e4d33",
+        "stored_sha256": "e913e58502e5c4a029ab7a964bc653860beb83b2537201595369777f914f2ca4",
+        "transformation": "CRLF→LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
+      }
+    ]
+  },
+  "source_authority": {
+    "semctx_baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "sdk_source_sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+    "owned_ports": [
+      "SDK5.9 configured module/type-reference resolution over pinned native primitives",
+      "SDK5.9 import-helper predicate projection over native transformed AST; not an ES5 emitter"
+    ]
+  },
+  "limits": [
+    "DEV evidence only at this checkpoint",
+    "No complete frozen qualification or reserved execution",
+    "Cross-platform qualification remains pending; native Windows execution is outside this lot",
+    "Receiver supplied freshness state is a controlled private proof boundary, not full indexing acquisition",
+    "Input observations need independent comparison with captured bytes; descriptor labels alone establish no SDK authenticity"
+  ]
+}

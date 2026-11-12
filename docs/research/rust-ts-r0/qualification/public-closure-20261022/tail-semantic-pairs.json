@@ -1,0 +1,105 @@
+{
+  "scope": "Public additions only; candidate focal controls require native verification",
+  "pairs": [
+    {
+      "name": "cluster-export",
+      "activate": "PUBLIC-TAIL-cluster-export-activate",
+      "control": "PUBLIC-TAIL-cluster-export-control",
+      "focalReason": "SOURCE_PROCESS_LAUNCH_UNSUPPORTED",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "name": "jsx-identifier",
+      "activate": "PUBLIC-TAIL-jsx-identifier-activate",
+      "control": "PUBLIC-TAIL-jsx-identifier-control",
+      "focalReason": "SOURCE_JSX_COMPONENT_UNSUPPORTED",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "name": "jsx-namespace",
+      "activate": "PUBLIC-TAIL-jsx-namespace-activate",
+      "control": "PUBLIC-TAIL-jsx-namespace-control",
+      "focalReason": "SOURCE_JSX_COMPONENT_UNSUPPORTED",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "name": "jsx-member",
+      "activate": "PUBLIC-TAIL-jsx-member-activate",
+      "control": "PUBLIC-TAIL-jsx-member-control",
+      "focalReason": "SOURCE_JSX_COMPONENT_UNSUPPORTED",
+      "obligation_indices": [
+        84
+      ]
+    },
+    {
+      "name": "class-expression",
+      "activate": "PUBLIC-TAIL-class-expression-activate",
+      "control": "PUBLIC-TAIL-class-expression-control",
+      "focalReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED",
+      "obligation_indices": [
+        84,
+        134
+      ]
+    },
+    {
+      "name": "overload",
+      "activate": "PUBLIC-TAIL-overload-activate",
+      "control": "PUBLIC-TAIL-overload-control",
+      "focalReason": "SOURCE_AMBIENT_FUNCTION_UNSUPPORTED",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "name": "protocol-property",
+      "activate": "PUBLIC-TAIL-protocol-property-activate",
+      "control": "PUBLIC-TAIL-protocol-property-control",
+      "focalReason": "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "name": "location-href",
+      "activate": "PUBLIC-TAIL-location-href-activate",
+      "control": "PUBLIC-TAIL-location-href-control",
+      "focalReason": "SOURCE_SCRIPT_NAVIGATION_UNSUPPORTED",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "name": "async-for-items",
+      "activate": "PUBLIC-TAIL-async-for-items-activate",
+      "control": "PUBLIC-TAIL-async-for-items-control",
+      "focalReason": "SOURCE_AWAIT_UNSUPPORTED",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "name": "async-for-spread",
+      "activate": "PUBLIC-TAIL-async-for-spread-activate",
+      "control": "PUBLIC-TAIL-async-for-spread-control",
+      "focalReason": "SOURCE_AWAIT_UNSUPPORTED",
+      "obligation_indices": [
+        134
+      ]
+    },
+    {
+      "name": "prototype-initializer",
+      "activate": "PUBLIC-TAIL-prototype-initializer-activate",
+      "control": "PUBLIC-TAIL-prototype-initializer-control",
+      "focalReason": "SOURCE_PROTOTYPE_MUTATION_UNSUPPORTED",
+      "obligation_indices": [
+        134
+      ]
+    }
+  ]
+}

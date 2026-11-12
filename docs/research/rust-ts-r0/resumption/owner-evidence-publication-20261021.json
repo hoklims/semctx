@@ -1,0 +1,32 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-21",
+  "authority": {
+    "owner": "Sébastien",
+    "source": "codex-brief-20261021-review.md, explicitly invoked by the owner in this session",
+    "decision": "Restore the public evidence needed to reproduce C1 in the repository; authorize one normal push after local validation."
+  },
+  "supersedes": {
+    "path": "owner-execution-and-custody-20261020.json",
+    "scope": "LOCAL_ONLY_OWNER_CUSTODY and the prohibition of uploading these public evidence payloads through the existing PR. Historical records remain unchanged."
+  },
+  "publication": {
+    "state": "REPOSITORY_EVIDENCE_RESTORED",
+    "index": "../evidence/archive-index.json",
+    "restoredHistoricalArchives": 30,
+    "newHistoricalCampaignBundles": 3,
+    "form": "The 30 restored archives retain their exact original base64 bytes and repository paths from 594aae60^; decoded hashes also match local SHA256SUMS and the relocation index.",
+    "excludedC2": "All six composition2 entries remain excluded and held locally. C1 preparation uses qualifier-reproduction and the C1 legacy-identity archive, not the abandoned C2 producer/replays. C2 citations in historical records remain historical.",
+    "reserved": "Never publish reserved input/source/expectation bytes; private access coordinates and public commitments only.",
+    "forbidden": [
+      "GitHub comments or replies",
+      "PR description changes",
+      "ready-for-review or review requests",
+      "manual CI",
+      "rebase",
+      "force-push",
+      "release or tag"
+    ]
+  },
+  "unchanged": "Current corpus, expectations, arbitrations, owner execution order and Windows final-milestone-only policy. No new assertion adoption, campaign execution, qualification credit, waiver or R0 decision follows."
+}

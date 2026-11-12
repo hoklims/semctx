@@ -1,0 +1,136 @@
+{
+  "schemaVersion": 1,
+  "producer": "/root/component_observations",
+  "startedAtUtc": "2026-10-17T18:51:32Z",
+  "endedAtUtc": "2026-10-17T18:57:55.926352+00:00",
+  "ownership": [
+    "tools/rust-ts-r0/src/main.rs",
+    "tools/rust-ts-r0/src/component_observations.rs"
+  ],
+  "sources": [
+    {
+      "path": "tools/rust-ts-r0/src/main.rs",
+      "sha256": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46"
+    },
+    {
+      "path": "tools/rust-ts-r0/src/component_observations.rs",
+      "sha256": "5f7051d69de1ca9a4b07738ec588a2da5757f4ab8cae8255bf36cab9423cdfa8"
+    }
+  ],
+  "scope": "Native component observations exposed before optimized artifact freeze; no qualification or holdout request executed.",
+  "environment": {
+    "host": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+    "architecture": "arm64",
+    "rustToolchain": "1.95.0",
+    "cargoHome": "/private/tmp/semctx-t00-native-composition1-20261017/cargo-home",
+    "GIT_CONFIG_GLOBAL": "unset",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "RUST_TEST_THREADS": "1"
+  },
+  "checks": [
+    {
+      "command": "cargo test --locked --manifest-path tools/rust-ts-r0/Cargo.toml component_observation_executes -- --nocapture",
+      "phase": "RED",
+      "exit": 101,
+      "witness": "semanticObservation.executed was Null, expected true",
+      "log": "component-observations-red-1.log"
+    },
+    {
+      "command": "cargo test --locked --manifest-path tools/rust-ts-r0/Cargo.toml component_observation_executes -- --nocapture",
+      "phase": "GREEN",
+      "exit": 0,
+      "testsPassed": 1,
+      "log": "component-observations-green-1.log"
+    },
+    {
+      "command": "cargo test --locked --manifest-path tools/rust-ts-r0/Cargo.toml --bin semctx-r0-probe",
+      "exit": 0,
+      "testsPassed": 129,
+      "scope": "Full pre-final-two-characterization bin suite, production source identical",
+      "log": "component-observations-all-bin.log"
+    },
+    {
+      "command": "cargo test --locked --manifest-path tools/rust-ts-r0/Cargo.toml component_observation_",
+      "exit": 0,
+      "testsPassed": 7,
+      "scope": "All seven component DEV cases on final source; 124 other bin tests filtered",
+      "log": "component-observations-final-targeted-2.log"
+    },
+    {
+      "command": "cargo clippy --locked --manifest-path tools/rust-ts-r0/Cargo.toml --all-targets -- -D warnings",
+      "exit": 0,
+      "scope": "All native targets including root-owned native_common_portability test",
+      "log": "component-observations-final-clippy-2.log"
+    },
+    {
+      "command": "cargo fmt --manifest-path tools/rust-ts-r0/Cargo.toml --check",
+      "exit": 0
+    },
+    {
+      "command": "git diff --cached --check -- tools/rust-ts-r0/src/main.rs tools/rust-ts-r0/src/component_observations.rs",
+      "exit": 0
+    }
+  ],
+  "developmentCorrections": [
+    {
+      "kind": "test expectation correction",
+      "detail": "JS parse error positions were initially counted as 34/35; TypeScript SDK 5.9.3 independently returned code1109 at35..36 with message Expression expected; test changed to35/36."
+    },
+    {
+      "kind": "test scenario isolation",
+      "detail": "JSX runtime case initially exported JSX value, introducing independent SOURCE_CALLABLE_EXPORT_UNSUPPORTED. Removed value export and retained export{} in DEV input, leaving SUT unchanged."
+    }
+  ],
+  "independentReview": {
+    "agent": "/root/component_observations/component_contract_review",
+    "scope": "Historical inspectSourceParsing/inspectModuleConfiguration333..436 and native helper composition, static only",
+    "verdict": "No certain material defect found",
+    "reviewNotes": [
+      "outsideRepository short-circuits all reasons/unsupported",
+      "ordinary mode omits source and snapshot profile",
+      "consumed/raw distinguishes absent from JSON-invalid configuration",
+      "explicit moduleNone distinguished from omission",
+      "semantic execution no longer gated by ordinary TS admission"
+    ]
+  },
+  "knownLimits": [
+    "No global R0 or parity claim; frozen qualification and holdout not queried",
+    "Retained-mode observations executed=false with COMPONENT_RETAINED_INPUTS_NOT_ENABLED when request.retained=false",
+    "ordinaryWithoutSnapshot uses explicit captured filesystem, never live filesystem fallback",
+    "Config diagnostic ordering and message text derive from existing native configuration collector; not asserted fully equivalent to SDK5.9",
+    "javascript.reasons remains elementary JavascriptScan, not claimed full historical inspectJavascript operation",
+    "Supported native Windows/Linux not exercised by this local Mac check"
+  ],
+  "newImplementationComments": [],
+  "logs": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-red-1.log",
+      "sha256": "ea1cfdf742205f93a8795e7d0b34c372cc18870e163abf59a36c55cbb41da981"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-green-1.log",
+      "sha256": "ea70c35131de0b85f31488a4ee253c06fae98e5ed30dc647802620851d1141f7"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-green-all.log",
+      "sha256": "5ede6087e175ad7d608025409600dbc854b2943197f9fec91f442f41930b2e64"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-all-bin.log",
+      "sha256": "800de2c587e7235e261cb62b1b2090b33533f72e2b77685420b712b797a2d78a"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-final-targeted.log",
+      "sha256": "b407760755117d8040c6ea994a167566fca9898cd69a388ef116df998aeb3fd7"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-final-targeted-2.log",
+      "sha256": "3b658a0868bd2e29fc6ac302a5919794612255678dc47fce4fe7c844e4bb487c"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/component-observations-final-clippy-2.log",
+      "sha256": "df45b17223379b601e8d04fd77fdda817218535da8556cc7f3b1c603c86c64ee"
+    }
+  ]
+}

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "review": "stage4-integration-spec-review",
+  "axis": "specification_and_relations",
+  "mode": "read_only_local_source_review",
+  "reviewer": "/root/stage4_integration_spec_review",
+  "baseline_commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "main_worktree_head": "9494388269ed1b3220ce4bde247e58543c6ffd87",
+  "candidate_directory": "/private/tmp/semctx-t00-native-composition1-20261017",
+  "candidate_commit": null,
+  "candidate_commit_note": "The external prototype has no HEAD commit. The reviewed identity is the per-file SHA-256 inventory below.",
+  "changed_during_review": {
+    "src/main.rs_final_observed_sha256": "ee0dacb9ae7fcb53bacfe1ca70d7d1fb0097023e7cbf7b829d2e98fdc792c6f2",
+    "note": "A new development test for SOURCE_SNAPSHOT_REQUIRED was visible at the final identity check. The two affected admission branches were re-read and still contained both reported defects at that point. This report's full-scope source identity remains the original inventory; later fixes require a delta review."
+  },
+  "environment": "macOS arm64, as supplied by the parent task; source review only",
+  "candidate_sha256": {
+    "src/main.rs": "24ec279b1dfc1c51db7c091468500e69a5551fa320b0e2e68265a69d77f7890d",
+    "src/batch.rs": "4fff85759adb3d2c2a8cb88528b7871a04a22644e27db77828273b83ae8cf0f4",
+    "src/captured.rs": "14db69a170159d9009836336654bfcfb10779824ee947cf896a6082f18293cbd",
+    "src/configuration.rs": "f38e0422e5c520584e0ed1fa615890d4580b84ff7e7d9ac39b610b7bf0c08132",
+    "src/source_text.rs": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6",
+    "src/identity.rs": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752",
+    "src/assembly.rs": "89646b787269213a722fdc9887dd6a5857fef24cd986c378ad39cf4469eb9c5d",
+    "src/wire.rs": "cf92da4f164f1177aa2d384f2c83d52e55f173be7664d396321dbd4043668987",
+    "src/receiver.rs": "3ff0a55b6e9bdba4db3db4a1f9ab6ab4724054a2ad0e8a72f448cf89877e19eb",
+    "src/qualified.rs": "e76b1961a4554b70c531b2b2e4c6e7e173a0923d9bbc1303574630ad38817023"
+  },
+  "baseline_git_blobs": {
+    "packages/ts-analyzer/src/analyze.ts": "8437f79cb0aac9b60b7d349e025a21bc1de27927",
+    "packages/ts-analyzer/src/ts-symbols.ts": "511228ef9f2d8ce53c86c4cad6969b21734c96d6",
+    "packages/ts-analyzer/src/discovery.ts": "5d51ff17a53f8e1e43d07ff2b1c00f420a7f9b06",
+    "packages/ts-analyzer/src/javascript-diagnostics.ts": "b37673965abcbb2c54f480de4b7a352b2e791d91",
+    "packages/core/src/ids.ts": "32b33e2219436e0b2eb0591a639ee4abafb3d64d",
+    "packages/core/src/types/graph.ts": "cdc7eac7b6ae922fd7c9d1c224f4ef27463706d8",
+    "packages/plane-a-internal/src/assembler.ts": "dc954abe3779e265851820366901c2a27f62a266",
+    "packages/ts-analyzer/src/symbol-grouping.ts": "65b0de03533edf28fb25fd4a09b5677f3e24dc9b"
+  },
+  "requirements_sha256": {
+    "/private/tmp/semctx-t00-20261017/issue365-current-body.md": "829462ad45660c0d3f614557be4690fd391420bed9e7ea5300e83253bfefca3a",
+    "docs/adr/0031-change-scoped-ci-gates.md": "70655790f9d91eaad4a28797a2cda57218d4dceda235f375437cc4b53809fc84",
+    "docs/adr/0037-rust-gates-and-qualified-evidence.md": "e2b686db3bc7361d005efe4955e3a0e6e82bbb7b0c9a7347e76d2e0fccb486a4"
+  },
+  "authority_notes": [
+    "Issue 365 section 2 is the requested T00/R0 experiment contract; it requires retained-input, admission/refusal and ordinary/qualified behavior to remain distinct.",
+    "ADR 0031 is accepted; ADR 0037 is accepted on current main and does not exist at the frozen baseline commit.",
+    "Baseline source behavior is an observation used to identify a divergence, not independent architectural authority."
+  ],
+  "findings": [
+    {
+      "id": "S4-SPEC-01",
+      "severity": "P1",
+      "status": "closed_by_delta_review_at_86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+      "title": "Qualified requests can enter analysis without retained inputs",
+      "location": "src/main.rs:765",
+      "related_locations": ["src/main.rs:656", "src/batch.rs:4"],
+      "mechanism": "Request accepts qualified=true and retained=false. analyze has no guard for that combination. inspect_subject omits semantic and runtime reasons for TypeScript under retained=false, while batch::profile still emits modelo-suite-static-v1. A simple exported TypeScript function with no other reason can therefore become analyzed under the qualified profile although the baseline refuses this mode before extraction.",
+      "source_contract": "Baseline packages/ts-analyzer/src/analyze.ts:411-419 throws SOURCE_SNAPSHOT_REQUIRED when qualified-static-v1 has no compilerInputs; issue 365 section 2.2 includes captured inputs and required admissions/refusals in the frozen denominator.",
+      "witness_shape": {"qualified": true, "retained": false, "source": "export function t00DevelopmentSnapshotWitness(){return 1;}"},
+      "evidence": "Source trace only. No candidate or oracle execution performed by this reviewer.",
+      "coordination": "Parent notified and independently preparing a development reproduction/correction. This report does not validate that later correction."
+    },
+    {
+      "id": "S4-SPEC-02",
+      "severity": "P1",
+      "status": "closed_by_delta_review_at_86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+      "title": "Late named-configuration reasons do not refuse ordinary JavaScript in the private consumer path",
+      "location": "src/main.rs:1087",
+      "related_locations": ["src/main.rs:1068", "src/main.rs:752", "src/batch.rs:150", "src/batch.rs:322", "src/receiver.rs:718"],
+      "mechanism": "The named_reasons post-pass applies to qualified subjects and JavaScript subjects. It appends SOURCE_NAMED_CONFIGURATION_UNSUPPORTED, but changes analyzed to unsupported only when qualified=true. With qualified=false, retained=true, one otherwise supported JavaScript module and an unconsumed tsconfig.build.json, the subject remains analyzed despite this refusal reason. batch::build then emits complete coverage and terminal=complete, and Receiver does not reject diagnostics on an analyzed batch. This bypasses the private refusal applied to other JavaScript reasons by inspect_subject.",
+      "source_contract": "Candidate main.rs:752 treats ordinary JavaScript reasons as unsupported; the parent clarified that this private controlled-refusal boundary intentionally prevents ownership on such reasons. This finding concerns that internal admission inconsistency, not equivalence of its enum spelling to the baseline source-analysis ledger.",
+      "witness_shape": {"qualified": false, "retained": true, "roots": ["/repo/a.js"], "files": {"/repo/a.js": "export function t00DevelopmentNamedConfigurationWitness(){return 1;}", "/repo/tsconfig.build.json": "{}"}},
+      "evidence": "Source trace only. No candidate or oracle execution performed by this reviewer.",
+      "coordination": "Parent notified for an independent development reproduction."
+    }
+  ],
+  "observations_not_findings": [
+    {
+      "topic": "Ordinary JavaScript analyzed/partial versus private controlled refusal",
+      "detail": "The baseline source sidecar keeps analysisOutcome=analyzed with partial capability profiles when JavaScript reasons exist. The prototype private batch may refuse these subjects while retaining graph facts. Enum spelling alone was not retained as a defect because the two boundaries have different purposes."
+    },
+    {
+      "topic": "Windows path spelling",
+      "detail": "At the initial snapshot, CaptureFs::key normalized backslashes but CaptureFs::new derived parent directories from the original spelling using rsplit_once('/'). The delta at main.rs SHA-256 86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014 now normalizes the spelling before directory construction. The parent supplied a failing-then-passing development witness for file existence, directory existence, directory entries and realpath. This source observation is closed. Native Windows behavior remains unexecuted by this reviewer."
+    },
+    {
+      "topic": "Graph and range relations",
+      "detail": "Read assembly grouping, exact-coordinate relation selection, test-binding associations, marker merge/degradation, batch range envelopes, graph payload validation and endpoint checks. No additional certain contract defect was established by this source-only pass. SourceRange bounds and evidence-envelope validation are not execution evidence for coordinate parity."
+    },
+    {
+      "topic": "Selection and disabled analysis",
+      "detail": "Excluded subjects are omitted from facts and represented by selection=excluded/outcome=null in the wire. Selected disabled subjects remain selected with outcome=disabled, no coverage and no facts. No conflation was established in the reviewed paths."
+    }
+  ],
+  "checks": {
+    "performed": ["Read frozen baseline sources with git show", "Read supplied prototype modules and bounded qualified integration code", "Captured per-file SHA-256 identities before and after the read", "Read current accepted ADRs and issue 365 section 2"],
+    "not_performed": ["cargo", "native prototype execution", "oracle execution", "qualification payload reading", "reserved corpus reading", "GitHub access", "product edits"],
+    "supported_targets_not_exercised": ["Windows native", "Linux", "macOS execution"],
+    "r0_qualification": "not_started_by_this_reviewer",
+    "final_gates": "pending"
+  },
+  "delta_closure": {
+    "scope": "Only the three parent-reported corrections in src/main.rs and their three development witnesses; no new exploration or execution.",
+    "src/main.rs_sha256": "86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014",
+    "source_identity_matches_parent": true,
+    "S4-SPEC-01": "Closed: analyze now rejects qualified && !retained with SOURCE_SNAPSHOT_REQUIRED before constructing the frontend.",
+    "S4-SPEC-02": "Closed: the late named-configuration post-pass now changes any applicable analyzed subject to unsupported; the outer condition still limits application to qualified or JavaScript subjects.",
+    "windows_path_observation": "Closed at the VFS source boundary: CaptureFs::new replaces backslashes before deriving parents and recording spelling.",
+    "parent_supplied_evidence": {
+      "/private/tmp/semctx-t00-20261017/evidence/integration-review-red.log": {
+        "sha256": "6cba79e321540fd80a6420a37646f5fd57a3718c053974e4f851e7b795a5da46",
+        "observed": "Three named development tests failed, zero passed."
+      },
+      "/private/tmp/semctx-t00-20261017/evidence/integration-review-green-1.log": {
+        "sha256": "5de709319a25fbbcb51de3045f612883877f16c81ca1b3762fab2bd1a6c3b65c",
+        "observed": "The same three named development tests passed, zero failed."
+      }
+    },
+    "reviewed_witnesses": [
+      "development_review_boundary_rejects_qualified_without_retained_capture",
+      "development_review_boundary_refuses_late_javascript_configuration_reason",
+      "development_review_boundary_normalizes_windows_capture_directory_spelling"
+    ],
+    "evidence_limit": "Existing parent-run Cargo development logs were read, not independently rerun. The JavaScript witness checks both the subject outcome and terminal=Refused. Windows spelling was exercised in the captured VFS on the parent's macOS arm64 environment; this is not native Windows qualification. Full gates and R0 qualification remain pending."
+  },
+  "conclusion": "Both integration/admission findings and the backslash source observation are closed by the bounded delta review at src/main.rs SHA-256 86ae568553b37c8ec93e0158720796f97a4fd39d0a17e5533db1b90b7c988014. No open finding remains from this review's scope. This is a local review, not a PR verdict or an R0 decision."
+}

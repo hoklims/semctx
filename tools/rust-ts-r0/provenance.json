@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "purpose": "Private C1 development prototype, not READY_TS_NATIVE or a production analyzer",
+  "composition": {
+    "repository": "https://github.com/pingdotgg/ts-rust",
+    "rev": "780dc512d64f40afebffa6a7028207649fb7ed1c",
+    "declared_crate_version": "=7.0.0-dev",
+    "compiler_version": "7.1.0-dev",
+    "native_runtime": "Rust; SDK JS was a development oracle and is not invoked by this candidate"
+  },
+  "sdk": {
+    "package": "typescript",
+    "version": "5.9.3",
+    "archive_sha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+    "descriptor_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "libraries": 100,
+    "published_bytes_comparison": "All100 text payloads matched the frozen published SDK manifest before first native query. This is not a claim that all100 were consumed.",
+    "notices": [
+      {
+        "path": "sdk/LICENSE.txt",
+        "published_sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47",
+        "stored_sha256": "527adf9d4c760f7367c2aeffed6a89afba8ba40ea1b0efbc8f56496ad30ea9cf",
+        "transformation": "CRLF\u2192LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
+      },
+      {
+        "path": "sdk/ThirdPartyNoticeText.txt",
+        "published_sha256": "1af3c68039c57e539422da82a4faada506ce6d0ea6f90e0b699d02dbcdb7a90c",
+        "stored_sha256": "f7d7409c091d9d5c09a8bafbc4a27dc30ce2da6e19b7c0f91c59754a7c4b195b",
+        "transformation": "CRLF\u2192LF; trailing line whitespace and extra trailing blank lines removed under repository text policy. All non-whitespace text preserved."
+      }
+    ]
+  },
+  "source_authority": {
+    "semctx_baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "sdk_source_sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+    "owned_ports": [
+      "SDK5.9 configured module/type-reference resolution over pinned native primitives",
+      "SDK5.9 import-helper predicate projection over native transformed AST; not an ES5 emitter"
+    ]
+  },
+  "limits": [
+    "DEV evidence only at this checkpoint",
+    "No complete frozen qualification or reserved execution",
+    "Native Linux and Windows execution pending",
+    "Receiver supplied freshness state is a controlled private proof boundary, not full indexing acquisition",
+    "Input observations need independent comparison with captured bytes; descriptor labels alone establish no SDK authenticity"
+  ]
+}

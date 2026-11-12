@@ -1,0 +1,27 @@
+{
+  "observerPath": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/qualification_replay-f9e27f9b0849f013",
+  "observerSha256": "d79891fb82b399dfcce6fbe8a9faa595ac9a9a9919c25ba57d2de914d40d94ab",
+  "environment": "macOS 27.0.1 arm64; frozen native observer and producer/helper/SDK",
+  "scenarios": {
+    "empty-units": {
+      "exitCode": 101,
+      "manifestSha256": "b46f013bf09a64964ee6b0de118c7a2627d3466a41512027394b9757a6d2132a",
+      "logSha256": "c999a28158687bc71a063a73f3aa3b2198c6d4a90c6b1861a9611fae41d5f302"
+    },
+    "empty-checks": {
+      "exitCode": 101,
+      "manifestSha256": "c289bdc1408ff5e27afd19f526567feb5f75014711b764efee4b79ab31b5332f",
+      "logSha256": "afa5362fc2d69c8b612cc8f54f27455ddd6da980d0659729e8c19b11cc508a74"
+    },
+    "value-mismatch": {
+      "exitCode": 101,
+      "manifestSha256": "2cef9d5ea63157504ad15614f250db390779f53d4128fd92e72d1e1ab85d48e4",
+      "logSha256": "1d0bd00fa29b5084ca9c5a76f8c098d638f221993559718db37d33d4d01eb54f"
+    },
+    "restored": {
+      "exitCode": 0,
+      "manifestSha256": "123f99ddf7591f9e51df1585334584ba6748d5bd7adf070f10b657ece8bb3eeb",
+      "logSha256": "234e5ebf5726485f170657f711ddd8202abdeee8648d9d22f735c97398f3ba53"
+    }
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "obligation_id": "T00-OBL-packages-ts-analyzer-src-analyze-ts-assertsnapshotinputs-c112c2b6f5",
+  "property_index": 0,
+  "consumer": "assertSnapshotInputs",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "baseline_coordinates": [
+    "packages/ts-analyzer/src/analyze.ts:106-116",
+    "packages/ts-analyzer/src/analyze.ts:439-447"
+  ],
+  "scope": "Captured/discovered source equality before native extraction; retained leaf projection and exact mismatch refusal. No other property or obligation closure inferred.",
+  "additional_support_ids": [],
+  "sources": [
+    {
+      "path": "index.json",
+      "sha256": "79f2edac4b4346f787ab1163ee714fb4b706585e06b891bf3923f0de677380f1"
+    },
+    {
+      "path": "qualification/obligations.json",
+      "sha256": "60e3cf74c75f2733476ddfc721b54a4b7cd9e5e7dbff6745205b0eaed6d0fba5"
+    },
+    {
+      "path": "qualification/adoption-overlay.json",
+      "sha256": "d33dccd39b670759c32dbc6e1d808a7bb473a4522736229da15c290a17fc31a9"
+    },
+    {
+      "path": "qualification/scenarios.json",
+      "sha256": "b17b5ea68e702a2d45c6b04ae50654a93611584ec84e60a318ac3bce9d609906"
+    },
+    {
+      "path": "allocation/input-index.json",
+      "sha256": "2b661e61877daf5a4ce14ab76a3ce31f0703f288b01b0853cbc3a8b448c0cded"
+    }
+  ],
+  "units": [
+    {
+      "unit_id": "P01-retained-source::analyze-snapshot-consistent",
+      "capture_request": {
+        "id": "P01-retained-source::analyze-snapshot-consistent",
+        "files": {
+          "entry.ts": "export function leaf() { return 1; }"
+        },
+        "roots": [
+          "entry.ts"
+        ],
+        "options": {
+          "target": "ES2022",
+          "module": "ESNext",
+          "moduleResolution": "Bundler",
+          "allowJs": true,
+          "jsx": "Preserve",
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        },
+        "retained": true,
+        "qualified": false,
+        "sdk_directory": "/sdk/lib",
+        "roles": {},
+        "selection": {},
+        "disabled": [],
+        "utf16_files": {},
+        "raw_files": {}
+      },
+      "discovered_sources": [
+        {
+          "relPath": "entry.ts",
+          "content": "export function leaf() { return 1; }"
+        }
+      ],
+      "physical_live_after_capture": {
+        "entry.ts": "export function transient() { return 2; }"
+      },
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "native_analysis",
+            "raw_extraction",
+            "modules"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [
+            "entry.ts"
+          ],
+          "expected_origin": "P01-retained-source::base/assertions/modules",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "native_analysis",
+            "raw_extraction",
+            "imports"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [],
+          "expected_origin": "P01-retained-source::base/assertions/imports",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "native_analysis",
+            "raw_extraction",
+            "calls"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [],
+          "expected_origin": "P01-retained-source::base/assertions/calls",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "native_analysis",
+            "raw_extraction",
+            "symbols"
+          ],
+          "mode": "unordered_projected_eq",
+          "expected": [
+            {
+              "name": "leaf",
+              "kind": "function",
+              "relPath": "entry.ts",
+              "scope": [],
+              "startLine": 1,
+              "endLine": 1,
+              "exported": true,
+              "markers": []
+            }
+          ],
+          "expected_origin": "P01-retained-source::base/assertions/symbols",
+          "actual_transform": "symbol_aliases"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "native_analysis",
+            "raw_extraction",
+            "symbols"
+          ],
+          "mode": "excludes_projected",
+          "expected": [
+            {
+              "name": "transient"
+            }
+          ],
+          "expected_origin": "P01-retained-source::base/assertions/forbidden_symbol_names",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "snapshot_guard_passed"
+          ],
+          "mode": "eq",
+          "expected": true,
+          "expected_origin": "/assertions/snapshot_guard_passes",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "unsupported"
+          ],
+          "mode": "eq",
+          "expected": [],
+          "expected_origin": "/assertions/SOURCE_SNAPSHOT_MISMATCH",
+          "actual_transform": "none"
+        }
+      ]
+    },
+    {
+      "unit_id": "N01-snapshot-metadata-mismatch::base",
+      "capture_request": {
+        "id": "N01-snapshot-metadata-mismatch::base",
+        "files": {
+          "entry.ts": "export function leaf() { return 1; }"
+        },
+        "roots": [
+          "entry.ts"
+        ],
+        "options": {
+          "target": "ES2022",
+          "module": "ESNext",
+          "moduleResolution": "Bundler",
+          "allowJs": true,
+          "jsx": "Preserve",
+          "skipLibCheck": true,
+          "noEmit": true,
+          "strict": false
+        },
+        "retained": true,
+        "qualified": false,
+        "sdk_directory": "/sdk/lib",
+        "roles": {},
+        "selection": {},
+        "disabled": [],
+        "utf16_files": {},
+        "raw_files": {}
+      },
+      "discovered_sources": [
+        {
+          "relPath": "entry.ts",
+          "content": "export function transient() { return 2; }"
+        }
+      ],
+      "physical_live_after_capture": {},
+      "checks": [
+        {
+          "observation": 0,
+          "target": [
+            "executed"
+          ],
+          "mode": "eq",
+          "expected": false,
+          "expected_origin": "/assertions/analysis_success",
+          "actual_transform": "none"
+        },
+        {
+          "observation": 0,
+          "target": [
+            "unsupported",
+            0
+          ],
+          "mode": "contains_text",
+          "expected": "SOURCE_SNAPSHOT_MISMATCH",
+          "expected_origin": "/assertions/error_contains",
+          "actual_transform": "none"
+        }
+      ]
+    }
+  ],
+  "inventory": {
+    "required_obligations": 240,
+    "required_properties": 395,
+    "obligation_ids_sha256": "075fbdeba1e1245f24c7de1de549b77cbff8282404efea42f3e94add6481c2d5",
+    "property_coordinates_sha256": "6a179d300ea2162e481b85dfd2350b08ebe1076573f7866b2606fa1903812c1b"
+  },
+  "evidence_modality": "READ_ONLY_CAPTURE_CONSISTENCY_ONLY",
+  "closure_limit": "Serialized captures do not prove fresh execution or source-to-binary build provenance; coherent observations remain UNPROVEN_EXECUTION_BUILD_PROVENANCE without closure credit."
+}

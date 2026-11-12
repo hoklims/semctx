@@ -1,0 +1,270 @@
+{
+  "status": "SCRATCH_IMPLEMENTATION_READY_FOR_ROOT_INTEGRATION_NOT_QUALIFICATION",
+  "author": "/root/pass2_api_gap_inventory",
+  "started_utc": "2026-10-17T19:34:07+00:00",
+  "finished_utc": "2026-10-17T19:45:05.524708+00:00",
+  "charged_effort_seconds": 658.525,
+  "task_cap_seconds": 2700,
+  "environment": {
+    "os": "Darwin",
+    "machine": "arm64",
+    "rust": "1.95.0",
+    "bun_independent_casefold_development_probe": "1.4.3",
+    "GIT_CONFIG_GLOBAL": "unset for Cargo checks",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "CARGO_BUILD_JOBS": "2",
+    "RUST_TEST_THREADS": "1"
+  },
+  "ownership": {
+    "modified": [
+      "src/lib.rs"
+    ],
+    "new": [
+      "src/primitive_observations.rs"
+    ],
+    "read_only_unchanged": [
+      "src/source_text.rs",
+      "src/identity.rs",
+      "Cargo.toml",
+      "Cargo.lock"
+    ],
+    "repo_checkout_index_or_github_mutated": false,
+    "reserved_access": false,
+    "qualification_queries": 0,
+    "comments_added": []
+  },
+  "public_signature": "pub fn primitive_observations::handle_observation(request: serde_json::Value) -> Result<serde_json::Value, String>",
+  "request_contract": {
+    "closed_enum": "serde operation discriminator, deny_unknown_fields, typed bytes:u8/units:u16/offsets:u32",
+    "decode": {
+      "operation": "decode",
+      "bytes": "[u8]",
+      "profile": "compiler_system | retained_utf8",
+      "offsets_utf16": "[u32]",
+      "filename": "optional string/null; when present known ts/tsx/js/jsx/mts/cts/mjs/cjs suffix required"
+    },
+    "utf16": {
+      "operation": "utf16",
+      "units": "[u16]",
+      "offsets_utf16": "[u32]",
+      "filename": "optional as decode"
+    },
+    "canonical_json": {
+      "operation": "canonical_json",
+      "value": "JSON value"
+    },
+    "semantic_key": {
+      "operation": "semantic_key",
+      "cwd": "absolute native path",
+      "path": "native path to resolve lexically",
+      "case_sensitive": "bool"
+    }
+  },
+  "common_response": {
+    "operation": "same operation",
+    "request_descriptor_id": "identity::digest(original parsed request JSON before serde optional-field normalization)",
+    "executed": true,
+    "unsupported": [],
+    "producer_artifact_id": "ROOT CLI MUST ADD from actual executable, not provided by pure library"
+  },
+  "decode_utf16_response": {
+    "decoded_utf16_units": "exact units extracted from actual GoString using pinned SDK decode_go_js_string_rune",
+    "canonical_source_utf16_units": "same after existing identity::canonical_source CRLF-only normalization",
+    "raw_bytes_sha256": "decode only; supplied raw bytes",
+    "decoded_utf8_replacement_sha256": "SHA256 of UTF8 encoding replacing unpaired UTF16 surrogates by U+FFFD, Node crypto/TextEncoder domain",
+    "canonical_source_utf8_replacement_sha256": "same after CRLF normalization",
+    "decoded_go_wtf8_sha256": "distinct raw Go/WTF8-byte domain, never mislabeled Node UTF8",
+    "line_starts_utf16": "SDK ECMA line starts converted via SDK PositionMap",
+    "boundaries_sdk": "offset_utf16/sdk_port_offset/sdk_roundtrip_utf16/scalar_boundary/sdk_line/sdk_character/utf16_line/utf16_character; zero-based; sdk_port_offset is GoString port index, not source raw-byte offset",
+    "source_parsing_observation": "null if filename absent; otherwise actual native parse_source_file observation"
+  },
+  "parser_response": {
+    "executed": true,
+    "unsupported": [],
+    "filename": "requested virtual filename",
+    "script_kind": "TS | TSX | JS | JSX",
+    "has_syntax_errors": "diagnostics nonempty",
+    "diagnostics": "code/message/start_utf16/end_utf16 from native parser diagnostics",
+    "statements": "ordered root statement kind and start/end UTF16/line/character extents",
+    "declarations": "15 enumerated syntax kinds collected in AST child traversal; extent plus name null or extent with identifier_utf16_units for Identifier",
+    "start_semantics": "astnav::get_start_of_node(node,file,false), actual skip-trivia getStart, not Node.pos",
+    "end_semantics": "node.end() converted through actual SDKPositionMap, exclusive",
+    "line_and_character": "zero-based, owned UTF16 composition via SDK PositionMap and SDK ECMA line starts"
+  },
+  "known_backend_limitation": {
+    "backend": "ts_goport pinned780dc512d64f40afebffa6a7028207649fb7ed1c, checker7.1.0-dev",
+    "observed": "scanner_util::ecma_line_and_utf16_character_of_text_position counts3 following one source WTF8 lone surrogate; expected JavaScript UTF16 unit count1",
+    "raw_fields_preserved": [
+      "sdk_line",
+      "sdk_character"
+    ],
+    "owned_composed_fields": [
+      "utf16_line",
+      "utf16_character"
+    ],
+    "authority": "pinned scanner_util.rs491 UTF16Len counts Go invalid bytes; ast/misc.rs1879 ComputePositionMap treats WTF8 lone surrogate as one UTF16 unit",
+    "red_log": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-utf16-green.log",
+    "no_upstream_patch": true,
+    "no_qualification_expectation_changed": true
+  },
+  "semantic_key_contract": {
+    "order": "native lexical path resolve first, then replace backslashes by slash, then pinned SDK to_lower_js only if case_sensitive=false",
+    "not_realpath": true,
+    "no_fs_reads": true,
+    "explicit_unsupported": "Windows drive-relative C:foo paths refused rather than approximated; missing absolute cwd/NUL refused"
+  },
+  "verification": {
+    "development_tests_added": 10,
+    "final_library_tests": "42 passed, 0 failed on macOS arm64",
+    "final_library_log": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-lib-platform-final.log",
+    "clippy_lib": "PASS -D warnings",
+    "clippy_log": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-clippy-platform-final.log",
+    "rustfmt_owned": "PASS --check skip_children=true",
+    "windows_linux": "not exercised locally; dedicated Windows native-drive/UNC test and portable generic cases prepared for GHA",
+    "external_validation_reference": "Bun1.4.3 independently confirmed ΟΣ.ts→οσ.ts and ΟΣ→ος; initial DEV expectation was corrected, not a candidate-derived golden"
+  },
+  "limits": [
+    "No READY_TS_NATIVE or qualification/admission claim.",
+    "AST parser observations are actual standalone parsing, not checker/extraction or JavaScript transpile diagnostics.",
+    "Statement/declaration extents do not imply equivalence of full semantic outputs.",
+    "Canonical descriptor primitive does not prove four identity runtime/acquisition relations or complete baseline analyzer identity.",
+    "Root must index intended new files before final repository validation; scratch has no Git index writes."
+  ],
+  "files": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/lib.rs",
+      "sha256": "67a238b5fdbebba25edd1e46f91fa61368dfe96c5046a16397780d7652c319a0"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/primitive_observations.rs",
+      "sha256": "26e13109961a68d8b88f10a0471571dad7be7d4a8ae8415a9fe99c730f1e7a50"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/source_text.rs",
+      "sha256": "46991f761aed021187c0cd51914f7eb855774a9248be42bce8d49d90111e57c6"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/src/identity.rs",
+      "sha256": "97ec996a6db58997f09ac5cdaa4ed5b845e81d431c2128cec4636c8957763752"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/Cargo.toml",
+      "sha256": "4463a58893448d2faf6580925256fe64174302659a930d6f2eb963dd7006db3b"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/pass2-work/tools/rust-ts-r0/Cargo.lock",
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2"
+    }
+  ],
+  "logs": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-boundary-green.log",
+      "sha256": "1a9832c8195151d88a7094eee0739c139d569cf22b2100c5a11732dfc1261936",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-clippy-lib.log",
+      "sha256": "c76728561296bd84fe95377dbc2dd5ee92eb1998ecf663553aed2aeef545da04",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-clippy-parser-final.log",
+      "sha256": "93edd1a64d1805249662f487e44aa338a4e5730be3ffe3f494410f9f18228ed8",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-clippy-parser-lib.log",
+      "sha256": "0c4b309893dc14cca3a32621ea64b91a8c5da1fdb10ec3808c8be22c4c274372",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-clippy-platform-final.log",
+      "sha256": "c76728561296bd84fe95377dbc2dd5ee92eb1998ecf663553aed2aeef545da04",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-composed-green.log",
+      "sha256": "8228ade0475451faa348129964b1bdc869d4d63c13584839d57c269186c9942f",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-decode-green.log",
+      "sha256": "ed0af63a674777edf5bd1c85d0fc3e367af33d502694c556cf4b0e8556ca9d94",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-decode-red.log",
+      "sha256": "5b48e793d65e44fb60a576c3d0cac5a861b0ff12c5e82378663a21419c56eab3",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-final-focused.log",
+      "sha256": "b013abad56b07b95e357c210a028fc1bec983127c620f5f87f5aae9c9b23d69b",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-identity-red.log",
+      "sha256": "602ad7f2087ccb464408e833d2ee7b46e570c1b05e546ba26c1dbff2e3b49a68",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-lib-final-corrected.log",
+      "sha256": "fdf62514d99e1d82dd55386e6dfeb03cc133280c7755ee2196eaa1a9a0338276",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-lib-final.log",
+      "sha256": "8903b232c8212fb19b1c67ad730dad746b99ccf748716a803f3ec9563c130dde",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-lib-platform-final.log",
+      "sha256": "158bb99490a0cb65647c7fbb98f32b6f8197c0511738eba7985d1d1da11190a5",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-parser-compile-corrected.log",
+      "sha256": "53b738aec6bfb5146cd0b251ed2890bba7596a8f86baa1bf82304d1d69bc7b55",
+      "status_from_contents": "PASS",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-parser-green.log",
+      "sha256": "ce92c0d12da34c58a1edaf8aea6dd52c91a50c7d2fd72f72374ac7fe100dee3e",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-parser-red.log",
+      "sha256": "e79844b3d7d37faaa7476ed813b9ac60324aa50e36233aee61d3a0977b19e3c3",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-utf16-green.log",
+      "sha256": "bcc66139eee7ecbc84f35092d2dbf056c04eee95d2691cf68b4cbfffe9c9804c",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/evidence/pass2-primitives-utf16-red.log",
+      "sha256": "bf792655ce06c0c8c2b01ad0da8b064ce346686ecc51466b3291c76ce4ed41d1",
+      "status_from_contents": "FAIL_OR_RED",
+      "filename_not_authority": true
+    }
+  ]
+}

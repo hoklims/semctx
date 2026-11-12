@@ -1,0 +1,66 @@
+{
+  "R0_decision": null,
+  "all_non_source_scope_fields_equal": true,
+  "check_definitions": 590,
+  "frozen_case_files": 1386,
+  "frozen_counts": {
+    "properties": 395,
+    "rows": 446,
+    "supports": 51
+  },
+  "identical_native_windows_source_members": 139,
+  "kind": "ACTUAL_OFFLINE_PACKAGE_SOURCE_AND_PUBLIC_CORPUS_PREFLIGHT_ONLY",
+  "native_queries": 0,
+  "packages": {
+    "current_native": {
+      "members": 16,
+      "package_manifest_sha256": "2aaa46866dd227d90fe30ffa4e6b94122cc7ab3d72a66f7a9ccabc6aab3f5a96",
+      "scope_map_sha256": "de5cd5a5221210db688b39a0d5b300cbf498c018d7c3186e7112149a14b22c8f",
+      "zip_sha256": "7b8f1fbe8dfe3c23381447bbedc8a90f57eeda2a56350d1a7b003ea84dbc0e09"
+    },
+    "current_windows": {
+      "members": 22,
+      "package_manifest_sha256": "0d6fb72ec1ea1adc6e982aba522d4774599234b96db23e699a31d9b7832497a8",
+      "scope_map_sha256": "de5cd5a5221210db688b39a0d5b300cbf498c018d7c3186e7112149a14b22c8f",
+      "zip_sha256": "d19e63e0cae45b03000087f2c09cbf438af6f12f4f700d0540c528dc531df78a"
+    },
+    "legacy_corrected": {
+      "members": 16,
+      "package_manifest_sha256": "978ca4d97810327bd80570cf5eea5bef4494f1cec7d68ffc580e3e0608d25ec7",
+      "scope_map_sha256": "309fbbd74141eaa0d383f340247802cd283c892a6048902adaf29e9e6c18c4c3",
+      "zip_sha256": "efcc74d7da31a5df6e1fbcc3e6a7124ea130540c851ace809bc794964d230b2c"
+    }
+  },
+  "preflights": [
+    {
+      "exit_code": 0,
+      "native_queries": 0,
+      "qualification_credit": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "8dadfb884daf0e648d758da9dfb259cd0887f13959e27278a45589a06c323725",
+      "variant": "native"
+    },
+    {
+      "exit_code": 0,
+      "native_queries": 0,
+      "qualification_credit": 0,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "47fac1a9aa04b0f31bcd63fc4b38dc51cb380aa1a973133e6267cc39e7d600a1",
+      "variant": "windows"
+    }
+  ],
+  "qualification_credit": 0,
+  "source_delta_paths": [
+    "tools/rust-ts-r0/qualification/supplement/public_runtime.py"
+  ],
+  "source_head": "92fc7a186b465c9c401880920be097b264366c23",
+  "unchanged_source_pins": 138,
+  "window_package_validator": {
+    "path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\assessor-typed-exit-review\\built-92fc7a-v2\\current-windows-reader\\windows-transport-protocol.json",
+    "scope_map_sha256": "de5cd5a5221210db688b39a0d5b300cbf498c018d7c3186e7112149a14b22c8f",
+    "sha256": "2f13aff31c0faf0249c70dde69d2b22779a45c1e32c0c8f5d9b211a7aea46fc0"
+  },
+  "windows_changed_code_lines": 2,
+  "windows_protocol_sha256": "2f13aff31c0faf0249c70dde69d2b22779a45c1e32c0c8f5d9b211a7aea46fc0",
+  "windows_receipt_sha256": "ec7ced18f35c0bfe7237b24a2447ce126461e8d493ba69be3006d831daf3f1a8"
+}

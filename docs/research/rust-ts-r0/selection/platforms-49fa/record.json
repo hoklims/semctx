@@ -1,0 +1,81 @@
+{
+  "all_original_zip_digests_match_retained_API_metadata": true,
+  "archive": {
+    "base64_bytes": 4616803,
+    "base64_sha256": "9ef859e0fa67e2a1e4b95814679690678535f9762ece06669973786645b54767",
+    "determinism": "Sorted USTAR members, mtime0, uid/gid0, mode0644, empty names; gzip filename empty and mtime0. Same local inputs recreate identical bundle.",
+    "gzip_bytes": 3417631,
+    "gzip_sha256": "53120a0b24a18256ebdb529983dd3782ef6a0caf44723571fdad691db5304193",
+    "member_count": 253,
+    "path": "ci-49fa-evidence.tar.gz.b64",
+    "tar_sha256": "4d8708883639dbdf27cb5ec411699b030a623f6fcc76512eafe6cd993a5d975d"
+  },
+  "effort": {
+    "budget_seconds": 360,
+    "fresh_seconds": 150.773862,
+    "fresh_task_started_utc": "2026-10-18T06:53:19Z",
+    "separate_from_C2_producer_seconds": 1493,
+    "wait_charged_seconds": 0
+  },
+  "excluded_native_executables": 3,
+  "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+  "metadata_files": {
+    "README.md": {
+      "bytes": 4057,
+      "sha256": "e6c476f0d25c6dee3c747e7e7d11685c5bea952ea16ea5fdba72f866571a3ecf"
+    },
+    "archive-inventory.json": {
+      "bytes": 155642,
+      "sha256": "6a4ab42f7fb5f8f8c447ca4f9009adfc0af9a0d3f4bd665598f63644e60b09e3"
+    },
+    "evidence-manifest.json": {
+      "bytes": 54883,
+      "sha256": "bc7b4ed180a0279439983ea5066e0ccfba42ce87e0d2fa6b5120fc0dc6bd142b"
+    },
+    "gate-plan.json": {
+      "bytes": 29059,
+      "sha256": "fd927d8f21d0dd3641b9f3a481123a0937cef20fc0e28d236fb996b7fa5e2e3a"
+    },
+    "original-path-aliases.json": {
+      "bytes": 192309,
+      "sha256": "8ccc7fd4aac687d58e33b96454115032c47b249f84b2c37a54fa18b6fb081f8b"
+    },
+    "report-followup.json": {
+      "bytes": 29164,
+      "sha256": "a8fba38fb923fc4f06383d4039447ce5a76cf05374e49b29bc43c718545eb17a"
+    },
+    "report-original.json": {
+      "bytes": 29421,
+      "sha256": "7a3abb803d24117bd6112f750f85d9f833f8a3f317043b0239e990bc6cac5746"
+    },
+    "windows-shard1-observation.json": {
+      "bytes": 1255,
+      "sha256": "d3c609aab3969f68bd4167bb2f222815867c114b06548d48d0394498514b4de4"
+    }
+  },
+  "original_archives": 9,
+  "publication_finalized_utc": "2026-10-18T06:55:49.773862+00:00",
+  "recorded_utc": "2026-10-18T06:54:48.293457+00:00",
+  "remote_retention": "API artifact URLs/digests and excluded executable hashes are identification only. Continued download availability is not guaranteed; native binary bytes are intentionally not republished.",
+  "run_url": "https://github.com/hoklims/semctx/actions/runs/39103858448",
+  "schema_version": 1,
+  "scope": "Portable original and follow-up evidence: three optimized native OS builds, same four common DEVELOPMENT vectors plus receiver/product controls; no R0/READY_TS_NATIVE or aggregate CI-green verdict.",
+  "validation": {
+    "archive_roundtrip_all_member_bytes_equal": true,
+    "candidate_or_test_rerun": false,
+    "deterministic_local_rebuild_identical": true,
+    "local_data_only": true,
+    "no_native_target_or_rlib_bytes_in_bundle": true,
+    "repository_index_GitHub_mutations": false,
+    "unsafe_member_paths": 0
+  },
+  "windows_unrelated_failure": {
+    "aggregate_green_inferred": false,
+    "fix_retry_skip_performed": false,
+    "intermittence_or_root_cause_established": false,
+    "job": 117605579181,
+    "shard": "Windows1/4",
+    "test_source": "packages/app-services/test/codex-plugin-metadata.test.ts:271",
+    "unchanged_from_base": true
+  }
+}

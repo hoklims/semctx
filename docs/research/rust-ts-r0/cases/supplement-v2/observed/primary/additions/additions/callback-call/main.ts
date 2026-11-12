@@ -1,0 +1,1 @@
+[1].map.call([1], value => value); export {};

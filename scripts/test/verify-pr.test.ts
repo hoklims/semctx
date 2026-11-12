@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -241,4 +241,40 @@ test("the real verification runner refuses and kills a step that ignores SIGTERM
   const code = await spawnCommand([process.execPath, "-e", 'process.on("SIGTERM", () => {}); await Bun.sleep(30000)'], tmpdir(), 300);
   expect(code).toBe(124);
   expect(performance.now() - started).toBeLessThan(2000);
+});
+
+
+test("canonical suite executes production roots and excludes nested authority copies across every shard", () => {
+  const root = mkdtempSync(join(tmpdir(), "semctx-test-root-closure-"));
+  temporaryDirectories.push(root);
+  const manifest = JSON.parse(readFileSync(new URL("../../package.json", import.meta.url), "utf8")) as {
+    scripts: { test: string };
+  };
+  const script = manifest.scripts.test.split(" ");
+  expect(script.slice(0, 4)).toEqual(["bun", "test", "--timeout", "60000"]);
+  const expected = ["packages", "apps", "plugins", "scripts"].flatMap((directory) =>
+    [0, 1].map((index) => `${directory}-${index}`));
+  const makeTest = (relative: string, marker: string): void => {
+    const target = join(root, relative);
+    mkdirSync(join(target, ".."), { recursive: true });
+    writeFileSync(target, `import {test,expect} from "bun:test"; test("meaningful root test",()=>{expect(2+2).toBe(4); console.log(${JSON.stringify(marker)});});\n`);
+  };
+  for (const directory of ["packages", "apps", "plugins", "scripts"]) {
+    for (const index of [0, 1]) makeTest(`${directory}/owned-${index}.test.ts`, `PRODUCT_TEST_EXECUTED:${directory}-${index}`);
+  }
+  makeTest("docs/research/cases/authority/packages/foreign.test.ts", "FOREIGN_TEST_EXECUTED:authority-packages");
+  makeTest("docs/research/cases/authority/scripts/foreign.test.ts", "FOREIGN_TEST_EXECUTED:authority-scripts");
+  makeTest("work/archive/apps/foreign.test.ts", "FOREIGN_TEST_EXECUTED:scratch-apps");
+  const observed: string[] = [];
+  for (let shard = 1; shard <= 4; shard++) {
+    const child = Bun.spawnSync([process.execPath, ...script.slice(1), `--shard=${shard}/4`], {
+      cwd: root, stdout: "pipe", stderr: "pipe", timeout: 10_000, maxBuffer: 1024 * 1024,
+    });
+    const output = `${child.stdout.toString()}\n${child.stderr.toString()}`;
+    expect(child.exitedDueToTimeout).toBe(false);
+    expect(child.exitCode).toBe(0);
+    expect(output).not.toContain("FOREIGN_TEST_EXECUTED");
+    observed.push(...[...output.matchAll(/PRODUCT_TEST_EXECUTED:([a-z]+-\d+)/g)].map((match) => match[1]!));
+  }
+  expect(observed.sort()).toEqual(expected.sort());
 });

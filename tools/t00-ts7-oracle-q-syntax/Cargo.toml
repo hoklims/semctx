@@ -1,0 +1,15 @@
+[package]
+name = "t00-ts7-oracle-q-syntax"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "Apache-2.0"
+
+[dependencies]
+ts_goport = { version = "=7.0.0-dev", git = "https://github.com/pingdotgg/ts-rust.git", rev = "780dc512d64f40afebffa6a7028207649fb7ed1c", default-features = false, features = ["noembed"] }
+serde = { version = "=1.0.229", features = ["derive"] }
+serde_json = "=1.0.151"
+sha2 = "=0.10.9"
+
+[profile.dev]
+debug = 0

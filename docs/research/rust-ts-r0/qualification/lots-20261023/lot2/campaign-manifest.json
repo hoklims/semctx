@@ -1,0 +1,212 @@
+{
+  "schemaVersion": 1,
+  "candidateSourceCommit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+  "comparisonBase": "f3886d95c0d064ee2121b3e9ba4654b827c582b1",
+  "oracle": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "typescript": "5.9.3",
+    "expectedValuesFromNative": false
+  },
+  "scope": "Lot2 only, finite macOS arm64 and Linux aarch64; not terminal R0",
+  "platforms": {
+    "macos": {
+      "architecture": "aarch64",
+      "freeze": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/macos/freeze.json",
+        "sha256": "95f0f140861c95ce655ad57df937c7ff9ede3a606bee5b26b7b9d478b511ee53",
+        "bytes": 1768
+      },
+      "artifacts": {
+        "artifact": "15c53b61143ef0ba63993acbb7bdf3350ab057e30613085cf35a2f50b0c22695",
+        "helper": "bf0c1a995072acb950d0e505c97786cacbb3bbfccf366605644303fdbda4a8f1",
+        "transport_fixture": "fce81566fa6df50ef2080849518e24742cbbea7bb0489fd1600c8708ca26f493",
+        "qualification_observer": "524e87f8a8eeaea438ad7480d2a7a5f673a7c1c29ded8b0234435c2ce05704c6",
+        "sdk": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"
+      },
+      "reports": {
+        "existing": {
+          "pass": 72,
+          "total": 72,
+          "nonpassUnitIds": [],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/macos/existing/report.json",
+            "sha256": "a8872129c4aed4ab0844641d39d2872bb03eacebdc6227e18b336cefed6ffbfa",
+            "bytes": 381445
+          }
+        },
+        "semantic": {
+          "pass": 17,
+          "total": 18,
+          "nonpassUnitIds": [
+            "LOT2-SEM-shorthand-binding-activate"
+          ],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/macos/semantic/report.json",
+            "sha256": "024cbc3e6a707f2300466d6cbb003859a35d577e2b8cb092c24ad2945a3bdb1b",
+            "bytes": 96468
+          }
+        },
+        "original": {
+          "pass": 16,
+          "total": 16,
+          "nonpassUnitIds": [],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/macos/original-units/units-QDYN-01-static-binding-control/repair-results.json",
+            "sha256": "742b34fedccdd20c27db2f7e52b8e2e64f5e88e41a13a17a1fbd786c3129c59a",
+            "bytes": 95425
+          }
+        },
+        "assembly": {
+          "pass": 2,
+          "total": 7,
+          "nonpassUnitIds": [
+            "literal-test",
+            "literal-src-test",
+            "nonliteral-test",
+            "twoarg-test",
+            "unresolved-test"
+          ],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/assembly/macos-final-v2/observations.json",
+            "sha256": "68521bfb40f198ce606ec15f35a46842acc6203efa72324e72ad2378ce217e5b",
+            "bytes": 3129869
+          }
+        }
+      }
+    },
+    "linux": {
+      "architecture": "aarch64",
+      "freeze": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/artifacts/freeze.json",
+        "sha256": "efd31cc85f51cf020f787d26f4601c87258baffdcbbd1ed17dd2c0dc6f9ae8d9",
+        "bytes": 919
+      },
+      "artifacts": {
+        "artifact": "25307d6643bddb70ce36bf83af734d0c4d24ab1634946976cc12d19cd134bb6a",
+        "helper": "e47e04409ef24c31864378fea55a49743c00b877ebeee589e7b5bd58a66d9d98",
+        "transport_fixture": "60ebcaf91a61ca63b099487d90bd29fd5564175768dc7f6cb8b928a97f83ad59",
+        "qualification_observer": "8fefded77d68dac572b6447ba4f389f7aed7cb444bacc520efa3976f2e9b472e",
+        "sdk": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5"
+      },
+      "reports": {
+        "existing": {
+          "pass": 72,
+          "total": 72,
+          "nonpassUnitIds": [],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/native-existing-final/report.json",
+            "sha256": "22c31a855c436479b3cb7372841109d0cbf0f2c6b268724c0354d49d9af1414f",
+            "bytes": 378963
+          }
+        },
+        "semantic": {
+          "pass": 17,
+          "total": 18,
+          "nonpassUnitIds": [
+            "LOT2-SEM-shorthand-binding-activate"
+          ],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/native-semantic-final/report.json",
+            "sha256": "2606a9b012bafbc756c470c7a8543c7022cc74c5cb18862533d84752884e1c4a",
+            "bytes": 95584
+          }
+        },
+        "original": {
+          "pass": 16,
+          "total": 16,
+          "nonpassUnitIds": [],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/original-final/units-V2-F05-internal-reference-no-import-fact/repair-results.json",
+            "sha256": "fe640ccc796de24c34089de9f438acaa850c8c876a4fbc45ba8ef2e7b6f7a28e",
+            "bytes": 94241
+          }
+        },
+        "assembly": {
+          "pass": 2,
+          "total": 7,
+          "nonpassUnitIds": [
+            "literal-test",
+            "literal-src-test",
+            "nonliteral-test",
+            "twoarg-test",
+            "unresolved-test"
+          ],
+          "evidence": {
+            "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/assembly-final-v2/observations.json",
+            "sha256": "005145be705b9b64c10ef66f843aab3fb5e00e77c845a67c9f834b3033a613b6",
+            "bytes": 2625910
+          }
+        }
+      }
+    }
+  },
+  "inputs": {
+    "existingSelection": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/existing/selection.json",
+      "sha256": "5bfda78eaef947a8859d7d978a07906f6d123bbe530300e3d34c287a7ee528e7",
+      "bytes": 4094
+    },
+    "existingOracleMacos": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/existing/macos-manifest.json",
+      "sha256": "b091069c74023b2ebce04c18c640d73ff386fcb6756d14c5e248f34bf9685ee5",
+      "bytes": 290164
+    },
+    "existingOracleLinux": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/existing-linux-oracle-manifest.json",
+      "sha256": "b091069c74023b2ebce04c18c640d73ff386fcb6756d14c5e248f34bf9685ee5",
+      "bytes": 290164
+    },
+    "newInputs": {
+      "path": "docs/research/rust-ts-r0/qualification/lots-20261023/lot2/semantic-inputs.json",
+      "sha256": "f92e814c39d048f1bce24549f3c188500163767ceb9c1f464c11ad857af6be41",
+      "bytes": 8330
+    },
+    "newOracleMacos": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/semantic/final-manifest.json",
+      "sha256": "9ca5ec0894954fe88ce1e2212945cdcf9eb54c878044ad4b077fba49dae68dc4",
+      "bytes": 75156
+    },
+    "newOracleLinux": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/linux/semantic-final-linux-oracle-manifest.json",
+      "sha256": "9ca5ec0894954fe88ce1e2212945cdcf9eb54c878044ad4b077fba49dae68dc4",
+      "bytes": 75156
+    },
+    "baselineActivation": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/semantic/final-activation.json",
+      "sha256": "6d52f952c4d3b820e4a388f2866250f3f616b69fe40eb50f918a39c15efc1d97",
+      "bytes": 2597881
+    },
+    "originalSelection": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261023/lot2/macos/original-selection.json",
+      "sha256": "4dfbd809ed86287ad8b4bfd076cd8e34460a76a50deda90bd736b737f09c3f0e",
+      "bytes": 1028
+    }
+  },
+  "tools": {
+    "rust": "1.95.0",
+    "bun": "1.4.3",
+    "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "linuxNetwork": "none",
+    "compileJobs": 4,
+    "rustTestThreads": 1
+  },
+  "producerCorrection": {
+    "commit": "b933048d9c1c753af380fac72f44ef1a5c0f9871",
+    "scope": "Bind effective selected roles to actual discovery and derive broad test roles from actual discovery; preserve index receiver and all diagnostic expectations.",
+    "other209PreviouslyQualifiedObligationsRecampaigned": false,
+    "sourceOnlyPositiveFixtureStillPasses": true
+  },
+  "compilerIdentity": "Actual compiler7.1.0-dev remains distinct from oracle5.9.3; no version relabeling.",
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "arbitrations": {
+    "ARB-002": "NONPASS, zero credit",
+    "ARB-003": "NONPASS, zero credit",
+    "ARB-004": "NONPASS, zero credit"
+  },
+  "remoteActions": false,
+  "r0Decision": null
+}

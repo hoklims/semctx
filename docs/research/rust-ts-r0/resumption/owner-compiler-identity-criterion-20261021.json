@@ -1,0 +1,40 @@
+{
+  "record_version": 1,
+  "decision_date": "2026-10-21",
+  "decision_authority": "Mainteneur utilisateur de cette conversation, décision explicite transmise par le lead /root.",
+  "exact_user_choice": "Vérifier la version réelle du moteur, avec preuve indépendante ; conserver l’écart 5.9.3 et son arbitrage dans les résultats (recommandé).",
+  "state": "OWNER_CRITERION_RECORDED_INDEPENDENT_PROOF_AND_EXECUTION_PENDING",
+  "obligation_id": "T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-dialect-version-a301ccdca0",
+  "unit_id": "ORD-DIALECT-CAPABILITY::base",
+  "criterion": "Pour cette seule obligation d’identité du compilateur, une version réelle du moteur déclarée honnêtement doit être vérifiée par une preuve indépendante liée au candidat exécuté. Ce critère remplace l’absence de critère d’admission sous l’arbitrage après cette preuve ; son enregistrement ne constitue ni la preuve ni une admission.",
+  "source_coordinates": [
+    "tools/rust-ts-r0/src/main.rs:1078 — capabilityScope.dialectVersion vient de ts_goport core::version().",
+    "tools/rust-ts-r0/src/main.rs:1548 — native_compiler_version vient de core::version(), sdk_version reste distinct.",
+    "tools/rust-ts-r0/Cargo.toml — moteur ts_goport épinglé au commit 780dc512d64f40afebffa6a7028207649fb7ed1c.",
+    "tools/rust-ts-r0/qualification/qualification_replay.rs — comparator_native_dialect_requires_real_nonempty_capability_and_compiler_identity et gap_native_dialect_preserves_frozen_ts5_expectation.",
+    "docs/research/rust-ts-r0/cases/qualification/scenarios.json — ORD-DIALECT-CAPABILITY::base.",
+    "docs/research/rust-ts-r0/cases/qualification/obligations.json#/obligations/168 — T00-OBL-packages-ts-analyzer-src-ts-symbols-ts-dialect-version-a301ccdca0."
+  ],
+  "current_native_facts_reported_by_lead": {
+    "source_head": "da24a4a5fb8b51a36f2b7786f666c2e97598e4b0",
+    "evidence_root": "/Users/hokli/semctx-t00-build-evidence-20261021",
+    "focused_test_exit_code": 101,
+    "raw_projected_mismatches": 2,
+    "arbitration": "ARB004",
+    "qualification_credit": 0,
+    "provenance": "Résumé du run macOS courant communiqué par le lead ; ce fichier ne relit ni ne certifie indépendamment ces résultats. Les chemins des preuves brutes et leur identité doivent être liés par la vérification indépendante."
+  },
+  "preserved_contract": {
+    "frozen_expected_version": "5.9.3",
+    "recipe_and_frozen_expectations": "UNCHANGED",
+    "raw_nonpass_and_version_arbitration": "PRESERVED_WITHOUT_RECLASSIFICATION",
+    "automatic_qualification_credit": 0,
+    "typescript_5_9_3_compatibility_attested": false
+  },
+  "limits": [
+    "Décision normative uniquement : preuve indépendante et exécution restent à faire.",
+    "Aucun crédit automatique, aucune attestation de compatibilité TypeScript 5.9.3.",
+    "Aucune extension aux autres arbitrages, propriétés, obligations ou profils.",
+    "Aucune modification de l’oracle de fermeture, des producteurs, des cas, des attendus gelés ou des recettes pour appliquer cette décision."
+  ]
+}

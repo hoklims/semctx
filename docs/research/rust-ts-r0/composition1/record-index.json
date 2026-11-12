@@ -1,0 +1,125 @@
+{
+  "status": "LOCAL_C1_DEVELOPMENT_CHECKPOINT_PASSED",
+  "source_baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "proof_scope": "Native DEV mechanisms and guarded private receiver on macOS ARM64; no complete qualification, optimized freeze or native Windows/Linux result",
+  "raw_artifact_and_outcome_paths_preserved_in_reports": true,
+  "host_paths_are_historical_provenance_not_portable_expected_inputs": true,
+  "records": [
+    {
+      "path": "canonical-verification.json",
+      "sha256": "f742167ca0494203dc11a926f197297404908a4c6d1082bbd583ea4a683b3f72",
+      "bytes": 1684
+    },
+    {
+      "path": "composition1-journal.json",
+      "sha256": "9e9cd9926d12ad94f9798015cfca565e5553480c2e48b44eea4e3cb4dd6142ad",
+      "bytes": 12202
+    },
+    {
+      "path": "effort-ledger.json",
+      "sha256": "f20c41296e7b8b74caca5767e9d79a89dc92d808cedc127de104a0103ffab6a4",
+      "bytes": 33111
+    },
+    {
+      "path": "es5-projection-independent-review-delta.json",
+      "sha256": "e4a06a3aa549388f1ce6cf4a55bfe4b4fcc8deeb87e51e87cf389003a287001a",
+      "bytes": 8391
+    },
+    {
+      "path": "independent-native-verifier-correction.json",
+      "sha256": "c6a695036f90398ac3c613f2cf6f0ee5caecfe62439ca521c7d321fc232a561b",
+      "bytes": 10733
+    },
+    {
+      "path": "independent-native-verifier-original-review.json",
+      "sha256": "fc619f12841d09c43dfeceaf5c75566dfdff340c490a69f0d73121c6744fb8bd",
+      "bytes": 16220
+    },
+    {
+      "path": "logs/integration-review-green-1.log.b64",
+      "sha256": "05ed76e7c737ea4f2b03c20c88fdab9b3bc6cb7f463490f67c3b3e397d684d60",
+      "bytes": 841
+    },
+    {
+      "path": "logs/integration-review-red.log.b64",
+      "sha256": "44da30e4e04b20bdec83101fab710272243f1cbad1793c8e57706fcf896439cf",
+      "bytes": 2649
+    },
+    {
+      "path": "logs/portable-clippy-after-payload-guard.log.b64",
+      "sha256": "c76bfdd92062972dcb4d66bb280a346509847113817a3e12d00fe92febc2f26d",
+      "bytes": 329
+    },
+    {
+      "path": "logs/portable-native-all-stage4-1.log.b64",
+      "sha256": "05a97afd76953fb1965776f58254b7098b06cfc841a8acdc9307858323f27073",
+      "bytes": 22221
+    },
+    {
+      "path": "logs/portable-receiver-extra-fields-green-1.log.b64",
+      "sha256": "dafa5d41545f2047d06345b573e73bcd2f764df449518e58d60a43bc1b0c4557",
+      "bytes": 4033
+    },
+    {
+      "path": "logs/portable-receiver-extra-fields-red.log.b64",
+      "sha256": "19c5c7220623b3756ac7f8a966ea2c8f4d65f923bb965dba8cdb644b2ffb5a9e",
+      "bytes": 1457
+    },
+    {
+      "path": "logs/verify-stage4-1.log.b64",
+      "sha256": "aded452fe5d54adc6b7df5ea35934da29b7e1a953b5b17e0dfcdce01fa91e038",
+      "bytes": 721
+    },
+    {
+      "path": "logs/verify-stage4-2.log.b64",
+      "sha256": "431c43b29ea8cbf6ed0b970b6dff10b1434853d01dfcca249337beb9612d6361",
+      "bytes": 1653
+    },
+    {
+      "path": "logs/verify-stage4-3.log.b64",
+      "sha256": "b7c26bc08a24eebe6198c1629e57681770537a3eef25abef18c2c8ea48305bc4",
+      "bytes": 653
+    },
+    {
+      "path": "logs/verify-stage4-4.log.b64",
+      "sha256": "d158371ca9236689756a60c6bb8de14d29d1e935bf87d07ef848d3268b1763a1",
+      "bytes": 721
+    },
+    {
+      "path": "native-development-checks.json",
+      "sha256": "8394715ee2c2b1b098e04dd15090a5e643a6c0950a513e6c1500e6359247f935",
+      "bytes": 2727
+    },
+    {
+      "path": "new-development-disjointness-review.json",
+      "sha256": "c73db663eb9fa909b2ed42d2734a1b7406654fa5bfc8839bca0a8f88601ea8fc",
+      "bytes": 164519
+    },
+    {
+      "path": "portable-adoption-source-map.json",
+      "sha256": "4b062c49d086638559e0a84efc5445fbb60047629f09c2ff4d3576f66b870e4d",
+      "bytes": 4612
+    },
+    {
+      "path": "portable-lint-report.json",
+      "sha256": "f905d2de36f0eacfdcf56a3eac99356b17ae746cd84eb446211f1a387a66c9d1",
+      "bytes": 29155
+    },
+    {
+      "path": "stage4-integration-spec-review.json",
+      "sha256": "541445437c9574806b6eb764e343100461bf07a19b7f8d4279311f353f630a65",
+      "bytes": 11774
+    },
+    {
+      "path": "stage4-native-standards-review.json",
+      "sha256": "843ff932eb0a17fee96cfac2f62171aae5a7b7f807a96200f35791f24b7aff16",
+      "bytes": 12640
+    },
+    {
+      "path": "stage4-proof-integrity-final-review.json",
+      "sha256": "fcb47fef51f7449c1706dcb7ba8a2863a0033fcd248e9f06d19305dcdc2c6ac1",
+      "bytes": 21690
+    }
+  ],
+  "recordedUtc": "2026-10-17T18:48:21+00:00"
+}

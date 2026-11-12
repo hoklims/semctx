@@ -1,0 +1,146 @@
+{
+  "recordVersion": 1,
+  "state": "TWO_FROZEN_NATIVE_QUALIFIED_FLOW_BOUNDARY_LIMITED_PASSES_V5_MACOS_REVIEWED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/qualified_flow_claim_auditor",
+  "claimLedger": "gap-qualified-flow-claim-audit.md",
+  "authority": {
+    "architecture": "Accepted ADR0035: structured rejected admission,BLOCK and actualCLIexit3 even under --fail-on none.",
+    "frozenScope": "P19/N19 scenarios plus qualification/obligations.json explicitly allow a distinct minimal facts/reasons/input-binding consumer. Six required observations only; P19 positive verdict is NOT_ASSERTED,not credited.",
+    "notAuthority": "The consumer is not the assembled Bun/SQLite application and does not qualify all ADR0035 obligations."
+  },
+  "sourceAnchor": {
+    "base": "f6cbff82ee399fd56a047de4e1e209763e6196af",
+    "commit": "ba7b172923ed6351618e981ad3b3938d016d6c7e",
+    "files": {
+      "tools/rust-ts-r0/qualification/qualified_flow_replay.rs": "6e9956c966d1e33e991a87231e46854ec9d895f2a202eafcdf2000aa75a590eb",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "e122cbf31e1e7ac6048716d2a6711b6555e02fe0921d033ba24a6973af3a1d00",
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "c521e31ce2ff78e78ffd7590ed027b82bffb52bd5a7d24f023154c5d32a99280",
+      "tools/rust-ts-r0/src/qualified_verification.rs": "5f318d651421a5c181ef7f9657aa0998ecdd5d6500f169080d7780b6c3d74716",
+      "tools/rust-ts-r0/src/main.rs": "3bc612543bd152c86ff8117f58f1d73277a32c33d075e9042cd0ef721ff1c1b2",
+      "tools/rust-ts-r0/src/batch.rs": "1c51e7fb5b5a0760b7a81a80c42ad256891c883d4f78dd5dbc49f8d6da08fc71",
+      "tools/rust-ts-r0/tests/native_qualified_flow.rs": "d8c956e9a34a7244c9b6386dbf14f01b120c93e48934d45c2021faee1195fa99",
+      "tools/rust-ts-r0/src/qualified_path_eligibility.rs": "17ad3c5057754f4624989eda34a63c869f517df9a9ed82b3785c47f7b237f048",
+      "tools/rust-ts-r0/src/repository_discovery.rs": "05e893639e2d2255f0fcda92128d68df249e362486932a5772581d9077e013ff"
+    },
+    "patchSha256": "446ac5c1a310a1bd4d8ec18ee4f46a275f78da3d0cd3662bd783bbf7e93b3257",
+    "scope": "Nine committed v5 blobs verified; concurrent support-source edits/new observer or future rebuilt candidate excluded."
+  },
+  "artifacts": {
+    "producerSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "observerSha256": "a902088858fdcbb6f362fd7c56dcb525e6668d2d11cacfd8e71d1bf6f09f1b2f",
+    "canonicalRecipeSha256": "cf56817edec5accb6b76a661a4b7b111dacf82288e2598ba865ab1750e227a09",
+    "fixtureSha256": "5cb71770122c4b2a1a19ead30a28e125b2f9b9b10c7987dfba340ca73407c5cd",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "provenance": "Exact named artifacts and before/after identities only; no independent complete source→binary reconstruction."
+  },
+  "focusedReplay": {
+    "oracle": "gap_qualified_scope_closure_drives_admission_and_actual_cli_exit",
+    "units": [
+      {"unitId": "P19-qualified-inherited-esnext-bundler::base", "checks": 2, "state": "PASS_FROZEN_QUALIFIED_FLOW_BOUNDARY", "observed": {"analysisAdmission_status": "admitted", "coverage": [{"path": "src/main.ts", "status": "analyzed"}], "native_report_id": "sha256:fa3477453aaebf5afd3ad094aca9a8c0d3363c92a1ec211a3d1d337f47e2034b", "public_cli_exit": 0, "verdict": "NOT_ASSERTED"}, "resultSha256": "89b353678d0f70e4439d62f0a75690d1a6d1f1245b784d0becc6d46fbf81dc56"},
+      {"unitId": "N19-excluded-dependent-blocks::base", "checks": 4, "state": "PASS_FROZEN_QUALIFIED_FLOW_BOUNDARY", "observed": {"analysisAdmission_status": "rejected", "coverage": [{"path": "hidden.ts", "status": "excluded"}, {"path": "src/main.ts", "status": "analyzed"}], "native_report_id": "sha256:a8a45291565851608e22fd37bfc5b78e70535ff164c0b75afa9373d1919fdef2", "public_cli_exit": 3, "verdict": "BLOCK"}, "resultSha256": "280817ee96b32cae084b3e818c799652e0c206153ea0dd919e3b6eeec8171005"}
+    ],
+    "totalFrozenChecks": 6,
+    "flow": "Real isolated Git init/commit/HEAD and return1→return2 dirty edit; actual native batch/index received by Receiver, retained descriptor reused by verify working-tree --fail-on none.",
+    "binding": "Git captures,HEAD/index,descriptor/product/SDK IDs and digests; indexed_extraction_received and actual native configurationConsumed, selected/broad extraction and closure before six-field projection.",
+    "metadata": "Union authored Git and canonical consumed metadata/relative-extends closure; bounded symlink/alias handling,ASCII metadata-name normalization and comparison respecting declared physical case mode.",
+    "outcomes": "P19 admitted/0;N19 rejected/BLOCK/3 with hidden.ts excluded. Incomplete/invalid operational contexts refuse/1,not a semantic rejection/3.",
+    "resultsSha256": "a34f8a78a86d2ba3785b4eb7ead200cabdb1e079eecff34a0a4c57b12e918110",
+    "scope": "Native minimal counterpart only. Actual CLI process exits are credited; global product admission/publicBun/SQLite equivalence remains unproved."
+  },
+  "correctionHistory": [
+    {"version": "v1", "ownedDefect": "Tracked configuration omitted from captured coverage.", "oracles": ["qualified-capture-omission-red-v1.log", "qualified-capture-omission-green-v1.log"]},
+    {"version": "v2", "ownedDefect": "Ignored consumed configuration omitted.", "oracles": ["qualified-ignored-config-red-v1.log", "qualified-ignored-config-green-v1.log"]},
+    {"version": "v3", "ownedDefect": "Symlink/configuration aliases and authored source under dist lost from required capture/closure.", "oracles": ["qualified-output-symlink-red-v1.log", "qualified-output-symlink-green-v2.log", "qualified-alias-metadata-green-v2.log"]},
+    {"version": "v4", "ownedDefect": "Uppercase configuration omitted on the exercised case-insensitive filesystem.", "oracles": ["qualified-uppercase-config-red-v1.log", "qualified-uppercase-config-green-v1.log"]}
+  ],
+  "oracles": {
+    "environment": "macOS27.0.1 ARM64,Rust1.95.0;case-insensitive filesystem observed;GIT_CONFIG_GLOBAL absent,GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1.",
+    "release": "324PASS=49lib+248bin+27integrations (1+9+9+4+1+3),unfilteredrelease at exactv5.",
+    "clippyAndWindows": "Clippy PASS;WindowsGNU cargo check PASS onDarwin,notWindowsruntime. Linux/Windowsruntime absent forv5.",
+    "observer": "64comparatorsPASS in qualified-v4-comparators-v1.log; v5 uses identical immutable observerSHAa902088858fdcbb6f362fd7c56dcb525e6668d2d11cacfd8e71d1bf6f09f1b2f,comparator source unchanged.",
+    "spec": "Actual canonicalP/N pass; wrongN19exit0 expectation MISMATCH then canonicalrestorationPASS. Eight private development controls exercise included/omitted configuration,aliases/case and closure.",
+    "adversarial": "15real nativeinvocations,7privateGitcontexts,28setup/HEADGitcommands; normal/dist-independentadmitted0,dist-dependentBLOCK3,foreignindexIdentityMismatch1,omittedconfig/alias/caserefused1. No extra frozen credits.",
+    "recipeTrust": "Exactcanonical SHA externally verified; focused runner does not authenticate an arbitrary recipe policy or full expectation inventory.",
+    "pythonReadmeCorrection": "Source test_prepare_recipes.py atba7 contains8testmethods; unchanged since reader/dialect. Existing reader-dialect-python-v1.log8PASS is the Pythonreceipt,not Cargo release output."
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 64,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 62,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 2,
+    "versionAttributedNonpassUnitIds": [
+      "N17c-importhelpers-es5-actual-emission::base",
+      "ORD-DIALECT-CAPABILITY::base"
+    ],
+    "residualStaticGapUnits": 0,
+    "recipesWithoutKnownGaps": 354,
+    "unitDenominator": 354,
+    "historicalSupportGapsUnreevaluatedInThisLot": 5,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "PENDING; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reserved23Cases26Variants": "NOT_EXECUTED; not read by these documentary tasks",
+    "R0": "UNDECIDED",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Original64UNITGAP mappings complete across distinct artifacts;354static recipes and zeroUNITGAP are not a campaign,not support completion,not obligationqualification."
+  },
+  "historicalSupportGapCheckpoint": {
+    "count": 5,
+    "supportIds": [
+      "IDENTITY::I-relocation",
+      "IDENTITY::I-sdk-supplied-vs-consumed",
+      "IDENTITY::I-request-separation",
+      "IDENTITY::I-capture-mismatch",
+      "IDENTITY::complete-baseline-specimen"
+    ],
+    "state": "HISTORICAL_GAPS_NOT_REEVALUATED_OR_CREDITED_BY_P19_N19",
+    "summary": "qualification/c1-pass2/second-replay-summary.json",
+    "summarySha256": "24e3b49b1e0d528b2ac86f4d8e1716370aaff7289eab488559029291aa942386",
+    "reportPath": "/private/tmp/semctx-t00-20261017/qualification-adapter/v2/replay-c1-pass2/report.json",
+    "reportSha256": "6cbabcfd91b0a2b278b107e9e9bc7486753f33a4783e74baef993956e2a05fd8",
+    "limit": "Last C1pass2 support checkpoint only; no claim about concurrent later support WIP or a new support execution."
+  },
+  "limits": [
+    "No current fullverify:pr/exactheadCI,full354threeOScampaign,supportcampaign,178review,reserved or R0qualification.",
+    "No universal admission,fullADR0035/Bun/SQLite equivalence,atomiclivecapture,globalGitrenames/filters/basecapture,allOSreads or fullSDKconsumption guarantee.",
+    "No ownerbudget8fdc/CIpolicy/dependency/workflow/frozenexpectation change or counter reset.",
+    "Compact selected evidence hashes only; raw temporary paths may expire,no archive/base64."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "qualified-source-anchor-v5.json": "42cb6c36c3d8fc4711c146cc43f1befa251cd7c9b26f564e70cf9d7e44eaaaf7",
+    "qualified-source-v5.patch": "446ac5c1a310a1bd4d8ec18ee4f46a275f78da3d0cd3662bd783bbf7e93b3257",
+    "qualified-v5-check-receipt.json": "220ce425d14b036cf04094732d5b606c20100e6ff7120b8df344594eeed3325f",
+    "fixture-qualified-flow-v5.json": "5cb71770122c4b2a1a19ead30a28e125b2f9b9b10c7987dfba340ca73407c5cd",
+    "qualified-recipes-v2/replay-recipes.json": "cf56817edec5accb6b76a661a4b7b111dacf82288e2598ba865ab1750e227a09",
+    "qualified-recipes-v2/preparation-summary.json": "28df3092f6c6239a38e9e9aefdf25505b7c40911b4058751cd2010161fe5bca4",
+    "qualified-v5-spec-proof.md": "a0352503b2e0c223b77d624cfd1e868a52e2339ae0e166031f88bc25ab37054e",
+    "qualified-v5-standards.md": "1675f1c08703af1342fb8049456f53aa7b5bffab39317c005e35446d7c03f313",
+    "qualified-v5-adversarial.md": "e771266285672e1c2fa4a3c500e3b0321e9956d72963ce6afc5833ad0d7f2bef",
+    "qualified-v5-all-release-v1.log": "a92c28950f702a64f222c8eb9008deece9dde0f29ba94f2cd37bd2b657f3b974",
+    "qualified-v5-clippy-v1.log": "421e79617ec570a3b580eaeb4e9a896a865b0cca647a64f054489bc145d664cf",
+    "qualified-v5-windows-gnu-check-v1.log": "f9942f3c5104ea0cddd173af93ae5f0852941897fbc60871891683e45df8c4e2",
+    "qualified-v5-mapping-green-v1.log": "40a5ee2e0bbb2e01c1228293a98dc4f2fb186a9df47f10596236e25e741a7399",
+    "qualified-v4-comparators-v1.log": "01de434a14a404cd15362b7d927d8545974ce216c4a68cbf94835cfe03c64f4c",
+    "qualified-v5-spec-negative.log": "c03c7f82637377a78fcde4eb19de69ae77662ebebb720d39dff79890e2737a46",
+    "qualified-v5-spec-restored.log": "d2c4ce899e818fa2fedc2a5c5a4c05ab1776f53ebafd47046c267c8c2e28bfb9",
+    "qualified-v5-spec-dev.log": "98f983f5ba210011a69d3ec25451ae60d7db415665036650d79fc75e38f48764",
+    "qualified-v5-adversarial-private/summary.json": "2b3c041f0e2bcc8eae4f77a42a6d284183688522859a3c5d917a769d6d25fc65",
+    "qualified-v5-spec-bindings-before.json": "bba9ab28b82f8f4174f5cad05f736e47e0bb19daa9a241d17796f17dfefa63e7",
+    "qualified-v5-spec-bindings-after.json": "832c07637d3f949a8e859fe060464b50a60ef4f2a2cf50c4c3c1481d55305517",
+    "qualified-capture-omission-red-v1.log": "814a84a852f85d0c960a51a46008d7b2b0c7bdc820c3a77449271dcd08590e3f",
+    "qualified-capture-omission-green-v1.log": "bb123b7c06ef8c1694edd534ae954e3a8ae5820133f9f36c63e8352d5e1d68a9",
+    "qualified-ignored-config-red-v1.log": "1ea03ce6e4bf51d6f67202de4db3f184697285d2ea51357519372d19fdbf684c",
+    "qualified-ignored-config-green-v1.log": "2db340d74471fc9819edac6e633c6c4b23b09d944269e04f330f54d04f6bdf0a",
+    "qualified-output-symlink-red-v1.log": "d62884216843b488dc91e1acb7824476359c72a5faf58e67f4975c8174261372",
+    "qualified-output-symlink-green-v2.log": "6c00b232d8b417a49a64a8fcf83ecb8e0c624df283ee36e0647cdce5fc4efc3b",
+    "qualified-alias-metadata-green-v2.log": "93bf29ad5f9349ca17b88a431dc082fdeadafc40441d39b36a70e8bcc03db533",
+    "qualified-uppercase-config-red-v1.log": "302ce1ad114ffc9363180e8755aa20e0aa6cb78494b00cad502d85f472a146af",
+    "qualified-uppercase-config-green-v1.log": "b40223f83c5332d9598d8d38bcd23346e68a22ad30cffee75dcf311ef8a3ffa0"
+  }
+}

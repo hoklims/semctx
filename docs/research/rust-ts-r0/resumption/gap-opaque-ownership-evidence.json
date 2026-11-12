@@ -1,0 +1,108 @@
+{
+  "recordVersion": 1,
+  "state": "FROZEN_OPAQUE_CALLBACK_GRAPH_OWNERSHIP_UNIT_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "73aed861773f58c7b22d1344e045640fbb72e90b",
+  "reviewedDiffSha256": "d42997b362302eb34ec0cac04e898da79b055dbc9062eecd01a9ffecb3204e88",
+  "archive": {
+    "path": "gap-opaque-ownership-evidence.tar.gz.b64",
+    "bytes": 1972416,
+    "sha256": "35c43c9056c3b83fffc71f3d35ec94b3455909cb8ff4a9621a0f3ca474cc6c24",
+    "decodedSha256": "5d8030f4e7a8004b5cfbac24bc1882c49bde56964681aa04b1b31de45bf91764",
+    "files": 194
+  },
+  "units": [
+    "P23-opaque-inline-call-has-graph-owner::base"
+  ],
+  "nativeArtifactSha256": "c1cc73d0ffdb6dbe5bc31d14b0972c3aeb6a3689c6462990c309edfbe5436a81",
+  "nativeEngineSourceCount": 29,
+  "recipesSha256": "be93119ad85d55b0adc5202809eaa67473e28ad428a421fb302b4c835fe8873b",
+  "authority": "Frozen P23 unit execution_units/37 and allocation/input-index.json; historical opaque-inline-ownership test at3e94997 lines8-23. Accepted ADR0037; owner-authorized same T00/C1/pass1.",
+  "mechanism": "After native frontend creation and bind_all, call actual module-configuration inspection with an empty graph before fact extraction. Then inspect with the real assembled graph, then with only its edges replaced by[]. Expose actual retainedWithoutSource observations in the raw retained+qualified subject. This is a native fact-boundary control, not the complete public Plane-A lifecycle.",
+  "binding": "Existing actual #383-supervised raw runner binds Request/logical input including supplied SDK/executable/Outcome identities and joins reported successful reads. The new comparator recomputes both graph IDs from the actual P23 assembly and its exact edge-free clone. The frozen call assertion joins real graph endpoints to unique symbol coordinates.",
+  "failurePaths": [
+    "Missing, null or non-object native phase is an error, never a substituted successful empty reason list.",
+    "Ordinary and retained-nonqualified valid modes report executed=false with no three phases. Qualified-without-retained still fails SOURCE_SNAPSHOT_REQUIRED before subjects.",
+    "Missing/foreign graph identity, incomplete root observation, wrong scope, ambiguous subject or absent graph inventory cannot bind the control.",
+    "Logical calls require actual unique endpoint nodes and unique grouped symbol coordinates; dangling or missing endpoints refuse.",
+    "Every reason phase separately requires executed=true and unsupported=[]; root completeness cannot replace phase completeness.",
+    "Nonzero, timeout, output-limit, cancellation, capture errors, malformed stdout or wrong actual input/artifact remain NONPASS."
+  ],
+  "mappingCorrection": "First native replay passed15 genuine checks but generated4 invalid completeness targets beneath scalar observationScope/globalAdmissionInferred. Treat only the three named phase children as nested observations; all15 real checks remain and final replay passes. Both recipes and raw outcomes retained.",
+  "checks": {
+    "environment": "macOS27.0.1 arm64 Rust1.95.0 Bun1.4.3 Python3.10.22; snapshots0 RUST_TEST_THREADS1 GIT_CONFIG_GLOBAL unset",
+    "nativeBinaryTests": 202,
+    "nativeLibraryTests": 47,
+    "nativeProcessFlows": 4,
+    "currentObserverComparators": 45,
+    "currentRecipeCliTests": 7,
+    "currentNewFrozenUnits": 1,
+    "currentNewNativeProcesses": 1,
+    "currentNewProjectedChecks": 15,
+    "frozenPropertiesCredited": 4,
+    "currentCarryoverFrozenUnits": 6,
+    "carryoverUnits": [
+      "QDYN06 variant-01",
+      "QDYN06 variant-02",
+      "QDYN01 base",
+      "N01 base",
+      "P01 analyze-snapshot-consistent",
+      "QDYN07 base"
+    ],
+    "formatClippyRuffExitCode": 0,
+    "fullVerifyPrRerun": false,
+    "redWitnesses": [
+      "Two owning native tests fail because the observation is absent before implementation.",
+      "Owning graph-binding comparator executes and fails before transform support.",
+      "Frozen P23 helper refuses the old GAP recipe before mapping."
+    ]
+  },
+  "review": {
+    "standards": "review/standards/report.json",
+    "specProofAdversarial": "review/spec-proof/report.json",
+    "specProofLedger": "review/spec-proof/ledger.md",
+    "boundedVerdict": "PROOF_ADEQUATE for this one frozen native raw DEV unit only",
+    "standardsFreshChecks": "Three owning native tests and one comparator PASS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaults": [
+      "Compiled removal of the actual edge-clearing statement makes one owning native test fail/exit101; restore three ownership tests PASS.",
+      "Compiled bypass of both graph-ID checks makes the owning comparator fail/exit101; restore all45 comparators PASS."
+    ],
+    "specIndependentReplay": "Actual author DEV artifact independently replayed through restored reviewer harness:1unit/1nativeprocess/15checks PASS.",
+    "setupFailuresNotBehavioralWitnesses": [
+      "Reviewer copy initially omitted SDK.",
+      "copy2 restored an old mtime and Cargo reused a mutant build; touch/write_bytes forced recompilation before successful restoration."
+    ],
+    "candidateUnchangedDuringReview": true,
+    "claimAudit": {
+      "author_task": "/root",
+      "auditor_task": "/root/gap_batch14_claims",
+      "ledger": "review/claims/design-claim-ledger.md",
+      "provenance": "Full named read-only child final response persisted verbatim by parent.",
+      "reconciliation": [
+        "Do not adopt contradicted broad temporal, transport, performance, SDK, atomicity, reserved-forensics or completion claims.",
+        "beforeAnalysis means after native frontend creation and bind_all, but before fact extraction/assembly. Source order is inspected; the diagnostic test does not independently prove temporal order. The ledger statement that merely moving the empty-graph inspection necessarily loses the diagnostic is not adopted.",
+        "Three module-configuration inspections total, two added around the existing post-assembly inspection; not three additional inspections. No isolated cost measurement exists.",
+        "The observation is present in raw output only. The input Request DTO is unchanged; no new batch/worker observation or transport parity credit.",
+        "Ordinary and retained-nonqualified valid modes report not-executed. Qualified without retained capture still fails SOURCE_SNAPSHOT_REQUIRED before subjects.",
+        "The ledger captured spec-review status before its final report. The later spec-proof/report.json now attests completed PROOF_ADEQUATE review, two compiled faults detected and restored, independent P23 replay PASS, and unchanged source anchor.",
+        "Ledger hashes are abbreviated locators; full fixture/recipe/raw identities are canonical. Reserved no-access is actor attestation. Budget remains owner planning only.",
+        "The four new documentary files require subsequent parser and independent reconciliation; they are outside the original four-source anchor."
+      ]
+    }
+  },
+  "workflowRecurrence": "Reuse existing focused replay commands and standard archive/manifest primitives; no standalone packaging utility or new CI lane shipped.",
+  "newMappingsCredited": 1,
+  "newProjectedPasses": 1,
+  "qualificationCredit": 0,
+  "limits": [
+    "31 of64 initial GAP units mapped:30 limited PASS and N17c version-attributed NONPASS;33 static GAP remain;0/240 qualified obligations.",
+    "321 of354 prepared recipes have no known static GAP; no new full-campaign PASS aggregate. Historical283PASS/7NONPASS/64GAP keep their original provenance.",
+    "The new observation is in raw output only. Request DTO unchanged; batch projection omits this field and worker uses its separate contract. No P23 batch/worker lifecycle credit.",
+    "beforeAnalysis is after compiler initialization/bind_all and before fact extraction, not before all compiler analysis. Its code order is inspected; no independent temporal-order oracle claimed.",
+    "Three inspections total per retained+qualified root, two added around the existing post-assembly inspection. Cost is unmeasured; no performance claim.",
+    "No full public Plane-A runtime, autodiscovery, full retained scope, capture atomicity, complete SDK consumption, all-OS-read or global-admission guarantee.",
+    "Current evidence is macOS DEV only; Linux/Windows,178-obligation review,full354campaign,reserved once andR0 remain pending.",
+    "Additional C1 pass1 OPEN,pass2 unused; owner3-4day estimate is planning, not measured cumulative duration or exact deadline. No new version arbitration.",
+    "Reserved no-access remains actor attestation; no reserved payload accessed or executed by the author."
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": 1,
+  "reviewer": "/root/es5_projection_review",
+  "reviewedAtUtc": "2026-10-17T18:16:40.258432+00:00",
+  "reviewType": "independent read-only review of correction-v2 delta for ES5-REVIEW-1 and ES5-REVIEW-2",
+  "scopeBefore": {
+    "src/es5_helpers.rs": "1a90184d7071cee6f8f9f28f6f996db26d39ebb8babd677b144dd79755fa58a4",
+    "src/runtime_configuration.rs": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+    "evidence/es5-helpers/correction-v2/report.json": "fe259ac3fe1b3750d384793f4de8eb40630f8f1f9e2fa1429af98deea21f6f38"
+  },
+  "scopeAfter": {
+    "src/es5_helpers.rs": "1a90184d7071cee6f8f9f28f6f996db26d39ebb8babd677b144dd79755fa58a4",
+    "src/runtime_configuration.rs": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+    "evidence/es5-helpers/correction-v2/report.json": "fe259ac3fe1b3750d384793f4de8eb40630f8f1f9e2fa1429af98deea21f6f38"
+  },
+  "scopeStable": true,
+  "baselineSourceHashes": {
+    "es5_helpers.rs": "5fba97db569bed7d89728319ef2c716455feeec7c972490c4aaff523beb9a440",
+    "runtime_configuration.rs": "7c86357a9ffa88be11fb763f0a73710922818b2142acbf01979cd1080135b3e7"
+  },
+  "proofVerdict": "PROOF_ADEQUATE",
+  "verdictScope": "Correction of the two prior template-import-surface findings only; source review plus independently checked retained RED/GREEN evidence. This is not an ES5 completeness, qualification, portability, full producer closure or R0 verdict.",
+  "findings": [],
+  "closedFindings": [
+    {
+      "id": "ES5-REVIEW-1",
+      "status": "CLOSED_FOR_REVIEWED_DELTA",
+      "location": "src/es5_helpers.rs:390-403",
+      "reason": "Les chaînes cuites non vides des TemplateMiddle/TemplateTail sont conservées en arguments concat, comme TypeScript5.9.3 visitTemplateExpression. Le témoin tail initial et ses contrôles tail/middle/escape/empty sont présents dans les observations SDK et le log natif GREEN. Le log RED montre le premier témoin exécuté et rejeté sur la source avant correction."
+    },
+    {
+      "id": "ES5-REVIEW-2",
+      "status": "CLOSED_FOR_REVIEWED_DELTA",
+      "location": "src/es5_helpers.rs:368-383 and 413-453",
+      "reason": "Les tagged templates avec ou sans substitutions reçoivent les tableaux cooked/raw du helper. La première borne ] vue par tryConsumeDefine est rétablie. Les contrôles substitution, head, tail, escape, tableau dans substitution, no-substitution, tag direct, require et cooked invalide correspondent aux observations SDK retenues. Le log RED montre le témoin substitution initial exécuté et rejeté sur la source avant correction."
+    }
+  ],
+  "directDeltaAnalysis": {
+    "plainTemplateSurface": "Nonempty cooked literals are kept in the same lexical order as SDK concat calls; empty cooked tails remain absent, as SDK.",
+    "taggedTemplateSurface": "Cooked/raw array order, invalid cooked void 0, no-substitution arrays and substitutions after the helper argument preserve the scanner-visible boundaries relevant to the two findings.",
+    "rawLiteralSource": "Raw literal source extraction and CRLF/CR normalization match the pinned SDK getRawLiteral and the pinned native transformer approach. Range and UTF-8 substring failure paths return RUNTIME_HELPERS_ES5_TEMPLATE_RAW_UNAVAILABLE explicitly.",
+    "externalModuleCache": {
+      "sdkShape": "tag(templateObject || (templateObject = __makeTemplateObject([cooked...], [raw...])), substitutions...)",
+      "projectionShape": "tag(__makeTemplateObject([cooked...], [raw...]), substitutions...)",
+      "sourceAssessment": "No direct predicate difference found from omission of the cache variable wrapper. For tag names require/define, both first arguments start with an Identifier rather than a string or [. Inside define dependency scanning, both encounter the cooked array first ]. The added wrapper uses identifiers, ||, = and parentheses; it introduces no braces, module keywords or string literals and does not change the commas before substitutions. Actual SDK JavaScript emission/cache semantics are intentionally not reproduced.",
+      "evidenceLevel": "primary-source reasoning; no new reviewer execution or exhaustive cache-shape experiment"
+    },
+    "runtimeChange": "runtime_configuration.rs production logic is unchanged by this delta; only two tests with 15 vectors were added.",
+    "newDirectDefectsFound": 0
+  },
+  "retainedEvidenceAudit": {
+    "reviewerReexecutedSdkOrNative": false,
+    "reportSha256": "fe259ac3fe1b3750d384793f4de8eb40630f8f1f9e2fa1429af98deea21f6f38",
+    "allReportArtifactHashesIndependentlyMatch": true,
+    "redBeforeAfterIdentitiesMatch": true,
+    "greenBeforeAfterIdentitiesMatch": true,
+    "redBindings": {
+      "src/es5_helpers.rs": "5fba97db569bed7d89728319ef2c716455feeec7c972490c4aaff523beb9a440",
+      "src/runtime_configuration.rs": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+      "evidence/es5-helpers/correction-v2/red-tests": "4ebdbea74719f8055cf3615640e8c078b3e33b48ef4d6422272fe652bf6886a2"
+    },
+    "greenBindings": {
+      "src/es5_helpers.rs": "1a90184d7071cee6f8f9f28f6f996db26d39ebb8babd677b144dd79755fa58a4",
+      "src/runtime_configuration.rs": "ab158138998f7909b2e6083cbd3ec6596200784bbe29bcbbde287b9565e1b5ff",
+      "evidence/es5-helpers/correction-v2/green-tests": "5886c29267db4682d2d9e2922982782a45527434e9497a2826a292b8b2f6ea3a"
+    },
+    "negativeWitnesses": [
+      {
+        "log": "review1.red.log",
+        "executedTests": 1,
+        "failed": 1,
+        "nativePredicate": false,
+        "sdkExpected": true,
+        "unsupported": []
+      },
+      {
+        "log": "review2.red.log",
+        "executedTests": 1,
+        "failed": 1,
+        "nativePredicate": true,
+        "sdkExpected": false,
+        "unsupported": []
+      }
+    ],
+    "targetedGreen": "review1.green.log and review2.green.log each report one executed passing test",
+    "aggregateGreen": "runtime.green.log: 20 passed; 0 failed; 0 ignored; 101 filtered out; finished in 0.31s",
+    "newSdkRecords": 15,
+    "newSdkNonzeroDiagnosticRecords": 0,
+    "newInputSetMatchesSdk": true,
+    "loggedNativeVectors": 140,
+    "sameCompleteInputSetAsPrior125PlusNew15SdkRecords": true,
+    "allNativeVectorExpectedValuesMatchSdk": true,
+    "allLoggedSourceHashesRecomputed": true,
+    "inputKey": [
+      "name",
+      "source",
+      "sorted options",
+      "fileName with /repo/t00-es5-dev.ts default"
+    ],
+    "sdkAuthority": "TypeScript5.9.3 compiler SHA256 3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+    "sourceReferences": [
+      "typescript.js:98163-98223",
+      "typescript.js:112180-112207",
+      "typescript.js:144843-144869",
+      "native tagged_template.rs:146-179",
+      "native scanner_util.rs:1693-1699"
+    ]
+  },
+  "limits": [
+    "Only this correction delta was reviewed. No broader original ES5-helper projection re-review or universal completeness claim.",
+    "No native/SDK query, Cargo command, build or test was run by the reviewer. Retained logs and their provenance were inspected independently.",
+    "The 140 development vectors cover their actual inputs. Qualification, cases and reserved content were neither read nor executed.",
+    "Other prototype sources evolved concurrently; full producer source closure is not certified. Stable owned modules and retained binary hashes establish only the stated bindings.",
+    "Native ES5/generator emission remains absent. The projection preserves a helper/import boolean surface, not emitted JavaScript execution or cache behavior.",
+    "No Windows native or Linux execution evidence was produced; the retained run and review host are macOS27.0.1 arm64.",
+    "Adoption into portable native code, full repository checks, CI, qualification and R0 remain outside this bounded verdict."
+  ],
+  "environment": {
+    "reviewHost": "macOS27.0.1 Darwin arm64",
+    "retainedExecutionHost": "macOS27.0.1 arm64",
+    "unexercisedTargets": [
+      "Windows native",
+      "Linux"
+    ]
+  },
+  "candidateWrites": 0,
+  "commentsAdded": 0,
+  "writes": [
+    "/private/tmp/semctx-t00-20261017/es5-projection-independent-review-delta.json"
+  ],
+  "qualificationRead": 0,
+  "reservedRead": 0,
+  "recommendation": "Le delta ferme F1/F2 et peut poursuivre la chaîne de vérification prévue ; conserver les limites de projection et de provenance sans les convertir en certification globale."
+}

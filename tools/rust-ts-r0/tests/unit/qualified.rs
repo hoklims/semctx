@@ -1,0 +1,724 @@
+use super::*;
+use std::collections::BTreeMap;
+use ts_goport::program;
+
+#[test]
+fn call_provenance_observes_runtime_value_namespace_and_immutable_sdk_aliases() {
+    let homonym = "export type Converter = { readonly note: string };\nexport function Converter(seed: number) { return seed; }\nexport function render() { return Converter(17); }\n";
+    let timer = "const repeat = globalThis.setInterval;\nexport function begin() { return repeat(\"2+2\", 5); }\n";
+    let observed = serde_json::to_value(scan_code(homonym)).unwrap();
+    let trace = &observed["call_provenance_observation"];
+    assert_eq!(
+        trace["executed"], true,
+        "live checker call provenance missing: {observed}"
+    );
+    let call = &trace["calls"][0];
+    assert_eq!(call["originChain"][0]["symbol"]["name"], "Converter");
+    assert_eq!(
+        call["originChain"][0]["symbol"]["valueDeclaration"]["kind"],
+        "FunctionDeclaration"
+    );
+    assert_eq!(
+        call["call"]["sourceDigest"],
+        crate::identity::digest_bytes(homonym.as_bytes())
+    );
+    assert_eq!(call["call"]["file"], "/repo/qualified-development.ts");
+    assert_eq!(
+        call["call"]["startUtf16"],
+        homonym.find("Converter(17)").unwrap()
+    );
+    assert_eq!(
+        call["call"]["endUtf16"],
+        homonym.find("Converter(17)").unwrap() + "Converter(17)".len()
+    );
+
+    let observed = serde_json::to_value(scan_code(timer)).unwrap();
+    let chain = observed["call_provenance_observation"]["calls"][0]["originChain"]
+        .as_array()
+        .unwrap();
+    assert_eq!(chain.len(), 2, "{observed}");
+    assert_eq!(chain[0]["symbol"]["name"], "repeat");
+    assert_eq!(
+        chain[0]["symbol"]["valueDeclaration"]["kind"],
+        "VariableDeclaration"
+    );
+    assert_eq!(chain[0]["followedImmutableInitializer"], true);
+    assert_eq!(chain[1]["symbol"]["name"], "setInterval");
+    assert_eq!(
+        chain[1]["symbol"]["valueDeclaration"]["defaultLibrary"],
+        true
+    );
+    assert!(
+        chain[1]["symbol"]["valueDeclaration"]["sourceDigest"]
+            .as_str()
+            .unwrap()
+            .starts_with("sha256:")
+    );
+
+    for source in [
+        "type Converter = (value:number)=>number; export function render(){ return Converter(17); }",
+        "let repeat = globalThis.setInterval; export function begin(){return repeat('2+2',5);}",
+        "const globalThis={setInterval(value:string, delay:number){return delay;}}; const repeat=globalThis.setInterval; export function begin(){return repeat('2+2',5);}",
+    ] {
+        let observed = serde_json::to_value(scan_code(source)).unwrap();
+        let chain = observed["call_provenance_observation"]["calls"][0]["originChain"]
+            .as_array()
+            .unwrap();
+        assert!(
+            !chain
+                .iter()
+                .any(|step| step["symbol"]["valueDeclaration"]["defaultLibrary"] == true),
+            "{observed}"
+        );
+        if source.starts_with("type ") {
+            assert!(
+                chain[0]["symbol"]["valueDeclaration"].is_null(),
+                "{observed}"
+            );
+        }
+        if source.starts_with("let ") {
+            assert_eq!(
+                chain.len(),
+                1,
+                "mutable alias must not be followed: {observed}"
+            );
+            assert_eq!(chain[0]["followedImmutableInitializer"], false);
+        }
+    }
+}
+
+#[test]
+fn sdk_metadata_uses_program_path_identity_without_trusting_user_lib_names() {
+    let bytes = std::fs::read(concat!(env!("CARGO_MANIFEST_DIR"), "/sdk/sdk-input.json"))
+        .expect("captured SDK fixture");
+    let sdk: crate::Sdk = serde_json::from_slice(&bytes).unwrap();
+    assert_eq!(sdk.version, "5.9.3");
+    assert_eq!(sdk.files.len(), 100);
+    let sensitive = ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names();
+    for sdk_directory in ["/sdk/lib", "/PublicSdk/Lib"] {
+        let mut files: BTreeMap<String, String> = sdk
+            .files
+            .iter()
+            .map(|(path, text)| (path.replacen("/sdk/lib", sdk_directory, 1), text.clone()))
+            .collect();
+        files.insert(
+            "/repo/caption.ts".into(),
+            "export function caption() { return String(23); }".into(),
+        );
+        files.insert(
+            "/repo/lib.es5.d.ts".into(),
+            "export declare function userString(value: number): string;".into(),
+        );
+        let frontend = crate::native_frontend_with_options(
+            std::rc::Rc::new(crate::CaptureFs::new(files, sensitive)),
+            "/repo",
+            sdk_directory,
+            vec!["/repo/caption.ts".into(), "/repo/lib.es5.d.ts".into()],
+            false,
+            crate::compiler_options(),
+        );
+        let _scope = crate::native_program::NativeProgram::enter(&frontend.program);
+        program::bind_all();
+        let source = program::get_source_file("/repo/caption.ts");
+        let sdk_source = program::get_source_file(&format!("{sdk_directory}/lib.es5.d.ts"));
+        let user_source = program::get_source_file("/repo/lib.es5.d.ts");
+        assert!(
+            source.is_some(),
+            "public source missing (case_sensitive={sensitive})"
+        );
+        assert!(
+            user_source.is_some(),
+            "user declaration missing (case_sensitive={sensitive})"
+        );
+        assert!(
+            sdk_source.is_some(),
+            "SDK declaration missing (case_sensitive={sensitive}); loaded {:?}",
+            frontend
+                .program
+                .get_source_files()
+                .iter()
+                .map(|file| file.path().0.clone())
+                .collect::<Vec<_>>()
+        );
+        program::with_type_checker_for_file(source, move |checker| {
+            let inputs = QualifiedInputs {
+                case_sensitive: sensitive,
+                ..Default::default()
+            };
+            let scan = Scan {
+                checker,
+                inputs: &inputs,
+                source,
+                result: QualifiedScan::default(),
+                callback_cache: BTreeMap::new(),
+            };
+            assert!(
+                !scan.sdk(user_source),
+                "user .d.ts must not gain SDK identity"
+            );
+            assert!(
+                scan.sdk(sdk_source),
+                "captured SDK must keep default-library identity (case_sensitive={sensitive})"
+            );
+        });
+    }
+}
+
+fn scan_code(source: &str) -> QualifiedScan {
+    scan_code_with_proof_state(source, false, false)
+}
+
+#[expect(
+    clippy::excessive_nesting,
+    reason = "The captured SDK test context requires nested program and checker callbacks."
+)]
+fn scan_code_with_proof_state(source: &str, observed: bool, prove_inline: bool) -> QualifiedScan {
+    use sha2::Digest;
+    eprintln!(
+        "{}",
+        serde_json::json!({"kind":"qualified-development-input", "source":source,
+            "sourceSha256":format!("{:x}", sha2::Sha256::digest(source.as_bytes())), "observed":observed,
+            "proveInline":prove_inline, "sdk":"captured-typescript-5.9.3"})
+    );
+    let files = BTreeMap::from([("/repo/qualified-development.ts".into(), source.into())]);
+    crate::development::with_sdk_project(
+        files,
+        vec!["/repo/qualified-development.ts".into()],
+        move || {
+            let source = program::get_source_file("/repo/qualified-development.ts");
+            assert!(source.is_some());
+            program::with_type_checker_for_file(source, move |checker| {
+                let mut inputs = QualifiedInputs {
+                    retained_paths: BTreeSet::from(["/repo/qualified-development.ts".into()]),
+                    case_sensitive: ts_goport::frontend::vfs::osvfs_fs()
+                        .use_case_sensitive_file_names(),
+                    retained_callable_coordinates_observed: observed,
+                    inline_callback_ownership_observed: observed,
+                    ..Default::default()
+                };
+                if prove_inline {
+                    let mut nodes = vec![source];
+                    while let Some(node) = nodes.pop() {
+                        if node.kind() == K::ArrowFunction {
+                            let map = ast::source_file_get_position_map(source);
+                            inputs.inline_owned_callbacks.insert(QualifiedSpan {
+                                path: "/repo/qualified-development.ts".into(),
+                                start_utf16: map
+                                    .utf8_to_utf16(astnav::get_start_of_node(node, source, false)),
+                                end_utf16: map.utf8_to_utf16(node.end()),
+                            });
+                            break;
+                        }
+                        nodes.extend(node.iter_children());
+                    }
+                }
+                inspect_semantic_dependencies(source, checker, &inputs)
+            })
+        },
+    )
+}
+
+#[test]
+fn observed_callback_ownership_distinguishes_refusal_proof_from_unavailable_mechanism() {
+    let source = "declare function foreign(callback:()=>number):void; function leaf(){return 1;} export function run(){ foreign(()=>leaf()); }";
+    let unknown = scan_code_with_proof_state(source, false, false);
+    assert!(
+        unknown
+            .unsupported
+            .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "{unknown:?}"
+    );
+    let refused = scan_code_with_proof_state(source, true, false);
+    assert!(
+        refused
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{refused:?}"
+    );
+    assert!(
+        !refused
+            .unsupported
+            .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "{refused:?}"
+    );
+    let proved = scan_code_with_proof_state(source, true, true);
+    assert!(
+        !proved
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{proved:?}"
+    );
+    assert!(
+        !proved
+            .unsupported
+            .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "{proved:?}"
+    );
+}
+
+#[test]
+fn observed_missing_callable_coordinate_refuses_instead_of_claiming_unknown() {
+    let source = "export function run(){ const value:any={}; value.missing(); }";
+    let unknown = scan_code_with_proof_state(source, false, false);
+    assert!(
+        unknown
+            .unsupported
+            .contains("RETAINED_CALLABLE_COORDINATE_PROOF_UNAVAILABLE"),
+        "{unknown:?}"
+    );
+    let refused = scan_code_with_proof_state(source, true, false);
+    assert!(
+        refused
+            .reasons
+            .contains("SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"),
+        "{refused:?}"
+    );
+    assert!(
+        !refused
+            .unsupported
+            .contains("RETAINED_CALLABLE_COORDINATE_PROOF_UNAVAILABLE"),
+        "{refused:?}"
+    );
+}
+
+fn scan_graph(source: &str, graph: serde_json::Value) -> QualifiedScan {
+    use sha2::Digest;
+    eprintln!(
+        "{}",
+        serde_json::json!({"kind":"qualified-graph-development-input", "source":source,
+            "sourceSha256":format!("{:x}", sha2::Sha256::digest(source.as_bytes())), "graph":&graph,
+            "graphSha256":format!("{:x}", sha2::Sha256::digest(serde_json::to_vec(&graph).unwrap())), "noLib":true})
+    );
+    let files = BTreeMap::from([("/repo/qualified-development.ts".into(), source.into())]);
+    let retained_files = files.clone();
+    crate::development::with_project(
+        files,
+        vec!["/repo/qualified-development.ts".into()],
+        move || {
+            let source = program::get_source_file("/repo/qualified-development.ts");
+            program::with_type_checker_for_file(source, move |checker| {
+                let inputs = QualifiedInputs {
+                    repository_root: "/repo".into(),
+                    retained_files,
+                    graph: Some(graph),
+                    retained_paths: BTreeSet::from(["/repo/qualified-development.ts".into()]),
+                    case_sensitive: ts_goport::frontend::vfs::osvfs_fs()
+                        .use_case_sensitive_file_names(),
+                    ..Default::default()
+                };
+                inspect_semantic_dependencies(source, checker, &inputs)
+            })
+        },
+    )
+}
+
+fn callback_graph() -> serde_json::Value {
+    serde_json::json!({"nodes":[
+            {"id":"run","kind":"function","name":"run","filePath":"qualified-development.ts","metadata":{"scope":""}},
+            {"id":"leaf","kind":"function","name":"leaf","filePath":"qualified-development.ts","metadata":{"scope":""}}
+        ],"edges":[{"kind":"calls","from":"run","to":"leaf","evidence":[{"filePath":"qualified-development.ts","startLine":1}]}]})
+}
+
+#[test]
+fn inline_owned_requires_unique_owner_and_exact_call_evidence() {
+    let source = "declare function foreign(callback:()=>number):void; function leaf(){return 1;} export function run(){ foreign(()=>leaf()); }";
+    let proved = scan_graph(source, callback_graph());
+    assert!(
+        !proved
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{proved:?}"
+    );
+    assert!(
+        !proved
+            .unsupported
+            .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "{proved:?}"
+    );
+    let mut missing = callback_graph();
+    missing["edges"] = serde_json::json!([]);
+    let refused = scan_graph(source, missing);
+    assert!(
+        refused
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{refused:?}"
+    );
+    let mut wrong_line = callback_graph();
+    wrong_line["edges"][0]["evidence"][0]["startLine"] = serde_json::json!(2);
+    assert!(
+        scan_graph(source, wrong_line)
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+    );
+    let mut duplicate = callback_graph();
+    let owner = duplicate["nodes"][0].clone();
+    duplicate["nodes"].as_array_mut().unwrap().push(owner);
+    assert!(
+        scan_graph(source, duplicate)
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+    );
+}
+
+#[test]
+fn inline_owned_test_pair_requires_both_edges_and_a_callable_reference() {
+    let source = "declare function foreign(callback:()=>unknown):void; function leaf(){return 1;} foreign(()=>leaf);";
+    let graph = serde_json::json!({"nodes":[
+            {"id":"test","kind":"test","name":"spec","filePath":"qualified-development.ts"},
+            {"id":"leaf","kind":"function","name":"leaf","filePath":"qualified-development.ts","metadata":{"scope":""}}
+        ],"edges":[{"kind":"covers","from":"test","to":"leaf"},{"kind":"tested_by","from":"leaf","to":"test"}]});
+    let proved = scan_graph(source, graph.clone());
+    assert!(
+        !proved
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{proved:?}"
+    );
+    let mut one_way = graph.clone();
+    one_way["edges"].as_array_mut().unwrap().pop();
+    assert!(
+        scan_graph(source, one_way)
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+    );
+    let no_reference = "declare function foreign(callback:()=>unknown):void; function leaf(){return 1;} foreign(()=>1);";
+    assert!(
+        scan_graph(no_reference, graph)
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+    );
+}
+
+#[test]
+fn inline_owned_never_falls_back_through_property_owner_or_missing_named_owner() {
+    let property = "declare function foreign(callback:()=>number):void; function leaf(){return 1;} const owner={run:()=>foreign(()=>leaf())};";
+    let mut graph = callback_graph();
+    graph["nodes"][0] = serde_json::json!({"id":"module","kind":"module","name":"mod","filePath":"qualified-development.ts"});
+    graph["edges"][0]["from"] = serde_json::json!("module");
+    assert!(
+        scan_graph(property, graph.clone())
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+    );
+    let named = "declare function foreign(callback:()=>number):void; function leaf(){return 1;} function missing(){foreign(()=>leaf());}";
+    assert!(
+        scan_graph(named, graph)
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+    );
+}
+
+#[test]
+fn sdk_callback_signature_refuses_sdk_map_and_preserves_owned_homonym() {
+    let sdk = scan_code("export function run(){ return [1,2].map(value => value + 1); }");
+    assert!(
+        sdk.reasons.contains("SOURCE_SDK_CALLBACK_UNSUPPORTED"),
+        "{sdk:?}"
+    );
+    let owned = scan_code(
+        "const owned={map(value:number){ return value + 1; }}; export function run(){ return owned.map(2); }",
+    );
+    assert!(
+        !owned.reasons.contains("SOURCE_SDK_CALLBACK_UNSUPPORTED"),
+        "{owned:?}"
+    );
+    assert!(owned.unsupported.is_empty(), "{owned:?}");
+}
+
+#[test]
+fn runtime_typeof_refusal_proves_primitive_argument_but_annotation_alone_does_not() {
+    let guarded = scan_code(
+        "declare function sink(value:unknown):void; export function run(value:unknown){ if(typeof value !== 'string') throw 0; sink(value); }",
+    );
+    assert!(
+        !guarded
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{guarded:?}"
+    );
+    let annotation = scan_code(
+        "declare function sink(value:unknown):void; export function run(value:string){ sink(value); }",
+    );
+    assert!(
+        annotation
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"),
+        "{annotation:?}"
+    );
+}
+
+#[test]
+fn sdk_symbol_protocol_definition_and_plain_computed_key_are_distinct() {
+    let protocol = scan_code("export const value = { [Symbol.iterator](){ return [1]; } };");
+    assert!(
+        protocol
+            .reasons
+            .contains("SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED"),
+        "{protocol:?}"
+    );
+    let plain = scan_code("const key='ordinary'; export const value = { [key](){ return 1; } };");
+    assert!(
+        !plain
+            .reasons
+            .contains("SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED"),
+        "{plain:?}"
+    );
+    assert!(
+        !plain.reasons.contains("SOURCE_PROPERTY_KEY_UNSUPPORTED"),
+        "{plain:?}"
+    );
+}
+
+#[test]
+fn sdk_constructor_provenance_preserves_date_and_refuses_owned_construction() {
+    let sdk = scan_code("export function run(){ return new Date(1); }");
+    assert!(
+        !sdk.reasons.contains("SOURCE_CONSTRUCTION_UNSUPPORTED"),
+        "{sdk:?}"
+    );
+    let owned = scan_code(
+        "class Date { constructor(value:number){} } export function run(){ return new Date(1); }",
+    );
+    assert!(
+        owned.reasons.contains("SOURCE_CONSTRUCTION_UNSUPPORTED"),
+        "{owned:?}"
+    );
+}
+
+#[test]
+fn computed_sdk_destructuring_does_not_prove_a_transparent_constructor_binding() {
+    let value = scan_code(
+        "const key='Instance'; const {[key]: Constructor}=WebAssembly; export function run(){ return new Constructor({} as WebAssembly.Module); }",
+    );
+    assert!(
+        value.reasons.contains("SOURCE_CONSTRUCTION_UNSUPPORTED"),
+        "{value:?}"
+    );
+}
+
+#[test]
+fn descriptors_distinguish_literal_data_from_getter_execution() {
+    let data =
+        scan_code("export function run(){ return Object.defineProperty({}, 'value', {value:1}); }");
+    assert!(
+        !data
+            .reasons
+            .contains("SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED"),
+        "{data:?}"
+    );
+    let getter = scan_code(
+        "export function run(){ return Object.defineProperty({}, 'value', {get(){return 1;}}); }",
+    );
+    assert!(
+        getter
+            .reasons
+            .contains("SOURCE_DESCRIPTOR_ACCESSOR_UNSUPPORTED"),
+        "{getter:?}"
+    );
+}
+
+#[test]
+fn runtime_builtin_execution_is_distinct_from_type_only_import() {
+    let runtime =
+        scan_code("import {exec} from 'node:child_process'; export function run(){ exec('id'); }");
+    assert!(
+        runtime
+            .reasons
+            .contains("SOURCE_PROCESS_LAUNCH_UNSUPPORTED"),
+        "{runtime:?}"
+    );
+    let types =
+        scan_code("import type {exec} from 'node:child_process'; export type Fn=typeof exec;");
+    assert!(
+        !types.reasons.contains("SOURCE_PROCESS_LAUNCH_UNSUPPORTED"),
+        "{types:?}"
+    );
+}
+
+#[test]
+fn navigation_strips_browser_control_whitespace_before_reading_the_scheme() {
+    assert!(unsafe_script_navigation(Some(
+        " \u{0}\tjava\rscript:alert(1)"
+    )));
+    assert!(unsafe_script_navigation(None));
+    assert!(!unsafe_script_navigation(Some("HTTPS://example.test")));
+    assert!(!unsafe_script_navigation(Some("/relative/path")));
+    assert!(!unsafe_script_navigation(Some("1invalid:scheme")));
+}
+
+// Reuse the existing graph-backed callback witness without changing its oracle.
+fn supplemental_casefold_callback_scan(root: &str, case_sensitive: bool) -> QualifiedScan {
+    let path = "C:/repo/a.ts";
+    let text = "declare function foreign(callback:()=>number):void; function leaf(){return 1;} export function run(){ foreign(()=>leaf()); }";
+    let files = BTreeMap::from([(path.to_string(), text.to_string())]);
+    let retained_files = files.clone();
+    let root = root.to_string();
+    crate::development::with_project(files, vec![path.into()], move || {
+        let source = program::get_source_file(path);
+        assert!(source.is_some(), "CASEFOLD_CALLBACK_SETUP_SOURCE_MISSING");
+        assert_eq!(
+            ast::source_file_file_name(source),
+            path,
+            "CASEFOLD_CALLBACK_SETUP_SOURCE_SPELLING"
+        );
+        program::with_type_checker_for_file(source, move |checker| {
+            let retained_path = if case_sensitive {
+                path.to_string()
+            } else {
+                path.to_lowercase()
+            };
+            let mut graph = callback_graph();
+            for node in graph["nodes"].as_array_mut().unwrap() {
+                node["filePath"] = serde_json::json!("a.ts");
+            }
+            for edge in graph["edges"].as_array_mut().unwrap() {
+                edge["evidence"][0]["filePath"] = serde_json::json!("a.ts");
+            }
+            let inputs = QualifiedInputs {
+                repository_root: root,
+                retained_files,
+                graph: Some(graph),
+                retained_paths: BTreeSet::from([retained_path]),
+                case_sensitive,
+                retained_callable_coordinates_observed: true,
+                inline_callback_ownership_observed: true,
+                ..Default::default()
+            };
+            inspect_semantic_dependencies(source, checker, &inputs)
+        })
+    })
+}
+
+#[test]
+fn supplemental_casefold_qualified_callback_owner() {
+    let control = supplemental_casefold_callback_scan("C:/repo", false);
+    assert!(
+        !control
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+            && !control
+                .unsupported
+                .contains("REPOSITORY_RELATIVE_PATH_UNAVAILABLE")
+            && !control
+                .unsupported
+                .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "CASEFOLD_CALLBACK_SETUP_CONTROL:{control:?}"
+    );
+    let distinct = supplemental_casefold_callback_scan("C:/Repo", true);
+    assert!(
+        distinct
+            .unsupported
+            .contains("REPOSITORY_RELATIVE_PATH_UNAVAILABLE"),
+        "CASEFOLD_CALLBACK_SENSITIVE_DISTINCT_ROOT:{distinct:?}"
+    );
+    let folded = supplemental_casefold_callback_scan("C:/Repo", false);
+    assert!(
+        !folded
+            .reasons
+            .contains("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")
+            && !folded
+                .unsupported
+                .contains("REPOSITORY_RELATIVE_PATH_UNAVAILABLE")
+            && !folded
+                .unsupported
+                .contains("OPAQUE_CALLBACK_GRAPH_OWNERSHIP_PROOF_UNAVAILABLE"),
+        "CASEFOLD_CALLBACK_OWNER:{folded:?}"
+    );
+}
+
+// Independent supplemental DEV witness; preparation is source-only.
+// Const callee aliases and awaited-value aliases have different frozen contracts.
+#[test]
+fn supplemental_safe_await_direct_and_value_alias_controls() {
+    for (name, source) in [
+        (
+            "direct-resolve",
+            "export async function run(){ await Promise.resolve(7); }",
+        ),
+        (
+            "direct-reject",
+            "export async function run(){ await Promise.reject(7); }",
+        ),
+        (
+            "awaited-value-alias",
+            "const pending=Promise.resolve(7); export async function run(){ await pending; }",
+        ),
+    ] {
+        let observed = scan_code(source);
+        assert!(
+            observed.unsupported.is_empty(),
+            "SAFE_AWAIT_ALIAS_SETUP_UNSUPPORTED:{name}:{observed:?}"
+        );
+        assert_eq!(
+            observed.reasons,
+            BTreeSet::new(),
+            "SAFE_AWAIT_DIRECT_OR_VALUE_CONTROL:{name}"
+        );
+    }
+}
+
+#[test]
+fn supplemental_safe_await_const_resolve_callee_alias_refuses() {
+    let observed =
+        scan_code("const settle=Promise.resolve; export async function run(){ await settle(7); }");
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ALIAS_SETUP_UNSUPPORTED:resolve:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from(["SOURCE_AWAIT_UNSUPPORTED".to_string()]),
+        "SAFE_AWAIT_CONST_RESOLVE_CALLEE_ALIAS"
+    );
+}
+
+#[test]
+fn supplemental_safe_await_const_reject_callee_alias_refuses() {
+    let observed =
+        scan_code("const settle=Promise.reject; export async function run(){ await settle(7); }");
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ALIAS_SETUP_UNSUPPORTED:reject:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from(["SOURCE_AWAIT_UNSUPPORTED".to_string()]),
+        "SAFE_AWAIT_CONST_REJECT_CALLEE_ALIAS"
+    );
+}
+
+// Separate supplemental DEV witness; does not modify the callee-alias freeze.
+#[test]
+fn supplemental_safe_await_computed_resolve_callee_refuses() {
+    let observed = scan_code(r#"export async function run(){ await Promise["resolve"](7); }"#);
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ELEMENT_SETUP_UNSUPPORTED:resolve:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from([
+            "SOURCE_AWAIT_UNSUPPORTED".to_string(),
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED".to_string(),
+        ]),
+        "SAFE_AWAIT_COMPUTED_RESOLVE_CALLEE"
+    );
+}
+
+#[test]
+fn supplemental_safe_await_computed_reject_callee_refuses() {
+    let observed = scan_code(r#"export async function run(){ await Promise["reject"](7); }"#);
+    assert!(
+        observed.unsupported.is_empty(),
+        "SAFE_AWAIT_ELEMENT_SETUP_UNSUPPORTED:reject:{observed:?}"
+    );
+    assert_eq!(
+        observed.reasons,
+        BTreeSet::from([
+            "SOURCE_AWAIT_UNSUPPORTED".to_string(),
+            "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED".to_string(),
+        ]),
+        "SAFE_AWAIT_COMPUTED_REJECT_CALLEE"
+    );
+}

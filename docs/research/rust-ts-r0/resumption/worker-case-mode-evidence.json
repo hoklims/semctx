@@ -1,0 +1,186 @@
+{
+  "recordVersion": 1,
+  "recordedUtc": "2026-10-18T14:50:34.413785+00:00",
+  "state": "STEP2_FOCUSED_REPAIRS_OBSERVED_MACOS_DEV",
+  "continuation": "local-review-continuation.json",
+  "historicalIncompleteCheckpoint": "harness-repair-evidence.json",
+  "baseHead": "cf5d1bee2fa2790df459ccb1f611b3a9a3d59815",
+  "codeDiffSha256": "b758de4212e651d18ba6975e3094c308f3cb96c2d4e216aba2176502df4a438f",
+  "sources": [
+    {
+      "path": "../../../../.github/workflows/ci.yml",
+      "sha256": "8bf679e01da64b571a2bee06d869232fe31094ed34dd4356da76d4205d949a12"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/Cargo.toml",
+      "sha256": "c46a63d2c03cd1213e32ecd2a80739d2c8522d43440dcf897c982a56c8ef1dc6"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/Cargo.lock",
+      "sha256": "0a6f4356e1da1bf77ae863accb27bbc91f66f8e397b354fc130c9b43cf188df2"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/qualification_replay.rs",
+      "sha256": "7ac418343af72720cb05ea1a0fc7177c935e7cf90c01c164f15e30a98b4d81c0"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/prepare_recipes.py",
+      "sha256": "fb7a8b4d46de03ed547e0c941a18f389a2afdb8b304a87de5f0ca079d6dcb17d"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/test_prepare_recipes.py",
+      "sha256": "886335734e610627453e84a2651b046db421ca15c45f097b7b4c1f3fee1e5865"
+    }
+  ],
+  "mechanism": {
+    "sink": "Canonical coordinate keys grouping captured worker issues with their actual compiler probes.",
+    "caseModeAuthority": "Independent harness filesystem sentinel in the fresh worker directory, removed before authored files are materialized. Errors creating/probing/removing it propagate; no default mode.",
+    "modeUse": "Validate canonical raw root spelling, then canonicalize root/ancestors/issues/all path-bearing probes with measured mode. Native case_sensitive metadata must have exact pathless shape and agree with that mode.",
+    "rawObservationChanged": false,
+    "refusalScopeChanged": "Only normalization of the existing strict ancestor-directory refusal scope; unknown issues and nonnegative bound operations still refuse.",
+    "limitations": "Captured observation checks only. No atomic live-capture or absence-of-all-OS-reads guarantee."
+  },
+  "negativeWitness": {
+    "checkpoint": "cf5d1bee2fa2790df459ccb1f611b3a9a3d59815",
+    "log": "pass1/casefold-resume-red.log",
+    "exit": 101,
+    "failure": "case-insensitive alias read_file must remain visible"
+  },
+  "positiveAndNegativeChecks": {
+    "currentCargoComparators": {
+      "passed": 32,
+      "failed": 0,
+      "log": "pass1/no-issues-final-comparators.log",
+      "workerGuardTests": 4
+    },
+    "currentCargoNativeRepairGroups": {
+      "passed": 4,
+      "failed": 0,
+      "log": "pass1/no-issues-final-repairs.log",
+      "qualificationUnitsExercised": 7,
+      "supportsExercised": 3,
+      "rawEvidence": "pass1/no-issues-final-evidence"
+    },
+    "cases": [
+      "./ and .. aliases, inverse separators, trailing separator",
+      "case-insensitive uppercase read_file(false) and directory_exists(true) refused",
+      "equivalent negative mixed-case issue/probe accepted only in insensitive mode",
+      "reported case mode disagreeing with independent mode refused",
+      "contradictory repeated case metadata and malformed nonempty metadata path refused",
+      "drive-letter/backslash coordinates exercised as pure comparator controls, not native Windows evidence",
+      "case metadata mismatch/malformed shape/repeated contradiction and malformed inventory refused even when workspaceIssues is empty"
+    ],
+    "clippy": "validation/semctx-t00-no-issues-clippy.log"
+  },
+  "ciIntegration": {
+    "workflow": "../../../../.github/workflows/ci.yml",
+    "targets": [
+      "ubuntu-latest",
+      "windows-latest",
+      "macos-15"
+    ],
+    "cargoTarget": "qualification_replay",
+    "requiredFeature": "qualification-observer",
+    "selection": "comparator_ (32 tests); four native repair groups and full qualification require explicit fixture/signal and are not claimed by this CI step.",
+    "python": "3.13.16",
+    "setupPythonAction": "5fda3b95a4ea91299a34e894583c3862153e4b97",
+    "pythonLocalValidationVersion": "3.10.22",
+    "pythonLocalTestsPassed": 7,
+    "previousOptimizedArtifactPreserved": "Upload occurs before observer feature compilation, so the artifact exercised by existing optimized DEV vectors is retained first.",
+    "remoteStatus": "NOT_YET_RUN_FOR_THIS_CANDIDATE",
+    "previousHeadCi": {
+      "head": "cf5d1bee2fa2790df459ccb1f611b3a9a3d59815",
+      "run": "https://github.com/hoklims/semctx/actions/runs/39132830231",
+      "conclusion": "success",
+      "limit": "Previous incomplete checkpoint; its CI did not include this new comparator/recipe step."
+    }
+  },
+  "qualificationLimits": {
+    "qualifiedObligations": 0,
+    "qualifiedObligationDenominator": 240,
+    "gapUnitsRemaining": 64,
+    "propertySupportReviewsPending": 178,
+    "full354UnitCampaign": "NOT_RERUN",
+    "nativeLinuxWindowsEvidenceForChangedObserver": "NOT_YET_OBSERVED",
+    "reservedCasesExecuted": 0,
+    "r0Decision": null,
+    "firstAdditionalC1PassStillOpen": true,
+    "ownerBudgetChanged": false,
+    "newLocalCorrectionCyclesConsumedSinceReactivation": 2
+  },
+  "canonicalVerification": {
+    "partitions": [
+      {
+        "path": "canonical/semctx-t00-case-mode-verify-1.log",
+        "sha256": "26b39f2c783a00ca1719badcc2f49abfa4a95b30bd42eea63868bb4f400928b4",
+        "result": "PASS"
+      },
+      {
+        "path": "canonical/semctx-t00-case-mode-verify-2.log",
+        "sha256": "9b3a0559d9b414f116f296f91554e30eb4969b4bc573b303b83b4b0056a3967a",
+        "result": "PASS"
+      },
+      {
+        "path": "canonical/semctx-t00-case-mode-verify-3.log",
+        "sha256": "7a44a08c892551f6e4a276f0f2a426fa2f2b46902885d9dd1b5f1eda900f1347",
+        "result": "PASS"
+      },
+      {
+        "path": "canonical/semctx-t00-case-mode-verify-4.log",
+        "sha256": "4465405b84ccb9e4b1ecb0b53c632e02a425f135855be34c341a95d1d427260c",
+        "result": "PASS"
+      }
+    ],
+    "environment": {
+      "os": "macOS 27.0.1",
+      "arch": "arm64",
+      "bun": "1.4.3",
+      "rustc": "1.95.0",
+      "GIT_CONFIG_GLOBAL": "unset",
+      "SEMCTX_PROCESS_HELPER": "tools/gates/target/debug/semctx-gates"
+    },
+    "scope": "All four verify:pr partitions passed. They started before the final no-issue metadata delta; current explicit32comparator/four-native-group/Clippy checks cover that observer delta. Documentation parser rerun after metadata updates. No exact remote-head result anticipated."
+  },
+  "archive": {
+    "path": "worker-case-mode-evidence.tar.gz.b64",
+    "encodedBytes": 557010,
+    "encodedSha256": "94d00fe089abbeaf14dc11c147d53c76ce5009fcc2f8c1b78e3d81bc2dd58400",
+    "decodedBytes": 412331,
+    "decodedSha256": "883676b89733184a9b41c8c6ba02c1330e925ce2ea761f3ed1337f89136191a2",
+    "members": 232,
+    "manifest": "MANIFEST.json",
+    "contents": "Raw red/green development logs, focused native Outcomes/input bindings, exact invocation metadata and Clippy failure/correction logs. No compiled executable/rlib or reserved payload."
+  },
+  "reviewDrivenMetadataCorrection": {
+    "reviewedDiffSha256": "c45a56d570fe699ceed70c8c11420b2bbf5babd9aa9cc3fa7f1b174f7bf0bbf0",
+    "finding": "Empty workspaceIssues returned before validation of reported case metadata.",
+    "negativeWitness": "validation/semctx-t00-no-issues-red.log",
+    "negativeExit": 101,
+    "resolution": "Validate every reported case_sensitive probe before the no-issue early return. Missing probe inventory retains prior acceptance only when there is no refusal group to join; malformed present inventory refuses.",
+    "earlierVerdict": "PROOF_WEAK",
+    "specAgent": "/root/case_mode_spec",
+    "adversarialAgent": "/root/case_mode_adversarial"
+  },
+  "independentReview": {
+    "candidateHead": "cf5d1bee2fa2790df459ccb1f611b3a9a3d59815",
+    "candidateDiffSha256": "525fc4bfaf6dd79d087ef49a32e4930890b56405f2ec42a41fbe32073d92b563",
+    "candidateStable": true,
+    "standardsAgent": "/root/case_mode_final_standards",
+    "standardsResult": "NO_DEMONSTRATED_STANDARDS_DEFECT",
+    "specProofAgent": "/root/case_mode_final_spec_proof",
+    "specResult": "NO_DEMONSTRATED_FUNCTIONAL_DEFECT",
+    "proofVerdict": "PROOF_ADEQUATE_MACOS_DEV_SCOPE_ONLY",
+    "rawReport": "independent/semctx-t00-case-final-independent-proof/review-result.json",
+    "reviewedArchiveBeforeAppendingFinalEvidence": {
+      "path": "worker-case-mode-evidence.tar.gz.b64",
+      "encodedBytes": 471459,
+      "encodedSha256": "9d1d7b57ac791409c418b8dc801888e5277033e92a0ec0d663a04447c363b663",
+      "decodedBytes": 349002,
+      "decodedSha256": "2677e3f32a9b6d562284b34767fdf325f1a30495dccaf4b89050c9b855396a7d",
+      "members": 214,
+      "manifest": "MANIFEST.json",
+      "contents": "Raw red/green development logs, focused native Outcomes/input bindings, exact invocation metadata and Clippy failure/correction logs. No compiled executable/rlib or reserved payload."
+    },
+    "postReviewDelta": "Metadata only: append review evidence and finished canonical stdout, update progress. Verification source unchanged."
+  }
+}

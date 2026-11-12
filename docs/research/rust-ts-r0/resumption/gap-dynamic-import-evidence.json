@@ -1,0 +1,1470 @@
+{
+  "recordVersion": 1,
+  "state": "FIVE_LIMITED_FROZEN_QDYN_PROJECTIONS_PASS_MACOS_REVIEWED",
+  "recordedUtc": "2026-10-19T15:38:56.306518+00:00",
+  "author_task": "/root/qdyn_evidence_author",
+  "auditor_task": "/root/qdyn_evidence_author/qdyn_claim_auditor",
+  "authority": {
+    "ownerScope": "T00 C1 resumption only; additional correction pass1 remains open; no budget change.",
+    "frozenExpectations": "cases/qualification/scenarios.json selected execution units QDYN02 base/MJS and QDYN03/04/05; original inputs/assertions and original64 GAP denominator unchanged. Authored index status is not qualification authority.",
+    "baselineScope": {
+      "gitRevision": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/app-services/src/qualified-analysis.ts",
+      "retainedCopy": {
+        "path": "/private/tmp/semctx-t00-resume-20261019/baseline-qualified-analysis.ts",
+        "sha256": "da89277683016b7a956cc7b0fd91708f1dd1abc6d45a375449810790ebdface5"
+      },
+      "relevantLines": "120-150 unresolved non-external imports; 148-176 unresolved/computed refusal"
+    }
+  },
+  "sourceAnchor": {
+    "base_head": "582fa5b9daf9b02793450c20afb6f272f1af6464",
+    "files": {
+      "tools/rust-ts-r0/src/main.rs": "9f6d7482d979a2bfbcef78a730a6f86b418fd4169f54131cfbccf25f53b1fd64",
+      "tools/rust-ts-r0/src/component_observations.rs": "f457935999f8ea9ea8e80552589727148cc25ddf9a61cf8c8a04196966f4c9e5",
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "902065dfc4057918781799f542a1543cedd180fd8bcc1397f7bef3a1aa170379",
+      "tools/rust-ts-r0/qualification/test_prepare_recipes.py": "b9c46abaf482cd25da35d522b66d8e0056ef79e722475dfe4e013c596efa5d49",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "f83d59bd6475a22b9e41d5431797eb58211d7ced1f67f95c9071349ed32cad7c"
+    },
+    "patch_sha256": "9dbb7b1796be370bc3593a69d40ab1790d41bdd9af1271a12fe69f519a115ead"
+  },
+  "producer": {
+    "artifact_path": "/private/tmp/semctx-t00-qdyn-20261019/producer/semctx-r0-probe",
+    "helper_path": "/private/tmp/semctx-t00-qdyn-20261019/producer/semctx-gates",
+    "sdk_path": "/private/tmp/semctx-t00-qdyn-20261019/producer/sdk-input.json",
+    "artifact_sha256": "507dbc29ad5e28256efb6921ac5deffa3a7082320cf9ab15c29340d1bc77451c",
+    "helper_sha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdk_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+    "scope": "Five public frozenQDYN02base/MJS03/04/05 scoped projections only; no globaladmission qualification, noreserved/full354/R0"
+  },
+  "recipes": {
+    "path": "/private/tmp/semctx-t00-qdyn-20261019/recipes-final/replay-recipes.json",
+    "sha256": "34dc44a230338a9bcef15d8fb83d66607a72aa6421e1e9748fc0cce55c384d50",
+    "immutableSources": {
+      "scenarios": {
+        "path": "qualification/scenarios.json",
+        "sha256": "b17b5ea68e702a2d45c6b04ae50654a93611584ec84e60a318ac3bce9d609906",
+        "bytes": 854617
+      },
+      "supports": {
+        "path": "qualification/support.json",
+        "sha256": "a0ea3216c1d23dbac8e8ca79cbfe1bc5a028203b73144c779ec600b933421619",
+        "bytes": 197550
+      },
+      "obligation_map": {
+        "path": "qualification/obligations.json",
+        "sha256": "60e3cf74c75f2733476ddfc721b54a4b7cd9e5e7dbff6745205b0eaed6d0fba5",
+        "bytes": 3331549
+      },
+      "input_index": {
+        "path": "allocation/input-index.json",
+        "sha256": "2b661e61877daf5a4ce14ab76a3ce31f0703f288b01b0853cbc3a8b448c0cded",
+        "bytes": 465689
+      },
+      "allocation": {
+        "path": "allocation/policy.json",
+        "sha256": "a732cdb98b48621910ea2c7e7bc6044fa0f33146f096d923a371743609b978df",
+        "bytes": 26118
+      },
+      "legacy_identity": {
+        "path": "annexes/private-identity-expectations.json",
+        "sha256": "47930accda6b9ee8eae24799152cc5d9f8496b006db425684f70e1b74eca856a",
+        "bytes": 69301
+      },
+      "baseline_identity": {
+        "path": "annexes/baseline-analyzer-identity.expected.json",
+        "sha256": "7a46c92b9437a6b706b1ddcd320df70a5a73c790077cfc90a87126fe1f3cf15c",
+        "bytes": 47460
+      }
+    }
+  },
+  "scope": "Actual shared AST literal-import scan, resolved import projection without invented bindings/coverage, and named retained+qualified computed/unresolved-relative subject refusals. Five frozen projected units only, not complete retained-scope/admission qualification.",
+  "focusedReplay": {
+    "oracle": "gap_retained_dynamic_import_scan_scope_and_unproven_binding",
+    "results": {
+      "path": "/private/tmp/semctx-t00-qdyn-20261019/replay/units-QDYN-02-one-literal-dynamic-refusal/repair-results.json",
+      "sha256": "940aa3cf81ecd3cd011057f7c98fadcaf09340ac7c5e32cb179e065a551b635f"
+    },
+    "passes": 5,
+    "projectedChecks": 39,
+    "realNativeProcesses": 5,
+    "stdoutExcerptMethod": "Exact imports, integrityReasons, compact actual helper coordinates, filtered tested_by/covers edges, subject outcomes/reasons/admission/syntax and shared scan field from each actual stdout. Omitted probes and unrelated fields are not represented as absent.",
+    "units": [
+      {
+        "unitId": "QDYN-02-one-literal-dynamic-refusal::base",
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "projectedChecks": 8,
+        "frozenUnitSha256": "20b26147d8c1a190b697e7e7844b322cfabb399b1ff84aa28e2b0e08334fc4ad",
+        "creditedProperties": [
+          "dynamic_scan_key_exact",
+          "integrity_reasons_for_test",
+          "extracted_dynamic_import_projection",
+          "tested_by_or_covers_from_this_dynamic_import_to_helper"
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/replay/units-QDYN-02-one-literal-dynamic-refusal/unit-000/process-outcome.json",
+          "sha256": "c569c1c02f987b750c3743754eb39910b230b66f93d17f2a8f87afbb53a6ba36",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_bytes": 579095,
+          "stdout_hash": "99680d85d557a3a09bcc8dd5bbc5afdd0258a53c1ff45b105ee9a2f524fb86cd",
+          "stderr_bytes": 0,
+          "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "actualStdoutExcerpt": {
+          "test_dynamic_import_keys": [
+            "src/target.test.ts:1:./target"
+          ],
+          "raw_extraction": {
+            "imports": [
+              {
+                "fromRelPath": "src/target.test.ts",
+                "line": 1,
+                "moduleSpecifier": "./target",
+                "names": [],
+                "resolvedRelPath": "src/target.ts"
+              }
+            ]
+          },
+          "assembly": {
+            "integrityReasons": {
+              "src/target.test.ts": [
+                "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+              ]
+            },
+            "helperSymbols": [
+              {
+                "id": "sym:function:src/target.ts:helper",
+                "kind": "function",
+                "name": "helper",
+                "relPath": "src/target.ts",
+                "scope": []
+              }
+            ],
+            "testCoverageEdges": []
+          },
+          "subjects": [
+            {
+              "path": "src/target.ts",
+              "outcome": "analyzed",
+              "reasons": [],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            },
+            {
+              "path": "src/target.test.ts",
+              "outcome": "unsupported",
+              "reasons": [
+                "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts",
+                "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+              ],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            }
+          ],
+          "global_admission_inferred": false
+        }
+      },
+      {
+        "unitId": "QDYN-02-one-literal-dynamic-refusal::mjs-variant",
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "projectedChecks": 8,
+        "frozenUnitSha256": "221d5ec5433cdd67964a4306df96651d7c14d75d624d7c0617e805ffe652b2bc",
+        "creditedProperties": [
+          "dynamic_scan_key_exact",
+          "integrity_reasons_for_test",
+          "extracted_dynamic_import_projection",
+          "tested_by_or_covers_from_this_dynamic_import_to_helper"
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/replay/units-QDYN-02-one-literal-dynamic-refusal/unit-001/process-outcome.json",
+          "sha256": "a90c14d0d3b3da6f78d5bb0a20e06667fa1ed3f6f5672e1e6c93aa3ce6bfea6c",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_bytes": 589943,
+          "stdout_hash": "1c84ef2024537b21120729ce9129c2b87a7643e40de83f9949cab79eec760177",
+          "stderr_bytes": 0,
+          "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "actualStdoutExcerpt": {
+          "test_dynamic_import_keys": [
+            "src/target.test.mjs:1:./target.mjs"
+          ],
+          "raw_extraction": {
+            "imports": [
+              {
+                "fromRelPath": "src/target.test.mjs",
+                "line": 1,
+                "moduleSpecifier": "./target.mjs",
+                "names": [],
+                "resolvedRelPath": "src/target.mjs"
+              }
+            ]
+          },
+          "assembly": {
+            "integrityReasons": {
+              "src/target.test.mjs": [
+                "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.mjs"
+              ]
+            },
+            "helperSymbols": [
+              {
+                "id": "sym:function:src/target.mjs:helper",
+                "kind": "function",
+                "name": "helper",
+                "relPath": "src/target.mjs",
+                "scope": []
+              }
+            ],
+            "testCoverageEdges": []
+          },
+          "subjects": [
+            {
+              "path": "src/target.mjs",
+              "outcome": "analyzed",
+              "reasons": [],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            },
+            {
+              "path": "src/target.test.mjs",
+              "outcome": "unsupported",
+              "reasons": [
+                "JAVASCRIPT_ASYNC_RETURN_UNSUPPORTED",
+                "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.mjs",
+                "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+              ],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            }
+          ],
+          "global_admission_inferred": false
+        }
+      },
+      {
+        "unitId": "QDYN-03-nonliteral-scan-control-scope-refusal::base",
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "projectedChecks": 8,
+        "frozenUnitSha256": "5212d9132f703ad57676b1b2db6231db31142ccde21391a3e0a9310e23526073",
+        "creditedProperties": [
+          "dynamic_scan_key_exact",
+          "integrity_reasons_for_test",
+          "retained_scope_reasons"
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/replay/units-QDYN-02-one-literal-dynamic-refusal/unit-002/process-outcome.json",
+          "sha256": "a59f1901f9fb2035170c7c076d85021bb71040f11818c00e922101d0ce7337e9",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_bytes": 534901,
+          "stdout_hash": "b54b12f86a0cfed43140fb482d5fedaa7a0ce0aac5255e9e6555fdad681fdaa5",
+          "stderr_bytes": 0,
+          "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "actualStdoutExcerpt": {
+          "test_dynamic_import_keys": [],
+          "raw_extraction": {
+            "imports": []
+          },
+          "assembly": {
+            "integrityReasons": {},
+            "helperSymbols": [
+              {
+                "id": "sym:function:src/target.ts:helper",
+                "kind": "function",
+                "name": "helper",
+                "relPath": "src/target.ts",
+                "scope": []
+              }
+            ],
+            "testCoverageEdges": []
+          },
+          "subjects": [
+            {
+              "path": "src/target.ts",
+              "outcome": "analyzed",
+              "reasons": [],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            },
+            {
+              "path": "src/target.test.ts",
+              "outcome": "unsupported",
+              "reasons": [
+                "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts",
+                "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+              ],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [
+                  "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+                ],
+                "unsupported": []
+              }
+            }
+          ],
+          "global_admission_inferred": false
+        }
+      },
+      {
+        "unitId": "QDYN-04-two-arguments-scan-control-scope-refusal::base",
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "projectedChecks": 8,
+        "frozenUnitSha256": "13c001c40f90f3e8218317566d05e6a4d99d1791cef517ec5a8fdc65ca26aaa0",
+        "creditedProperties": [
+          "dynamic_scan_key_exact",
+          "integrity_reasons_for_test",
+          "retained_scope_reasons"
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/replay/units-QDYN-02-one-literal-dynamic-refusal/unit-003/process-outcome.json",
+          "sha256": "f4672338352a105db3bb0d7580e4bf1cefa319865eb4fcf788426d44cf1b72a2",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_bytes": 577840,
+          "stdout_hash": "b0bf7e7e16880a258b2dfbc57ba16dbc3c6cda8d09c6179c762735b070a63d98",
+          "stderr_bytes": 0,
+          "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "actualStdoutExcerpt": {
+          "test_dynamic_import_keys": [],
+          "raw_extraction": {
+            "imports": []
+          },
+          "assembly": {
+            "integrityReasons": {},
+            "helperSymbols": [
+              {
+                "id": "sym:function:src/target.ts:helper",
+                "kind": "function",
+                "name": "helper",
+                "relPath": "src/target.ts",
+                "scope": []
+              }
+            ],
+            "testCoverageEdges": []
+          },
+          "subjects": [
+            {
+              "path": "src/target.ts",
+              "outcome": "analyzed",
+              "reasons": [],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            },
+            {
+              "path": "src/target.test.ts",
+              "outcome": "unsupported",
+              "reasons": [
+                "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts",
+                "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+              ],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [
+                  "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+                ],
+                "unsupported": []
+              }
+            }
+          ],
+          "global_admission_inferred": false
+        }
+      },
+      {
+        "unitId": "QDYN-05-unresolved-literal-target::base",
+        "state": "PASS_FROZEN_PROJECTED_UNIT",
+        "projectedChecks": 7,
+        "frozenUnitSha256": "c5201d5d48ad60d9d8b04e3ad6b15df991094602a822a72088ddfa32d9f17019",
+        "creditedProperties": [
+          "dynamic_scan_key_exact",
+          "integrity_reasons_for_test",
+          "extracted_import_resolvedRelPath",
+          "retained_scope_reasons"
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/replay/units-QDYN-02-one-literal-dynamic-refusal/unit-004/process-outcome.json",
+          "sha256": "6c9e5f16f2065fecdacfbb5b97d5d8571e5d8573a86e77cb53861486f007c264",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_bytes": 595812,
+          "stdout_hash": "8714bdf7bf7871a0b94ae95fb6aa722c829e6c4e2f085bbbc76204fd19184970",
+          "stderr_bytes": 0,
+          "stderr_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "actualStdoutExcerpt": {
+          "test_dynamic_import_keys": [
+            "src/target.test.ts:1:./missing"
+          ],
+          "raw_extraction": {
+            "imports": [
+              {
+                "fromRelPath": "src/target.test.ts",
+                "line": 1,
+                "moduleSpecifier": "./missing",
+                "names": []
+              }
+            ]
+          },
+          "assembly": {
+            "integrityReasons": {},
+            "helperSymbols": [
+              {
+                "id": "sym:function:src/target.ts:helper",
+                "kind": "function",
+                "name": "helper",
+                "relPath": "src/target.ts",
+                "scope": []
+              }
+            ],
+            "testCoverageEdges": []
+          },
+          "subjects": [
+            {
+              "path": "src/target.ts",
+              "outcome": "analyzed",
+              "reasons": [],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            },
+            {
+              "path": "src/target.test.ts",
+              "outcome": "unsupported",
+              "reasons": [
+                "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:./missing"
+              ],
+              "admission": "not_evaluated",
+              "retainedScopeSyntaxObservation": {
+                "executed": true,
+                "reasons": [],
+                "unsupported": []
+              }
+            }
+          ],
+          "global_admission_inferred": false
+        }
+      }
+    ],
+    "conditionalUncreditedProperty": [
+      {
+        "key": "qualified_admission_when_full_valid_verification_context_supplied",
+        "basis": "Frozen conditional guidance; the full verification context is not supplied by this case. Actual scoped reasons/refusal are checked; global qualified admission is not credited."
+      }
+    ],
+    "conditionalUncreditedScope": "The same explicit uncredited property applies to all five final recipes."
+  },
+  "baselineOracleControl": {
+    "purpose": "Sensitivity witness using the unchanged pre-change native producer with the actual new recipe path. No frozen qualification credit and no exhaustive comparator qualification.",
+    "fixture": {
+      "artifact_path": "/private/tmp/semctx-t00-n03-final/producer-v4/semctx-r0-probe",
+      "helper_path": "/private/tmp/semctx-t00-qdyn-20261019/producer/semctx-gates",
+      "sdk_path": "/private/tmp/semctx-t00-qdyn-20261019/producer/sdk-input.json",
+      "artifact_sha256": "56daa7a2e499aaa28eb17abb8e92eb8ec199d2843ffe9fd39357b9b9c2ce6082",
+      "helper_sha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+      "sdk_sha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+      "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+      "scope": "DEV negative oracle control: deficient preserved native9db runtime against actual newQDYN recipes; never candidate qualification credit"
+    },
+    "results": {
+      "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control/units-QDYN-02-one-literal-dynamic-refusal/repair-results.json",
+      "sha256": "26d199a6464f4bd3ee8f21537dea780c5e6496b53411c8989a0f324594ed0f41"
+    },
+    "expectedAggregateCargoExit": 101,
+    "actualAggregateResult": "test FAILED; five NONPASS_PROJECTED_UNIT, demonstrated by retained oracle-baseline-control.log",
+    "units": [
+      {
+        "unitId": "QDYN-02-one-literal-dynamic-refusal::base",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "failedChecks": [
+          {
+            "expected_origin": "/assertions/dynamic_scan_key_exact",
+            "observation": 0,
+            "result": {
+              "error": "missing observed field test_dynamic_import_keys",
+              "state": "UNKNOWN_UNMAPPED_OR_MALFORMED"
+            },
+            "target": [
+              "test_dynamic_import_keys"
+            ]
+          }
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control/units-QDYN-02-one-literal-dynamic-refusal/unit-000/process-outcome.json",
+          "sha256": "5657ff5912daa37e398f52c35c4452b4eea703841b5ddbe4cbbd1c16e0bbd94e",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_hash": "2e9a7c9a3df4cfe69702489fb0c427a201a69e898d40b051fc24651dac5d57f3"
+        },
+        "scanFieldPresent": false,
+        "actualSubjects": [
+          {
+            "path": "src/target.test.ts",
+            "outcome": "unsupported",
+            "reasons": [
+              "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts",
+              "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+            ],
+            "admission": "not_evaluated",
+            "retainedScopeSyntaxObservation": {
+              "executed": true,
+              "reasons": [],
+              "unsupported": []
+            }
+          }
+        ]
+      },
+      {
+        "unitId": "QDYN-02-one-literal-dynamic-refusal::mjs-variant",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "failedChecks": [
+          {
+            "expected_origin": "/variant_input_or_observation/files",
+            "observation": 0,
+            "result": {
+              "error": "missing observed field test_dynamic_import_keys",
+              "state": "UNKNOWN_UNMAPPED_OR_MALFORMED"
+            },
+            "target": [
+              "test_dynamic_import_keys"
+            ]
+          }
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control/units-QDYN-02-one-literal-dynamic-refusal/unit-001/process-outcome.json",
+          "sha256": "347dda6e62b2b4eb636cdee3cd1ccfa70006d6b05c1957f4d156e50020838d53",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_hash": "59732efc9740b872315813d0a9afc5b4529246dde00aa656a351fa08086011fa"
+        },
+        "scanFieldPresent": false,
+        "actualSubjects": [
+          {
+            "path": "src/target.test.mjs",
+            "outcome": "unsupported",
+            "reasons": [
+              "JAVASCRIPT_ASYNC_RETURN_UNSUPPORTED",
+              "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.mjs",
+              "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+            ],
+            "admission": "not_evaluated",
+            "retainedScopeSyntaxObservation": {
+              "executed": true,
+              "reasons": [],
+              "unsupported": []
+            }
+          }
+        ]
+      },
+      {
+        "unitId": "QDYN-03-nonliteral-scan-control-scope-refusal::base",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "failedChecks": [
+          {
+            "expected_origin": "/assertions/dynamic_scan_key_exact",
+            "observation": 0,
+            "result": {
+              "error": "missing observed field test_dynamic_import_keys",
+              "state": "UNKNOWN_UNMAPPED_OR_MALFORMED"
+            },
+            "target": [
+              "test_dynamic_import_keys"
+            ]
+          },
+          {
+            "expected_origin": "/assertions/retained_scope_reasons",
+            "observation": 0,
+            "result": {
+              "state": "MISMATCH"
+            },
+            "target": [
+              "subjects",
+              {
+                "path": "src/target.test.ts"
+              },
+              "retainedScopeSyntaxObservation",
+              "reasons"
+            ]
+          }
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control/units-QDYN-02-one-literal-dynamic-refusal/unit-002/process-outcome.json",
+          "sha256": "74d83341b2ab0f556c3da276eed2b3cb588d9a17ec21ff4475832b1e48e8d557",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_hash": "14234b5865e368c48dd1c58b23c9fc248be580a175e67b8858ebfbce0539c2ad"
+        },
+        "scanFieldPresent": false,
+        "actualSubjects": [
+          {
+            "path": "src/target.test.ts",
+            "outcome": "unsupported",
+            "reasons": [
+              "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+            ],
+            "admission": "not_evaluated",
+            "retainedScopeSyntaxObservation": {
+              "executed": true,
+              "reasons": [],
+              "unsupported": []
+            }
+          }
+        ]
+      },
+      {
+        "unitId": "QDYN-04-two-arguments-scan-control-scope-refusal::base",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "failedChecks": [
+          {
+            "expected_origin": "/assertions/dynamic_scan_key_exact",
+            "observation": 0,
+            "result": {
+              "error": "missing observed field test_dynamic_import_keys",
+              "state": "UNKNOWN_UNMAPPED_OR_MALFORMED"
+            },
+            "target": [
+              "test_dynamic_import_keys"
+            ]
+          },
+          {
+            "expected_origin": "/assertions/retained_scope_reasons",
+            "observation": 0,
+            "result": {
+              "state": "MISMATCH"
+            },
+            "target": [
+              "subjects",
+              {
+                "path": "src/target.test.ts"
+              },
+              "retainedScopeSyntaxObservation",
+              "reasons"
+            ]
+          }
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control/units-QDYN-02-one-literal-dynamic-refusal/unit-003/process-outcome.json",
+          "sha256": "4ed2d8452fe99414673b87fed17ef50ee309bb44bd22bdb72ae9acfc45d7d931",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_hash": "0a5b23b1faf52777fe6fe955374371de893de66ddaa0d3479127bb5ee3f6656e"
+        },
+        "scanFieldPresent": false,
+        "actualSubjects": [
+          {
+            "path": "src/target.test.ts",
+            "outcome": "unsupported",
+            "reasons": [
+              "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+            ],
+            "admission": "not_evaluated",
+            "retainedScopeSyntaxObservation": {
+              "executed": true,
+              "reasons": [],
+              "unsupported": []
+            }
+          }
+        ]
+      },
+      {
+        "unitId": "QDYN-05-unresolved-literal-target::base",
+        "state": "NONPASS_PROJECTED_UNIT",
+        "failedChecks": [
+          {
+            "expected_origin": "/assertions/dynamic_scan_key_exact",
+            "observation": 0,
+            "result": {
+              "error": "missing observed field test_dynamic_import_keys",
+              "state": "UNKNOWN_UNMAPPED_OR_MALFORMED"
+            },
+            "target": [
+              "test_dynamic_import_keys"
+            ]
+          },
+          {
+            "expected_origin": "/assertions/retained_scope_reasons",
+            "observation": 0,
+            "result": {
+              "state": "MISMATCH"
+            },
+            "target": [
+              "subjects",
+              {
+                "path": "src/target.test.ts"
+              },
+              "reasons"
+            ]
+          },
+          {
+            "expected_origin": "Actual native profile refusal, without global admission credit.",
+            "observation": 0,
+            "result": {
+              "state": "MISMATCH"
+            },
+            "target": [
+              "subjects",
+              {
+                "path": "src/target.test.ts"
+              },
+              "outcome"
+            ]
+          }
+        ],
+        "process": {
+          "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control/units-QDYN-02-one-literal-dynamic-refusal/unit-004/process-outcome.json",
+          "sha256": "6c14e505be46e86894de8495f03f5652359d4331bc1e8bdc28d4bd582d2c75a6",
+          "kind": "success",
+          "exit_code": 0,
+          "stdout_hash": "6965f451cfecab754e321ba6a3f6ce2b9e149244b3bfe72b7c90b148d5fba56f"
+        },
+        "scanFieldPresent": false,
+        "actualSubjects": [
+          {
+            "path": "src/target.test.ts",
+            "outcome": "analyzed",
+            "reasons": [],
+            "admission": "not_evaluated",
+            "retainedScopeSyntaxObservation": {
+              "executed": true,
+              "reasons": [],
+              "unsupported": []
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "relatedCarryover": {
+    "passes": 5,
+    "sameCandidateArtifact": true,
+    "records": [
+      {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/related-carryover/units-QDYN-01-static-binding-control/repair-results.json",
+        "sha256": "69c17b844cb493e5037d348e85883f8d83f0aa26ff5e90cd76d5f96ffb71e558",
+        "results": [
+          {
+            "unitId": "QDYN-01-static-binding-control::base",
+            "state": "PASS_FROZEN_PROJECTED_UNIT"
+          }
+        ]
+      },
+      {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/related-carryover/units-QDYN-06-defined-bindingTargets-private-consumer-control/repair-results.json",
+        "sha256": "dc76a76d6ac842199cb8374a76f04462fafdb7c798b48948b080f82587b620b1",
+        "results": [
+          {
+            "unitId": "QDYN-06-defined-bindingTargets-private-consumer-control::variant-01",
+            "state": "PASS_FROZEN_PRIVATE_CONSUMER_UNIT"
+          },
+          {
+            "unitId": "QDYN-06-defined-bindingTargets-private-consumer-control::variant-02",
+            "state": "PASS_FROZEN_PRIVATE_CONSUMER_UNIT"
+          }
+        ]
+      },
+      {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/related-carryover/units-QSCOPE-01-import-type-refusal/repair-results.json",
+        "sha256": "db3cad840ce17f9b22a11346add5131548cdb77bcc00167e1df5bd14f70dc21c",
+        "results": [
+          {
+            "unitId": "QSCOPE-01-import-type-refusal::base",
+            "state": "PASS_FROZEN_PROJECTED_UNIT"
+          },
+          {
+            "unitId": "QSCOPE-02-external-import-equals-refusal::base",
+            "state": "PASS_FROZEN_PROJECTED_UNIT"
+          }
+        ]
+      }
+    ],
+    "scope": "Only QDYN01, both QDYN06 private-consumer variants and QSCOPE01/02; not full regression campaign."
+  },
+  "adversarial": {
+    "results": {
+      "path": "/private/tmp/semctx-t00-qdyn-adversarial-v1/results.json",
+      "sha256": "af51887b9aa240005744bcc1354519ed2470f466e08b34338d25d2f074041bfb"
+    },
+    "report": {
+      "path": "/private/tmp/semctx-t00-qdyn-20261019/adversarial-v1.md",
+      "sha256": "28fa57df3510dbad698e9202bfb1614be88fab3c727c00958c1f9dd62931c7d7"
+    },
+    "actualCliAttempts": 22,
+    "boundedSummary": "Computed shapes, resolved dynamic literals, relative-dot missing imports, ordinary/nonqualified controls, text/comment lookalikes and parse failure exercised. Bare missing is a remaining full-scope adapter gap, not intended behavior.",
+    "actualOutcomeSummary": [
+      {
+        "name": "identifier",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "template",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "template_expr",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "parenthesized",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "concat",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "two_args",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "zero_args",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "spread",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts",
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "name": "nested",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts",
+          "SOURCE_DYNAMIC_CALL_UNSUPPORTED",
+          "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+        ]
+      },
+      {
+        "name": "unicode_literal",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+        ]
+      },
+      {
+        "name": "comments_literal",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "QUALIFIED_TEST_DYNAMIC_IMPORT_BINDING_UNPROVEN:src/target.ts"
+        ]
+      },
+      {
+        "name": "ordinary_computed",
+        "exit": 0,
+        "outcome": "analyzed",
+        "reasons": []
+      },
+      {
+        "name": "nonqualified_computed",
+        "exit": 0,
+        "outcome": "analyzed",
+        "reasons": []
+      },
+      {
+        "name": "source_role_computed",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_COMPUTED_IMPORT:src/target.test.ts"
+        ]
+      },
+      {
+        "name": "missing_dynamic",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:./missing"
+        ]
+      },
+      {
+        "name": "missing_static",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:./missing"
+        ]
+      },
+      {
+        "name": "resolved_static",
+        "exit": 0,
+        "outcome": "analyzed",
+        "reasons": []
+      },
+      {
+        "name": "dotdot_missing",
+        "exit": 0,
+        "outcome": "unsupported",
+        "reasons": [
+          "DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:../missing"
+        ]
+      },
+      {
+        "name": "bare_missing",
+        "exit": 0,
+        "outcome": "analyzed",
+        "reasons": []
+      },
+      {
+        "name": "malformed",
+        "exit": 0,
+        "outcome": "failed",
+        "reasons": [
+          "SOURCE_PARSE_ERROR:1005:')' expected."
+        ]
+      },
+      {
+        "name": "fake_string",
+        "exit": 0,
+        "outcome": "analyzed",
+        "reasons": []
+      },
+      {
+        "name": "fake_comment",
+        "exit": 0,
+        "outcome": "analyzed",
+        "reasons": []
+      }
+    ]
+  },
+  "remainingOwnedAdapterGap": {
+    "state": "OPEN_BEFORE_RETAINED_SCOPE_PARITY_OR_R0",
+    "case": "bare_missing",
+    "baselineExpected": "With retained+qualified input and no declared external dependency, unresolved missing must produce DEPENDENCY_SCOPE_UNRESOLVED_IMPORT:src/target.test.ts:missing; inferred from pinned baseline source, not an executed TypeScript runtime oracle.",
+    "actual": {
+      "name": "bare_missing",
+      "exit": 0,
+      "duration": 0.186,
+      "stdout_bytes": 536972,
+      "stderr": "",
+      "subject": {
+        "outcome": "analyzed",
+        "reasons": [],
+        "parseDiagnostics": [],
+        "retainedScopeSyntaxObservation": {
+          "executed": true,
+          "reasons": [],
+          "unsupported": []
+        }
+      },
+      "imports": [
+        {
+          "fromRelPath": "src/target.test.ts",
+          "line": 1,
+          "moduleSpecifier": "missing",
+          "names": []
+        }
+      ],
+      "integrityReasons": {},
+      "global_admission_inferred": false
+    },
+    "rawRequest": {
+      "path": "/private/tmp/semctx-t00-qdyn-adversarial-v1/bare_missing/request.json",
+      "sha256": "49af624355850711866baa23b8c23aa195a4cab9d0205c23c3c01fb92d0e35b4"
+    },
+    "rawStdout": {
+      "path": "/private/tmp/semctx-t00-qdyn-adversarial-v1/bare_missing/stdout.json",
+      "sha256": "3f68e26e0a31bc31e2694d78e6ffdaa3e551164d3dc28580d1cdfb9add0fd2e9"
+    },
+    "cause": "Native helper currently checks only module specifiers beginning with dot; baseline rejects other non-external unresolved specifiers as well.",
+    "disposition": "Remaining owned adapter gap to resolve before R0; outside these five relative frozen projections and original64 GAP accounting. No new frozen unit or denominator, waiver, intended behavior or TS-version attribution."
+  },
+  "localChecks": {
+    "environment": "macOS27.0.1 ARM64, Rust1.95.0, Bun1.4.3, Python3.10.22; GIT_CONFIG_GLOBAL unset",
+    "nativeLibraryTests": 47,
+    "nativeBinaryTests": 227,
+    "comparatorTests": 55,
+    "pythonRecipeTests": 8,
+    "clippy": "PASS",
+    "ruff": "PASS",
+    "redWitnesses": {
+      "runtime-red.log": "15 PASS / 2 FAIL: computed and unresolved-relative reasons absent",
+      "scan-output-red.log": "1 FAIL: scan field absent (actual Null vs expected exact array)",
+      "mapping-red.log": "8 tests, 5 subtest failures: missing frozen mappings/context"
+    },
+    "logs": {
+      "native-unit.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/native-unit.log",
+        "sha256": "6063653351f47a212fd94b420e6d069af4f580a862bd2cb7b9a61ed5902ad217"
+      },
+      "comparators.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/comparators.log",
+        "sha256": "5c23df68a9ff94cf9e339f6356cfd34008b97ceb1a3555ce29a95533226937ce"
+      },
+      "recipe-tests-final.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/recipe-tests-final.log",
+        "sha256": "6f961ab991e4a7339be3fddc69ced86df7385157cea7024fe260b319db2ad1d1"
+      },
+      "clippy.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/clippy.log",
+        "sha256": "8a19275cccd47abe1eb7ec8cfcf44de6e0deb4d68930bcd8a8a0e338aabb6eeb"
+      },
+      "ruff.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/ruff.log",
+        "sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18"
+      },
+      "runtime-red.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/runtime-red.log",
+        "sha256": "f74754cbcb4b6baa6b2ae226c5931636c24c1b83c38de4d28553c3f1b5cda3c0"
+      },
+      "scan-output-red.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/scan-output-red.log",
+        "sha256": "915e0190507f9d9a92a4b251eeadd71216954e19a7da0afb9e33a9a46b79d9a5"
+      },
+      "mapping-red.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/mapping-red.log",
+        "sha256": "5459c00d9d3c5a45f426633739f4656518676e6f9de75e83c47eedd67ba47153"
+      },
+      "oracle-baseline-control.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/oracle-baseline-control.log",
+        "sha256": "9aeffb60cd9df9f3e9200590f299f672462456f67b59a24af80464dd70cd1f7f"
+      },
+      "replay.log": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/replay.log",
+        "sha256": "4069b81e71f82304b884f99edceb82ed2c2d954311716498c6752cc92afe1605"
+      }
+    },
+    "notClaimed": "No current complete verify:pr, current Linux/Windows behavior or current complete354 campaign.",
+    "documentationIntegrity": {
+      "command": "env -u GIT_CONFIG_GLOBAL /opt/homebrew/bin/bun run docs:check",
+      "result": "PASS",
+      "environment": "Local macOS ARM64; Bun1.4.3; intended new evidence file indexed before check",
+      "scope": "Repository documentation integrity only; not native behavior or full verify:pr."
+    }
+  },
+  "independentReviews": {
+    "standards": {
+      "reviewer": "/root/qdyn_standards_v1",
+      "report": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/review-standards-v1.md",
+        "sha256": "ca219b4b921b949e22d288237477f4acd574974330d3ab8deb5b6b4dedf27f93"
+      },
+      "result": "No demonstrated source standards defect on exact five-file anchor; this review predates final replay."
+    },
+    "initialSpecProof": {
+      "report": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/review-spec-proof-v1.md",
+        "sha256": "77709d04de2adfcf8bc8e644c366f7218575c9c513ad4a01ea324c3dc292d96d"
+      },
+      "result": "Initial proof weak before focused replay and real baseline negative witness; preserved as historical finding."
+    },
+    "finalSpecProof": {
+      "reviewer": "/root/qdyn_final_spec_proof",
+      "report": {
+        "path": "/private/tmp/semctx-t00-qdyn-20261019/review-final-spec-proof.md",
+        "sha256": "67711fa489c843225d2bb81615a3d28d162412ed44629f1c8eedd51257d5d36c"
+      },
+      "result": "PROOF_ADEQUATE for only the five local projected units; remaining bare-import adapter gap stays open."
+    }
+  },
+  "claimAudit": {
+    "initialAndSupplementVerbatim": {
+      "author_task": "/root/qdyn_evidence_author",
+      "auditor_task": "/root/qdyn_evidence_author/qdyn_claim_auditor",
+      "rows": [
+        {
+          "claim": "The candidate is exactly the five-file delta based on `582fa5b9`, patch SHA-256 `9dbb…15ead`.",
+          "authority": "`source-anchor-v1.json`; Git base",
+          "mechanism": "All five current source hashes match the anchor; patch hash matches.",
+          "scope": "Candidate identity only; no build-closure claim.",
+          "namedBehavioralOracle": "`source-anchor-v1 hash reconciliation`",
+          "status": "held",
+          "failureMechanism": "Any source/hash/base change detaches later evidence."
+        },
+        {
+          "claim": "QDYN02 TS literal import satisfies its four credited frozen properties.",
+          "authority": "Frozen `scenarios.json` QDYN02 base",
+          "mechanism": "Shared AST scan emits the exact key; extraction resolves `target.ts` without `bindingTargets`; assembly emits the unproven-binding reason and no helper coverage.",
+          "scope": "Exact retained qualified two-file TS fixture; admission property excluded.",
+          "namedBehavioralOracle": "`focused QDYN repair replay`, unit 000, 8/8 checks",
+          "status": "held",
+          "failureMechanism": "Wrong/missing scan key, target, reason, absent field, helper coordinate, or invented coverage makes the unit NONPASS."
+        },
+        {
+          "claim": "QDYN02 MJS satisfies the corresponding four credited properties using its explicit MJS overrides.",
+          "authority": "Frozen QDYN02 MJS variant plus its authored `files` and `exact_integrity_reason`",
+          "mechanism": "Parent capture/profile/roles are inherited while file, specifier, target and reason coordinates are rewritten to `.mjs`.",
+          "scope": "Exact two-file MJS variant; no general TS/MJS parity.",
+          "namedBehavioralOracle": "`focused QDYN repair replay`, unit 001, 8/8 checks",
+          "status": "held",
+          "failureMechanism": "Retaining inherited TS coordinates, losing MJS resolution, inventing bindings/coverage, or wrong reason makes the unit NONPASS."
+        },
+        {
+          "claim": "QDYN03 excludes a nonliteral import from the strict literal scan and refuses it with the computed-import scope reason.",
+          "authority": "Frozen QDYN03 assertions; pinned `baseline-qualified-analysis.ts:148-176`",
+          "mechanism": "Actual AST visitor classifies a non-string import argument as computed; assembly integrity excludes the unproven literal-binding reason.",
+          "scope": "Exact retained qualified QDYN03 fixture.",
+          "namedBehavioralOracle": "`focused QDYN repair replay`, unit 002, 8/8 checks",
+          "status": "held",
+          "failureMechanism": "A scan key, fabricated binding reason, missing computed reason, incomplete syntax observation, or analyzed outcome fails the checks."
+        },
+        {
+          "claim": "QDYN04 excludes the two-argument import from the strict scan and refuses it with the computed-import reason.",
+          "authority": "Frozen QDYN04 assertions and its reference to QDYN03 operations",
+          "mechanism": "Recipe resolves the referenced retained qualified operation; visitor rejects argument count other than one.",
+          "scope": "Exact QDYN04 fixture; extra parser/config diagnostics remain outside the claim.",
+          "namedBehavioralOracle": "`focused QDYN repair replay`, unit 003, 8/8 checks",
+          "status": "held",
+          "failureMechanism": "Treating it as a strict literal, inventing a binding, or omitting the computed refusal makes the unit NONPASS."
+        },
+        {
+          "claim": "QDYN05 retains the literal scan key, leaves `resolvedRelPath` absent, invents no missing-target binding, and refuses with the unresolved-relative-import reason.",
+          "authority": "Frozen QDYN05 assertions; pinned baseline unresolved-import loop",
+          "mechanism": "Raw extraction supplies the unresolved relative import; the retained-qualified subject accumulates the exact unresolved reason.",
+          "scope": "Exact `./missing` fixture; relative-dot specifiers only.",
+          "namedBehavioralOracle": "`focused QDYN repair replay`, unit 004, 7/7 checks",
+          "status": "held",
+          "failureMechanism": "A manufactured target/binding, absent scan key/reason, or non-refused subject makes the unit NONPASS."
+        },
+        {
+          "claim": "All five focused units are limited frozen projected PASS results.",
+          "authority": "Frozen scenario package and generated recipes",
+          "mechanism": "Five immutable CLI executions are compared property by property; all result records report `PASS_FROZEN_PROJECTED_UNIT`.",
+          "scope": "Candidate artifact `507dbc…451c`, helper `488a…201c`, macOS ARM64.",
+          "namedBehavioralOracle": "`gap_retained_dynamic_import_scan_scope_and_unproven_binding`",
+          "status": "held",
+          "failureMechanism": "Any failed comparator or artifact mutation changes a unit to NONPASS."
+        },
+        {
+          "claim": "The focused replay exercised 39 projected checks.",
+          "authority": "Generated recipes and repair results",
+          "mechanism": "Per-unit counts are 8+8+8+8+7.",
+          "scope": "The five named units only.",
+          "namedBehavioralOracle": "`focused QDYN repair replay result-count reconciliation`",
+          "status": "held",
+          "failureMechanism": "Missing, duplicated, or uninspected checks invalidate the total."
+        },
+        {
+          "claim": "The retained baseline producer is rejected by the new recipe path for all five units.",
+          "authority": "Same frozen recipes; baseline artifact as deficient control",
+          "mechanism": "Baseline lacks `test_dynamic_import_keys`, computed reasons, and unresolved refusal where applicable.",
+          "scope": "One representative pre-change producer; not exhaustive mutation coverage.",
+          "namedBehavioralOracle": "`baseline-producer qualification negative control` — 5/5 NONPASS and Rust test failure",
+          "status": "held",
+          "failureMechanism": "If baseline output passes, the mapping can accept the demonstrated missing behavior."
+        },
+        {
+          "claim": "The negative control qualifies sensitivity only to the demonstrated candidate delta.",
+          "authority": "`CONTRIBUTING.md` proof-language rule; baseline control results",
+          "mechanism": "One deficient producer is passed through the actual new recipe selection.",
+          "scope": "Missing scan output plus the demonstrated computed/unresolved behavior only.",
+          "namedBehavioralOracle": "`baseline-producer qualification negative control` followed by restored `focused QDYN repair replay`",
+          "status": "held",
+          "failureMechanism": "Calling this complete comparator qualification would exceed the exercised fault set."
+        },
+        {
+          "claim": "The comparator is exhaustively qualified for every credited property and malformed output.",
+          "authority": "No authority or exhaustive fault campaign",
+          "mechanism": "The retained baseline still passes several unchanged checks; no independent fault exists for every property.",
+          "scope": "Any claim broader than the demonstrated baseline deficiencies.",
+          "namedBehavioralOracle": "No green exhaustive comparator oracle",
+          "status": "contradicted",
+          "failureMechanism": "Faults in unchanged target resolution, coverage exclusion, helper identity, MJS rewriting, or admission fields could escape the single baseline control."
+        },
+        {
+          "claim": "Five related frozen carryover units still pass on the candidate artifact.",
+          "authority": "Their existing frozen authorities",
+          "mechanism": "QDYN01, both QDYN06 variants, and QSCOPE01/02 are replayed separately.",
+          "scope": "These five carryovers only; no full regression campaign.",
+          "namedBehavioralOracle": "`related-carryover repair replays`, 5/5 PASS",
+          "status": "held",
+          "failureMechanism": "Any carryover result becoming NONPASS demonstrates regression."
+        },
+        {
+          "claim": "Current local suites pass 47 library tests, 227 binary tests, 55 comparator tests and 8 Python recipe tests.",
+          "authority": "Repository test suites",
+          "mechanism": "Actual completed logs report those totals; Clippy and Ruff also complete successfully.",
+          "scope": "Local macOS ARM64 candidate checkout.",
+          "namedBehavioralOracle": "`native-unit.log`, `comparators.log`, `recipe-tests-final.log`, `clippy.log`, `ruff.log`",
+          "status": "held",
+          "failureMechanism": "An incomplete log, different source anchor, or failing test invalidates the corresponding count."
+        },
+        {
+          "claim": "Twenty-two adversarial CLI probes found no bypass or unintended refusal within their declared boundaries.",
+          "authority": "Pinned baseline syntax rules and bounded adversarial specification",
+          "mechanism": "Real immutable CLI executions cover computed forms, resolved literals, relative missing imports, ordinary/nonqualified controls, lookalikes and parse failure.",
+          "scope": "DEV probes on macOS ARM64; relative-dot unresolved imports; no complete retained-scope claim.",
+          "namedBehavioralOracle": "`QDYN bounded guard adversarial pass v1` plus `adversarial-v1/results.json`",
+          "status": "held",
+          "failureMechanism": "Any probe crossing its expected boundary, inventing a binding, or inferring admission contradicts the claim."
+        },
+        {
+          "claim": "The change establishes complete retained-scope equivalence with the TypeScript baseline.",
+          "authority": "No approved authority for equivalence",
+          "mechanism": "Only selected computed and unresolved-relative branches are implemented and exercised.",
+          "scope": "Full retained-scope behavior.",
+          "namedBehavioralOracle": "No green full-equivalence oracle",
+          "status": "contradicted",
+          "failureMechanism": "Other baseline branches, joins, parser/config behavior, or interaction order remain unexercised."
+        },
+        {
+          "claim": "Cumulative mapping totals become 52 mapped original GAP units: 51 limited PASS and the existing N17c NONPASS; 12 static GAP units and 342 recipes without known GAP remain.",
+          "authority": "Current README twenty-first checkpoint: 47/46/1/17/337; five new PASS mappings",
+          "mechanism": "Arithmetic adds five mappings and removes five recipe GAPs.",
+          "scope": "Cumulative checkpoints across artifacts; not one current 354-unit campaign.",
+          "namedBehavioralOracle": "`README twenty-first checkpoint` + five-unit `focused QDYN repair replay` + final recipe `gaps=[]`",
+          "status": "held",
+          "failureMechanism": "Adding to stale `gap-mapping-progress.json` top-level 46 yields the wrong 51/13/341 totals. The JSON must first incorporate the source-confinement checkpoint."
+        },
+        {
+          "claim": "Those cumulative totals represent a single current artifact campaign.",
+          "authority": "Existing README explicitly denies this",
+          "mechanism": "Earlier mappings were established at separate checkpoints and artifacts.",
+          "scope": "Any same-artifact or campaign-completion wording.",
+          "namedBehavioralOracle": "No green current 354-unit campaign oracle",
+          "status": "contradicted",
+          "failureMechanism": "Focused/carryover execution covers ten units, not all 354."
+        },
+        {
+          "claim": "Qualification credit remains 0/240.",
+          "authority": "Formal 240-obligation denominator; resumption workflow",
+          "mechanism": "These are projected unit mappings; conditional full-admission properties remain explicitly uncredited and no obligation review was performed.",
+          "scope": "Formal obligation qualification and R0 only.",
+          "namedBehavioralOracle": "`focused QDYN repair replay` explicit uncredited-property records plus unchanged formal qualification record",
+          "status": "held",
+          "failureMechanism": "Crediting an obligation from focused unit PASS bypasses property/support review and the formal campaign."
+        },
+        {
+          "claim": "The historical `178 review-required` value is a prior full-campaign classification, not a freshly recomputed current workload.",
+          "authority": "C1 pass2 `second-replay-summary.json`",
+          "mechanism": "Incremental mappings do not rematerialize the 240 obligation states.",
+          "scope": "Formal obligation layer.",
+          "namedBehavioralOracle": "`C1 pass2 obligation materialization`",
+          "status": "held",
+          "failureMechanism": "Calling 178 the exact current count after GAP reductions asserts a recomputation that did not occur."
+        },
+        {
+          "claim": "The five focused PASS units update or complete the formal 354-unit campaign.",
+          "authority": "No current full-campaign result",
+          "mechanism": "Only five focused units and five carryovers ran.",
+          "scope": "Formal full qualification campaign.",
+          "namedBehavioralOracle": "No green 354-unit oracle",
+          "status": "contradicted",
+          "failureMechanism": "The other units were not replayed on this artifact."
+        },
+        {
+          "claim": "Linux or Windows behavior is established for this candidate.",
+          "authority": "None; current CI was still in progress and prior Windows provisioning returned 503",
+          "mechanism": "All retained candidate behavior evidence is local macOS ARM64.",
+          "scope": "Linux, Windows, and cross-platform equivalence.",
+          "namedBehavioralOracle": "No green candidate Linux/Windows oracle",
+          "status": "contradicted",
+          "failureMechanism": "Platform-specific parsing, paths, process behavior, or compilation can differ."
+        },
+        {
+          "claim": "Exact-head CI is green.",
+          "authority": "None at audit time",
+          "mechanism": "Run `39274169426` was reported IN_PROGRESS; Windows had no native result.",
+          "scope": "Current candidate CI.",
+          "namedBehavioralOracle": "No completed green required aggregate",
+          "status": "contradicted",
+          "failureMechanism": "Pending or provisioning-failed jobs cannot establish success."
+        },
+        {
+          "claim": "The bounded QDYN replay executed no reserved case.",
+          "authority": "Public/frozen unit registry and recorded invocations",
+          "mechanism": "All five process invocations resolve to named public frozen QDYN02–05 requests.",
+          "scope": "This replay and its five process records only.",
+          "namedBehavioralOracle": "`focused QDYN process-invocation audit`",
+          "status": "held",
+          "failureMechanism": "Any invocation resolving to a reserved descriptor invalidates the claim."
+        },
+        {
+          "claim": "No actor accessed the reserved payload during the broader work.",
+          "authority": "Only individual attestations; no exhaustive access oracle",
+          "mechanism": "Reviews state nonaccess, but they cannot prove global filesystem history.",
+          "scope": "Global campaign-wide nonaccess.",
+          "namedBehavioralOracle": "No green exhaustive reserve-access oracle",
+          "status": "contradicted",
+          "failureMechanism": "Unrecorded access by another process or actor is not excluded. Use bounded actor/replay attestations only."
+        },
+        {
+          "claim": "The candidate proves global qualified admission or the conditional full-valid-context refusal.",
+          "authority": "Frozen property is explicitly conditional and uncredited",
+          "mechanism": "Observations report `global_admission_inferred=false` and subject `admission=not_evaluated`; full verification context is absent.",
+          "scope": "Public admission and complete verification lifecycle.",
+          "namedBehavioralOracle": "No green public admission oracle",
+          "status": "contradicted",
+          "failureMechanism": "Scoped subject refusal can pass while public admission behavior remains unknown."
+        },
+        {
+          "claim": "The evidence proves complete SDK consumption, absence of arbitrary OS reads, OS sandboxing, atomic capture, complete build-input closure, public transport parity, freeze, or performance.",
+          "authority": "Result provenance expressly disclaims these properties",
+          "mechanism": "Joined provenance records only reported successful reads; source anchor covers five changed files, not the full build closure.",
+          "scope": "All listed global/system guarantees.",
+          "namedBehavioralOracle": "No named green end-to-end oracle for any listed guarantee",
+          "status": "contradicted",
+          "failureMechanism": "Unreported reads, omitted build inputs, transport differences, races, or performance regressions remain possible."
+        },
+        {
+          "claim": "Independent proof review is finally adequate.",
+          "authority": "Initial standards review found no defect, but initial SPEC review was `PROOF_WEAK`; final review file was absent at audit time.",
+          "mechanism": "Required focused replay and baseline negative witness now exist, but the independent reviewer had not yet issued its final verdict.",
+          "scope": "Independent proof-review status.",
+          "namedBehavioralOracle": "No final green independent proof verdict yet",
+          "status": "contradicted",
+          "failureMechanism": "Evidence availability does not itself replace the reviewer’s final reconciliation."
+        },
+        {
+          "claim": "Independent proof review is adequate for the five local QDYN02 base/MJS and QDYN03/04/05 projections.",
+          "authority": "Final independent reviewer `/root/qdyn_final_spec_proof`; anchored report SHA-256 `67711f…d36c`",
+          "mechanism": "Reviewer reconciled the exact candidate, frozen expectations, all five current and baseline-control outputs, mappings, carryovers and adversarial results.",
+          "scope": "Limited projected PASS on macOS ARM64; no complete retained-scope parity, obligation qualification, merge or R0 verdict.",
+          "namedBehavioralOracle": "`gap_retained_dynamic_import_scan_scope_and_unproven_binding` green replay plus `baseline-producer qualification negative control`",
+          "status": "held",
+          "failureMechanism": "Source/hash drift, a focused replay failure, baseline acceptance, or expanding the verdict beyond the five projections invalidates the claim."
+        },
+        {
+          "claim": "Complete retained-scope parity remains disproved by the undeclared bare-import case.",
+          "authority": "Pinned baseline `qualified-analysis.ts:148-150`; final independent proof review",
+          "mechanism": "Native unresolved-reason helper accepts only specifiers starting with `.`, while the baseline also rejects unresolved non-external bare/alias/eligible absolute specifiers.",
+          "scope": "Demonstrated `bare_missing` retained+qualified DEV input; not one of the five credited projections.",
+          "namedBehavioralOracle": "`qdyn-adversarial-v1/bare_missing`: unresolved bare import remains analyzed without a reason",
+          "status": "held",
+          "failureMechanism": "Parity cannot be claimed until the adapter refuses this baseline-covered case and a relevant oracle passes."
+        },
+        {
+          "claim": "The retained+qualified undeclared bare import is out of scope and its analyzed outcome is expected behavior.",
+          "authority": "Raw adversarial harness classification only; superseded by pinned baseline source and final independent proof review",
+          "mechanism": "`remainingOwnedAdapterGap.actual` reproduces `expected=out_of_scope` and `verdict=EXPECTED_BOUNDED_BEHAVIOR` without marking them historical.",
+          "scope": "`bare_missing` only; five frozen projections unaffected.",
+          "namedBehavioralOracle": "`qdyn-adversarial-v1/bare_missing` reconciled against `baseline-qualified-analysis.ts:148-150`",
+          "status": "contradicted",
+          "failureMechanism": "Readers or consumers can treat the remaining owned defect as intended behavior or a waiver."
+        },
+        {
+          "claim": "Frozen inputs, assertions and the original 64-unit GAP denominator remain unchanged.",
+          "authority": "`cases/index.json` frozen identities",
+          "mechanism": "All seven recorded source hashes match the indexed files; none appears in the current diff.",
+          "scope": "Frozen scenarios, supports, obligations, allocation inputs/policy and identity annexes.",
+          "namedBehavioralOracle": "`cases/index.json immutable-source hash reconciliation`",
+          "status": "held",
+          "failureMechanism": "A differing hash or modified frozen file invalidates the claim."
+        },
+        {
+          "claim": "No waiver, TypeScript-version attribution or frozen-denominator change is applied to `bare_missing`.",
+          "authority": "Final independent proof review and existing arbitration/freeze authorities",
+          "mechanism": "The exact change inventory touches implementation and the three evidence documents; the gap remains explicitly open.",
+          "scope": "`bare_missing` disposition only.",
+          "namedBehavioralOracle": "`exact Git change inventory plus remainingOwnedAdapterGap reconciliation`",
+          "status": "held",
+          "failureMechanism": "Changing arbitration/freeze records or labeling the outcome intended/version-specific invalidates the claim."
+        },
+        {
+          "claim": "Repository documentation integrity passes with the intended new evidence file indexed.",
+          "authority": "Repository documentation gate",
+          "mechanism": "`env -u GIT_CONFIG_GLOBAL /opt/homebrew/bin/bun run docs:check` completed successfully after indexing the new file.",
+          "scope": "Local macOS ARM64, Bun 1.4.3; documentation integrity only.",
+          "namedBehavioralOracle": "`bun run docs:check`",
+          "status": "held",
+          "failureMechanism": "Failure on the same indexed state, or using the result as native/full-PR evidence, invalidates the claim."
+        }
+      ]
+    },
+    "reconciliation": {
+      "initialIndependentReviewClaim": "Initial contradicted review-status row preserved historically; supplemented by final held row after reviewer report existed.",
+      "contradictedClaims": "No exhaustive comparator/retained-scope equivalence, single current campaign, full354, Linux/Windows, green exact-head CI, global reserve nonaccess, admission or global system guarantees are asserted.",
+      "heldClaims": "Kept only in exact frozen/local/cumulative scopes named by auditor. Bare-import gap retained explicitly.",
+      "bareImportClassification": "Removed original harness expected/verdict labels from current actual observation; the raw artifact remains linked by hash. The later contradicted classification row records the corrected documentary finding, not an accepted scope waiver."
+    }
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 52,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 51,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+    "residualStaticGapUnits": 12,
+    "recipesWithoutKnownGaps": 342,
+    "unitDenominator": 354,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "NOT_PERFORMED; historical classification, not recomputed after these mappings",
+    "campaign354ThreeOS": "NOT_PERFORMED_ON_THIS_CANDIDATE",
+    "reservedReplay": "NOT_EXECUTED_BY_THIS_FOCUSED_REPLAY",
+    "R0": "PENDING",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "UNUSED",
+    "scope": "Cumulative mapping checkpoints across different producer artifacts; not a current single-artifact campaign."
+  },
+  "limits": {
+    "qualificationCredit": 0,
+    "conditionalAdmission": "qualified_admission_when_full_valid_verification_context_supplied remains explicitly UNCREDITED on all five recipes because full verification context is absent. admission=not_evaluated and global_admission_inferred=false are observed.",
+    "reservedNonaccess": "Focused invocations are five public frozen requests, no reserved replay. Author and named reviewers attest no reserved payload access for their own tasks only; no global access-history guarantee.",
+    "threeOS": "Supported macOS/Linux/Windows; only local macOS ARM64 candidate behavior exercised here. CI39274169426 was IN_PROGRESS at documentation preparation; prior Windows provisioning503 supplies no native behavioral evidence.",
+    "notEstablished": [
+      "full retained-scope equivalence",
+      "public transport/global qualified admission",
+      "full354/current240 obligation review",
+      "R0 or READY",
+      "complete build-input closure or SDK consumption",
+      "absence of arbitrary OS reads or OS sandboxing",
+      "atomic capture",
+      "freeze or performance equivalence"
+    ],
+    "rawEvidence": "Paths and hashes identify local bounded raw evidence; this compact record contains selected actual excerpts, not a complete archive."
+  }
+}

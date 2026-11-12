@@ -6,10 +6,10 @@
       "name": "semantic-context-compiler",
       "devDependencies": {
         "@eslint/js": "10.0.1",
-        "@types/bun": "^1.4.3",
+        "@types/bun": "1.4.3",
         "eslint": "10.12.0",
         "globals": "17.13.0",
-        "typescript": "^5.6.3",
+        "typescript": "5.9.3",
         "typescript-eslint": "8.71.1",
       },
     },
@@ -51,7 +51,7 @@
         "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
         "@semantic-context/workspace-analyzer-internal": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "3.25.76",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
@@ -101,14 +101,14 @@
       "name": "@semantic-context/control-model",
       "version": "0.1.0",
       "dependencies": {
-        "zod": "^3.23.8",
+        "zod": "3.25.76",
       },
     },
     "packages/core": {
       "name": "@semantic-context/core",
       "version": "0.1.0",
       "dependencies": {
-        "zod": "^3.23.8",
+        "zod": "3.25.76",
       },
     },
     "packages/eval": {
@@ -146,7 +146,7 @@
         "@semantic-context/semantic-engine": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
         "@semantic-context/ts-analyzer": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "3.25.76",
         "zod-to-json-schema": "3.25.2",
         "zod-v4": "npm:zod@4.2.0",
       },
@@ -207,7 +207,7 @@
         "@semantic-context/repository-store": "workspace:*",
         "@semantic-context/semantic-dsl": "workspace:*",
         "@semantic-context/semantic-model": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "3.25.76",
       },
       "devDependencies": {
         "@semantic-context/test-fixtures": "workspace:*",
@@ -219,7 +219,7 @@
       "dependencies": {
         "@semantic-context/control-model": "workspace:*",
         "@semantic-context/core": "workspace:*",
-        "zod": "^3.23.8",
+        "zod": "3.25.76",
       },
     },
     "packages/test-fixtures": {

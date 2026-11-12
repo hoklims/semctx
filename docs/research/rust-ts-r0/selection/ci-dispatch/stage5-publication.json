@@ -1,0 +1,14 @@
+{
+  "recordedUtc": "2026-10-17T19:44:31.349404+00:00",
+  "commit": "568c271f86adc45db7bfcce9ef902b29eef164c9",
+  "tree": "10b7dd0267509ddce3abe903bb88eb09d11f2586",
+  "branch": "rust/365-t00",
+  "baseBranch": "rust/365-coordination",
+  "push": "normal",
+  "prBodyUpdated": true,
+  "canonicalVerifyPrFinalShards": "4/4 exit0 macOS ARM64 Bun1.4.3 GIT_CONFIG_GLOBAL unset",
+  "r0Decision": "NOT_RUN",
+  "qualificationFirstTrialExecutedAfterSelectionBeforePublication": true,
+  "qualificationTrialScope": "Projections provisional; mapped operation audit found corrections even in passes. No obligations or R0 qualified.",
+  "c1Pass2": "Open isolated external scratch; source patch not yet applied to main"
+}

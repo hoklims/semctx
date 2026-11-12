@@ -1,0 +1,646 @@
+{
+  "schemaVersion": 1,
+  "recordedUTC": "2026-10-22T16:13:00.325492+00:00",
+  "state": "ADDITIONAL_PUBLIC_EVIDENCE_ONLY",
+  "sourceBase": "76e80479a38c18d8b23277a7972ea3f305c1a688",
+  "publicToolsCommit": "38008d22f36b5c8846f3bc367e0a75d17ae70fb2",
+  "producerSourceCommit": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+  "newReservedAccess": false,
+  "remoteActions": false,
+  "CI": false,
+  "assessment": {
+    "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+    "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+    "bytes": 1263092
+  },
+  "summary": {
+    "finitePublicQualified": 209,
+    "previousFiniteQualified": 107,
+    "newlyFiniteQualified": 102,
+    "notQualified": 31,
+    "terminalR0Qualified": 0,
+    "arbPassingCredit": 0
+  },
+  "lanes": {
+    "macos": {
+      "freezePath": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/freeze.json",
+      "freezeSha256": "5b306e39d87fe0c09c748c4be07a0581c41b057ef5317a0712cba95b75762fd9",
+      "manifest": {
+        "optimized_frozen": true,
+        "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+        "source_head": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+        "platform": "macOS",
+        "artifact_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-r0-probe",
+        "artifact_sha256": "78d6a5b50c99bedce983f474bf11d03177ee45260112d19f47debcadf96cc9f1",
+        "helper_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-gates",
+        "helper_sha256": "01975f3f5b32266a4e8458a5e8857700382a1231bd952ca4a597b55304e7638d",
+        "transport_fixture_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/semctx-gates-fixture",
+        "transport_fixture_sha256": "58e2a46d4d2a5e0f2147d9d3f00367fb547a20e7bb612bfa07849fc0a77f8b87",
+        "qualification_observer_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/qualification_replay-f9e27f9b0849f013",
+        "qualification_observer_sha256": "d79891fb82b399dfcce6fbe8a9faa595ac9a9a9919c25ba57d2de914d40d94ab",
+        "sdk_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/sdk-input.json",
+        "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+        "recipes_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-campaign-recipes/replay-recipes.json",
+        "recipes_sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+        "legacy_identity_inputs_path": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-macos/t00-original-campaign/identity-inputs.json",
+        "legacy_identity_inputs_sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"
+      }
+    },
+    "linux": {
+      "freezePath": "/Users/sebastien/semctx-evidence/t00/20261022/campaign-v2-linux-freeze.json",
+      "freezeSha256": "9dfa73a875fa588c10711eea017e2c0ff7e7421f96fc3f3c15a7a3d9053b3ae3",
+      "manifest": {
+        "optimized_frozen": true,
+        "cases_path": "/Users/sebastien/.herdr/worktrees/semctx/issue-365-t00-rust-ts-feasibility/docs/research/rust-ts-r0/cases",
+        "source_head": "02b055e3ca3c96d7c4b8ab015aea607507a6053f",
+        "platform": "Linux",
+        "artifact_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-r0-probe",
+        "artifact_sha256": "8c7b56064812bdf4d17a1ee95b9d6e66fded896928a9a6e7172880cc318782ea",
+        "helper_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-gates",
+        "helper_sha256": "457c8ea96235fd9515a4a94aa17fb660c79a1a94206e82943ad75f33a79315fe",
+        "transport_fixture_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/semctx-gates-fixture",
+        "transport_fixture_sha256": "6f0a79d2682782548e64ed9478f52056d07fc9f618bbb123b8d4b8fd80158434",
+        "qualification_observer_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/qualification_replay-3e8b4fe2e7321767",
+        "qualification_observer_sha256": "8f40281fe2dff8a89b59cd2cc39a2e543d978fcb2a0a90870f50d36a2e703f9b",
+        "sdk_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/sdk-input.json",
+        "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+        "recipes_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-campaign-recipes/replay-recipes.json",
+        "recipes_sha256": "0bb53bc9e3eb9dddb99a326e7606f64d758ab8425536b4de330449db1c233068",
+        "legacy_identity_inputs_path": "/work/evidence/qualification-20261022/campaign-v2-linux/t00-original-campaign/identity-inputs.json",
+        "legacy_identity_inputs_sha256": "3e964e473b089255b93f9432598b8b4683596f6ba96a2da842fde77bf4845177"
+      }
+    }
+  },
+  "environment": {
+    "rust": "1.95.0 (59807616e 2026-04-14)",
+    "cargo": "1.95.0 (f2d3ce0bd 2026-03-21)",
+    "bun": "1.4.3",
+    "macos": "27.0.1 arm64; Python 3.15.0",
+    "linux": "OrbStack Docker aarch64; Python 3.11.2",
+    "linuxImage": "rust:1.95.0-bookworm@sha256:6258907abe69656e41cd992e0b705cdcfabcbbe3db374f92ed2d47121282d4a1",
+    "linuxImageId": "sha256:7cf1e580ef5539f03b58560753e8ab84c8c360960d99dff714004aa98f203977",
+    "linuxNetwork": "none"
+  },
+  "members": [
+    {
+      "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.json",
+      "sha256": "fc8167efff240ac3ff19c3b5033798defd5229606e9512ec303914a5d609d940",
+      "bytes": 1263092
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/obligations-qualification-public-closure-20261022.md",
+      "sha256": "3bc06c60f9e2ecdde7b9d287d61e099ffd721dffc16420add04a8dff764144d7",
+      "bytes": 54346
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/README.md",
+      "sha256": "fbc45e3e7b9684f398bd14438aedaec43eebc33be6cccc798d09eb4e54238d8b",
+      "bytes": 5811
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/boundaries-inputs.json",
+      "sha256": "b50659fc738b623549f9f68f245dcc40b9f6d42a5cdabcc18bef87cd506131a1",
+      "bytes": 3588
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/boundaries-oracle.json",
+      "sha256": "f36166cdc335ba218a957c168076c84a8b724f93d14f74ed089c0ffee82651c3",
+      "bytes": 39305
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/boundaries-parallel-inputs.json",
+      "sha256": "8a0e8d88dc0faf9b014ccca8120cb8bc3884cbdfac409f618fd2c79b0c9d77c1",
+      "bytes": 1713
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/boundaries-parallel-oracle.json",
+      "sha256": "7b46cc5034fb52f31bddce5ee9246ee2539217bfb0946de02113c9bc3596e983",
+      "bytes": 6191
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/claim-audit.md",
+      "sha256": "d8a88ab0886059a5bb4c251fe7ced089d604c510c641f9d368d563b4fd12cfba",
+      "bytes": 19969
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-activation.json",
+      "sha256": "30e2eadbd0a8416ea98a8f1460627ec53c17f7d72fe97a6c4b86b2313af4288e",
+      "bytes": 449002
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-evidence.md",
+      "sha256": "7432b1b9e81f8ea8179a15a5785c5d82cf0389be4119e97dc5b995618a03ba2a",
+      "bytes": 3736
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-inputs.json",
+      "sha256": "8038e358ead1c0af66263899aed3bf85428039ab625b1751a0761cae1ba63a9d",
+      "bytes": 69025
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-linux-oracle-activation.json",
+      "sha256": "a6e4912fc79a56fab898512f9ba125c247c12b27d92b13e5ed71461801d5c181",
+      "bytes": 448959
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-linux-oracle-manifest.json",
+      "sha256": "f8ef1dc91daf779f68067edc15dbb0586b3ab5abb3458369bea992629e64c6cb",
+      "bytes": 553289
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-manifest.json",
+      "sha256": "23025cab726c865544108d05ca954e47dc28e7766a36ad2a8f8590d05061c78f",
+      "bytes": 553290
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/diagnostics-proof-map.json",
+      "sha256": "e42790c9dafeff16287ff9809ef75792d6b97f8c60842fb3062a5e83948581c7",
+      "bytes": 199442
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-maps-review.json",
+      "sha256": "db91511d8e3c1d4de5b652f7624584a122219d1cd72f2d7e2055f74e1962a5e9",
+      "bytes": 692
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-native-negative.json",
+      "sha256": "2be47ef9dfbd5ceb37e5fb5213ba3f7266ee6fca2193db660dcf87d18e8258f1",
+      "bytes": 1259
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-parallel-review.json",
+      "sha256": "685c21fb1492443207b352352ff8199820b4791ca155b4b6fcfd50a363c3db4d",
+      "bytes": 19396
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-proof-final.json",
+      "sha256": "3b22097d64894639dc51d65af0aebfa9ab3774ab4a88e4d26f5bdbaf4edde48b",
+      "bytes": 1777
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-proof-review.json",
+      "sha256": "6a48a90fda1cf161c25f228224f3f6d893ed03b7da268802a4cfbf980bc5cc91",
+      "bytes": 2197
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-scope-review.json",
+      "sha256": "b1efa59c02a34aab06f15980d6516be49c1f8e5c4b2d567048ea099595509cfb",
+      "bytes": 3408
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-tail-identity-review.json",
+      "sha256": "e84f04822a4c9a00bb26c832d642dc319fe3343f3a7269d8c9f1c8f99737c84e",
+      "bytes": 1260
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-tail-review.json",
+      "sha256": "e9dad256dce6f464b5ea67d0e03c2359340894b6bc9042ae818856744092ce00",
+      "bytes": 3514
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/independent-tail-semantic-review.json",
+      "sha256": "02223f176d8e5925eab88776c74435004685858ab9b6e5d667c06b0c12cf5508",
+      "bytes": 1385
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-discovery-inputs.json",
+      "sha256": "155075c23a21cf575b55c19ec6e79e57d85b3fe4475df77f659812978f1e0fa7",
+      "bytes": 704
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-discovery-report-linux.json",
+      "sha256": "b1a22e5bcbf6e39f46a45e774b7170df36dac9ae24b0e9a3e8f4b821adc8659b",
+      "bytes": 21130
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-discovery-report-macos.json",
+      "sha256": "c3d11d192ea4f22c54941a1cd5c9bd6cc7038d0ae710eab6fe914a4dbe31c6d9",
+      "bytes": 21326
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-evidence.md",
+      "sha256": "9e52f99655c5b670c55075c9c91dfa2f918d7a016093d24ee49558a56be80283",
+      "bytes": 5118
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-inputs.json",
+      "sha256": "c8c1b3092872af2925c606ca6aa73ccf689d2b2f67ed79374003b0fe1c5bdff4",
+      "bytes": 1976
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-report-linux.json",
+      "sha256": "e1c20ccdabd220212f5e9f89cc7dab6ad1c071a3952355aadf40ce271130507d",
+      "bytes": 26017
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/refusal-report-macos.json",
+      "sha256": "bc3f5aaf9e2a3bcb9fb7e14a958eb430a14cbb748851a10cca3faa0813acf190",
+      "bytes": 26336
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-boundaries-linux.json",
+      "sha256": "e2f68eb9c7d4f95b3bb84720014ccd7838799fc3cf95121d0f7b216916b4fc39",
+      "bytes": 29418
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-boundaries-macos.json",
+      "sha256": "5c7fd108e83d5ee2a667ae603c8bf03e329465477df7a7546bed5a698364240c",
+      "bytes": 29578
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-boundaries-parallel-linux.json",
+      "sha256": "c69124e58c064752590cde0fef0542a6d123e3efdcd7d11a9d75df7b578bb4a4",
+      "bytes": 2573
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-boundaries-parallel-macos.json",
+      "sha256": "adfe43485f3793ffec264712541285dac127bb63d4b7c391ac4815e3b687a803",
+      "bytes": 2574
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-diagnostics-linux.json",
+      "sha256": "76bd8cf331175850068cac2cb7680680b5f8caff1ece3ea2d83dfadfd326b40c",
+      "bytes": 560214
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-diagnostics-macos.json",
+      "sha256": "777556578f2857c130c9eeb74df3dcc1a9ffe6c445933a8cfd3fab92df131af3",
+      "bytes": 561734
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-semantic-completion-linux.json",
+      "sha256": "deae5481fee023d5a367110cd9779aded1f6f1554de749e49b3007e3d8965868",
+      "bytes": 138802
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-semantic-completion-macos.json",
+      "sha256": "c70f0c08120d00a7131db21975817759c2133c149ace61b943fc8e134d739d4f",
+      "bytes": 139026
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-semantic-linux.json",
+      "sha256": "d9c9618b9d4722cf818f9d5b8d6801fa0640cbdbe08242fb0e367624ca514803",
+      "bytes": 1735919
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-semantic-macos.json",
+      "sha256": "d1db6bfb767b50473e0e06615e8ee9cf88f50e02dc7e7cbc98c011b205cdb8fb",
+      "bytes": 1738591
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-semantic-runtime-linux.json",
+      "sha256": "c318148611fea6bcdacac013087499851824664dd559cb558f542b22c13dcdd7",
+      "bytes": 11000
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-semantic-runtime-macos.json",
+      "sha256": "8ed750d7de242b89556d10efa2951957ab23f1d4613026656f14f63ea76d548f",
+      "bytes": 11016
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-symbols-linux.json",
+      "sha256": "543a71ef14faa910dc268841bc389c4b6a70739e29b6eea4cbe4f6ad8dac97a1",
+      "bytes": 123198
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-symbols-macos.json",
+      "sha256": "1d51d56f05f3736b325a618afd7884bad5074b1736389322991339ff711824fe",
+      "bytes": 123614
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-symbolsparallel-linux.json",
+      "sha256": "8598b500bda723047052de061abfada924743d5d9cad54bad785ca97b980dd07",
+      "bytes": 6098
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-symbolsparallel-macos.json",
+      "sha256": "e2254a71b37402f2175930685bfa7377191a67703684220c5f175874e859882c",
+      "bytes": 6099
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-tail-semantic-linux.json",
+      "sha256": "c96440d47cd048c6c1475702690a27c2f00376abdd1cae1919eb8597e29856c6",
+      "bytes": 116974
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/report-tail-semantic-macos.json",
+      "sha256": "a51ef06218a3df0cd474e58c530de139992fdea344af333178606ef38e5b1f4e",
+      "bytes": 117150
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/scope-evidence.md",
+      "sha256": "df86d4d9ba01979f81f9fcdc67c53cf880af4fc8a4f252ff66a9c18a2a9f706b",
+      "bytes": 3931
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/scope-linux.json",
+      "sha256": "5df99a894c243db8cb4690b1915b0dfc3c3ad9270923bb6b9cd6941327307fec",
+      "bytes": 11742
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/scope-macos.json",
+      "sha256": "c0e58aa3eb9a668742efebcae876c01caa2d7437243160ab1fc656564ff890d3",
+      "bytes": 11754
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/scope-manifest.json",
+      "sha256": "8a133b20cd78e6f1b9239213cda1de7272dcb0eb0f6acb9a94e5503c64638050",
+      "bytes": 866
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-activation.json",
+      "sha256": "fe8df0072870d86d52b56196c566f784666e0a792224320f61b74ad2d5cf597d",
+      "bytes": 1605716
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-completion-inputs.json",
+      "sha256": "9940b89425f576846a05e563251b5baf1d32530ab8c6817a54224d9e7c79dc23",
+      "bytes": 10378
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-completion-manifest.json",
+      "sha256": "9b0a317a5542b81c409f6c85f7d3ec6a4f7a4e4414c59518db96f213362e897f",
+      "bytes": 106603
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-completion-pairs.json",
+      "sha256": "d736bc538d9fcdc17744f7ce63ccb81af27f7340722c97aa1330d5055909f671",
+      "bytes": 3265
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-evidence.md",
+      "sha256": "ecbb7c2474d20574744172141ff630629d41a7a0f6e4c226d8b4f6ba3575de62",
+      "bytes": 6863
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-inputs.json",
+      "sha256": "8328b54e1a7b4dc214dfa678fd53454318d81d5a0313f5602b6428d09bfefd2c",
+      "bytes": 121430
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-manifest.json",
+      "sha256": "a521081ce636bf1b4c22146a8bf10347cac0644e75c94ac7202c39226eba09a0",
+      "bytes": 1316176
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-pairs.json",
+      "sha256": "11dfcc1b9e90eb5f6bf5b418a8fea4352517fc7e7f6faea553bf5fc2e488ae96",
+      "bytes": 11487
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-proof-map.json",
+      "sha256": "5fee0cfcf764886352cbe302023a4c8e6e9bf3284076dc99e09093574a08eb31",
+      "bytes": 146394
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-runtime-inputs.json",
+      "sha256": "8ccd6d3db72af439bd2f82537693fdf2e24db9a28e6f4b2f00b0d0e00fbfc0b5",
+      "bytes": 880
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-runtime-manifest.json",
+      "sha256": "2092a94c254afb6c374a76b668296177e98806589fe9afe7dd7070234e13117f",
+      "bytes": 9201
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/symbols-evidence-map.json",
+      "sha256": "c69ab5e0164225c62eb74ea7f10f38dade9538700c60a7ac9578f0575b8b5907",
+      "bytes": 864281
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/symbols-inputs.json",
+      "sha256": "252f6bc7b77273e0be3871cc4d7923d9221b2a6c0f35363f2717d6fd0481f774",
+      "bytes": 14976
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/symbols-manifest.json",
+      "sha256": "f3a339ec31a96ed00def0972a91ebac25f4992df565ce46989de98207a741b58",
+      "bytes": 147872
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/symbols-site-traces.json",
+      "sha256": "0cf412d997e2b3ffa837acc500535d72a5f86d50d3cc7ea25cddc52dbed32a59",
+      "bytes": 236947
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/symbolsparallel-inputs.json",
+      "sha256": "dd59579d54fbe32663d744fa08cca19eca61ca5136cbe606053324b8fbfa1d91",
+      "bytes": 4434
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/symbolsparallel-oracle.json",
+      "sha256": "066d42d450c170102b35dd0b8f6206dddc16792f31e455764cd6a497f1ba90af",
+      "bytes": 16570
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-identity-evidence.md",
+      "sha256": "1d41342e6689edf289f2e31c5637c4b03ae7702834c2a65d13ea4bf66952db57",
+      "bytes": 5950
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-identity-linux.json",
+      "sha256": "a93be180f14aae8a8e14919704090bbade3a28dc81e98afcfc01f70a4c091754",
+      "bytes": 552620
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-identity-macos.json",
+      "sha256": "d967e971253eb4763a7f2841321a1ededb1438bfcc101d26b70518398bd1fa32",
+      "bytes": 552303
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-activation.json",
+      "sha256": "ebf9acda2acd8b2e0590ddf7f7d429995837a97a224ae5ba6d45c9c34f08ff22",
+      "bytes": 2130265
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-evidence.md",
+      "sha256": "700a857a033e3ddefb4fe468a6913377223d85b40ecb0b6eb4e65d42f45e458b",
+      "bytes": 3476
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-inputs.json",
+      "sha256": "e6baaf6e1684deaf571af64e049a3de61dfb732acc0d995765959e4ce24c4d5c",
+      "bytes": 7951
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-manifest.json",
+      "sha256": "5f8b015ddb8acf7d70150b048fc1696f20d96ae9e6d0274167afa7d342e398fb",
+      "bytes": 88908
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-pairs.json",
+      "sha256": "4fc039b098e2aa871a1e363fc14674f0f782d674592fce929329db5a6e97cfa8",
+      "bytes": 3038
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/tail-semantic-proof-map.json",
+      "sha256": "7de9d139843430aa67dc6ec7c83ba6b9546f6b32611d93626be2ba9654484fde",
+      "bytes": 863788
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-inputs.json",
+      "sha256": "9a88300e37aa015a6868be2d463ff10046fee401d9d667cdde6c544009e719cb",
+      "bytes": 3686
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-linux.json",
+      "sha256": "4f4d9dcdc74ba59f68110fdd387644fe1c04006c55acea1bf786ae01af5e0c2e",
+      "bytes": 21057
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-macos.json",
+      "sha256": "49b7c9994bfebbff001970443570b0739141a1897c83d1d3acbe2352c0ca4588",
+      "bytes": 21298
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-reproduction.md",
+      "sha256": "866b0ecf5c5b429861bf9c29c1afe224522ea9dc53988c738e4eb36d7958d2a5",
+      "bytes": 3867
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/workspace-results.json",
+      "sha256": "9a013864667c3731e7da394405bc1f75bde6182af02de91654b500f29b6b9721",
+      "bytes": 3863
+    },
+    {
+      "path": "scripts/t00-public-native-context.test.ts",
+      "sha256": "e2350899f5eb671d93ca6ee26a7c1e918c9b78f95e3b320d9b8f6e33bb081c36",
+      "bytes": 2357
+    },
+    {
+      "path": "scripts/t00-public-workspace.test.ts",
+      "sha256": "9712a37bc13f7bd631459ce0e56134f3de221730e9f441720deeb74835af9636",
+      "bytes": 2537
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/boundaries-parallel-oracle.mjs",
+      "sha256": "0d5276cc7992ede6f9c2f9f507f7da2fcd73414da9ef927aafae1b1784945960",
+      "bytes": 1833
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/diagnostics-oracle.mjs",
+      "sha256": "fc6027b34bc4b27f0c367a79c24f4eac2904f5ac85603937d53aef306d0e0616",
+      "bytes": 7967
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/public-native-context.mjs",
+      "sha256": "d074a20c93efbbb794e5d5039b753f1a74370f992510925955e6d94a828b51c9",
+      "bytes": 2970
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/refusal-capture.mjs",
+      "sha256": "69fe32aa2504a3ab3be4f51f0c1ce06f90070c8a46f403d7c592f9001b767b8f",
+      "bytes": 8187
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/refusal-discovery-capture.mjs",
+      "sha256": "29aae5fdeb1d30fdd236f1da8d4dbc1af56395571e40a44c910c238eefb0cbc8",
+      "bytes": 7323
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/scope-oracle.mjs",
+      "sha256": "c338cc3dfdcb4a23c0d3f2dc64ba29b9c37476cd62f1d0200c3684e1b553c425",
+      "bytes": 2440
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/scope-replay.py",
+      "sha256": "8da8c56a62a2879b8a8ccccdeb308005798a158f5d3afdb6f9a8a42096e42997",
+      "bytes": 7003
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/semantic-activation.mjs",
+      "sha256": "6db5c30d78b4ef6ad5c97903a15cf520792c66a61d51969b8d4ed3c95f2ffdd6",
+      "bytes": 5860
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/symbols-oracle.mjs",
+      "sha256": "14027f74265d4466bb603fe9d4b573dad8c7a8bea3f9c241d7c3665127dc4a7d",
+      "bytes": 8512
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/workspace-oracle.mjs",
+      "sha256": "81255fe5d7ea1ef558d2c5a4d0183113d3efddf11129e76775b87128bf7885f6",
+      "bytes": 2644
+    },
+    {
+      "path": "tools/rust-ts-r0/qualification/public-closure-20261022/workspace-replay.py",
+      "sha256": "d3cc17ba0955b3ea0951a2d1f79025bef7adc997fa77f70e67c7445aab5f6acd",
+      "bytes": 8376
+    }
+  ],
+  "externalRawEvidence": {
+    "root": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure",
+    "linuxCompleteArchive": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/linux-raw-complete.tar.gz",
+      "sha256": "3d9cba0de077ab11b8ec1f84f2a9ada38a5fd5446c1a69dc1c1dd26d035c0fe4",
+      "bytes": 38264577
+    },
+    "parallelOneShot": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/boundaries/run-parallel.py",
+      "sha256": "b026b3eb77019cafb7fe3f76df37314e203a2916d4889eb1ae97fe9f2e9f0b21",
+      "bytes": 3051
+    },
+    "independentParallelReplay": {
+      "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/reviewer-integrity-01/review_parallel.py",
+      "sha256": "0630f366202f16be37cf9d997d8ed410e4cde8d4aaaef009a3cdae39d4ec36c0",
+      "bytes": 11713
+    }
+  },
+  "verification": {
+    "verifyPr": {
+      "result": "PASS",
+      "exitCode": 0,
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/verify-pr.log",
+        "sha256": "8219927e6234ad2b27cb6be34537955bffae8d8581f25937953abd58cd33a49d",
+        "bytes": 239
+      },
+      "binding": "Gate started before all isolated proof additions existed; final public executable additions independently received final quality and focused tests. This is not an exact-head remote CI claim."
+    },
+    "finalQuality": {
+      "result": "PASS",
+      "exitCode": 0,
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/quality-final-v2.log",
+        "sha256": "aff9da66d61c1faa4b0d74f9d6e9c094349a89ac1d9f5321e7b80452c4e29f71",
+        "bytes": 959
+      }
+    },
+    "newRegressionTests": {
+      "macos": {
+        "result": "9 PASS",
+        "exitCode": 0,
+        "log": {
+          "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/new-regression-tests.log",
+          "sha256": "64a63147e3acac1ac1fa380bcbfbe57bf0eccec87a42ff5e8a48fa3af94b0e59",
+          "bytes": 995
+        }
+      },
+      "linux": {
+        "result": "9 PASS",
+        "exitCode": 0,
+        "log": {
+          "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/new-regression-tests-linux.log",
+          "sha256": "ada4b8edb72b10d27c1514a222bcdd22cb164dcff1c6f0aea2dd436a5074c292",
+          "bytes": 995
+        }
+      }
+    },
+    "documentation": {
+      "result": "PASS",
+      "exitCode": 0,
+      "log": {
+        "path": "/Users/sebastien/semctx-evidence/t00/20261022/public-closure/docs-check-delivery.log",
+        "sha256": "ecc1566aa857c4d85448527b0638e6f9336b59c07fd8b84f398b3efe9a34ca41",
+        "bytes": 71
+      }
+    }
+  },
+  "r0Decision": null,
+  "unexercisedTargets": [
+    "Windows native",
+    "macOS x86_64",
+    "Linux x86_64"
+  ],
+  "frozenProducerProcessHelperObserverHoldoutContractRunnerChanged": false
+}

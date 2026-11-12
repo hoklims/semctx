@@ -1,0 +1,95 @@
+{
+  "reviewer": "/root/stage5_claims_review",
+  "author_task": "/root",
+  "recorded_utc": "2026-10-17T19:26:59.130076+00:00",
+  "scope": "Bounded read-only stage-5 documentation/source/CI claim consistency review. No mutation of tracked files, Cargo, builds, SUT query, qualification or reserved-corpus access. This is not a PR merge verdict or R0 verdict.",
+  "skills": {
+    "applied": [
+      "code-review",
+      "proof-integrity-review"
+    ],
+    "design_claim_audit": "Not newly invoked: reviewer returns no authored design/document changes or certification; existing bounded independent reports retained and checked."
+  },
+  "anchor": {
+    "head": "dbb634ec26b1de1edc1bd299ba3221c034079b7f",
+    "scope_file_sha256": {
+      ".github/workflows/ci.yml": "f47040e77313ae3167f65118b87c0960aaec50d98828db6f7dbff94f0613fb47",
+      "docs/research/rust-ts-r0/selection/README.md": "20c6ece79af49167a684c3dc519993a240f49d52c1235f42778a2e9f59faaec2",
+      "docs/research/rust-ts-r0/selection/FREEZE.json": "08b21830ea567442d8767e813419490bb311158b9df51074c3df740377208996",
+      "docs/research/rust-ts-r0/selection/source-manifest.json": "d2c96aeb197283698c7b7be3acb49264236a45ec1d74ee7936055531dc2f2208",
+      "docs/research/rust-ts-r0/selection/post-freeze-validation-delta.json": "88a80901e776c6150ccfd4732ac3861390afd1a5ca0585bfe6b28d0849515f46",
+      "docs/research/rust-ts-r0/experiment.json": "53f51fecb4d99dc29c136f19bc1ccfd67ccfacd025932e7685bca847b0979304",
+      "docs/research/rust-ts-r0/arbitrations.json": "6a79eb629a6c97def950bb029cdf7afbdaf354fa96a800405d7997cb85cfbbe7",
+      "tools/rust-ts-r0/README.md": "abae26be75d647965e1bff598e3d260180cb14116558283515ae935f29ac6880",
+      "tools/rust-ts-r0/src/main.rs": "b412bced6754de5f7b7c8f6b993c7567c92f4d9424eaf501e7a9ebd1e5662b46",
+      "tools/rust-ts-r0/src/component_observations.rs": "5f7051d69de1ca9a4b07738ec588a2da5757f4ab8cae8255bf36cab9423cdfa8",
+      "tools/rust-ts-r0/tests/native_common_portability.rs": "90d946fc3d8b28b5fd67114df8044989ad994bd7dafb6fa7d0fac5eea94fb845",
+      "tools/rust-ts-r0/tests/native_development_flow.rs": "b832d6abb1e8afab1e3191be21e45103c3339410358b3182944fc6b2cdbfc8bb"
+    },
+    "indexed_scope_diff_sha256": "40e3ad057533b0fe62026d47b94fe3358fe1b2fcb254f2eb45ada69577a4eba9",
+    "indexed_scope_diff_path": "/private/tmp/semctx-t00-20261017/stage5-claims-independent-review.diff",
+    "candidate_frozen_sha256": "6fa6484b1176e1a96714c215ccd4be366808e2de95fae96ee17f0277bca73774",
+    "freeze_sha256": "08b21830ea567442d8767e813419490bb311158b9df51074c3df740377208996"
+  },
+  "verdict": "PROOF_WEAK",
+  "verdict_scope": "Full newly configured cross-platform CI mechanism remains unexecuted remotely and publication canonical checks remain incomplete at snapshot. This does not identify a blocking source defect or contradict the explicitly limited stage-5 claims. Local retained evidence supports the narrower stated macOS DEV claims.",
+  "demonstrated_blocking_findings": [],
+  "claim_checks": [
+    {
+      "claim": "Immutable selected candidate with exactly two post-freeze non-SUT deltas",
+      "status": "supported",
+      "mechanism": "Rehashed all 39 source-manifest files; only tools README abae26… and test b832d6… differ, exactly as post-freeze-validation-delta.json authorizes. Freeze source-manifest digest d2c96a… matches actual manifest. All three externally retained selected artifact files match original FREEZE SHA/length identities. FREEZE remains 08b218…."
+    },
+    {
+      "claim": "Separate native semantic/parsing/configuration observations",
+      "status": "supported within private prototype scope",
+      "mechanism": "main.rs always invokes qualified::inspect_semantic_dependencies into semanticObservation, source diagnostics into sourceParsingObservation, and component_observations::module_configuration into three explicit modes. Ordinary subject admission still selectively merges its own reasons; component fields do not independently confer admission. Missing retained inputs produce executed=false and explicit unsupported."
+    },
+    {
+      "claim": "No READY_TS_NATIVE/fullT02/public admission established",
+      "status": "correctly limited",
+      "mechanism": "FREEZE scope, experiment.r0Decision NOT_RUN, both READMEs explicitly retain qualification/reserved/platform obligations. main subject admission remains not_evaluated; test consumer has only controlled state."
+    },
+    {
+      "claim": "Six DEV vectors via three optimized process integration tests",
+      "status": "supported by retained logs, not independently rerun",
+      "mechanism": "Original selected log shows common portability1/1 plus pipeline2/2. Final b832 release log likewise shows1/1 (1.36s) and2/2 (5.70s). Common test selects exactly four DEV07/08 variants and checks frozen parsing reason/function line projections plus representative poisoned-output rejection; pipeline adds two independent DEV cases."
+    },
+    {
+      "claim": "Post-freeze deadline correction passes two debug pipeline tests",
+      "status": "supported by retained final log and independent bounded annex",
+      "mechanism": "Final b832 debug log has2passed0failed0ignored157.27s, SHA11f04a…. Independent final annex preserves earlier incomplete snapshot and upgrades only controlled macOS debug delta scope. ready_receiver begins acceptance window after expected-binding preparation; native subprocess limit20_000ms and explicit late-result refusal retained. README explicitly disclaims20s dispatch-to-admission/fullT02."
+    },
+    {
+      "claim": "CI context correction and release vectors configured, remote success pending",
+      "status": "correctly limited",
+      "mechanism": "SEMCTX_NATIVE_EVIDENCE moves jobs.env→steps.env; retained actionlint red rejects old runner context and empty green log corresponds to corrected configuration. Current workflow calls release integration tests on Ubuntu/Windows/macOS and uploads exact platform executable plus observations. No remote success inferred."
+    },
+    {
+      "claim": "Frozen expectation for ambiguous star exports predates candidate selection",
+      "status": "supported",
+      "mechanism": "arbitrations references already frozen e03 annex SOURCE_EXPORT_AMBIGUOUS with exact SHA36d94c…, keeping baseline and qualification expectation distinct from observed candidate output."
+    },
+    {
+      "claim": "Validation history preserves failures and cancellations",
+      "status": "supported",
+      "mechanism": "All16 manifest base64 records independently decoded and hashed; encoded/raw hashes and byte lengths match. Explicit actual results retain failed historical green-name file and cancelled checks. Final canonical4shards at snapshot contain launch logs only and are not claimed green."
+    }
+  ],
+  "limits": [
+    "No candidate execution performed by reviewer; process exit codes belong to root-owned runs, while reviewer independently read completed libtest summaries and retained byte identities.",
+    "No remote native Windows/Linux result yet. Local actionlint/configuration inspection does not prove successful GitHub Actions execution.",
+    "Common portability test covers only its four credited parsing/function-line DEV projections; it neither rejects every unsupported state nor proves all input/request bindings, UTF16 landmarks, all-syscall isolation, complete dependency closure or coherent live acquisition.",
+    "Elementary javascript.reasons remains an incomplete historical consumer operation, explicitly documented. Full qualification354units/51supports, independent reserved26variants and R0 remain uncredited.",
+    "Original source manifest intentionally differs at two logged non-SUT files. New verification source and historical selected-binary proof must not be conflated.",
+    "Current publication verify:pr4shards were still running at review snapshot; their eventual outcomes must be recorded before significant push.",
+    "Docs may continue receiving documentary evidence while canonical checks run; no executable/fixture/configuration change is authorized by this report."
+  ],
+  "recommendation": "No demonstrated blocking defect in the bounded stage-5 claims. Finish canonical publication checks and preserve exact results; retain the existing explicit pending native CI/qualification/R0 limits.",
+  "reviewer_mutations": {
+    "tracked_files": 0,
+    "comments": 0,
+    "cargo_or_native_queries": 0,
+    "outside_report_and_diff_only": true
+  }
+}

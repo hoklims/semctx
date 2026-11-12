@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "semctx-t00-qualification-supplement-v1",
+  "frozenAtUtc": "2026-10-21T15:42:52.636Z",
+  "author": "independent_gap_witnesses / Codex native independent author",
+  "candidateObserved": false,
+  "original354unchanged": true,
+  "status": "FROZEN_BASELINE_OBSERVED",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "manifest": {
+    "path": "manifest-sha256.json",
+    "sha256": "2900729dca3240b9f939f4b4f7605e51acb875646983d467391f6b66e2cd5895",
+    "size": 30340,
+    "fileCount": 173
+  },
+  "baselineArchive": {
+    "sha256": "19c84ac8624464d27fdd415b23f60a7e5fb1445c679df6da70f2b3e1369c49a0",
+    "size": 36700160
+  },
+  "counts": {
+    "sourceVariants": 50,
+    "publicExecutions": 11,
+    "publicExecuted": 11,
+    "publicUnknown": 0
+  },
+  "unknown": []
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "name": "archive",
+    "argv": [
+      "git",
+      "archive",
+      "--format=tar",
+      "-o",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\baseline.tar",
+      "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "prepare",
+    "argv": [
+      "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\prepare.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "feffcfac624efcdc7e9a3caf4ebcb5a7fd243f0813212691450aca8e8cf53b4d",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "replay",
+    "argv": [
+      "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\replay.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "e7b750a96cb6acab9aaee17082157ab5914ab2bd9dd717acfe390eb3652477bb",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "negative-witnesses",
+    "argv": [
+      "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\negative-witnesses.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "ed7c9c34f192a0acb45db4069e31f638f9b1f340cf46993e9b40b4116b029d52",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "materialize",
+    "argv": [
+      "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\materialize.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observed"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "7e0f0e6442903956ce7bf52e9902b04407c9199d48472a0c348b604ad7028953",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "validate",
+    "argv": [
+      "C:\\Users\\Hokli\\.bun\\bin\\bun.exe",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\validate.ts",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observed",
+      "C:\\Users\\Hokli\\Documents\\Codex\\2026-10-21\\re\\work\\t00-qualification-supplement-v2\\portable-reproduction-proof\\runtime\\observed"
+    ],
+    "exitCode": 0,
+    "stdoutSha256": "ed61bd62a0aa974ed1fefc6a64c012d6c685e6a5857e064b11b1e2388a165b67",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

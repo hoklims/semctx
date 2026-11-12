@@ -1,0 +1,106 @@
+{
+  "pairs": [
+    {
+      "name": "constant-member",
+      "activate": "PUBLIC-SEM-completion-constant-member-activate",
+      "control": "PUBLIC-SEM-completion-constant-member-control",
+      "obligations": [
+        62,
+        131
+      ],
+      "decisionReason": "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "property-key",
+      "activate": "PUBLIC-SEM-completion-property-key-activate",
+      "control": "PUBLIC-SEM-completion-property-key-control",
+      "obligations": [
+        101
+      ],
+      "decisionReason": "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+    },
+    {
+      "name": "function-helper-own",
+      "activate": "PUBLIC-SEM-completion-function-helper-own-activate",
+      "control": "PUBLIC-SEM-completion-function-helper-own-control",
+      "obligations": [
+        67
+      ],
+      "decisionReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+    },
+    {
+      "name": "internal-callable",
+      "activate": "PUBLIC-SEM-completion-internal-callable-activate",
+      "control": "PUBLIC-SEM-completion-internal-callable-control",
+      "obligations": [
+        88
+      ],
+      "decisionReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+    },
+    {
+      "name": "constructor-origin",
+      "activate": "PUBLIC-SEM-completion-constructor-origin-activate",
+      "control": "PUBLIC-SEM-completion-constructor-origin-control",
+      "obligations": [
+        89
+      ],
+      "decisionReason": "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+    },
+    {
+      "name": "heritage-origin",
+      "activate": "PUBLIC-SEM-completion-heritage-origin-activate",
+      "control": "PUBLIC-SEM-completion-heritage-origin-control",
+      "obligations": [
+        86,
+        87
+      ],
+      "decisionReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+    },
+    {
+      "name": "callback-signature",
+      "activate": "PUBLIC-SEM-completion-callback-signature-activate",
+      "control": "PUBLIC-SEM-completion-callback-signature-control",
+      "obligations": [
+        113
+      ],
+      "decisionReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "global-assignment-origin",
+      "activate": "PUBLIC-SEM-completion-global-assignment-origin-activate",
+      "control": "PUBLIC-SEM-completion-global-assignment-origin-control",
+      "obligations": [
+        115,
+        117
+      ],
+      "decisionReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "binding-write",
+      "activate": "PUBLIC-SEM-completion-binding-write-activate",
+      "control": "PUBLIC-SEM-completion-binding-write-control",
+      "obligations": [
+        56
+      ],
+      "decisionReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+    },
+    {
+      "name": "js-global-member",
+      "activate": "PUBLIC-SEM-completion-js-global-member-activate",
+      "control": "PUBLIC-SEM-completion-js-global-member-control",
+      "obligations": [
+        116
+      ],
+      "decisionReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+    },
+    {
+      "name": "runtime-binding-origin",
+      "activate": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+      "control": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+      "obligations": [
+        125
+      ],
+      "decisionReason": "SOURCE_CONSTRUCTION_UNSUPPORTED"
+    }
+  ]
+}

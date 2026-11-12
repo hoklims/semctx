@@ -1,0 +1,5257 @@
+{
+  "schemaVersion": 1,
+  "scope": "Nominations only; all-site activation and focal reason pairs are necessary but require native PASS and independent per-consumer relevance review. No automatic certification; formal R0 remains false.",
+  "baselineCommit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "activationSha256": "fe8df0072870d86d52b56196c566f784666e0a792224320f61b74ad2d5cf597d",
+  "manifestFiles": [
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-manifest.json",
+      "sha256": "a521081ce636bf1b4c22146a8bf10347cac0644e75c94ac7202c39226eba09a0"
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-completion-manifest.json",
+      "sha256": "9b0a317a5542b81c409f6c85f7d3ec6a4f7a4e4414c59518db96f213362e897f"
+    },
+    {
+      "path": "docs/research/rust-ts-r0/qualification/public-closure-20261022/semantic-runtime-manifest.json",
+      "sha256": "2092a94c254afb6c374a76b668296177e98806589fe9afe7dd7070234e13117f"
+    }
+  ],
+  "summary": {
+    "semanticGenericRows": 62,
+    "allSitesObserved": 56,
+    "eligibleNominations": 56
+  },
+  "rows": [
+    {
+      "index": 49,
+      "consumer": "inspectSemanticDependencies",
+      "apiSitesTotal": 15,
+      "apiSitesActivated": 12,
+      "allApiSitesActivated": false,
+      "activationPointer": "/rows/0",
+      "focalPairs": [
+        {
+          "name": "source-reference",
+          "activate": "PUBLIC-SEM-source-reference-activate",
+          "control": "PUBLIC-SEM-source-reference-control",
+          "focalReason": "SOURCE_REFERENCE_PATH_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_REFERENCE_PATH_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "49:3",
+            "49:0"
+          ],
+          "controlSiteIds": [
+            "49:3",
+            "49:0"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "49:3"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "NOT_QUALIFIED",
+      "formalR0Qualified": false,
+      "gaps": [
+        {
+          "missingSiteId": "49:2",
+          "expression": "source.fileName",
+          "line": 21
+        },
+        {
+          "missingSiteId": "49:4",
+          "expression": "source.fileName",
+          "line": 100
+        },
+        {
+          "missingSiteId": "49:5",
+          "expression": "source.text",
+          "line": 100
+        }
+      ]
+    },
+    {
+      "index": 50,
+      "consumer": "inspectSemanticDependencies > <callback@138>",
+      "apiSitesTotal": 6,
+      "apiSitesActivated": 6,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/1",
+      "focalPairs": [
+        {
+          "name": "callable-export-initializer",
+          "activate": "PUBLIC-SEM-callable-export-initializer-activate",
+          "control": "PUBLIC-SEM-callable-export-initializer-control",
+          "focalReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "50:0",
+            "50:3",
+            "50:4",
+            "50:1",
+            "50:5",
+            "50:2"
+          ],
+          "controlSiteIds": [
+            "50:0",
+            "50:3",
+            "50:4",
+            "50:1"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "50:4",
+            "50:1",
+            "50:3"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "destructured-export",
+          "activate": "PUBLIC-SEM-destructured-export-activate",
+          "control": "PUBLIC-SEM-destructured-export-control",
+          "focalReason": "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "50:0"
+          ],
+          "controlSiteIds": [
+            "50:0"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 51,
+      "consumer": "inspectSemanticDependencies > actualValue",
+      "apiSitesTotal": 8,
+      "apiSitesActivated": 8,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/2",
+      "focalPairs": [
+        {
+          "name": "sdk-runtime",
+          "activate": "PUBLIC-SEM-sdk-runtime-activate",
+          "control": "PUBLIC-SEM-sdk-runtime-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED",
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "51:0",
+            "51:3",
+            "51:1",
+            "51:5",
+            "51:4",
+            "51:2",
+            "51:6",
+            "51:7"
+          ],
+          "controlSiteIds": [
+            "51:0",
+            "51:3",
+            "51:1",
+            "51:5",
+            "51:4",
+            "51:2",
+            "51:6",
+            "51:7"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "callable-export",
+          "activate": "PUBLIC-SEM-callable-export-activate",
+          "control": "PUBLIC-SEM-callable-export-control",
+          "focalReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "51:0",
+            "51:3",
+            "51:1",
+            "51:5",
+            "51:4",
+            "51:2",
+            "51:6",
+            "51:7"
+          ],
+          "controlSiteIds": [
+            "51:0",
+            "51:3",
+            "51:1",
+            "51:5",
+            "51:4",
+            "51:2",
+            "51:6",
+            "51:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "51:6",
+            "51:7"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 52,
+      "consumer": "inspectSemanticDependencies > assignment",
+      "apiSitesTotal": 7,
+      "apiSitesActivated": 7,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/3",
+      "focalPairs": [
+        {
+          "name": "assignment-operator",
+          "activate": "PUBLIC-SEM-assignment-operator-activate",
+          "control": "PUBLIC-SEM-assignment-operator-control",
+          "focalReason": "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "52:0",
+            "52:4",
+            "52:3",
+            "52:1",
+            "52:6",
+            "52:5",
+            "52:2"
+          ],
+          "controlSiteIds": [
+            "52:0",
+            "52:4",
+            "52:3",
+            "52:1"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "52:3",
+            "52:4"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "sdk-callable-mutation",
+          "activate": "PUBLIC-SEM-sdk-callable-mutation-activate",
+          "control": "PUBLIC-SEM-sdk-callable-mutation-control",
+          "focalReason": "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "52:0",
+            "52:4",
+            "52:3",
+            "52:1",
+            "52:6",
+            "52:5",
+            "52:2"
+          ],
+          "controlSiteIds": [
+            "52:0",
+            "52:4",
+            "52:3",
+            "52:1",
+            "52:6",
+            "52:5",
+            "52:2"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 53,
+      "consumer": "inspectSemanticDependencies > asyncOwner",
+      "apiSitesTotal": 7,
+      "apiSitesActivated": 7,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/4",
+      "focalPairs": [
+        {
+          "name": "async-owner",
+          "activate": "PUBLIC-SEM-async-owner-activate",
+          "control": "PUBLIC-SEM-async-owner-control",
+          "focalReason": "SOURCE_ASYNC_RETURN_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "53:4",
+            "53:0",
+            "53:5",
+            "53:1",
+            "53:2",
+            "53:6",
+            "53:3"
+          ],
+          "controlSiteIds": [
+            "53:4",
+            "53:0",
+            "53:5",
+            "53:1",
+            "53:2",
+            "53:6",
+            "53:3"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "53:6",
+            "53:2"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "async-return",
+          "activate": "PUBLIC-SEM-async-return-activate",
+          "control": "PUBLIC-SEM-async-return-control",
+          "focalReason": "SOURCE_ASYNC_RETURN_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "53:4",
+            "53:0",
+            "53:5",
+            "53:1",
+            "53:2",
+            "53:6",
+            "53:3"
+          ],
+          "controlSiteIds": [
+            "53:4",
+            "53:0",
+            "53:5",
+            "53:1",
+            "53:2",
+            "53:6",
+            "53:3"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 54,
+      "consumer": "inspectSemanticDependencies > asyncValue",
+      "apiSitesTotal": 21,
+      "apiSitesActivated": 21,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/5",
+      "focalPairs": [
+        {
+          "name": "async-alias",
+          "activate": "PUBLIC-SEM-async-alias-activate",
+          "control": "PUBLIC-SEM-async-alias-control",
+          "focalReason": "SOURCE_AWAIT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ASYNC_RETURN_UNSUPPORTED",
+            "SOURCE_AWAIT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "54:3",
+            "54:4",
+            "54:12",
+            "54:13",
+            "54:5",
+            "54:15",
+            "54:6",
+            "54:7",
+            "54:8",
+            "54:16",
+            "54:9",
+            "54:18",
+            "54:17",
+            "54:10",
+            "54:19",
+            "54:20",
+            "54:0",
+            "54:1"
+          ],
+          "controlSiteIds": [
+            "54:3",
+            "54:4",
+            "54:12",
+            "54:13",
+            "54:5",
+            "54:15",
+            "54:6",
+            "54:7",
+            "54:8",
+            "54:16",
+            "54:9",
+            "54:18",
+            "54:17",
+            "54:10",
+            "54:19",
+            "54:20",
+            "54:0",
+            "54:1",
+            "54:11",
+            "54:2"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "54:1"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 55,
+      "consumer": "inspectSemanticDependencies > bindingValue",
+      "apiSitesTotal": 15,
+      "apiSitesActivated": 15,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/6",
+      "focalPairs": [
+        {
+          "name": "binding-nested",
+          "activate": "PUBLIC-SEM-binding-nested-activate",
+          "control": "PUBLIC-SEM-binding-nested-control",
+          "focalReason": "SOURCE_ITERATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ITERATION_UNSUPPORTED",
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "55:5",
+            "55:0",
+            "55:6",
+            "55:1",
+            "55:7",
+            "55:2",
+            "55:8",
+            "55:9",
+            "55:11",
+            "55:10",
+            "55:12",
+            "55:3",
+            "55:14",
+            "55:13",
+            "55:4"
+          ],
+          "controlSiteIds": [
+            "55:5",
+            "55:0",
+            "55:6",
+            "55:1",
+            "55:7",
+            "55:2",
+            "55:8",
+            "55:9",
+            "55:11",
+            "55:10",
+            "55:12",
+            "55:3",
+            "55:14",
+            "55:13",
+            "55:4"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 56,
+      "consumer": "inspectSemanticDependencies > bindingWritten",
+      "apiSitesTotal": 18,
+      "apiSitesActivated": 18,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/7",
+      "focalPairs": [
+        {
+          "name": "binding-write",
+          "activate": "PUBLIC-SEM-completion-binding-write-activate",
+          "control": "PUBLIC-SEM-completion-binding-write-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED",
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "56:2",
+            "56:3",
+            "56:5",
+            "56:6",
+            "56:9",
+            "56:7",
+            "56:8",
+            "56:15",
+            "56:17",
+            "56:16"
+          ],
+          "controlSiteIds": [
+            "56:2",
+            "56:3",
+            "56:5",
+            "56:6",
+            "56:9"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "56:6"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "runtime-primitive",
+          "activate": "PUBLIC-SEM-runtime-primitive-activate",
+          "control": "PUBLIC-SEM-runtime-primitive-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "56:2",
+            "56:3",
+            "56:5",
+            "56:6",
+            "56:9"
+          ],
+          "controlSiteIds": [
+            "56:2",
+            "56:3",
+            "56:5",
+            "56:6",
+            "56:9"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 58,
+      "consumer": "inspectSemanticDependencies > callableType",
+      "apiSitesTotal": 7,
+      "apiSitesActivated": 7,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/8",
+      "focalPairs": [
+        {
+          "name": "callback-parameter",
+          "activate": "PUBLIC-SEM-callback-parameter-activate",
+          "control": "PUBLIC-SEM-callback-parameter-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "58:0",
+            "58:2",
+            "58:4",
+            "58:3",
+            "58:5"
+          ],
+          "controlSiteIds": [
+            "58:0",
+            "58:2",
+            "58:4",
+            "58:3",
+            "58:5"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "calltype",
+          "activate": "PUBLIC-SEM-calltype-activate",
+          "control": "PUBLIC-SEM-calltype-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "58:0",
+            "58:2",
+            "58:4",
+            "58:3",
+            "58:5"
+          ],
+          "controlSiteIds": [
+            "58:0",
+            "58:2",
+            "58:4",
+            "58:3",
+            "58:5"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 59,
+      "consumer": "inspectSemanticDependencies > callbackType",
+      "apiSitesTotal": 10,
+      "apiSitesActivated": 10,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/9",
+      "focalPairs": [
+        {
+          "name": "callback-parameter",
+          "activate": "PUBLIC-SEM-callback-parameter-activate",
+          "control": "PUBLIC-SEM-callback-parameter-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "59:0"
+          ],
+          "controlSiteIds": [
+            "59:0",
+            "59:1",
+            "59:2",
+            "59:5",
+            "59:4"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "59:0"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "calltype",
+          "activate": "PUBLIC-SEM-calltype-activate",
+          "control": "PUBLIC-SEM-calltype-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "59:0"
+          ],
+          "controlSiteIds": [
+            "59:0"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 61,
+      "consumer": "inspectSemanticDependencies > coercingBinary",
+      "apiSitesTotal": 33,
+      "apiSitesActivated": 33,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/10",
+      "focalPairs": [
+        {
+          "name": "coercing-operator",
+          "activate": "PUBLIC-SEM-coercing-operator-activate",
+          "control": "PUBLIC-SEM-coercing-operator-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "61:0",
+            "61:1",
+            "61:2",
+            "61:3",
+            "61:4",
+            "61:5",
+            "61:6",
+            "61:7",
+            "61:8",
+            "61:9",
+            "61:10",
+            "61:11",
+            "61:12",
+            "61:13",
+            "61:14",
+            "61:15",
+            "61:16",
+            "61:17",
+            "61:18",
+            "61:19",
+            "61:20",
+            "61:21",
+            "61:22",
+            "61:23",
+            "61:24",
+            "61:25",
+            "61:26",
+            "61:27",
+            "61:28",
+            "61:29",
+            "61:30",
+            "61:32",
+            "61:31"
+          ],
+          "controlSiteIds": [
+            "61:0",
+            "61:1",
+            "61:2",
+            "61:3",
+            "61:4",
+            "61:5",
+            "61:6",
+            "61:7",
+            "61:8",
+            "61:9",
+            "61:10",
+            "61:11",
+            "61:12",
+            "61:13",
+            "61:14",
+            "61:15",
+            "61:16",
+            "61:17",
+            "61:18",
+            "61:19",
+            "61:20",
+            "61:21",
+            "61:22",
+            "61:23",
+            "61:24",
+            "61:25",
+            "61:26",
+            "61:27",
+            "61:28",
+            "61:29",
+            "61:30",
+            "61:32",
+            "61:31"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "61:31",
+            "61:32"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "coercion-binary",
+          "activate": "PUBLIC-SEM-coercion-binary-activate",
+          "control": "PUBLIC-SEM-coercion-binary-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "61:0",
+            "61:1",
+            "61:2",
+            "61:3",
+            "61:4",
+            "61:5",
+            "61:6",
+            "61:7",
+            "61:8",
+            "61:9",
+            "61:10",
+            "61:11",
+            "61:12",
+            "61:13",
+            "61:14",
+            "61:15",
+            "61:16",
+            "61:17",
+            "61:18",
+            "61:19",
+            "61:20",
+            "61:21",
+            "61:22",
+            "61:23",
+            "61:24",
+            "61:25",
+            "61:26",
+            "61:27",
+            "61:28",
+            "61:29",
+            "61:30",
+            "61:32",
+            "61:31"
+          ],
+          "controlSiteIds": [
+            "61:0",
+            "61:1",
+            "61:2",
+            "61:3",
+            "61:4",
+            "61:5",
+            "61:6",
+            "61:7",
+            "61:8",
+            "61:9",
+            "61:10",
+            "61:11",
+            "61:12",
+            "61:13",
+            "61:14",
+            "61:15",
+            "61:16",
+            "61:17",
+            "61:18",
+            "61:19",
+            "61:20",
+            "61:21",
+            "61:22",
+            "61:23",
+            "61:24",
+            "61:25",
+            "61:26",
+            "61:27",
+            "61:28",
+            "61:29",
+            "61:30",
+            "61:32",
+            "61:31"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 62,
+      "consumer": "inspectSemanticDependencies > constantString",
+      "apiSitesTotal": 10,
+      "apiSitesActivated": 10,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/11",
+      "focalPairs": [
+        {
+          "name": "constant-member",
+          "activate": "PUBLIC-SEM-completion-constant-member-activate",
+          "control": "PUBLIC-SEM-completion-constant-member-control",
+          "focalReason": "SOURCE_THENABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "62:0",
+            "62:1",
+            "62:5",
+            "62:2",
+            "62:7",
+            "62:6",
+            "62:3",
+            "62:8",
+            "62:9",
+            "62:4"
+          ],
+          "controlSiteIds": [
+            "62:0",
+            "62:1",
+            "62:5",
+            "62:2",
+            "62:7",
+            "62:6",
+            "62:3",
+            "62:8",
+            "62:9",
+            "62:4"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "62:4"
+          ],
+          "preferredFocalPair": true
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 64,
+      "consumer": "inspectSemanticDependencies > declarations",
+      "apiSitesTotal": 5,
+      "apiSitesActivated": 5,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/12",
+      "focalPairs": [
+        {
+          "name": "destructured-export",
+          "activate": "PUBLIC-SEM-destructured-export-activate",
+          "control": "PUBLIC-SEM-destructured-export-control",
+          "focalReason": "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "64:1",
+            "64:2",
+            "64:0",
+            "64:4"
+          ],
+          "controlSiteIds": [
+            "64:1",
+            "64:2",
+            "64:0",
+            "64:4"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "64:1",
+            "64:2"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 66,
+      "consumer": "inspectSemanticDependencies > destructuredOrigin",
+      "apiSitesTotal": 5,
+      "apiSitesActivated": 5,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/13",
+      "focalPairs": [
+        {
+          "name": "destructured-export",
+          "activate": "PUBLIC-SEM-destructured-export-activate",
+          "control": "PUBLIC-SEM-destructured-export-control",
+          "focalReason": "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "66:0"
+          ],
+          "controlSiteIds": [
+            "66:0"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 67,
+      "consumer": "inspectSemanticDependencies > functionHelper",
+      "apiSitesTotal": 17,
+      "apiSitesActivated": 17,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/14",
+      "focalPairs": [
+        {
+          "name": "function-helper-own",
+          "activate": "PUBLIC-SEM-completion-function-helper-own-activate",
+          "control": "PUBLIC-SEM-completion-function-helper-own-control",
+          "focalReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "67:2",
+            "67:1",
+            "67:3",
+            "67:4",
+            "67:9",
+            "67:11",
+            "67:10",
+            "67:12",
+            "67:0",
+            "67:15",
+            "67:14",
+            "67:13",
+            "67:16"
+          ],
+          "controlSiteIds": [
+            "67:2",
+            "67:1",
+            "67:3",
+            "67:4",
+            "67:9",
+            "67:11",
+            "67:10"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "67:4",
+            "67:10"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "function-helper",
+          "activate": "PUBLIC-SEM-function-helper-activate",
+          "control": "PUBLIC-SEM-function-helper-control",
+          "focalReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "67:2",
+            "67:1",
+            "67:3",
+            "67:4",
+            "67:9",
+            "67:11",
+            "67:10",
+            "67:12",
+            "67:0",
+            "67:15",
+            "67:14",
+            "67:13",
+            "67:16"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 69,
+      "consumer": "inspectSemanticDependencies > inlineOwned",
+      "apiSitesTotal": 75,
+      "apiSitesActivated": 0,
+      "allApiSitesActivated": false,
+      "activationPointer": "/rows/15",
+      "focalPairs": [],
+      "proposalStatus": "NOT_QUALIFIED",
+      "formalR0Qualified": false,
+      "gaps": [
+        {
+          "missingSiteId": "69:0",
+          "expression": "ts.isFunctionDeclaration",
+          "line": 675
+        },
+        {
+          "missingSiteId": "69:1",
+          "expression": "ts.isMethodDeclaration",
+          "line": 676
+        },
+        {
+          "missingSiteId": "69:2",
+          "expression": "ts.isIdentifier",
+          "line": 676
+        },
+        {
+          "missingSiteId": "69:3",
+          "expression": "ts.isArrowFunction",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:4",
+          "expression": "ts.isFunctionExpression",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:5",
+          "expression": "ts.isVariableDeclaration",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:6",
+          "expression": "ts.isIdentifier",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:7",
+          "expression": "ts.isPropertyAssignment",
+          "line": 680
+        },
+        {
+          "missingSiteId": "69:8",
+          "expression": "ts.isPropertyDeclaration",
+          "line": 680
+        },
+        {
+          "missingSiteId": "69:9",
+          "expression": "ts.isImportSpecifier",
+          "line": 688
+        },
+        {
+          "missingSiteId": "69:10",
+          "expression": "ts.isImportClause",
+          "line": 688
+        },
+        {
+          "missingSiteId": "69:11",
+          "expression": "ts.isNamespaceImport",
+          "line": 688
+        },
+        {
+          "missingSiteId": "69:12",
+          "expression": "ts.isImportDeclaration",
+          "line": 690
+        },
+        {
+          "missingSiteId": "69:13",
+          "expression": "ts.isImportDeclaration",
+          "line": 691
+        },
+        {
+          "missingSiteId": "69:14",
+          "expression": "ts.isStringLiteral",
+          "line": 691
+        },
+        {
+          "missingSiteId": "69:15",
+          "expression": "ts.isImportSpecifier",
+          "line": 693
+        },
+        {
+          "missingSiteId": "69:16",
+          "expression": "ts.isPropertyAccessExpression",
+          "line": 712
+        },
+        {
+          "missingSiteId": "69:17",
+          "expression": "ts.isElementAccessExpression",
+          "line": 712
+        },
+        {
+          "missingSiteId": "69:18",
+          "expression": "ts.isCallExpression",
+          "line": 713
+        },
+        {
+          "missingSiteId": "69:19",
+          "expression": "ts.isTypeNode",
+          "line": 717
+        },
+        {
+          "missingSiteId": "69:20",
+          "expression": "ts.isIdentifier",
+          "line": 718
+        },
+        {
+          "missingSiteId": "69:21",
+          "expression": "ts.isPropertyAccessExpression",
+          "line": 718
+        },
+        {
+          "missingSiteId": "69:22",
+          "expression": "ts.isElementAccessExpression",
+          "line": 718
+        },
+        {
+          "missingSiteId": "69:23",
+          "expression": "ts.isIdentifier",
+          "line": 720
+        },
+        {
+          "missingSiteId": "69:24",
+          "expression": "ts.isPropertyAccessExpression",
+          "line": 720
+        },
+        {
+          "missingSiteId": "69:25",
+          "expression": "ts.isShorthandPropertyAssignment",
+          "line": 721
+        },
+        {
+          "missingSiteId": "69:26",
+          "expression": "ts.isBindingElement",
+          "line": 721
+        },
+        {
+          "missingSiteId": "69:27",
+          "expression": "ts.isParenthesizedExpression",
+          "line": 727
+        },
+        {
+          "missingSiteId": "69:28",
+          "expression": "ts.isAsExpression",
+          "line": 727
+        },
+        {
+          "missingSiteId": "69:29",
+          "expression": "ts.isTypeAssertionExpression",
+          "line": 727
+        },
+        {
+          "missingSiteId": "69:30",
+          "expression": "ts.isNonNullExpression",
+          "line": 728
+        },
+        {
+          "missingSiteId": "69:31",
+          "expression": "ts.isSatisfiesExpression",
+          "line": 728
+        },
+        {
+          "missingSiteId": "69:32",
+          "expression": "ts.isCallExpression",
+          "line": 731
+        },
+        {
+          "missingSiteId": "69:33",
+          "expression": "ts.forEachChild",
+          "line": 737
+        },
+        {
+          "missingSiteId": "69:34",
+          "expression": "bound.fileName",
+          "line": 664
+        },
+        {
+          "missingSiteId": "69:35",
+          "expression": "callback.getStart",
+          "line": 664
+        },
+        {
+          "missingSiteId": "69:36",
+          "expression": "callback.getEnd",
+          "line": 664
+        },
+        {
+          "missingSiteId": "69:37",
+          "expression": "bound.fileName",
+          "line": 666
+        },
+        {
+          "missingSiteId": "69:38",
+          "expression": "callback.parent",
+          "line": 674
+        },
+        {
+          "missingSiteId": "69:39",
+          "expression": "parent.parent",
+          "line": 674
+        },
+        {
+          "missingSiteId": "69:40",
+          "expression": "parent.name",
+          "line": 676
+        },
+        {
+          "missingSiteId": "69:41",
+          "expression": "parent.name",
+          "line": 676
+        },
+        {
+          "missingSiteId": "69:42",
+          "expression": "parent.parent",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:43",
+          "expression": "parent.parent.name",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:44",
+          "expression": "parent.parent",
+          "line": 677
+        },
+        {
+          "missingSiteId": "69:45",
+          "expression": "parent.parent.name",
+          "line": 678
+        },
+        {
+          "missingSiteId": "69:46",
+          "expression": "parent.parent",
+          "line": 678
+        },
+        {
+          "missingSiteId": "69:47",
+          "expression": "checker.getSymbolAtLocation",
+          "line": 686
+        },
+        {
+          "missingSiteId": "69:48",
+          "expression": "symbol?.getDeclarations",
+          "line": 687
+        },
+        {
+          "missingSiteId": "69:49",
+          "expression": "statement.parent",
+          "line": 690
+        },
+        {
+          "missingSiteId": "69:50",
+          "expression": "statement.moduleSpecifier",
+          "line": 691
+        },
+        {
+          "missingSiteId": "69:51",
+          "expression": "statement.moduleSpecifier.text",
+          "line": 692
+        },
+        {
+          "missingSiteId": "69:52",
+          "expression": "statement.moduleSpecifier",
+          "line": 692
+        },
+        {
+          "missingSiteId": "69:53",
+          "expression": "statement.importClause?.isTypeOnly",
+          "line": 693
+        },
+        {
+          "missingSiteId": "69:54",
+          "expression": "statement.importClause",
+          "line": 693
+        },
+        {
+          "missingSiteId": "69:55",
+          "expression": "origin.isTypeOnly",
+          "line": 693
+        },
+        {
+          "missingSiteId": "69:56",
+          "expression": "value.expression",
+          "line": 712
+        },
+        {
+          "missingSiteId": "69:57",
+          "expression": "value.expression",
+          "line": 713
+        },
+        {
+          "missingSiteId": "69:58",
+          "expression": "node.parent",
+          "line": 719
+        },
+        {
+          "missingSiteId": "69:59",
+          "expression": "parent.name",
+          "line": 720
+        },
+        {
+          "missingSiteId": "69:60",
+          "expression": "parent.name",
+          "line": 721
+        },
+        {
+          "missingSiteId": "69:61",
+          "expression": "checker.getTypeAtLocation",
+          "line": 722
+        },
+        {
+          "missingSiteId": "69:62",
+          "expression": "usage.parent",
+          "line": 727
+        },
+        {
+          "missingSiteId": "69:63",
+          "expression": "usage.parent",
+          "line": 727
+        },
+        {
+          "missingSiteId": "69:64",
+          "expression": "usage.parent",
+          "line": 727
+        },
+        {
+          "missingSiteId": "69:65",
+          "expression": "usage.parent",
+          "line": 728
+        },
+        {
+          "missingSiteId": "69:66",
+          "expression": "usage.parent",
+          "line": 728
+        },
+        {
+          "missingSiteId": "69:67",
+          "expression": "usage.parent",
+          "line": 728
+        },
+        {
+          "missingSiteId": "69:68",
+          "expression": "usage.parent",
+          "line": 731
+        },
+        {
+          "missingSiteId": "69:69",
+          "expression": "usage.parent.expression",
+          "line": 731
+        },
+        {
+          "missingSiteId": "69:70",
+          "expression": "usage.parent",
+          "line": 731
+        },
+        {
+          "missingSiteId": "69:71",
+          "expression": "bound.getLineAndCharacterOfPosition(usage.getStart()).line",
+          "line": 733
+        },
+        {
+          "missingSiteId": "69:72",
+          "expression": "bound.getLineAndCharacterOfPosition",
+          "line": 733
+        },
+        {
+          "missingSiteId": "69:73",
+          "expression": "usage.getStart",
+          "line": 733
+        },
+        {
+          "missingSiteId": "69:74",
+          "expression": "callback.body",
+          "line": 739
+        },
+        {
+          "reason": "No verified focal reason toggle with consumer evaluated on at least one side"
+        }
+      ]
+    },
+    {
+      "index": 71,
+      "consumer": "inspectSemanticDependencies > inspectCombinatorUse",
+      "apiSitesTotal": 48,
+      "apiSitesActivated": 48,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/16",
+      "focalPairs": [
+        {
+          "name": "promise-combinator",
+          "activate": "PUBLIC-SEM-promise-combinator-activate",
+          "control": "PUBLIC-SEM-promise-combinator-control",
+          "focalReason": "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROMISE_ASSIMILATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "71:0",
+            "71:17",
+            "71:1",
+            "71:20",
+            "71:2",
+            "71:23",
+            "71:3",
+            "71:24",
+            "71:22",
+            "71:21",
+            "71:25",
+            "71:27",
+            "71:26",
+            "71:28",
+            "71:4",
+            "71:31",
+            "71:30",
+            "71:29",
+            "71:32",
+            "71:5",
+            "71:33",
+            "71:6",
+            "71:34",
+            "71:7",
+            "71:35",
+            "71:8",
+            "71:36",
+            "71:9",
+            "71:38",
+            "71:10",
+            "71:39",
+            "71:40",
+            "71:11",
+            "71:41",
+            "71:12",
+            "71:43",
+            "71:42",
+            "71:13",
+            "71:19",
+            "71:18",
+            "71:14",
+            "71:44",
+            "71:46",
+            "71:45",
+            "71:15",
+            "71:47",
+            "71:16"
+          ],
+          "controlSiteIds": [
+            "71:0",
+            "71:17",
+            "71:1",
+            "71:20",
+            "71:2",
+            "71:23",
+            "71:3",
+            "71:24",
+            "71:22",
+            "71:21",
+            "71:25",
+            "71:27",
+            "71:26",
+            "71:28",
+            "71:4",
+            "71:31",
+            "71:30",
+            "71:29",
+            "71:32",
+            "71:5",
+            "71:33",
+            "71:6",
+            "71:34",
+            "71:7",
+            "71:35",
+            "71:8",
+            "71:36",
+            "71:9",
+            "71:38",
+            "71:10",
+            "71:39",
+            "71:40",
+            "71:11",
+            "71:41",
+            "71:12",
+            "71:43",
+            "71:42",
+            "71:13",
+            "71:19",
+            "71:18",
+            "71:14",
+            "71:44",
+            "71:46",
+            "71:45",
+            "71:15",
+            "71:47",
+            "71:16"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "71:23",
+            "71:20",
+            "71:17"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 75,
+      "consumer": "inspectSemanticDependencies > inspectMetaObjectUse",
+      "apiSitesTotal": 66,
+      "apiSitesActivated": 66,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/17",
+      "focalPairs": [
+        {
+          "name": "meta-map",
+          "activate": "PUBLIC-SEM-meta-map-activate",
+          "control": "PUBLIC-SEM-meta-map-control",
+          "focalReason": "SOURCE_DESCRIPTOR_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESCRIPTOR_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "75:0",
+            "75:21",
+            "75:1",
+            "75:24",
+            "75:2",
+            "75:27",
+            "75:3",
+            "75:28",
+            "75:4",
+            "75:29",
+            "75:5",
+            "75:30",
+            "75:6",
+            "75:31",
+            "75:7",
+            "75:32",
+            "75:8",
+            "75:34",
+            "75:9",
+            "75:13",
+            "75:40",
+            "75:46",
+            "75:45",
+            "75:14",
+            "75:47",
+            "75:15",
+            "75:48",
+            "75:16",
+            "75:51",
+            "75:53",
+            "75:52",
+            "75:55",
+            "75:54",
+            "75:59",
+            "75:60",
+            "75:18",
+            "75:61",
+            "75:19",
+            "75:62",
+            "75:64",
+            "75:63",
+            "75:23",
+            "75:22"
+          ],
+          "controlSiteIds": [
+            "75:0",
+            "75:21",
+            "75:1",
+            "75:24",
+            "75:2",
+            "75:27",
+            "75:3",
+            "75:28",
+            "75:4",
+            "75:29",
+            "75:5",
+            "75:30",
+            "75:6",
+            "75:31",
+            "75:7",
+            "75:32",
+            "75:8",
+            "75:34",
+            "75:9",
+            "75:13",
+            "75:40",
+            "75:46",
+            "75:45",
+            "75:14",
+            "75:47",
+            "75:15",
+            "75:48",
+            "75:16",
+            "75:51",
+            "75:53",
+            "75:52",
+            "75:55",
+            "75:54",
+            "75:59",
+            "75:60",
+            "75:18",
+            "75:61",
+            "75:19",
+            "75:62",
+            "75:64",
+            "75:63",
+            "75:23",
+            "75:22"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "75:21",
+            "75:24",
+            "75:27"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 77,
+      "consumer": "inspectSemanticDependencies > inspectOpaqueCallbacks",
+      "apiSitesTotal": 97,
+      "apiSitesActivated": 81,
+      "allApiSitesActivated": false,
+      "activationPointer": "/rows/18",
+      "focalPairs": [
+        {
+          "name": "opaque-literal",
+          "activate": "PUBLIC-SEM-opaque-literal-activate",
+          "control": "PUBLIC-SEM-opaque-literal-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "77:48",
+            "77:49",
+            "77:0",
+            "77:1",
+            "77:93",
+            "77:46",
+            "77:47"
+          ],
+          "controlSiteIds": [
+            "77:48",
+            "77:49",
+            "77:0",
+            "77:1",
+            "77:93"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "NOT_QUALIFIED",
+      "formalR0Qualified": false,
+      "gaps": [
+        {
+          "missingSiteId": "77:10",
+          "expression": "ts.isMethodSignature",
+          "line": 853
+        },
+        {
+          "missingSiteId": "77:23",
+          "expression": "ts.SyntaxKind.DeclareKeyword",
+          "line": 881
+        },
+        {
+          "missingSiteId": "77:30",
+          "expression": "ts.isClassDeclaration",
+          "line": 885
+        },
+        {
+          "missingSiteId": "77:31",
+          "expression": "ts.isImportClause",
+          "line": 885
+        },
+        {
+          "missingSiteId": "77:32",
+          "expression": "ts.isNamespaceImport",
+          "line": 886
+        },
+        {
+          "missingSiteId": "77:33",
+          "expression": "ts.isImportSpecifier",
+          "line": 886
+        },
+        {
+          "missingSiteId": "77:39",
+          "expression": "ts.isPropertyAccessExpression",
+          "line": 890
+        },
+        {
+          "missingSiteId": "77:40",
+          "expression": "ts.isElementAccessExpression",
+          "line": 890
+        },
+        {
+          "missingSiteId": "77:74",
+          "expression": "binding.name",
+          "line": 874
+        },
+        {
+          "missingSiteId": "77:83",
+          "expression": "modifier.kind",
+          "line": 881
+        },
+        {
+          "missingSiteId": "77:84",
+          "expression": "parent.isTypeOnly",
+          "line": 882
+        },
+        {
+          "missingSiteId": "77:85",
+          "expression": "parent.isTypeOnly",
+          "line": 882
+        },
+        {
+          "missingSiteId": "77:87",
+          "expression": "origin.parent",
+          "line": 890
+        },
+        {
+          "missingSiteId": "77:88",
+          "expression": "origin.parent",
+          "line": 890
+        },
+        {
+          "missingSiteId": "77:89",
+          "expression": "origin.parent.expression",
+          "line": 891
+        },
+        {
+          "missingSiteId": "77:90",
+          "expression": "origin.parent",
+          "line": 891
+        }
+      ]
+    },
+    {
+      "index": 80,
+      "consumer": "inspectSemanticDependencies > inspectRuntimeCode",
+      "apiSitesTotal": 12,
+      "apiSitesActivated": 12,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/19",
+      "focalPairs": [
+        {
+          "name": "script-element",
+          "activate": "PUBLIC-SEM-script-element-activate",
+          "control": "PUBLIC-SEM-script-element-control",
+          "focalReason": "SOURCE_SCRIPT_INSERTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SCRIPT_INSERTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "80:5",
+            "80:0",
+            "80:6",
+            "80:1",
+            "80:2",
+            "80:8",
+            "80:3",
+            "80:9",
+            "80:11"
+          ],
+          "controlSiteIds": [
+            "80:5",
+            "80:0",
+            "80:6",
+            "80:1",
+            "80:2",
+            "80:8",
+            "80:3",
+            "80:9",
+            "80:11"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 81,
+      "consumer": "inspectSemanticDependencies > inspectSdkCallbacks",
+      "apiSitesTotal": 38,
+      "apiSitesActivated": 38,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/20",
+      "focalPairs": [
+        {
+          "name": "calltype",
+          "activate": "PUBLIC-SEM-calltype-activate",
+          "control": "PUBLIC-SEM-calltype-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "81:5",
+            "81:0",
+            "81:4",
+            "81:29",
+            "81:30",
+            "81:32",
+            "81:31",
+            "81:33",
+            "81:35",
+            "81:34",
+            "81:36",
+            "81:37"
+          ],
+          "controlSiteIds": [
+            "81:5",
+            "81:0",
+            "81:4",
+            "81:29",
+            "81:30",
+            "81:32",
+            "81:31",
+            "81:33",
+            "81:35",
+            "81:34",
+            "81:36",
+            "81:37"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "81:34"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 82,
+      "consumer": "inspectSemanticDependencies > inspectSdkCoercion",
+      "apiSitesTotal": 29,
+      "apiSitesActivated": 27,
+      "allApiSitesActivated": false,
+      "activationPointer": "/rows/21",
+      "focalPairs": [
+        {
+          "name": "apply-coercion",
+          "activate": "PUBLIC-SEM-apply-coercion-activate",
+          "control": "PUBLIC-SEM-apply-coercion-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "82:11",
+            "82:12",
+            "82:13",
+            "82:14",
+            "82:16",
+            "82:15",
+            "82:17",
+            "82:18",
+            "82:0",
+            "82:19",
+            "82:20",
+            "82:22",
+            "82:1"
+          ],
+          "controlSiteIds": [
+            "82:11",
+            "82:12",
+            "82:13",
+            "82:14",
+            "82:16",
+            "82:15",
+            "82:17",
+            "82:18",
+            "82:0",
+            "82:19",
+            "82:20",
+            "82:22",
+            "82:1"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "numeric-options",
+          "activate": "PUBLIC-SEM-numeric-options-activate",
+          "control": "PUBLIC-SEM-numeric-options-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "82:11",
+            "82:12",
+            "82:6",
+            "82:9",
+            "82:28",
+            "82:10"
+          ],
+          "controlSiteIds": [
+            "82:11",
+            "82:12",
+            "82:6",
+            "82:25",
+            "82:7",
+            "82:26",
+            "82:9",
+            "82:28",
+            "82:10"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "NOT_QUALIFIED",
+      "formalR0Qualified": false,
+      "gaps": [
+        {
+          "missingSiteId": "82:8",
+          "expression": "ts.isShorthandPropertyAssignment",
+          "line": 1228
+        },
+        {
+          "missingSiteId": "82:27",
+          "expression": "property.name",
+          "line": 1228
+        }
+      ]
+    },
+    {
+      "index": 84,
+      "consumer": "inspectSemanticDependencies > inspectSyntax",
+      "apiSitesTotal": 128,
+      "apiSitesActivated": 96,
+      "allApiSitesActivated": false,
+      "activationPointer": "/rows/22",
+      "focalPairs": [
+        {
+          "name": "syntax-decorator",
+          "activate": "PUBLIC-SEM-syntax-decorator-activate",
+          "control": "PUBLIC-SEM-syntax-decorator-control",
+          "focalReason": "SOURCE_DECORATOR_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DECORATOR_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "84:0",
+            "84:2",
+            "84:6",
+            "84:8",
+            "84:12",
+            "84:13",
+            "84:15",
+            "84:16",
+            "84:17",
+            "84:18",
+            "84:19",
+            "84:22",
+            "84:23",
+            "84:24",
+            "84:25",
+            "84:26",
+            "84:27",
+            "84:28",
+            "84:29",
+            "84:30",
+            "84:31",
+            "84:32",
+            "84:33",
+            "84:34",
+            "84:35",
+            "84:36",
+            "84:37",
+            "84:38",
+            "84:39",
+            "84:40",
+            "84:42",
+            "84:44",
+            "84:45",
+            "84:46",
+            "84:47",
+            "84:48",
+            "84:49",
+            "84:50",
+            "84:52",
+            "84:53",
+            "84:56",
+            "84:57",
+            "84:61",
+            "84:62",
+            "84:64",
+            "84:103",
+            "84:105",
+            "84:100",
+            "84:101",
+            "84:102",
+            "84:104",
+            "84:110",
+            "84:111",
+            "84:68",
+            "84:109",
+            "84:43"
+          ],
+          "controlSiteIds": [
+            "84:0",
+            "84:2",
+            "84:6",
+            "84:8",
+            "84:12",
+            "84:13",
+            "84:15",
+            "84:16",
+            "84:17",
+            "84:18",
+            "84:19",
+            "84:22",
+            "84:23",
+            "84:24",
+            "84:25",
+            "84:26",
+            "84:27",
+            "84:28",
+            "84:29",
+            "84:30",
+            "84:31",
+            "84:32",
+            "84:33",
+            "84:34",
+            "84:35",
+            "84:36",
+            "84:37",
+            "84:38",
+            "84:39",
+            "84:40",
+            "84:42",
+            "84:44",
+            "84:45",
+            "84:46",
+            "84:47",
+            "84:48",
+            "84:49",
+            "84:50",
+            "84:52",
+            "84:53",
+            "84:56",
+            "84:57",
+            "84:61",
+            "84:62",
+            "84:64",
+            "84:103",
+            "84:105",
+            "84:100",
+            "84:101",
+            "84:102",
+            "84:104",
+            "84:110",
+            "84:111",
+            "84:68",
+            "84:109",
+            "84:43"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "84:31"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "NOT_QUALIFIED",
+      "formalR0Qualified": false,
+      "gaps": [
+        {
+          "missingSiteId": "84:9",
+          "expression": "ts.isStringLiteral",
+          "line": 54
+        },
+        {
+          "missingSiteId": "84:10",
+          "expression": "ts.isNamedExports",
+          "line": 55
+        },
+        {
+          "missingSiteId": "84:11",
+          "expression": "ts.isNamedExports",
+          "line": 58
+        },
+        {
+          "missingSiteId": "84:58",
+          "expression": "ts.isIdentifier",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:59",
+          "expression": "ts.isJsxNamespacedName",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:60",
+          "expression": "sdk.isIntrinsicJsxName",
+          "line": 91
+        },
+        {
+          "missingSiteId": "84:67",
+          "expression": "ts.isClassExpression",
+          "line": 95
+        },
+        {
+          "missingSiteId": "84:80",
+          "expression": "node.moduleSpecifier",
+          "line": 54
+        },
+        {
+          "missingSiteId": "84:81",
+          "expression": "node.exportClause",
+          "line": 55
+        },
+        {
+          "missingSiteId": "84:82",
+          "expression": "node.exportClause",
+          "line": 55
+        },
+        {
+          "missingSiteId": "84:83",
+          "expression": "node.exportClause.elements",
+          "line": 55
+        },
+        {
+          "missingSiteId": "84:84",
+          "expression": "node.exportClause",
+          "line": 55
+        },
+        {
+          "missingSiteId": "84:85",
+          "expression": "element.isTypeOnly",
+          "line": 55
+        },
+        {
+          "missingSiteId": "84:86",
+          "expression": "node.moduleSpecifier.text",
+          "line": 56
+        },
+        {
+          "missingSiteId": "84:87",
+          "expression": "node.moduleSpecifier",
+          "line": 56
+        },
+        {
+          "missingSiteId": "84:88",
+          "expression": "node.moduleSpecifier.text",
+          "line": 57
+        },
+        {
+          "missingSiteId": "84:89",
+          "expression": "node.moduleSpecifier",
+          "line": 57
+        },
+        {
+          "missingSiteId": "84:90",
+          "expression": "node.exportClause",
+          "line": 58
+        },
+        {
+          "missingSiteId": "84:91",
+          "expression": "node.exportClause",
+          "line": 58
+        },
+        {
+          "missingSiteId": "84:92",
+          "expression": "node.exportClause.elements",
+          "line": 59
+        },
+        {
+          "missingSiteId": "84:93",
+          "expression": "node.exportClause",
+          "line": 59
+        },
+        {
+          "missingSiteId": "84:94",
+          "expression": "element.isTypeOnly",
+          "line": 59
+        },
+        {
+          "missingSiteId": "84:95",
+          "expression": "(element.propertyName ?? element.name).text",
+          "line": 59
+        },
+        {
+          "missingSiteId": "84:96",
+          "expression": "element.propertyName",
+          "line": 59
+        },
+        {
+          "missingSiteId": "84:97",
+          "expression": "element.name",
+          "line": 59
+        },
+        {
+          "missingSiteId": "84:114",
+          "expression": "node.tagName",
+          "line": 89
+        },
+        {
+          "missingSiteId": "84:115",
+          "expression": "tag.text",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:116",
+          "expression": "tag.namespace.text",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:117",
+          "expression": "tag.namespace",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:118",
+          "expression": "tag.name.text",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:119",
+          "expression": "tag.name",
+          "line": 90
+        },
+        {
+          "missingSiteId": "84:127",
+          "expression": "node.parent",
+          "line": 95
+        }
+      ]
+    },
+    {
+      "index": 86,
+      "consumer": "inspectSemanticDependencies > internal",
+      "apiSitesTotal": 4,
+      "apiSitesActivated": 4,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/23",
+      "focalPairs": [
+        {
+          "name": "heritage-origin",
+          "activate": "PUBLIC-SEM-completion-heritage-origin-activate",
+          "control": "PUBLIC-SEM-completion-heritage-origin-control",
+          "focalReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "86:1",
+            "86:0",
+            "86:3",
+            "86:2"
+          ],
+          "controlSiteIds": [
+            "86:1",
+            "86:0",
+            "86:3",
+            "86:2"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "86:0"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "internal-base",
+          "activate": "PUBLIC-SEM-internal-base-activate",
+          "control": "PUBLIC-SEM-internal-base-control",
+          "focalReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "86:1",
+            "86:0",
+            "86:3",
+            "86:2"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 87,
+      "consumer": "inspectSemanticDependencies > internalBase",
+      "apiSitesTotal": 14,
+      "apiSitesActivated": 14,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/24",
+      "focalPairs": [
+        {
+          "name": "heritage-origin",
+          "activate": "PUBLIC-SEM-completion-heritage-origin-activate",
+          "control": "PUBLIC-SEM-completion-heritage-origin-control",
+          "focalReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "87:0",
+            "87:11",
+            "87:10",
+            "87:9",
+            "87:1"
+          ],
+          "controlSiteIds": [
+            "87:0",
+            "87:11",
+            "87:10",
+            "87:9",
+            "87:1",
+            "87:2",
+            "87:3",
+            "87:4",
+            "87:5",
+            "87:6",
+            "87:12"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "87:1",
+            "87:10",
+            "87:9"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "internal-base",
+          "activate": "PUBLIC-SEM-internal-base-activate",
+          "control": "PUBLIC-SEM-internal-base-control",
+          "focalReason": "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "87:0",
+            "87:11",
+            "87:10",
+            "87:9",
+            "87:1"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 88,
+      "consumer": "inspectSemanticDependencies > internalCallable",
+      "apiSitesTotal": 7,
+      "apiSitesActivated": 7,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/25",
+      "focalPairs": [
+        {
+          "name": "internal-callable",
+          "activate": "PUBLIC-SEM-completion-internal-callable-activate",
+          "control": "PUBLIC-SEM-completion-internal-callable-control",
+          "focalReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+            "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+          ],
+          "controlFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "88:1",
+            "88:2",
+            "88:3",
+            "88:4"
+          ],
+          "controlSiteIds": [
+            "88:1",
+            "88:2",
+            "88:3",
+            "88:4",
+            "88:0",
+            "88:5",
+            "88:6"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "88:4",
+            "88:3"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "function-helper",
+          "activate": "PUBLIC-SEM-function-helper-activate",
+          "control": "PUBLIC-SEM-function-helper-control",
+          "focalReason": "SOURCE_FUNCTION_HELPER_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_FUNCTION_HELPER_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "88:1",
+            "88:2",
+            "88:3",
+            "88:4"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 89,
+      "consumer": "inspectSemanticDependencies > intrinsicConstructor",
+      "apiSitesTotal": 22,
+      "apiSitesActivated": 22,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/26",
+      "focalPairs": [
+        {
+          "name": "constructor-origin",
+          "activate": "PUBLIC-SEM-completion-constructor-origin-activate",
+          "control": "PUBLIC-SEM-completion-constructor-origin-control",
+          "focalReason": "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "89:0",
+            "89:4",
+            "89:3",
+            "89:8",
+            "89:9",
+            "89:10",
+            "89:12",
+            "89:14",
+            "89:16",
+            "89:15",
+            "89:17",
+            "89:2",
+            "89:20",
+            "89:19",
+            "89:18",
+            "89:21"
+          ],
+          "controlSiteIds": [
+            "89:0",
+            "89:4",
+            "89:3",
+            "89:8",
+            "89:9",
+            "89:10",
+            "89:11"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "89:10"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "function-constructor",
+          "activate": "PUBLIC-SEM-function-constructor-activate",
+          "control": "PUBLIC-SEM-function-constructor-control",
+          "focalReason": "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DYNAMIC_EVALUATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "89:0",
+            "89:4",
+            "89:3",
+            "89:8",
+            "89:9",
+            "89:10",
+            "89:12",
+            "89:14",
+            "89:16",
+            "89:15",
+            "89:17",
+            "89:2",
+            "89:20",
+            "89:19",
+            "89:18",
+            "89:21"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 90,
+      "consumer": "inspectSemanticDependencies > intrinsicDateCopy",
+      "apiSitesTotal": 9,
+      "apiSitesActivated": 9,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/27",
+      "focalPairs": [
+        {
+          "name": "date-copy",
+          "activate": "PUBLIC-SEM-date-copy-activate",
+          "control": "PUBLIC-SEM-date-copy-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED",
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "90:0",
+            "90:3",
+            "90:2",
+            "90:4",
+            "90:6",
+            "90:5",
+            "90:1"
+          ],
+          "controlSiteIds": [
+            "90:0",
+            "90:3",
+            "90:2",
+            "90:4",
+            "90:6",
+            "90:5",
+            "90:1",
+            "90:8",
+            "90:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "90:5",
+            "90:1",
+            "90:4"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 91,
+      "consumer": "inspectSemanticDependencies > intrinsicIterable",
+      "apiSitesTotal": 14,
+      "apiSitesActivated": 14,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/28",
+      "focalPairs": [
+        {
+          "name": "binding-nested",
+          "activate": "PUBLIC-SEM-binding-nested-activate",
+          "control": "PUBLIC-SEM-binding-nested-control",
+          "focalReason": "SOURCE_ITERATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ITERATION_UNSUPPORTED",
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "91:0",
+            "91:1",
+            "91:2",
+            "91:3",
+            "91:4",
+            "91:9",
+            "91:5",
+            "91:11",
+            "91:10",
+            "91:6",
+            "91:12",
+            "91:13"
+          ],
+          "controlSiteIds": [
+            "91:0",
+            "91:1",
+            "91:2",
+            "91:3",
+            "91:4",
+            "91:9",
+            "91:5",
+            "91:11",
+            "91:10",
+            "91:6",
+            "91:12",
+            "91:13"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "91:13",
+            "91:12"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 92,
+      "consumer": "inspectSemanticDependencies > iterableParameter",
+      "apiSitesTotal": 4,
+      "apiSitesActivated": 4,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/29",
+      "focalPairs": [
+        {
+          "name": "iteration-param",
+          "activate": "PUBLIC-SEM-iteration-param-activate",
+          "control": "PUBLIC-SEM-iteration-param-control",
+          "focalReason": "SOURCE_SDK_ITERATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED",
+            "SOURCE_SDK_ITERATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "92:1",
+            "92:0",
+            "92:2",
+            "92:3"
+          ],
+          "controlSiteIds": [
+            "92:1",
+            "92:0",
+            "92:2",
+            "92:3"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 93,
+      "consumer": "inspectSemanticDependencies > iterableType",
+      "apiSitesTotal": 21,
+      "apiSitesActivated": 21,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/30",
+      "focalPairs": [
+        {
+          "name": "iteration-param",
+          "activate": "PUBLIC-SEM-iteration-param-activate",
+          "control": "PUBLIC-SEM-iteration-param-control",
+          "focalReason": "SOURCE_SDK_ITERATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED",
+            "SOURCE_SDK_ITERATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "93:10",
+            "93:0",
+            "93:1",
+            "93:2",
+            "93:3",
+            "93:4",
+            "93:5",
+            "93:6",
+            "93:11",
+            "93:13",
+            "93:14",
+            "93:15",
+            "93:17",
+            "93:16",
+            "93:7",
+            "93:8",
+            "93:18",
+            "93:9",
+            "93:20",
+            "93:19"
+          ],
+          "controlSiteIds": [
+            "93:10",
+            "93:0",
+            "93:1",
+            "93:2",
+            "93:3",
+            "93:4",
+            "93:5",
+            "93:6",
+            "93:11",
+            "93:13",
+            "93:14",
+            "93:15",
+            "93:17",
+            "93:16",
+            "93:7",
+            "93:8",
+            "93:18",
+            "93:9",
+            "93:20",
+            "93:19"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 94,
+      "consumer": "inspectSemanticDependencies > literalArray",
+      "apiSitesTotal": 9,
+      "apiSitesActivated": 9,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/31",
+      "focalPairs": [
+        {
+          "name": "binding-nested",
+          "activate": "PUBLIC-SEM-binding-nested-activate",
+          "control": "PUBLIC-SEM-binding-nested-control",
+          "focalReason": "SOURCE_ITERATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ITERATION_UNSUPPORTED",
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "94:0"
+          ],
+          "controlSiteIds": [
+            "94:0"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 95,
+      "consumer": "inspectSemanticDependencies > literalData",
+      "apiSitesTotal": 19,
+      "apiSitesActivated": 19,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/32",
+      "focalPairs": [
+        {
+          "name": "opaque-literal",
+          "activate": "PUBLIC-SEM-opaque-literal-activate",
+          "control": "PUBLIC-SEM-opaque-literal-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "95:0",
+            "95:3",
+            "95:10",
+            "95:4",
+            "95:5",
+            "95:13",
+            "95:6",
+            "95:17",
+            "95:16",
+            "95:18"
+          ],
+          "controlSiteIds": [
+            "95:0",
+            "95:3",
+            "95:10",
+            "95:4",
+            "95:5",
+            "95:13",
+            "95:6",
+            "95:17",
+            "95:16",
+            "95:18"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "95:3"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 97,
+      "consumer": "inspectSemanticDependencies > numericUnary",
+      "apiSitesTotal": 8,
+      "apiSitesActivated": 8,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/33",
+      "focalPairs": [
+        {
+          "name": "unary-operator",
+          "activate": "PUBLIC-SEM-unary-operator-activate",
+          "control": "PUBLIC-SEM-unary-operator-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "97:0",
+            "97:1",
+            "97:2",
+            "97:3",
+            "97:4",
+            "97:5",
+            "97:6",
+            "97:7"
+          ],
+          "controlSiteIds": [
+            "97:0",
+            "97:1",
+            "97:2",
+            "97:3",
+            "97:4",
+            "97:5",
+            "97:6",
+            "97:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "97:7"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "coercion-unary",
+          "activate": "PUBLIC-SEM-coercion-unary-activate",
+          "control": "PUBLIC-SEM-coercion-unary-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "97:0",
+            "97:1",
+            "97:2",
+            "97:3",
+            "97:4",
+            "97:5",
+            "97:6",
+            "97:7"
+          ],
+          "controlSiteIds": [
+            "97:0",
+            "97:1",
+            "97:2",
+            "97:3",
+            "97:4",
+            "97:5",
+            "97:6",
+            "97:7"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 98,
+      "consumer": "inspectSemanticDependencies > opaqueCallee",
+      "apiSitesTotal": 10,
+      "apiSitesActivated": 10,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/34",
+      "focalPairs": [
+        {
+          "name": "opaque-callee",
+          "activate": "PUBLIC-SEM-opaque-callee-activate",
+          "control": "PUBLIC-SEM-opaque-callee-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "98:0",
+            "98:1",
+            "98:2",
+            "98:7"
+          ],
+          "controlSiteIds": [
+            "98:0",
+            "98:1",
+            "98:2",
+            "98:7",
+            "98:8",
+            "98:3"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "98:7"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 99,
+      "consumer": "inspectSemanticDependencies > potentiallyCallable",
+      "apiSitesTotal": 8,
+      "apiSitesActivated": 8,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/35",
+      "focalPairs": [
+        {
+          "name": "destructured-export",
+          "activate": "PUBLIC-SEM-destructured-export-activate",
+          "control": "PUBLIC-SEM-destructured-export-control",
+          "focalReason": "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESTRUCTURED_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "99:3",
+            "99:0",
+            "99:1",
+            "99:2",
+            "99:4",
+            "99:6"
+          ],
+          "controlSiteIds": [
+            "99:3",
+            "99:0",
+            "99:1",
+            "99:2",
+            "99:4",
+            "99:6",
+            "99:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "99:3",
+            "99:6"
+          ],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "callable-export",
+          "activate": "PUBLIC-SEM-callable-export-activate",
+          "control": "PUBLIC-SEM-callable-export-control",
+          "focalReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "99:3",
+            "99:0",
+            "99:1",
+            "99:2",
+            "99:4",
+            "99:6"
+          ],
+          "controlSiteIds": [
+            "99:3",
+            "99:0",
+            "99:1",
+            "99:2",
+            "99:4",
+            "99:6",
+            "99:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "99:3",
+            "99:6"
+          ],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "callable-union",
+          "activate": "PUBLIC-SEM-callable-union-activate",
+          "control": "PUBLIC-SEM-callable-union-control",
+          "focalReason": "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CALLABLE_EXPORT_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "99:3",
+            "99:0",
+            "99:1",
+            "99:2",
+            "99:4",
+            "99:5",
+            "99:6",
+            "99:7"
+          ],
+          "controlSiteIds": [
+            "99:3",
+            "99:0",
+            "99:1",
+            "99:2",
+            "99:4",
+            "99:5",
+            "99:6",
+            "99:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "99:3",
+            "99:6"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 100,
+      "consumer": "inspectSemanticDependencies > primitiveValue",
+      "apiSitesTotal": 35,
+      "apiSitesActivated": 35,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/36",
+      "focalPairs": [
+        {
+          "name": "coercion-binary",
+          "activate": "PUBLIC-SEM-coercion-binary-activate",
+          "control": "PUBLIC-SEM-coercion-binary-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "100:0",
+            "100:1",
+            "100:2",
+            "100:3",
+            "100:4",
+            "100:5",
+            "100:6",
+            "100:18",
+            "100:7",
+            "100:19",
+            "100:9",
+            "100:10",
+            "100:11",
+            "100:13",
+            "100:15",
+            "100:30",
+            "100:16",
+            "100:32",
+            "100:31",
+            "100:17",
+            "100:33",
+            "100:34"
+          ],
+          "controlSiteIds": [
+            "100:0",
+            "100:1",
+            "100:2",
+            "100:3",
+            "100:4",
+            "100:5",
+            "100:6",
+            "100:18",
+            "100:7",
+            "100:19",
+            "100:9",
+            "100:10",
+            "100:11",
+            "100:13",
+            "100:15",
+            "100:30",
+            "100:16",
+            "100:32",
+            "100:31",
+            "100:17",
+            "100:33",
+            "100:34"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "100:33",
+            "100:18",
+            "100:7",
+            "100:0",
+            "100:34"
+          ],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "coercion-unary",
+          "activate": "PUBLIC-SEM-coercion-unary-activate",
+          "control": "PUBLIC-SEM-coercion-unary-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "100:0",
+            "100:1",
+            "100:2",
+            "100:3",
+            "100:4",
+            "100:5",
+            "100:6",
+            "100:18",
+            "100:7",
+            "100:19",
+            "100:9",
+            "100:10",
+            "100:11",
+            "100:13",
+            "100:15",
+            "100:30",
+            "100:16",
+            "100:32",
+            "100:31",
+            "100:17",
+            "100:33",
+            "100:34"
+          ],
+          "controlSiteIds": [
+            "100:0",
+            "100:1",
+            "100:2",
+            "100:3",
+            "100:4",
+            "100:5",
+            "100:6",
+            "100:18",
+            "100:7",
+            "100:19",
+            "100:9",
+            "100:10",
+            "100:11",
+            "100:13",
+            "100:15",
+            "100:30",
+            "100:16",
+            "100:32",
+            "100:31",
+            "100:17",
+            "100:33",
+            "100:34"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "100:33",
+            "100:18",
+            "100:7",
+            "100:0",
+            "100:34"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 101,
+      "consumer": "inspectSemanticDependencies > propertyKey",
+      "apiSitesTotal": 15,
+      "apiSitesActivated": 15,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/37",
+      "focalPairs": [
+        {
+          "name": "property-key",
+          "activate": "PUBLIC-SEM-completion-property-key-activate",
+          "control": "PUBLIC-SEM-completion-property-key-control",
+          "focalReason": "SOURCE_PROPERTY_KEY_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "101:0",
+            "101:1",
+            "101:3",
+            "101:10",
+            "101:4",
+            "101:12",
+            "101:11",
+            "101:5",
+            "101:13",
+            "101:14"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "membership",
+          "activate": "PUBLIC-SEM-membership-activate",
+          "control": "PUBLIC-SEM-membership-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "101:0",
+            "101:1",
+            "101:3",
+            "101:10",
+            "101:4",
+            "101:12",
+            "101:11",
+            "101:5",
+            "101:13",
+            "101:14"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 102,
+      "consumer": "inspectSemanticDependencies > propertyMembership",
+      "apiSitesTotal": 4,
+      "apiSitesActivated": 4,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/38",
+      "focalPairs": [
+        {
+          "name": "membership",
+          "activate": "PUBLIC-SEM-membership-activate",
+          "control": "PUBLIC-SEM-membership-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "102:0",
+            "102:3",
+            "102:2",
+            "102:1"
+          ],
+          "controlSiteIds": [
+            "102:0",
+            "102:3",
+            "102:2",
+            "102:1"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 103,
+      "consumer": "inspectSemanticDependencies > propertyName",
+      "apiSitesTotal": 6,
+      "apiSitesActivated": 6,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/39",
+      "focalPairs": [
+        {
+          "name": "property-name",
+          "activate": "PUBLIC-SEM-property-name-activate",
+          "control": "PUBLIC-SEM-property-name-control",
+          "focalReason": "SOURCE_DESCRIPTOR_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESCRIPTOR_UNSUPPORTED",
+            "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "103:0",
+            "103:4"
+          ],
+          "controlSiteIds": [
+            "103:0",
+            "103:4",
+            "103:1",
+            "103:5"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "103:0"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "meta-map",
+          "activate": "PUBLIC-SEM-meta-map-activate",
+          "control": "PUBLIC-SEM-meta-map-control",
+          "focalReason": "SOURCE_DESCRIPTOR_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_DESCRIPTOR_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "103:0",
+            "103:1",
+            "103:5"
+          ],
+          "controlSiteIds": [
+            "103:0",
+            "103:1",
+            "103:5"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "103:5"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 106,
+      "consumer": "inspectSemanticDependencies > returnedPrimitiveValue",
+      "apiSitesTotal": 31,
+      "apiSitesActivated": 31,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/40",
+      "focalPairs": [
+        {
+          "name": "returned-primitive",
+          "activate": "PUBLIC-SEM-returned-primitive-activate",
+          "control": "PUBLIC-SEM-returned-primitive-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "106:0",
+            "106:15",
+            "106:1",
+            "106:16",
+            "106:7",
+            "106:22",
+            "106:8",
+            "106:24",
+            "106:25",
+            "106:10",
+            "106:27",
+            "106:28",
+            "106:11",
+            "106:13",
+            "106:12",
+            "106:29",
+            "106:30",
+            "106:14"
+          ],
+          "controlSiteIds": [
+            "106:0",
+            "106:15",
+            "106:1",
+            "106:16",
+            "106:7",
+            "106:22",
+            "106:8",
+            "106:24",
+            "106:25",
+            "106:10",
+            "106:27",
+            "106:28",
+            "106:11",
+            "106:13",
+            "106:12",
+            "106:29",
+            "106:30",
+            "106:14"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "106:30",
+            "106:29"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 107,
+      "consumer": "inspectSemanticDependencies > runtimePrimitiveValue",
+      "apiSitesTotal": 46,
+      "apiSitesActivated": 46,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/41",
+      "focalPairs": [
+        {
+          "name": "runtime-primitive",
+          "activate": "PUBLIC-SEM-runtime-primitive-activate",
+          "control": "PUBLIC-SEM-runtime-primitive-control",
+          "focalReason": "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "107:0",
+            "107:19",
+            "107:20",
+            "107:1",
+            "107:3",
+            "107:22",
+            "107:4",
+            "107:23",
+            "107:5",
+            "107:25",
+            "107:24",
+            "107:6",
+            "107:29",
+            "107:10",
+            "107:11",
+            "107:12",
+            "107:30",
+            "107:31",
+            "107:32",
+            "107:33",
+            "107:13"
+          ],
+          "controlSiteIds": [
+            "107:0",
+            "107:19",
+            "107:20",
+            "107:1",
+            "107:3",
+            "107:22",
+            "107:4",
+            "107:23",
+            "107:5",
+            "107:25",
+            "107:24",
+            "107:6",
+            "107:29",
+            "107:10",
+            "107:11",
+            "107:12",
+            "107:30",
+            "107:31",
+            "107:32",
+            "107:33",
+            "107:13",
+            "107:34",
+            "107:7",
+            "107:8",
+            "107:26",
+            "107:28",
+            "107:27",
+            "107:9",
+            "107:35",
+            "107:14",
+            "107:37",
+            "107:36",
+            "107:15",
+            "107:38",
+            "107:39",
+            "107:16",
+            "107:17",
+            "107:40",
+            "107:43",
+            "107:42",
+            "107:18",
+            "107:44",
+            "107:45"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "107:32",
+            "107:13",
+            "107:31",
+            "107:33",
+            "107:30"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 108,
+      "consumer": "inspectSemanticDependencies > runtimeProperty",
+      "apiSitesTotal": 7,
+      "apiSitesActivated": 7,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/42",
+      "focalPairs": [
+        {
+          "name": "runtime-property",
+          "activate": "PUBLIC-SEM-runtime-property-activate",
+          "control": "PUBLIC-SEM-runtime-property-control",
+          "focalReason": "SOURCE_PROPERTY_KEY_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROPERTY_KEY_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "108:4",
+            "108:3",
+            "108:0",
+            "108:5",
+            "108:1",
+            "108:6",
+            "108:2"
+          ],
+          "controlSiteIds": [
+            "108:4",
+            "108:3",
+            "108:0",
+            "108:5",
+            "108:1",
+            "108:6",
+            "108:2"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "108:5",
+            "108:6",
+            "108:1"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 109,
+      "consumer": "inspectSemanticDependencies > safeAwaitValue",
+      "apiSitesTotal": 32,
+      "apiSitesActivated": 32,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/43",
+      "focalPairs": [
+        {
+          "name": "async-return",
+          "activate": "PUBLIC-SEM-async-return-activate",
+          "control": "PUBLIC-SEM-async-return-control",
+          "focalReason": "SOURCE_ASYNC_RETURN_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_ASYNC_RETURN_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "109:0",
+            "109:1",
+            "109:2"
+          ],
+          "controlSiteIds": [
+            "109:0"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 110,
+      "consumer": "inspectSemanticDependencies > sdkCallableMember",
+      "apiSitesTotal": 8,
+      "apiSitesActivated": 8,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/44",
+      "focalPairs": [
+        {
+          "name": "sdk-callable-mutation",
+          "activate": "PUBLIC-SEM-sdk-callable-mutation-activate",
+          "control": "PUBLIC-SEM-sdk-callable-mutation-control",
+          "focalReason": "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "110:1",
+            "110:0",
+            "110:2",
+            "110:4",
+            "110:3",
+            "110:5",
+            "110:6"
+          ],
+          "controlSiteIds": [
+            "110:1",
+            "110:0",
+            "110:2",
+            "110:4",
+            "110:3",
+            "110:5",
+            "110:6"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 111,
+      "consumer": "inspectSemanticDependencies > sdkCallableProperty",
+      "apiSitesTotal": 3,
+      "apiSitesActivated": 3,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/45",
+      "focalPairs": [
+        {
+          "name": "sdk-callable-mutation",
+          "activate": "PUBLIC-SEM-sdk-callable-mutation-activate",
+          "control": "PUBLIC-SEM-sdk-callable-mutation-control",
+          "focalReason": "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "111:0",
+            "111:2"
+          ],
+          "controlSiteIds": [
+            "111:0",
+            "111:2"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 112,
+      "consumer": "inspectSemanticDependencies > sdkCallbackDictionary",
+      "apiSitesTotal": 11,
+      "apiSitesActivated": 11,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/46",
+      "focalPairs": [
+        {
+          "name": "callback-dictionary",
+          "activate": "PUBLIC-SEM-callback-dictionary-activate",
+          "control": "PUBLIC-SEM-callback-dictionary-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "112:2",
+            "112:4",
+            "112:0",
+            "112:5",
+            "112:6",
+            "112:7",
+            "112:1",
+            "112:9",
+            "112:8",
+            "112:10"
+          ],
+          "controlSiteIds": [
+            "112:2",
+            "112:4",
+            "112:0",
+            "112:5",
+            "112:6",
+            "112:7",
+            "112:1",
+            "112:9",
+            "112:8",
+            "112:10"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 113,
+      "consumer": "inspectSemanticDependencies > sdkCallbackSignature",
+      "apiSitesTotal": 7,
+      "apiSitesActivated": 7,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/47",
+      "focalPairs": [
+        {
+          "name": "callback-signature",
+          "activate": "PUBLIC-SEM-completion-callback-signature-activate",
+          "control": "PUBLIC-SEM-completion-callback-signature-control",
+          "focalReason": "SOURCE_SDK_CALLBACK_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "113:0",
+            "113:1",
+            "113:2",
+            "113:4",
+            "113:3",
+            "113:5",
+            "113:6"
+          ],
+          "controlSiteIds": [
+            "113:0",
+            "113:1",
+            "113:2",
+            "113:4",
+            "113:3",
+            "113:5",
+            "113:6"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "113:5",
+            "113:6"
+          ],
+          "preferredFocalPair": true
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 114,
+      "consumer": "inspectSemanticDependencies > sdkConstruction",
+      "apiSitesTotal": 6,
+      "apiSitesActivated": 6,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/48",
+      "focalPairs": [
+        {
+          "name": "iteration-param",
+          "activate": "PUBLIC-SEM-iteration-param-activate",
+          "control": "PUBLIC-SEM-iteration-param-control",
+          "focalReason": "SOURCE_SDK_ITERATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROTOCOL_DEFINITION_UNSUPPORTED",
+            "SOURCE_SDK_ITERATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "114:2",
+            "114:1",
+            "114:0",
+            "114:3",
+            "114:5",
+            "114:4"
+          ],
+          "controlSiteIds": [
+            "114:2",
+            "114:1",
+            "114:0",
+            "114:3",
+            "114:5",
+            "114:4"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "runtime-binding-origin",
+          "activate": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+          "control": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+          "focalReason": "SOURCE_CONSTRUCTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CONSTRUCTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": false,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [],
+          "controlSiteIds": [
+            "114:2",
+            "114:1",
+            "114:0",
+            "114:3",
+            "114:5",
+            "114:4"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 115,
+      "consumer": "inspectSemanticDependencies > sdkGlobalAssignment",
+      "apiSitesTotal": 15,
+      "apiSitesActivated": 15,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/49",
+      "focalPairs": [
+        {
+          "name": "global-assignment-origin",
+          "activate": "PUBLIC-SEM-completion-global-assignment-origin-activate",
+          "control": "PUBLIC-SEM-completion-global-assignment-origin-control",
+          "focalReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "115:0",
+            "115:3"
+          ],
+          "controlSiteIds": [
+            "115:0",
+            "115:3"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "sdk-global",
+          "activate": "PUBLIC-SEM-sdk-global-activate",
+          "control": "PUBLIC-SEM-sdk-global-control",
+          "focalReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "115:0",
+            "115:3"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 116,
+      "consumer": "inspectSemanticDependencies > sdkGlobalMember",
+      "apiSitesTotal": 10,
+      "apiSitesActivated": 10,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/50",
+      "focalPairs": [
+        {
+          "name": "global-member",
+          "activate": "PUBLIC-SEM-global-member-activate",
+          "control": "PUBLIC-SEM-global-member-control",
+          "focalReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "116:0",
+            "116:2",
+            "116:3",
+            "116:7",
+            "116:6",
+            "116:5",
+            "116:9",
+            "116:8"
+          ],
+          "controlSiteIds": [
+            "116:0"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "116:0"
+          ],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "js-global-member",
+          "activate": "PUBLIC-SEM-completion-js-global-member-activate",
+          "control": "PUBLIC-SEM-completion-js-global-member-control",
+          "focalReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "116:0",
+            "116:2",
+            "116:3",
+            "116:1",
+            "116:4",
+            "116:7",
+            "116:6",
+            "116:5",
+            "116:9",
+            "116:8"
+          ],
+          "controlSiteIds": [
+            "116:0",
+            "116:2",
+            "116:3",
+            "116:1",
+            "116:4",
+            "116:7",
+            "116:6",
+            "116:5",
+            "116:9",
+            "116:8"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "116:6",
+            "116:5",
+            "116:8"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 117,
+      "consumer": "inspectSemanticDependencies > sdkGlobalOrigins",
+      "apiSitesTotal": 3,
+      "apiSitesActivated": 3,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/51",
+      "focalPairs": [
+        {
+          "name": "global-assignment-origin",
+          "activate": "PUBLIC-SEM-completion-global-assignment-origin-activate",
+          "control": "PUBLIC-SEM-completion-global-assignment-origin-control",
+          "focalReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "117:2",
+            "117:1",
+            "117:0"
+          ],
+          "controlSiteIds": [
+            "117:2",
+            "117:1"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "117:1"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "sdk-global",
+          "activate": "PUBLIC-SEM-sdk-global-activate",
+          "control": "PUBLIC-SEM-sdk-global-control",
+          "focalReason": "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SDK_GLOBAL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": false,
+          "activateSiteIds": [
+            "117:2",
+            "117:1",
+            "117:0"
+          ],
+          "controlSiteIds": [],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 118,
+      "consumer": "inspectSemanticDependencies > sdkInvocation",
+      "apiSitesTotal": 40,
+      "apiSitesActivated": 40,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/52",
+      "focalPairs": [
+        {
+          "name": "apply-coercion",
+          "activate": "PUBLIC-SEM-apply-coercion-activate",
+          "control": "PUBLIC-SEM-apply-coercion-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "118:11",
+            "118:0",
+            "118:12",
+            "118:13",
+            "118:2",
+            "118:3",
+            "118:4",
+            "118:15",
+            "118:16",
+            "118:17",
+            "118:19",
+            "118:18",
+            "118:20",
+            "118:6",
+            "118:23",
+            "118:22",
+            "118:21",
+            "118:7",
+            "118:32",
+            "118:31",
+            "118:34",
+            "118:33",
+            "118:35",
+            "118:8",
+            "118:9",
+            "118:36",
+            "118:10",
+            "118:37",
+            "118:39",
+            "118:38"
+          ],
+          "controlSiteIds": [
+            "118:11",
+            "118:0",
+            "118:12",
+            "118:13",
+            "118:2",
+            "118:3",
+            "118:4",
+            "118:15",
+            "118:16",
+            "118:17",
+            "118:19",
+            "118:18",
+            "118:20",
+            "118:6",
+            "118:23",
+            "118:22",
+            "118:21",
+            "118:7",
+            "118:32",
+            "118:31",
+            "118:34",
+            "118:33",
+            "118:35",
+            "118:8",
+            "118:9",
+            "118:36",
+            "118:10",
+            "118:37",
+            "118:39",
+            "118:38"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 119,
+      "consumer": "inspectSemanticDependencies > sdkMemberOf",
+      "apiSitesTotal": 8,
+      "apiSitesActivated": 8,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/53",
+      "focalPairs": [
+        {
+          "name": "script-element",
+          "activate": "PUBLIC-SEM-script-element-activate",
+          "control": "PUBLIC-SEM-script-element-control",
+          "focalReason": "SOURCE_SCRIPT_INSERTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SCRIPT_INSERTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "119:2",
+            "119:3",
+            "119:4",
+            "119:0",
+            "119:7",
+            "119:6",
+            "119:5",
+            "119:1"
+          ],
+          "controlSiteIds": [
+            "119:2",
+            "119:3",
+            "119:4",
+            "119:0",
+            "119:7",
+            "119:6",
+            "119:5",
+            "119:1"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 120,
+      "consumer": "inspectSemanticDependencies > sdkMetaOperation",
+      "apiSitesTotal": 18,
+      "apiSitesActivated": 18,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/54",
+      "focalPairs": [
+        {
+          "name": "meta-operation",
+          "activate": "PUBLIC-SEM-meta-operation-activate",
+          "control": "PUBLIC-SEM-meta-operation-control",
+          "focalReason": "SOURCE_PROTOTYPE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROTOTYPE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "120:0",
+            "120:1",
+            "120:7",
+            "120:8",
+            "120:10",
+            "120:9",
+            "120:11",
+            "120:2",
+            "120:3",
+            "120:14",
+            "120:4",
+            "120:17",
+            "120:16",
+            "120:15"
+          ],
+          "controlSiteIds": [
+            "120:0",
+            "120:1",
+            "120:7"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "120:7"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 121,
+      "consumer": "inspectSemanticDependencies > sdkOrigin",
+      "apiSitesTotal": 12,
+      "apiSitesActivated": 12,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/55",
+      "focalPairs": [
+        {
+          "name": "script-element",
+          "activate": "PUBLIC-SEM-script-element-activate",
+          "control": "PUBLIC-SEM-script-element-control",
+          "focalReason": "SOURCE_SCRIPT_INSERTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SCRIPT_INSERTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "121:0",
+            "121:1",
+            "121:2",
+            "121:3",
+            "121:7",
+            "121:4",
+            "121:9",
+            "121:8"
+          ],
+          "controlSiteIds": [
+            "121:0",
+            "121:1",
+            "121:2",
+            "121:3",
+            "121:7",
+            "121:4",
+            "121:9",
+            "121:8"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 123,
+      "consumer": "inspectSemanticDependencies > sdkProtocolKey",
+      "apiSitesTotal": 36,
+      "apiSitesActivated": 36,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/56",
+      "focalPairs": [
+        {
+          "name": "protocol-mutation",
+          "activate": "PUBLIC-SEM-protocol-mutation-activate",
+          "control": "PUBLIC-SEM-protocol-mutation-control",
+          "focalReason": "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_PROTOCOL_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "123:0",
+            "123:1",
+            "123:2",
+            "123:13",
+            "123:3",
+            "123:15",
+            "123:14",
+            "123:4",
+            "123:16",
+            "123:17",
+            "123:11",
+            "123:10",
+            "123:12"
+          ],
+          "controlSiteIds": [
+            "123:0",
+            "123:1",
+            "123:2",
+            "123:13",
+            "123:3",
+            "123:15",
+            "123:14",
+            "123:4",
+            "123:16",
+            "123:17"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "123:16",
+            "123:17",
+            "123:0"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 125,
+      "consumer": "inspectSemanticDependencies > sdkRuntimeBinding",
+      "apiSitesTotal": 29,
+      "apiSitesActivated": 29,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/57",
+      "focalPairs": [
+        {
+          "name": "runtime-binding-mutability",
+          "activate": "PUBLIC-SEM-runtime-binding-activate",
+          "control": "PUBLIC-SEM-runtime-binding-control",
+          "focalReason": "SOURCE_CONSTRUCTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CONSTRUCTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "125:0",
+            "125:8",
+            "125:1",
+            "125:10",
+            "125:9",
+            "125:2",
+            "125:11"
+          ],
+          "controlSiteIds": [
+            "125:0",
+            "125:8",
+            "125:1",
+            "125:10",
+            "125:9"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "125:9"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "runtime-binding-origin",
+          "activate": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+          "control": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+          "focalReason": "SOURCE_CONSTRUCTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CONSTRUCTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": false,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [],
+          "controlSiteIds": [
+            "125:0",
+            "125:1",
+            "125:10",
+            "125:9",
+            "125:2",
+            "125:11",
+            "125:3",
+            "125:13",
+            "125:4",
+            "125:15",
+            "125:14",
+            "125:5",
+            "125:18",
+            "125:17",
+            "125:16",
+            "125:21",
+            "125:20",
+            "125:19",
+            "125:6",
+            "125:25",
+            "125:24",
+            "125:23",
+            "125:22",
+            "125:7",
+            "125:28",
+            "125:27",
+            "125:26"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 126,
+      "consumer": "inspectSemanticDependencies > sdkScriptElement",
+      "apiSitesTotal": 9,
+      "apiSitesActivated": 9,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/58",
+      "focalPairs": [
+        {
+          "name": "script-element",
+          "activate": "PUBLIC-SEM-script-element-activate",
+          "control": "PUBLIC-SEM-script-element-control",
+          "focalReason": "SOURCE_SCRIPT_INSERTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_SCRIPT_INSERTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "126:0",
+            "126:4",
+            "126:3",
+            "126:6",
+            "126:5",
+            "126:7",
+            "126:1",
+            "126:8"
+          ],
+          "controlSiteIds": [
+            "126:0",
+            "126:4",
+            "126:3",
+            "126:6",
+            "126:5"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 129,
+      "consumer": "inspectSemanticDependencies > sdkValue",
+      "apiSitesTotal": 52,
+      "apiSitesActivated": 52,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/59",
+      "focalPairs": [
+        {
+          "name": "runtime-binding-origin",
+          "activate": "PUBLIC-SEM-completion-runtime-binding-origin-control",
+          "control": "PUBLIC-SEM-completion-runtime-binding-origin-activate",
+          "focalReason": "SOURCE_CONSTRUCTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CONSTRUCTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "129:0",
+            "129:15",
+            "129:14",
+            "129:4",
+            "129:19",
+            "129:5",
+            "129:21",
+            "129:20",
+            "129:6",
+            "129:22",
+            "129:23",
+            "129:1",
+            "129:2",
+            "129:7",
+            "129:24",
+            "129:8",
+            "129:26",
+            "129:25",
+            "129:9",
+            "129:29",
+            "129:28",
+            "129:27",
+            "129:32",
+            "129:31",
+            "129:30",
+            "129:10",
+            "129:36",
+            "129:35",
+            "129:34",
+            "129:33",
+            "129:11",
+            "129:39",
+            "129:38",
+            "129:37"
+          ],
+          "controlSiteIds": [
+            "129:0",
+            "129:15",
+            "129:14",
+            "129:16",
+            "129:17",
+            "129:3",
+            "129:4",
+            "129:7",
+            "129:24",
+            "129:8",
+            "129:26",
+            "129:25",
+            "129:9",
+            "129:29",
+            "129:28",
+            "129:27",
+            "129:32",
+            "129:31",
+            "129:30",
+            "129:10",
+            "129:36",
+            "129:35",
+            "129:34",
+            "129:33",
+            "129:11",
+            "129:39",
+            "129:38",
+            "129:37",
+            "129:40",
+            "129:12",
+            "129:46",
+            "129:45",
+            "129:44",
+            "129:43",
+            "129:47",
+            "129:42",
+            "129:48",
+            "129:49",
+            "129:51",
+            "129:50",
+            "129:1"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "129:14",
+            "129:4",
+            "129:7",
+            "129:1"
+          ],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "sdk-runtime",
+          "activate": "PUBLIC-SEM-sdk-runtime-activate",
+          "control": "PUBLIC-SEM-sdk-runtime-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED",
+            "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "129:0",
+            "129:15",
+            "129:14",
+            "129:4",
+            "129:19",
+            "129:5",
+            "129:21",
+            "129:20",
+            "129:6",
+            "129:22",
+            "129:23",
+            "129:16",
+            "129:17",
+            "129:3",
+            "129:7",
+            "129:1"
+          ],
+          "controlSiteIds": [
+            "129:0",
+            "129:15",
+            "129:14",
+            "129:4",
+            "129:19",
+            "129:5",
+            "129:21",
+            "129:20",
+            "129:6",
+            "129:22",
+            "129:23",
+            "129:16",
+            "129:17",
+            "129:3",
+            "129:7",
+            "129:1"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "runtime-binding-mutability",
+          "activate": "PUBLIC-SEM-runtime-binding-activate",
+          "control": "PUBLIC-SEM-runtime-binding-control",
+          "focalReason": "SOURCE_CONSTRUCTION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_CONSTRUCTION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "129:0",
+            "129:15",
+            "129:14",
+            "129:4",
+            "129:19",
+            "129:5",
+            "129:21",
+            "129:20",
+            "129:6",
+            "129:7",
+            "129:16",
+            "129:17",
+            "129:3",
+            "129:1"
+          ],
+          "controlSiteIds": [
+            "129:0",
+            "129:15",
+            "129:14",
+            "129:4",
+            "129:19",
+            "129:5",
+            "129:21",
+            "129:20",
+            "129:6",
+            "129:22",
+            "129:23",
+            "129:16",
+            "129:17",
+            "129:3",
+            "129:7",
+            "129:1"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "129:20"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 131,
+      "consumer": "inspectSemanticDependencies > staticMemberName",
+      "apiSitesTotal": 5,
+      "apiSitesActivated": 5,
+      "allApiSitesActivated": true,
+      "activationPointer": "/rows/60",
+      "focalPairs": [
+        {
+          "name": "constant-member",
+          "activate": "PUBLIC-SEM-completion-constant-member-activate",
+          "control": "PUBLIC-SEM-completion-constant-member-control",
+          "focalReason": "SOURCE_THENABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "131:0",
+            "131:1",
+            "131:4"
+          ],
+          "controlSiteIds": [
+            "131:0",
+            "131:1",
+            "131:4"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": true
+        },
+        {
+          "name": "membership",
+          "activate": "PUBLIC-SEM-membership-activate",
+          "control": "PUBLIC-SEM-membership-control",
+          "focalReason": "SOURCE_COERCION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_COERCION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "131:0",
+            "131:1"
+          ],
+          "controlSiteIds": [
+            "131:0",
+            "131:1"
+          ],
+          "sitesWithChangedObservedOutcome": [],
+          "preferredFocalPair": false
+        },
+        {
+          "name": "member-name",
+          "activate": "PUBLIC-SEM-member-name-activate",
+          "control": "PUBLIC-SEM-member-name-control",
+          "focalReason": "SOURCE_THENABLE_MUTATION_UNSUPPORTED",
+          "activateFullReasons": [
+            "SOURCE_THENABLE_MUTATION_UNSUPPORTED"
+          ],
+          "controlFullReasons": [],
+          "reasonToggles": true,
+          "consumerObservedInActivate": true,
+          "consumerObservedInControl": true,
+          "activateSiteIds": [
+            "131:0",
+            "131:1",
+            "131:3",
+            "131:2"
+          ],
+          "controlSiteIds": [
+            "131:0",
+            "131:1",
+            "131:3",
+            "131:2"
+          ],
+          "sitesWithChangedObservedOutcome": [
+            "131:2"
+          ],
+          "preferredFocalPair": false
+        }
+      ],
+      "proposalStatus": "ELIGIBLE_FOR_BOUNDED_REVIEW_PENDING_NATIVE_AND_INDEPENDENT_AUDIT",
+      "formalR0Qualified": false,
+      "gaps": []
+    },
+    {
+      "index": 134,
+      "consumer": "inspectSemanticDependencies > visit",
+      "apiSitesTotal": 164,
+      "apiSitesActivated": 132,
+      "allApiSitesActivated": false,
+      "activationPointer": "/rows/61",
+      "focalPairs": [],
+      "proposalStatus": "NOT_QUALIFIED",
+      "formalR0Qualified": false,
+      "gaps": [
+        {
+          "missingSiteId": "134:13",
+          "expression": "ts.isFunctionDeclaration",
+          "line": 1259
+        },
+        {
+          "missingSiteId": "134:14",
+          "expression": "ts.getModifiers",
+          "line": 1260
+        },
+        {
+          "missingSiteId": "134:15",
+          "expression": "ts.SyntaxKind.DeclareKeyword",
+          "line": 1260
+        },
+        {
+          "missingSiteId": "134:21",
+          "expression": "ts.isPropertyDeclaration",
+          "line": 1266
+        },
+        {
+          "missingSiteId": "134:24",
+          "expression": "ts.isInterfaceDeclaration",
+          "line": 1277
+        },
+        {
+          "missingSiteId": "134:72",
+          "expression": "ts.isOmittedExpression",
+          "line": 1333
+        },
+        {
+          "missingSiteId": "134:73",
+          "expression": "ts.isSpreadElement",
+          "line": 1333
+        },
+        {
+          "missingSiteId": "134:84",
+          "expression": "ts.isClassExpression",
+          "line": 1349
+        },
+        {
+          "missingSiteId": "134:91",
+          "expression": "node.initializer",
+          "line": 1257
+        },
+        {
+          "missingSiteId": "134:93",
+          "expression": "node.name",
+          "line": 1258
+        },
+        {
+          "missingSiteId": "134:94",
+          "expression": "node.name",
+          "line": 1258
+        },
+        {
+          "missingSiteId": "134:95",
+          "expression": "origin.body",
+          "line": 1259
+        },
+        {
+          "missingSiteId": "134:96",
+          "expression": "modifier.kind",
+          "line": 1260
+        },
+        {
+          "missingSiteId": "134:104",
+          "expression": "node.parent",
+          "line": 1266
+        },
+        {
+          "missingSiteId": "134:105",
+          "expression": "node.parent.initializer",
+          "line": 1266
+        },
+        {
+          "missingSiteId": "134:106",
+          "expression": "node.parent",
+          "line": 1266
+        },
+        {
+          "missingSiteId": "134:107",
+          "expression": "node.parent.initializer",
+          "line": 1266
+        },
+        {
+          "missingSiteId": "134:108",
+          "expression": "node.parent",
+          "line": 1266
+        },
+        {
+          "missingSiteId": "134:112",
+          "expression": "target.expression",
+          "line": 1274
+        },
+        {
+          "missingSiteId": "134:113",
+          "expression": "checker.getPropertyOfType",
+          "line": 1275
+        },
+        {
+          "missingSiteId": "134:114",
+          "expression": "checker.getTypeAtLocation",
+          "line": 1275
+        },
+        {
+          "missingSiteId": "134:115",
+          "expression": "target.expression",
+          "line": 1275
+        },
+        {
+          "missingSiteId": "134:116",
+          "expression": "member?.getDeclarations",
+          "line": 1276
+        },
+        {
+          "missingSiteId": "134:117",
+          "expression": "program.isSourceFileDefaultLibrary",
+          "line": 1276
+        },
+        {
+          "missingSiteId": "134:118",
+          "expression": "origin.getSourceFile",
+          "line": 1276
+        },
+        {
+          "missingSiteId": "134:119",
+          "expression": "origin.parent",
+          "line": 1277
+        },
+        {
+          "missingSiteId": "134:120",
+          "expression": "origin.parent.name.text",
+          "line": 1277
+        },
+        {
+          "missingSiteId": "134:121",
+          "expression": "origin.parent.name",
+          "line": 1277
+        },
+        {
+          "missingSiteId": "134:122",
+          "expression": "origin.parent",
+          "line": 1277
+        },
+        {
+          "missingSiteId": "134:123",
+          "expression": "node.right",
+          "line": 1278
+        },
+        {
+          "missingSiteId": "134:153",
+          "expression": "iterable.elements",
+          "line": 1333
+        },
+        {
+          "missingSiteId": "134:161",
+          "expression": "node.parent",
+          "line": 1349
+        },
+        {
+          "reason": "No verified focal reason toggle with consumer evaluated on at least one side"
+        }
+      ]
+    }
+  ]
+}

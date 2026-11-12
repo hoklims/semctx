@@ -1,0 +1,200 @@
+[
+  {
+    "id": "directory-alias",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 429
+  },
+  {
+    "id": "reference-confinement",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/discovery-selection.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/discovery-selection.test.ts",
+      "--test-name-pattern",
+      "records relative imports and reference paths escaping"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 270
+  },
+  {
+    "id": "native-inert",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/create-require.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/create-require.test.ts",
+      "--test-name-pattern",
+      "type-only native bindings"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 265
+  },
+  {
+    "id": "mixed-fallback",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/javascript.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/javascript.test.ts",
+      "--test-name-pattern",
+      "keeps mixed extraction in one semantic Program"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 225
+  },
+  {
+    "id": "external-partition",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/parallel-extraction.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/parallel-extraction.test.ts",
+      "--test-name-pattern",
+      "does not connect independent roots through the same external"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 277
+  },
+  {
+    "id": "namespace-owners",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/semantic-js-contracts.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/semantic-js-contracts.test.ts",
+      "--test-name-pattern",
+      "non-call namespace members retain|namespace destructuring preserves|unmodeled object members cannot claim"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 483
+  },
+  {
+    "id": "runtime-erased",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/runtime-value-imports.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/runtime-value-imports.test.ts",
+      "--test-name-pattern",
+      "unused, erased and shadowed"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 237
+  },
+  {
+    "id": "workspace-boundaries",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/workspace-configuration-links.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/workspace-configuration-links.test.ts",
+      "--test-name-pattern",
+      "installed dependency keeps precedence|workspace declared above|legacy TS-only extraction"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 415
+  },
+  {
+    "id": "opaque-ownership",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/opaque-inline-ownership.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/opaque-inline-ownership.test.ts",
+      "--test-name-pattern",
+      "opaque inline ownership|actual test binding ownership|anonymous default declaration"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 75,
+    "stderrBytes": 644
+  },
+  {
+    "id": "scope-admission",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/app-services/test/qualified-analysis.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/app-services/test/qualified-analysis.test.ts",
+      "--test-name-pattern",
+      "unretained generated reference|manifest optional dependencies|excluded parse-failed or computed"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 445,
+    "runtimeSource": "baseline-clean-repro exact archive; frozen-lockfile ignore-scripts",
+    "rawPrefix": "scope-admission-clean"
+  },
+  {
+    "id": "pilot-builtin",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "scripts/test/impact-pilot.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "scripts/test/impact-pilot.test.ts",
+      "--test-name-pattern",
+      "extractRelativeImportSpecifiers keeps only relative"
+    ],
+    "exitCode": 0,
+    "stdoutBytes": 28,
+    "stderrBytes": 216
+  }
+]

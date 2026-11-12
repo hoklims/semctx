@@ -1,0 +1,33 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "base": "76e80479a38c18d8b23277a7972ea3f305c1a688",
+  "candidate": "indexed additions as captured in reviewed-index.diff; parent continues data-only publication work",
+  "indexedDiffSha256": "6f270442e4b2423c6be3be959fd4be644740a12bf1581d767b5cb46059ab583f",
+  "indexedFiles": 48,
+  "generatorHashes": {
+    "tools/rust-ts-r0/qualification/public-closure-20261022/boundaries-parallel-oracle.mjs": "0d5276cc7992ede6f9c2f9f507f7da2fcd73414da9ef927aafae1b1784945960",
+    "tools/rust-ts-r0/qualification/public-closure-20261022/diagnostics-oracle.mjs": "fc6027b34bc4b27f0c367a79c24f4eac2904f5ac85603937d53aef306d0e0616",
+    "tools/rust-ts-r0/qualification/public-closure-20261022/semantic-activation.mjs": "6db5c30d78b4ef6ad5c97903a15cf520792c66a61d51969b8d4ed3c95f2ffdd6",
+    "tools/rust-ts-r0/qualification/public-closure-20261022/symbols-oracle.mjs": "14027f74265d4466bb603fe9d4b573dad8c7a8bea3f9c241d7c3665127dc4a7d"
+  },
+  "environment": "macOS 27.0.1 arm64; Bun 1.4.3; TypeScript 5.9.3; Python 3.15.0; frozen native observer; independent offline verification of retained Linux x86_64 observations",
+  "standards": "No blocking standards finding; four MJS generators targeted ESLint exit0",
+  "specAndProof": "Bounded independent expected values, transparent instrumentation on observed units, fail-closed native discovery, comparator fault rejection, and retained 28-observation native parallel provenance supported",
+  "evidence": [
+    "baseline-identities.json",
+    "parallel-review.json",
+    "maps-review.json",
+    "native-negative.json",
+    "negative.log",
+    "restored.log"
+  ],
+  "limits": [
+    "No R0 qualification or universal consumer certification",
+    "No new native Linux or Windows executions by reviewer",
+    "Linux source physical bytes verified from retained archive at logical captured canonical coordinates",
+    "Three diagnostics missing-inherited string differences contain generation-workspace absolute paths; remain NONPASS",
+    "Conservative row46 note stale after genuine Linux case-mode alternative; parent notified to update",
+    "No network, reserved access, commit, push or CI operation"
+  ],
+  "commentsAdded": []
+}

@@ -1,0 +1,645 @@
+{
+  "schema_version": 1,
+  "reviewer": "/root/c2_independent_oracle",
+  "recorded_utc": "2026-10-18T06:52:00.485393+00:00",
+  "status": "THREE_OPTIMIZED_PLATFORM_COMMON_DEV_ARTIFACTS_INSPECTED_AGGREGATE_PENDING",
+  "original_report_preserved": {
+    "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/report.json",
+    "sha256": "7a3abb803d24117bd6112f750f85d9f833f8a3f317043b0239e990bc6cac5746"
+  },
+  "run_url": "https://github.com/hoklims/semctx/actions/runs/39103858448",
+  "run_id": 39103858448,
+  "head": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9",
+  "base": "382c084fc39c44e552bdbe159c441c0d08ea49ac",
+  "plan_sha256": "fd927d8f21d0dd3641b9f3a481123a0937cef20fc0e28d236fb996b7fa5e2e3a",
+  "independent_expected_bindings_sha256": "555caf3afe95be9945b91467695cb446faeb599214f9fe85cf95a6da15d0a856",
+  "newly_credited_platforms": [
+    {
+      "platform": "macos-15",
+      "optimized_status": "PASS_COMMON_DEV_VECTORS_AND_NATIVE_RECEIVER_EVIDENCE",
+      "artifact_metadata": {
+        "id": 12128425722,
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyODQyNTcyMg==",
+        "name": "native-r0-optimized-macos-15",
+        "size_in_bytes": 11759569,
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722",
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128425722/zip",
+        "expired": false,
+        "digest": "sha256:05e2473965ed660501f40c66e015eeec9e7c31cfe4cb577297b8923792932cbf",
+        "created_at": "2026-10-18T06:41:30Z",
+        "updated_at": "2026-10-18T06:41:30Z",
+        "expires_at": "2027-01-16T06:23:22Z",
+        "workflow_run": {
+          "id": 39103858448,
+          "repository_id": 1289209764,
+          "head_repository_id": 1289209764,
+          "head_branch": "rust/365-t00",
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9"
+        }
+      },
+      "archive_path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-optimized-macos-15.followup.zip",
+      "archive_digest_verified": true,
+      "binary_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe",
+      "binary_bytes": 32727328,
+      "binary_sha256": "9452879049fbf836c8cd52208cf18d2389f98f55b20b1f8d2ba23c037f3823da",
+      "binary_format": {
+        "format": "Mach-O64",
+        "architecture": "ARM64",
+        "cpu_type": 16777228,
+        "filetype_executable": 2
+      },
+      "supervisor_reported_sha256": "sha256:fcc1b16ec40004fe7983459b1a3e2daf6abd43e62e3f6cfe41cec9b85a8f1f34",
+      "helper_binary_archived": false,
+      "common_vectors_sha256": "ca4ccd703f900711d39bf8f8c8ace4c49f95db5b30fc5588b45a56c6e3bd2473",
+      "common_vectors": [
+        {
+          "id": "t00Development07Valid",
+          "outcome_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Valid-outcome.json",
+          "outcome_member_sha256": "69b9796d0b4018dee471b7f7fba8ec8acaa83017fc8f5406dbbff6c0ebf153de",
+          "stdout_hash": "511d4f1b30a65eaed9a6d41a47cd99e49906b26e7ad06264f0bb750111123240",
+          "duration_ms": 284,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        },
+        {
+          "id": "t00Development07Malformed",
+          "outcome_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development07Malformed-outcome.json",
+          "outcome_member_sha256": "0e7c00f953691ed7ca25da49b0823c7a0743c83739c3d6fed53aefc20f9bfecf",
+          "stdout_hash": "7420e252ce258e45184921f5c62db99b404d6becb785e513d2723e307651379f",
+          "duration_ms": 274,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        },
+        {
+          "id": "t00Development08BomCrLfAstral",
+          "outcome_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08BomCrLfAstral-outcome.json",
+          "outcome_member_sha256": "00ca80b4086b299c1b7ebbce553bb2d2762e5674bb6be9f5c59e64c0ec26572b",
+          "stdout_hash": "abfcb924a397553c50ce81d51a43f474eb03d836743e0d63c52ecddb10f497e3",
+          "duration_ms": 255,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        },
+        {
+          "id": "t00Development08SingleLineControl",
+          "outcome_member": "_temp/native-r0-optimized/common-46538-1792305678388776000/t00Development08SingleLineControl-outcome.json",
+          "outcome_member_sha256": "6e2322f48e95313123ccc58899e163efeb180057d1bc5c882932a93a4e863f9a",
+          "stdout_hash": "f1a8e735498edfe330b2afbd7114338214b0eeadc08d54379a1d2088941ed813",
+          "duration_ms": 249,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        }
+      ],
+      "receiver_outcomes": [
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/native-0.json",
+          "sha256": "13cc42d0366ce4c3214b2f9e5dce6e2c2e49f61217d2aaed8bf48eeda584791c",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 313,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 29998,
+              "whole_observed_bytes": 29998,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "877ce9364093de8e582da1deab9ab720c9aff86984767699b17885b57989c69f"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305687767331000/native-1.json",
+          "sha256": "1b970b659efa013113d856806820dcc37f5f9d604b663f449f71c382811f8c23",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 284,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 21223,
+              "whole_observed_bytes": 21223,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "5cf3e129388efe5bb336f1be8523c04938f63dc4e5fb769b85a9fe385c571765"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/native-relocated.json",
+          "sha256": "3ffbe886672ac465ad183e5c4e88f7d2bea41c37fea015ac6f47eaeb63ecf734",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 296,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 30788,
+              "whole_observed_bytes": 30788,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "d0244a842febea01f3d886d8f58053f0b6aff62bc5a81f4d9c796316384cc2f7"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-empty-path.json",
+          "sha256": "150925ddc48e6afb0c178ecc4cb6fb9f159ad81f16d8840a6e2bbe4bb49ab494",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 329,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 29998,
+              "whole_observed_bytes": 29998,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "877ce9364093de8e582da1deab9ab720c9aff86984767699b17885b57989c69f"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-failure.json",
+          "sha256": "90199c6e4e50ebe1ea6461c18dc218ffc75dfd278549c82992b8a492d285b0a0",
+          "kind": "nonzero",
+          "exit_code": 1,
+          "duration_ms": 29,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stderr": {
+              "retained_bytes": 59,
+              "whole_observed_bytes": 59,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "8d7a73f4a80aaf6fac127524e76b0ff10901129cb6d1b4a19db07aad0d32ad0a"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-output-cap.json",
+          "sha256": "8ccb7874a437a347d6183079ed170aee85c1ab87a18baac2f6c4a022a7056078",
+          "kind": "output_limit",
+          "exit_code": 0,
+          "duration_ms": 301,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 1,
+              "whole_observed_bytes": 29998,
+              "retained_is_complete_and_hash_verified": false,
+              "full_stream_sha256": "877ce9364093de8e582da1deab9ab720c9aff86984767699b17885b57989c69f"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/real-native-timeout.json",
+          "sha256": "da4e47217c50d18f4af366bbbaf2abdb68ab38b65fa6d332968b6dc76894ac29",
+          "kind": "timeout",
+          "exit_code": null,
+          "duration_ms": 17,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      ],
+      "reported_coherent_poison_results": [
+        {
+          "mutation": "edge-kind",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "node-id-changed",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "node-id-missing",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "function-evidence-lines",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "call-evidence-in-range",
+          "disposition": "structurally-valid-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "read-hash",
+          "disposition": "independent-byte-join-rejected"
+        },
+        {
+          "mutation": "read-foreign-path",
+          "disposition": "independent-byte-join-rejected"
+        },
+        {
+          "mutation": "nonread-content",
+          "disposition": "independent-byte-join-rejected"
+        }
+      ],
+      "read_provenance": [
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305679737365000/input-provenance-0.json",
+          "sha256": "947403d497fa35f22cf7865b581880dacb35fa9f437799defe71275e6b9f805d",
+          "sdk_reads": 63,
+          "supplied_sdk_files": 100
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-46548-1792305687767331000/input-provenance-1.json",
+          "sha256": "2feb778d5aae49677ff453c3f6246937d70a859123b13e67758bc277e960165e",
+          "sdk_reads": 63,
+          "supplied_sdk_files": 100
+        }
+      ]
+    },
+    {
+      "platform": "windows-latest",
+      "optimized_status": "PASS_COMMON_DEV_VECTORS_AND_NATIVE_RECEIVER_EVIDENCE",
+      "artifact_metadata": {
+        "id": 12128137606,
+        "node_id": "MDg6QXJ0aWZhY3QxMjEyODEzNzYwNg==",
+        "name": "native-r0-optimized-windows-latest",
+        "size_in_bytes": 11258628,
+        "url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606",
+        "archive_download_url": "https://api.github.com/repos/hoklims/semctx/actions/artifacts/12128137606/zip",
+        "expired": false,
+        "digest": "sha256:d4d70ff9c0052bb96aad331494cd1bf238b7659d952e09032475d4bb20e74a39",
+        "created_at": "2026-10-18T06:49:12Z",
+        "updated_at": "2026-10-18T06:49:12Z",
+        "expires_at": "2027-01-16T06:23:22Z",
+        "workflow_run": {
+          "id": 39103858448,
+          "repository_id": 1289209764,
+          "head_repository_id": 1289209764,
+          "head_branch": "rust/365-t00",
+          "head_sha": "49fa9830dcde149647323b3e1fe7d9b9e1f6d5e9"
+        }
+      },
+      "archive_path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/archives/native-r0-optimized-windows-latest.followup.zip",
+      "archive_digest_verified": true,
+      "binary_member": "semctx/semctx/tools/rust-ts-r0/target/release/semctx-r0-probe.exe",
+      "binary_bytes": 31895552,
+      "binary_sha256": "f190d84262e682f4545554c9d4e5edef9fe84524a23350f96cfa1658f973fb09",
+      "binary_format": {
+        "format": "PE",
+        "architecture": "AMD64",
+        "machine": 34404,
+        "native_exe": true
+      },
+      "supervisor_reported_sha256": "sha256:01ca113bea1cc456d27b1682a9bf792910aa015659397413a9553ebb870903a9",
+      "helper_binary_archived": false,
+      "common_vectors_sha256": "b205d009c6ac85401630abfceff6b6fb8d9278d59036ae31acb6ef1a306e78ad",
+      "common_vectors": [
+        {
+          "id": "t00Development07Valid",
+          "outcome_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Valid-outcome.json",
+          "outcome_member_sha256": "74a46718e5484693b48eef1d2bcada254329ece9bcda6456ea7a10f63457c7d6",
+          "stdout_hash": "4a047be5ee1cae9f48a7df2e0f8c97866c3faa241245bce656133e4a36885094",
+          "duration_ms": 245,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        },
+        {
+          "id": "t00Development07Malformed",
+          "outcome_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development07Malformed-outcome.json",
+          "outcome_member_sha256": "eb7fed233f224b3f53a705f4901725a88e1245d7e05a47ca9b02c31640f5b2f7",
+          "stdout_hash": "5e7689dfd1c2b03012755394515dd6f407a5da333e8a681f3fec0efeff4d3cf5",
+          "duration_ms": 242,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        },
+        {
+          "id": "t00Development08BomCrLfAstral",
+          "outcome_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08BomCrLfAstral-outcome.json",
+          "outcome_member_sha256": "2dc82b34cb891e810af73735fcf49e7b87ed639fd711f59de74b17163da6f3a1",
+          "stdout_hash": "9ac39b9c921abe963db3ac54f04fede0aa6be7b18b7a99488ee2116ba7a9ce56",
+          "duration_ms": 221,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        },
+        {
+          "id": "t00Development08SingleLineControl",
+          "outcome_member": "_temp/native-r0-optimized/common-3244-1792306144967578900/t00Development08SingleLineControl-outcome.json",
+          "outcome_member_sha256": "877e3be70043d22cf529ed266ee145673cc81c1c8418cf4a805c00355590ccea",
+          "stdout_hash": "bf5e7c670231c0b86ba478afd9b2dab5cf850ad666cc30a2215891f1a7cdcd45",
+          "duration_ms": 201,
+          "actual_binary_hash_matches": true,
+          "source_request_matches_independent_head": true,
+          "projection_matches_independent_head": true,
+          "reported_oracle_poison_rejected": true
+        }
+      ],
+      "receiver_outcomes": [
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306145977797700/native-0.json",
+          "sha256": "448baf0f72b609010eb14426d82895f2efa80fca08c3fd62f400a1a5f5c83467",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 357,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 29162,
+              "whole_observed_bytes": 29162,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "84039c02e45753a958b702c4f00a3c537fe7968ad46dba444bab2916e90ab156"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306149404336100/native-1.json",
+          "sha256": "598813acd6a259c489244687309e300b8b98a69be3b9bd3c78d7e539124082ea",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 284,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 20409,
+              "whole_observed_bytes": 20409,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "711a7dc0c1be92b8a570f1fa56be1ec4510802005070f9c119ceec5278f2b379"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306145977797700/native-relocated.json",
+          "sha256": "2a2ae2cdb2e851c0d99923bf856b0ef5c303575e75db4ab50bc0eee9ac17fb9e",
+          "kind": "success",
+          "exit_code": 0,
+          "duration_ms": 314,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 29952,
+              "whole_observed_bytes": 29952,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "fad80c21a2ed8139f38943d32d26f8ed9dbc89b12a6b9f6591a6690af5e7c3eb"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-failure.json",
+          "sha256": "b579d61292b9bb0e3d7191e9d0c906bf33b92121d2b4940aed164190eb18492b",
+          "kind": "nonzero",
+          "exit_code": 1,
+          "duration_ms": 29,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stderr": {
+              "retained_bytes": 59,
+              "whole_observed_bytes": 59,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "8d7a73f4a80aaf6fac127524e76b0ff10901129cb6d1b4a19db07aad0d32ad0a"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-output-cap.json",
+          "sha256": "39a5d24443b2cadb8557925493eb5fd95328e9464e6aaea401e079f31191c2e4",
+          "kind": "output_limit",
+          "exit_code": 124,
+          "duration_ms": 310,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 1,
+              "whole_observed_bytes": 29162,
+              "retained_is_complete_and_hash_verified": false,
+              "full_stream_sha256": "84039c02e45753a958b702c4f00a3c537fe7968ad46dba444bab2916e90ab156"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306145977797700/real-native-timeout.json",
+          "sha256": "2f5da24895d6542e4820295d7a1d3c2929c400246e67870fe37ef83490f1ad8d",
+          "kind": "timeout",
+          "exit_code": 124,
+          "duration_ms": 3,
+          "before_after_producer_and_helper_match": true,
+          "streams": {
+            "stdout": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            },
+            "stderr": {
+              "retained_bytes": 0,
+              "whole_observed_bytes": 0,
+              "retained_is_complete_and_hash_verified": true,
+              "full_stream_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+            }
+          }
+        }
+      ],
+      "reported_coherent_poison_results": [
+        {
+          "mutation": "edge-kind",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "node-id-changed",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "node-id-missing",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "function-evidence-lines",
+          "disposition": "receiver-and-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "call-evidence-in-range",
+          "disposition": "structurally-valid-semantic-oracle-rejected"
+        },
+        {
+          "mutation": "read-hash",
+          "disposition": "independent-byte-join-rejected"
+        },
+        {
+          "mutation": "read-foreign-path",
+          "disposition": "independent-byte-join-rejected"
+        },
+        {
+          "mutation": "nonread-content",
+          "disposition": "independent-byte-join-rejected"
+        }
+      ],
+      "read_provenance": [
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306145977797700/input-provenance-0.json",
+          "sha256": "132dc3530eb9ecbde83fc43c5ac6e37241149ba30bb138c0f479f70b27d0da45",
+          "sdk_reads": 63,
+          "supplied_sdk_files": 100
+        },
+        {
+          "member": "_temp/native-r0-optimized/run-2992-1792306149404336100/input-provenance-1.json",
+          "sha256": "30e9d24dc5ad766146af06d8230fcf1ad628250364baea86dd68bb786be278df",
+          "sdk_reads": 63,
+          "supplied_sdk_files": 100
+        }
+      ]
+    }
+  ],
+  "prior_linux_credit": "Original independently verified Linux optimized ELF proof retained and not rerun; same four frozen DEV variants.",
+  "job_snapshots": [
+    {
+      "platform": "macos-15",
+      "id": 117605579155,
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "platform": "windows-latest",
+      "id": 117605579140,
+      "status": "in_progress",
+      "conclusion": null,
+      "in_progress_steps": [
+        "Qualify the actual CLI and MCP artifacts"
+      ]
+    }
+  ],
+  "run_snapshot": {
+    "status": "in_progress",
+    "conclusion": null
+  },
+  "proof_scope": "Actual optimized Mac Mach-O ARM64 and Windows PE AMD64 artifact bytes match real process/common-vector producer identities. Four independently frozen DEV projections and actual transport/batch process Outcomes checked: seven on Mac, six on Windows. Empty-PATH carrier is #[cfg(unix)] in head receiver test1173\u20131194, so absent on Windows and not credited there.",
+  "limits": [
+    "These are DEVELOPMENT vectors and receiver controls, not full semantic qualification, R0 or READY_TS_NATIVE.",
+    "No C2 artifact or case read or query performed. These artifacts concern published C1 head49fa.",
+    "Helper before/after hashes are reported and cross-joined; helper binary is not inside these optimized archives and was not independently binary-inspected here.",
+    "Truncated output_limit stdout is not reconstructed; original whole-stream counts/hash retained.",
+    "Reported poison executions are artifact evidence, not rerun by reviewer.",
+    "No aggregate-green or exact-head merge verdict; Windows job/run may still be in progress at snapshots.",
+    "No all100SDK consumed/coherent capture/OS sandbox guarantee."
+  ],
+  "source_and_api_files": [
+    {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/followup-run.json",
+      "sha256": "7afaff9fa7ab0f396caa6eeab12fd1d2edc4a3a80aafbb00beaa81b32d90819b"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/followup-jobs.json",
+      "sha256": "a010a4f15addeda72c01f2bf3d7e7577ed553c1126644fb726042e9aa72bffba"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/followup-artifacts.json",
+      "sha256": "d55a18071c4f6f0c9ab0250d06544e5791c8ae10dc3f9b98beace04af2682c6b"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/followup-windows-artifact.json",
+      "sha256": "8368efb71cb61a7585277e5752072d0263eeaace9f0327be1194aef069c40a14"
+    },
+    {
+      "path": "/private/tmp/semctx-t00-20261017/github-39103858448/independent/followup-windows-job.json",
+      "sha256": "905f1c5f9f5f45e687cca53f6b659f0129df90bf71f9bd433989d5489f49084a"
+    }
+  ],
+  "operational_notes": [
+    "Initial local ZIP read occurred before transfer finished and failed; no partial archive credited. Waited for same transfer process completion, then verified full digest. No redownload or action rerun.",
+    "Windows artifact was newly reported by root during Mac inspection; fetched and inspected within same active budget, no pending wait charged."
+  ],
+  "effort": {
+    "fresh_window_start_conservative_utc": "2026-10-18T06:48:00+00:00",
+    "fresh_window_end_utc": "2026-10-18T06:52:00.485393+00:00",
+    "fresh_charged_conservative_seconds": 240.485393,
+    "budget_seconds": 360,
+    "pending_platform_wait_seconds": 0,
+    "overnight_wait_seconds": 0,
+    "note": "Fresh task debit only; includes short network transfer work. No prior oracle/source-review charge repeated."
+  },
+  "mutations": {
+    "tracked_source": 0,
+    "github_comments_or_reruns": 0,
+    "sut_queries_or_builds": 0,
+    "reserved": 0
+  }
+}

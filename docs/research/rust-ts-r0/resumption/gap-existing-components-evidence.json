@@ -1,0 +1,78 @@
+{
+  "recordVersion": 1,
+  "state": "SECOND_GAP_TRANCHE_DEV_NOT_QUALIFICATION",
+  "sourceHead": "53cd6fd97f32efec884a549ba0fca31d40d25fa9",
+  "initialReviewedDiffSha256": "ba7bf4e771951a994411e3cc013cfcb622f9ce91c4072d87ecee74c3d902dda8",
+  "finalAnchor": "review/final/anchor.json",
+  "archive": {
+    "path": "gap-existing-components-evidence.tar.gz.b64",
+    "sha256": "8df15c9f7809cbce1f11bc74aa5f03bdc9a1d0d965557d58c30ea86fb1629682",
+    "decodedSha256": "81aabcf5a1957e69691806a308ef6203e1b5df201c2ee7a0eeaf2199d7e5ff70",
+    "bytes": 1488969,
+    "files": 171
+  },
+  "nativeArtifactSha256": "02909fb9b6ea7823234f9994cb0e28668b2cfef04ed0e180cdf12c2836aca879",
+  "nativeArtifactProvenance": "logs/semctx-t00-gap-batch2-artifact-provenance.json: same-source release rebuild byte-identical",
+  "recipesSha256": "93f7110fdaf265bc9ba0d503472807c96cc03bf0a5160ebc50bfa298e3797abf",
+  "results": "raw/gap-existing-components-final-evidence/units-V2-F01-empty-config-no-input-diagnostic/repair-results.json",
+  "unitsNewlyMapped": 3,
+  "existingUnequalDigestControl": 1,
+  "result": "4 PASS_FROZEN_PROJECTED_UNIT; no qualification credit",
+  "environment": {
+    "os": "macOS27.0.1",
+    "architecture": "arm64",
+    "rust": "1.95.0",
+    "python": "3.10.22",
+    "ruff": "0.16.10",
+    "bun": "1.4.3",
+    "GIT_CONFIG_GLOBAL": "unset"
+  },
+  "checks": {
+    "nativeFocusedReplay": {
+      "exitCode": 0,
+      "passed": 4
+    },
+    "nativeComparatorTests": {
+      "exitCode": 0,
+      "passed": 32
+    },
+    "format": {
+      "exitCode": 0
+    },
+    "clippy": {
+      "exitCode": 0
+    },
+    "recipeCliTests": {
+      "exitCode": 0,
+      "passed": 7
+    },
+    "ruff": {
+      "exitCode": 0
+    },
+    "redBeforeMapping": "logs/semctx-t00-gap-existing-components-red.log",
+    "redBeforePreparedStateFix": "logs/semctx-t00-gap-prepared-state-red.log"
+  },
+  "review": {
+    "author": "/root",
+    "standards": "/root/gap_batch2_standards",
+    "specProof": "/root/gap_batch2_spec_proof",
+    "verdict": "PROOF_ADEQUATE bounded to mechanisms on macOS DEV",
+    "negativeOracleWitnesses": 10,
+    "realGapGuardWitness": "rejects injected GAP with exit101; restored native4-unit replay exit0",
+    "finding": "prepared_state stale after late mappings; corrected after red CLI reproduction, final metadata-only recipe delta reviewed",
+    "candidateStableDuringReviews": true,
+    "reports": [
+      "review/standards/report.md",
+      "review/standards/final-review.md",
+      "review/spec-proof/report.md",
+      "review/spec-proof/final-review.md"
+    ]
+  },
+  "limits": [
+    "No354-unit campaign or178-obligation qualification review.",
+    "No Linux/Windows replay of this tranche yet.",
+    "Frozen sources/assertions unchanged; P09 after-source is a recorded instantiation of the frozen comment-only edit.",
+    "Native engine unchanged; N17c remains independently NONPASS/version-attributed, never silently fixed by this tranche.",
+    "Reserved payload remains unaccessed."
+  ]
+}

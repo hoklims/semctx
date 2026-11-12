@@ -153,6 +153,33 @@ fn cancellation_terminates_an_active_tree() {
         "cancelled"
     );
 }
+
+#[test]
+fn cancellation_preserves_real_capture_after_an_owned_descendant_reports_ready() {
+    let _serial = PROCESS_WITNESS.lock().unwrap_or_else(|e| e.into_inner());
+    let (completed, output) = guarded_supervisor("cancel-outcome-supervisor", None);
+    assert!(completed, "owned-tree cancellation did not finalize");
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
+    );
+    let observed: serde_json::Value = serde_json::from_slice(&output.stdout).unwrap();
+    let outcome: semctx_gates::process::Outcome =
+        serde_json::from_value(observed["outcome"].clone()).unwrap();
+    assert_eq!(outcome.kind, "cancelled");
+    assert_eq!(observed["trigger"]["ready"], true);
+    let ready: serde_json::Value = serde_json::from_str(outcome.stdout.trim()).unwrap();
+    assert_eq!(
+        ready["descendant_pid"],
+        observed["trigger"]["descendant_pid"]
+    );
+    assert_ne!(ready["parent_pid"], ready["descendant_pid"]);
+    assert_eq!(outcome.stdout_hash, semctx_gates::digest(&outcome.stdout));
+    assert_eq!(outcome.stdout_bytes, outcome.stdout.len() as u64);
+    assert_eq!(outcome.stderr_hash, semctx_gates::digest(&outcome.stderr));
+    assert_eq!(outcome.stderr_bytes, outcome.stderr.len() as u64);
+}
 #[cfg(windows)]
 #[test]
 fn preserves_windows_native_crash_code_as_failure() {

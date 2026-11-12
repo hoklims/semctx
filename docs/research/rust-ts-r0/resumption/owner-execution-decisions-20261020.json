@@ -1,0 +1,33 @@
+{
+  "recordVersion": 1,
+  "recordedDate": "2026-10-20",
+  "authority": {
+    "owner": "Sébastien",
+    "source": "Owner messages 2026-10-20 08:54 and 08:56 in the active T00 session, relayed by /root; paraphrases below.",
+    "precedence": "08:56 replaces only the 08:54 pending-witness position."
+  },
+  "scope": "C1, rust/365-t00, PR386; prospective targets only.",
+  "campaign": {
+    "corpus": "Current 354 units and 51 supports.",
+    "local": "Native macOS; OrbStack/Docker Linux aarch64 (linux/arm64).",
+    "evidence": "Record exact OS, architecture, toolchain, candidate SHA and source/producer identities; pin and record the Linux image digest. Native macOS has no container image.",
+    "windows": "CI only, once at the final milestone before R0, in existing rust-gates (windows-latest), via normal pull_request. Prepare locally; do not push that change before the final milestone.",
+    "ciLimits": "No new job, matrix or workflow_dispatch; no main policy change; Linux/macOS CI scope unchanged.",
+    "supersedes": "Earlier Linux-via-GitHub-Actions campaign routing and the open Windows if-possible route."
+  },
+  "witnessDecision": {
+    "authority": "08:56",
+    "state": "REJECTED_NOT_PENDING",
+    "scope": "14 prospective witness pairs and 3 complements.",
+    "effect": "Keep the current corpus; do not adopt or execute the drafts. Earlier questions/proposals remain historical, rejected and non-adopted. Record rejection in resumption, never in a GitHub comment."
+  },
+  "unchanged": "Other owner-ci-rules-20261019.json and owner-continuation-20261019.json policies, 8fdc continuation, counters and historical receipts/limits remain unchanged.",
+  "limits": "No new execution, green CI, qualification credit, waiver or R0 decision is established; no exhaustive historical absence of draft execution is claimed.",
+  "audit": {
+    "authorTask": "/root/owner_oct20_decisions_author",
+    "auditorTask": "/root/owner_oct20_decisions_author/claims_auditor",
+    "agentType": "design-claim-auditor",
+    "forkTurns": "none",
+    "ledger": "owner-execution-decisions-20261020-claim-audit.md"
+  }
+}

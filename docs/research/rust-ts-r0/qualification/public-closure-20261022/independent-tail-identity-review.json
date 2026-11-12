@@ -1,0 +1,33 @@
+{
+  "verdict": "PROOF_ADEQUATE",
+  "scope": "Data-only bounded identity acquisition observations; row229 remains unqualified; no global matching claim",
+  "authorityGitBlob": "5cb90f86095332e0af182b1579a49958e7fc2b31",
+  "sourceSha256": "cfbf37a7affe4829b40d962ce91130b71ae4b6572db2384597a1c18b388d0e0d",
+  "platforms": [
+    {
+      "platform": "macos",
+      "reportSha256": "d967e971253eb4763a7f2841321a1ededb1438bfcc101d26b70518398bd1fa32",
+      "rawReportSha256": "41d867885ae7915fcce64fdfde0d3bed5248a60f7c74b7ed41305f29dcd5c9bb",
+      "cases": 18,
+      "summary": {
+        "fullIdentityEqual": 9,
+        "bothRefuse": 4,
+        "successOutcomeMismatch": 5
+      },
+      "nativeReportedReadsJoined": 1088
+    },
+    {
+      "platform": "linux",
+      "reportSha256": "a93be180f14aae8a8e14919704090bbade3a28dc81e98afcfc01f70a4c091754",
+      "rawReportSha256": "893f748b62ec3a89839f6903d879bbc912fa9a8dde04a8dc51af84ef19855390",
+      "cases": 18,
+      "summary": {
+        "fullIdentityEqual": 9,
+        "bothRefuse": 4,
+        "successOutcomeMismatch": 5
+      },
+      "nativeReportedReadsJoined": 1088
+    }
+  ],
+  "reviewerEnvironment": "macOS arm64 offline read-only provenance/shape/value audit; Linux retained observations, not rerun"
+}

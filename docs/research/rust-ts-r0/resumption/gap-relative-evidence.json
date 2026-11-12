@@ -1,0 +1,71 @@
+{
+  "recordVersion": 1,
+  "state": "SYNTACTIC_RELATIVE_COMPONENT_DEV_NOT_QUALIFICATION",
+  "sourceHead": "38ada89f61eec1fbc731ed527603bc9e9e55accc",
+  "reviewedDiffSha256": "5bbfc6783646ce02162ab224c25006f6cd583f2d4898f8537a756649a8facf4c",
+  "archive": {
+    "path": "gap-relative-evidence.tar.gz.b64",
+    "bytes": 337119,
+    "sha256": "8b8df7d0e8db10c363e8766b272ef62d8418b3f60810e35cce1650d4c72ee3ba",
+    "decodedSha256": "55779d9b35465f3715cb7df3e22b2907c59b4f6d82579e556573d346d87b6a8e",
+    "files": 80
+  },
+  "units": [
+    "P26-independent-relative-comparator::base",
+    "N26-comparator-does-not-guess-dynamic-or-bare::base"
+  ],
+  "nativeArtifactSha256": "f040df206fd956f2f905168e2983f2feb816418c007d8474a94629f012b50637",
+  "engineSourceSha256": {
+    "tools/rust-ts-r0/src/main.rs": "48efe06ff2e77f61daae19e885e2e976dc5671ba9e72d41f68706509eb06834b",
+    "tools/rust-ts-r0/src/component_observations.rs": "07791ba6e18e26ff4217b3d4d86566c86f254cdab84428eacf1d736350cccfce",
+    "tools/rust-ts-r0/src/ordinary.rs": "4308ea4b87303bec0a3eced364c7763c8db382e2ab1b8e87e72920961cd3489e",
+    "tools/rust-ts-r0/src/primitive_observations.rs": "60262d6752ba53755ab49e2bf17cbf67fbf79dcc340a21a1020ef3caa2526c62"
+  },
+  "recipesSha256": "cae92703e98bb39ca61856dbb6f3c2b25de26e63829a15858bf9ec86b46e018f",
+  "nativeResults": "raw/units-P26-independent-relative-comparator/repair-results.json",
+  "projectedPasses": 2,
+  "qualificationCredit": 0,
+  "mechanism": "Typed standalone native parser primitive: TSX parse, pre-order import/export literal or first import() literal, dot-prefixed strings, order and duplicates preserved. No resolver, graph, admission or runtime dependency claim.",
+  "authority": "Frozen two component cases; historical implemented3e94997 scripts/pilot/baselines.ts19-37. AcceptedADR0019 pilot workflow, independent baseline ordering and identities unchanged; no pilot or candidate-comparison execution claimed.",
+  "checks": {
+    "environment": "macOS27.0.1 arm64, Rust1.95.0, Bun1.4.3, Python3.10.22, Ruff0.16.10, GIT_CONFIG_GLOBAL unset",
+    "nativeLibraryTests": 43,
+    "nativeBinTests": 184,
+    "observerComparators": 33,
+    "recipeCliTests": 7,
+    "nativeFrozenUnits": 2,
+    "formatClippyRuffExitCode": 0,
+    "newFullVerifyPr": false,
+    "scope": "Targeted native/library/harness checks for this delta. Four full verify:pr partitions remain bound to63397c7b; not relabelled as current full verification."
+  },
+  "review": {
+    "standards": "/root/gap_batch6_standards",
+    "specProof": "/root/gap_batch6_spec_proof",
+    "verdict": "PROOF_ADEQUATE bounded to standalone native component and two mappings",
+    "independentNativeReplayPasses": 2,
+    "evaluatorAndBindingFaultsRejected": 18,
+    "nativeVisitorFaultsRejected": 3,
+    "nativeFaults": [
+      "Relative filter removed",
+      "Recursive traversal removed",
+      "First import() literal wrongly suppressed for two arguments"
+    ],
+    "reports": [
+      "review/standards/report.json",
+      "review/spec-proof/report.md"
+    ],
+    "candidateStable": true
+  },
+  "retainedFailures": {
+    "initialBinFilteredZero": "logs/semctx-t00-gap-relative-primitive-red.log; no behavioral witness",
+    "actualMissingOperation": "logs/semctx-t00-gap-relative-primitive-red-lib.log; unknown native operation",
+    "initialOwnedVisitorDefect": "logs/semctx-t00-gap-relative-primitive-green.log; nil node kind access; fixed is_some guard, final-green log passed",
+    "unmappedRecipe": "logs/semctx-t00-gap-relative-mapping-red.log; focused helper refused incomplete recipe",
+    "testFilterCollision": "logs/semctx-t00-gap-relative-comparators.log;33 comparatorPASS plus focused test accidentally selected without environment. Renamed focused test, final33 comparatorPASS; earlier native frozen replay retains original test-name provenance."
+  },
+  "limits": [
+    "macOS DEV only; native Linux/Windows execution of this new engine/mapping still pending.",
+    "No full354-unit campaign, qualified obligation, reserved access or R0 decision.",
+    "Syntactic suggestion component result is not an ADR0019 pilot result or runtime dependency truth."
+  ]
+}

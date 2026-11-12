@@ -1,0 +1,1 @@
+import M from 'node:module'; const loader = M.prototype.require;

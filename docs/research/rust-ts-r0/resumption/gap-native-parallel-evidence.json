@@ -1,0 +1,123 @@
+{
+  "recordVersion": 1,
+  "state": "FROZEN_NATIVE_PARALLEL_EQUIVALENCE_UNIT_PASS_MACOS_DEV_REVIEWED",
+  "sourceHead": "1abac2fc418e3814b917d41ab6a78953911ef9bf",
+  "reviewedDiffSha256": "e239a177775cfd450b4661af07a1690db41f30e2bb53db6d8781cfcacf0cd501",
+  "archive": {
+    "path": "gap-native-parallel-evidence.tar.gz.b64",
+    "bytes": 3582997,
+    "sha256": "6c9963df2da3b2186c887d151cbe9570ad3040186d3eb49f35f13175992c1f8a",
+    "decodedSha256": "520470250c56d9224731fe8d9b1f4d6ea021f704a3c8bbdda8576b940217a4b8",
+    "files": 436
+  },
+  "units": [
+    "P12-parallel-equivalence::base"
+  ],
+  "nativeArtifactSha256": "4b000b5abe141107c96846c3041fc891c08adf538182bef89f9b5f0212eabe3e",
+  "nativeEngineSourceCount": 31,
+  "sourceHashScope": "31 development Rust source entries rechecked; not a complete build-input closure or qualification freeze.",
+  "recipesSha256": "12fb90f599e1c0141832be5d796f24ac8de31e1b1fab43890ddbdea24f677fd6",
+  "authority": "Frozen P12 input-index and scenarios execution_units61; historical parallel-extraction test84-102 and TS source908-1353 as baseline evidence. Accepted ADR0037 and same owner-authorized T00/C1/additional pass1.",
+  "mechanism": "Native private explicit-worker controller builds actual noLib/types[] Program and checks selected roots for syntax, directives, global scripts and augmentation. Reuse actual loaded-module graph, weight components by actual source sizes, append shared declarations to each real native worker root list, supervise workers through #383, consume their actual responses and merge in source/line order. Postdispatch failure requests cancellation and returns no serial facts.",
+  "binding": "Direct,one-worker,two-worker controls share the same materialized physical workspace and exact frozen file bytes. Existing read-provenance checks are extracted unchanged for reuse. Replay binds outer descriptors/artifact/SDK/helper and actual child outcomes, validates exact child root lists including declarations, distinct PIDs, reported successful reads/frontend completeness, exact emitted-root partition and independent ordered merge.",
+  "byteRelation": "Whole extraction values are reserialized through serde_json::to_vec under the same contract; no projection, set canonicalization, array sorting or ignored fields. Both relations equal direct:409bytes SHA256 549f2430f7d5b16d5d14ffeea490163937221cb47d6300f4c5dac62dd8198f44. This is not a raw stdout substring relation.",
+  "failurePaths": [
+    "Missing,foreign,null or incomplete controller execution/descriptor/artifact/SDK/scope cannot bind.",
+    "Invalid0/9/fractional/auto worker counts refuse without jobs; private schema offers explicit counts, not auto.",
+    "Native unsafe/connected DEV preflight fixtures execute a single Program before dispatch; this does not cover every configuration/syntax variant.",
+    "Missing shared declarations, unsuccessful reported reads, unknown frontend, malformed/nonzero/incomplete worker outcome, changed producer/helper, wrong SDK, reused PID, omitted/duplicate/foreign emit roots or wrong ordered merge refuse.",
+    "A foreign-SDK worker failure requests cancellation and returns executed=false with no extraction or serial fallback; no universal completed sibling-termination guarantee.",
+    "Complete byte comparison refuses reordered arrays, missing required arrays and any differing extra field."
+  ],
+  "checks": {
+    "environment": "macOS27.0.1 arm64 Rust1.95.0 Bun1.4.3 Python3.10.22;GIT_CONFIG_GLOBAL unset,snapshots0,RUST_TEST_THREADS1",
+    "nativeBinaryTests": 207,
+    "nativeLibraryTests": 47,
+    "nativeProcessFlows": 4,
+    "nativeParallelIntegrationTests": 4,
+    "currentObserverComparators": 47,
+    "currentRecipeCliTests": 7,
+    "currentNewFrozenUnits": 1,
+    "currentNewNativeProcesses": 5,
+    "processBreakdown": {
+      "direct": 1,
+      "controllers": 2,
+      "workerChildren": 2
+    },
+    "currentNewControllerProjectedChecks": 12,
+    "currentNewDirectProjectedChecks": 1,
+    "currentNewByteRelations": 2,
+    "frozenPropertiesCredited": 3,
+    "currentCarryoverFrozenUnits": 6,
+    "currentCarryoverNativeProcesses": 10,
+    "carryoverUnits": [
+      "N13 mutation-01",
+      "N13 mutation-02",
+      "N13 mutation-03",
+      "P13 base",
+      "ORD-WORKER-EMIT-SUBSET base",
+      "N12 base"
+    ],
+    "formatClippyRuffZizmorExitCode": 0,
+    "fullVerifyPrRerun": false,
+    "redWitnesses": [
+      "Actual new native command unavailable before implementation.",
+      "Old frozen P12 GAP recipe refused before mapping.",
+      "Worker-cancellation observable field absent before exposure; internal cancellation already existed."
+    ]
+  },
+  "review": {
+    "standards": "review/standards/report.md",
+    "specProofAdversarial": "review/spec-proof/report.txt",
+    "specProofLedger": "review/spec-proof/claim-ledger.json",
+    "boundedVerdict": "PROOF_ADEQUATE for P12 private native source controls on the named host/profile; no optimized-artifact fault-sensitivity claim",
+    "standardsFreshChecks": "Four release native parallel integrations and fmt PASS.",
+    "sourceFaultsRejectedThenRestored": 2,
+    "sourceFaultProfiles": "Product dev/debug; comparator,replay and integrations test/debug. Author release4b evidence remains separate.",
+    "sourceFaults": [
+      "Compiled omission of declaration roots makes actual frozen P12 refuse its actual child request, with two native child PIDs; restored/recompiled P12 passes12controllerchecks+1directcheck+2relations.",
+      "Byte-equality bypass makes the owning comparator RED on reordered symbols; restored all47comparators PASS."
+    ],
+    "combinedMutantScope": "Both faults were present in the product witness. The actual unchanged child-request guard rejects before the bypassed byte relation; the latter cannot cause that earlier refusal.",
+    "setupFailuresNotBehavioralWitnesses": [
+      "Original fixture paths pointed into target/debug and a feature-enabled Cargo test replaced the artifact, so mutant/restoration failed identity checks. Corrected v2 experiments copy executable bytes immutably before fixture binding."
+    ],
+    "candidateUnchangedDuringReview": true,
+    "claimAudit": {
+      "author_task": "/root",
+      "auditor_task": "/root/gap_batch16_claims",
+      "ledger": "review/claims/design-claim-ledger.md",
+      "provenance": "Full dedicated named read-only child final response persisted verbatim by parent.",
+      "reconciliation": [
+        "Adopt only frozen P12 and explicitly exercised DEV facts; no repeated/cross-platform determinism, simultaneous CPU scheduling, OS isolation, public parallel/auto/options/retained parity or global qualification claim.",
+        "The recipe uses sorted weighted components; no general repeated-run or cross-OS scheduling guarantee is inferred from that implementation. Actual P12 module order and byte relations are checked.",
+        "Cancellation is requested and the tested failure returns no extraction or serial fallback. The two fast foreign-SDK refusals do not prove completed sibling termination for every timeout, crash or hung descendant.",
+        "The initial cancellation RED was a missing observable workerCancellationRequested field while the internal cancellation path already existed; do not present it as proof that cancellation itself was absent before the field was exposed.",
+        "The ledger spec-review row captured the original failed fixture-identity setup in results.json. Later spec-proof/report.txt and witness-summary.json document corrected v2 immutable-artifact witnesses and restorations, completing the bounded independent source-control review. Original failed setups remain excluded from behavioral evidence.",
+        "Spec product mutant/restoration use Cargo dev/debug; comparator/replay/integration witnesses use test/debug. They establish source-level sensitivity on this host/profile, not optimized4b fault sensitivity. Author release4b P12 and release integrations are separate green evidence.",
+        "The product mutant also contained the byte-equality bypass, which is evaluated only after the unchanged child-request guard. Its observed early child-request rejection is attributed to missing shared declarations, not to the later bypass. The separate comparator RED detects the byte bypass.",
+        "The 31 entries in native/fixture.json are development Rust source hashes, rechecked against current indexed sources. They are not a frozen producer, complete compiler input/build manifest or bit-reproducibility guarantee; final independent documentary review must verify these entries. No native qualification freeze is claimed.",
+        "Raw and worker input DTOs remain unchanged; PID stamping is additive in private worker/controller responses. No new batch/worker transport-parity or full public Plane-A runtime credit.",
+        "P12 uses the same physical workspace: direct1process,one-worker1controller,two-worker1controller+2children. Parent12checks,direct1check,two full reserialized JSON relations409bytes SHA549f2430f7d5b16d5d14ffeea490163937221cb47d6300f4c5dac62dd8198f44. No stdout-substring equality or projected/set-only equality.",
+        "Six carryovers have10actual outcome files: N13mutations01-03,P13,ORD-WORKER-EMIT-SUBSET,N12. Do not assert a combined projected-check total beyond the separately retained direct controls and relations.",
+        "Current workflow declaration adds the owning target to an existing optimized command; Zizmor and the local target validate configuration on macOS. Remote candidate CI, Linux/Windows qualification, full354,178review,reserved once,R0 and remaining#365 are not completed.",
+        "Reserved non-access is each named actor's attestation only. Owner pass1 remainsOPEN,pass2unused;3-4days is unmeasured planning. No new arbitration or qualified obligation."
+      ]
+    }
+  },
+  "workflow": "Existing three-OS optimized native command adds --test native_parallel_flow; default native product discovery and existing comparator_ filter also cover the new tests. No new CI lane, tool/action pin or maintained packaging utility. Local Zizmor and target execution are evidence; current-candidate remote execution remains pending.",
+  "newMappingsCredited": 1,
+  "newProjectedPasses": 1,
+  "qualificationCredit": 0,
+  "limits": [
+    "33 of64 initial GAP mapped:32limitedPASS and N17cversionNONPASS;31staticGAP;0/240qualified.",
+    "323of354 recipes have no known static GAP. Cumulative mapping results span artifact versions; no new full-campaign aggregate. Historical283PASS/7NONPASS/64GAP retain original provenance.",
+    "Development artifact/source hashes are not a complete producer freeze or bit-reproducibility proof.",
+    "P12 explicit1/2 path only; no full public Plane-A parallel/auto/options/path-mapping/retained or batch transport parity. No cross-OS/repeated-run partition determinism or CPU-simultaneity guarantee.",
+    "Only reported successful repository/compiler reads and actual baseline libraries are joined; no atomic acquisition, all OS reads, full supplied SDK consumption or performance guarantee.",
+    "Cancellation request/no serial facts is observed; completed termination for every crash,timeout or hung sibling is unproved here.",
+    "Author release evidence and independent debug fault evidence are separate. Linux/Windows,178review,full354campaign,reservedonce,R0 and remaining#365 incomplete.",
+    "Owner additional pass1OPEN,pass2unused;3-4days is unmeasured planning,not elapsed effort/deadline. No new version arbitration.",
+    "Reserved non-access is individual actor attestation only."
+  ]
+}

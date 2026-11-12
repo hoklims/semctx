@@ -1,0 +1,44 @@
+{
+  "recordVersion": 1,
+  "tranche": "Same T00, reopened C1, 2026-10-18",
+  "historicalLedger": "../final/effort-ledger.json",
+  "effortWorkingDaysApproximate": [
+    3,
+    4
+  ],
+  "conversion": "No new exact day/hour ceiling inferred from the owner estimate.",
+  "preRegistrationPreparation": {
+    "state": "NOT_TIMED_SEPARATELY",
+    "scope": "Repository/rules/record discovery and independent reopening-claim audit before this ledger was opened. Not claimed as zero effort.",
+    "firstObservedClockUtc": "2026-10-18T12:10:28Z",
+    "reviewEffort": "Independent audit and documentary reviews performed in separate contexts; their active durations were not individually timed. No exact cumulative effort claim."
+  },
+  "activeIntervals": [
+    {
+      "agent": "/root",
+      "startUtc": "2026-10-18T12:13:39.082313+00:00",
+      "endUtc": "2026-10-18T13:41:21.914699+00:00",
+      "activity": "Reopening records, harness regressions and corrections, local checks, independent reviews and checkpoint publication; includes waiting, so this open wall interval is not an active-effort total.",
+      "state": "CLOSED_WALL_WINDOW_ACTIVE_DURATION_UNMEASURED"
+    },
+    {
+      "agent": "/root",
+      "startUtc": "2026-10-18T14:41:23.266713+00:00",
+      "endUtc": null,
+      "activity": "Bounded worker case-mode correction, focused replay, independent reviews and continuation of ordered T00 work",
+      "state": "OPEN_WALL_WINDOW_ACTIVE_DURATION_UNMEASURED"
+    }
+  ],
+  "additionalC1Passes": [
+    {
+      "pass": 1,
+      "startedUtc": "2026-10-18T12:30:03.860533+00:00",
+      "registration": "correction-pass1-registration.json",
+      "state": "OPEN"
+    }
+  ],
+  "secondsChargedClosedIntervals": null,
+  "externalWaitingNotActiveEffort": true,
+  "reviewEffort": "Independent claim, standards, spec and adversarial reviews; active durations not individually timed. Two local review-correction slates within the first additional C1 pass; owner pass counters unchanged.",
+  "accountingLimit": "Active work and independent review durations were not individually measured; the closed wall window includes external waiting. No zero-effort, exact cumulative effort, or exhaustion of the 3–4-day estimate is inferred."
+}

@@ -1,0 +1,123 @@
+{
+  "status": "NARROW_STATIC_BYTE_COMPARISON_NOT_SEMANTIC_PROOF",
+  "author": "/root/qualification383",
+  "development_source": {
+    "path": "sources/development-cases.json",
+    "sha256": "fa48d076f818532f57e5e2f27078f2e85cc974bdfdff5e41964053bfffe10203",
+    "bytes": 56848
+  },
+  "qualification_records": 268,
+  "source_index_entries": 450,
+  "added_missing_entries": 31,
+  "complete_input_specification_string_leaves": 2272,
+  "development_variants": [
+    {
+      "record_id": "t00Development01InterfileAlias",
+      "variant_id": "t00Development01UniqueAlias",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "635fbf2965d0f4e009b416cfdf260ad66db20cbe78a56ca7be79e39e743945fc"
+    },
+    {
+      "record_id": "t00Development02UniqueCycle",
+      "variant_id": "t00Development02CyclicUniqueOwner",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "5f81e27ffdfe04b71d73c92a7e500832acf3822838af4c5b1c0eeadfcb759410"
+    },
+    {
+      "record_id": "t00Development03ArrowVersusData",
+      "variant_id": "t00Development03Arrow",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "773f0499852417e19f16845e652e337e8a8be34ea77425585b4186b0400fbcd1"
+    },
+    {
+      "record_id": "t00Development03ArrowVersusData",
+      "variant_id": "t00Development03Data",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "91a14d7be20eb58964359810638db29bc8f4b5f500f6e657031067c6789d28c2"
+    },
+    {
+      "record_id": "t00Development04ScopedHomonyms",
+      "variant_id": "t00Development04TwoScopes",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "25d43a6d30a0d99707af12d7bfa25a6f650e28a98250b304fed9267c924499a4"
+    },
+    {
+      "record_id": "t00Development05SdkOriginControl",
+      "variant_id": "t00Development05SdkCallback",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "966dc35b2a7413771fc97753ef51aa14d06fe036f88c468bdc4964181b25568f"
+    },
+    {
+      "record_id": "t00Development05SdkOriginControl",
+      "variant_id": "t00Development05OwnMethod",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "8ad2c04f7bcee9d3291ebfa363e34f0c7bc723cf9cae22e841fd56f6d7cc8791"
+    },
+    {
+      "record_id": "t00Development06ConfigurationBoundary",
+      "variant_id": "t00Development06EsNext",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "9e35e9ce241fcb8b2c9907c97f4b0687400c0ab1a2657749720760ba212fa636"
+    },
+    {
+      "record_id": "t00Development06ConfigurationBoundary",
+      "variant_id": "t00Development06CommonJs",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "81c866d2b15aa8a79d09f345a48d880f463f929b8bff70e31ea36f759f769e04"
+    },
+    {
+      "record_id": "t00Development07ParsingRefusal",
+      "variant_id": "t00Development07Valid",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "3da453056d11e4438069fafa97dfe7a854ecb5519527c1c7914e29b918b69a14"
+    },
+    {
+      "record_id": "t00Development07ParsingRefusal",
+      "variant_id": "t00Development07Malformed",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "22d3e45f89212f5302a570b49ad3089ebc2af6f6a00fce767df81c185165ae50"
+    },
+    {
+      "record_id": "t00Development08Coordinates",
+      "variant_id": "t00Development08BomCrLfAstral",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "1fdf24784fe02f1355fcc5c235f05480d274599d24bb6d55bf1cfd55e0055ee2"
+    },
+    {
+      "record_id": "t00Development08Coordinates",
+      "variant_id": "t00Development08SingleLineControl",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "8e373fa81a7de10671bb9e9bc0b37cc571ff87577fa6b5230e4cf72ffad46654"
+    },
+    {
+      "record_id": "t00Development09RetainedAndRefusal",
+      "variant_id": "t00Development09RetainedSurvivesLiveChange",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "c0f9419ec7e20e1093a588fb9923094c7da367e19c6ff38556cf097c606fc05c"
+    },
+    {
+      "record_id": "t00Development09RetainedAndRefusal",
+      "variant_id": "t00Development09InconsistentDiscovery",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "a1fc5ee311b7b6a8ccb8836912ce00e812b9360b1371e522f526bde95f0d3153"
+    },
+    {
+      "record_id": "t00Development10RequestFraming",
+      "variant_id": "t00Development10ValidFrame",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "298be745e48d10343fe460d1e880dbd28587e83a201b02e6b096841a1c844dd0"
+    },
+    {
+      "record_id": "t00Development10RequestFraming",
+      "variant_id": "t00Development10MalformedFrame",
+      "source_byte_collision_paths": [],
+      "normalized_input_manifest_sha256": "593817d7292497c4535fae5629ced4512fb2d426069a178111a5afc2a2fb234f"
+    }
+  ],
+  "comparison": "Each exact development input file is decoded from base64, SHA256 verified, then compared with all indexed qualification source bytes and every complete string value in all268 input specifications. Metadata overlap/shared SDK is allowed; no semantic equivalence or holdout claim.",
+  "original_report": {
+    "path": "allocation/disjointness-original.json",
+    "sha256": "cc37f327df17665d8cc5a99c8105e4dc4e15bea2d9942dc27365029a69580efa",
+    "bytes": 20904
+  }
+}

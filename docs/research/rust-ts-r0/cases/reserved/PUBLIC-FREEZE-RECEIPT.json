@@ -1,0 +1,208 @@
+{
+  "author": {
+    "candidateObservedOrExecuted": false,
+    "id": "/root/reserved_corpus",
+    "producerImplementationAuthored": false,
+    "role": "independent holdout author and verifier"
+  },
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "closureEvidence": {
+    "authoredCompositionSourceFileParticipations": 32,
+    "authoredCompositions": "Exact source, declaration and direct/inherited configuration bytes are in the private input manifest. Authored syntax and binding observations use the pinned independent SDK; all participating input bytes were rechecked before this receipt.",
+    "nativeAnalysisReady": false,
+    "oracle": "TypeScript Compiler API 5.9.3 source-binding and syntax observations; not Semctx baseline output and not a native candidate run.",
+    "oracleSetupCorrection": "An oracle-only config-origin diagnostic was corrected before freeze; prior observations remain preserved.",
+    "publicProjections": "Direct local facts are frozen separately from complete-project semantics. Installed Node/React/package dependencies remain unknown outside those bounded projections."
+  },
+  "confidentiality": "This receipt reveals counts and commitments only; selected inputs, source projections, authored compositions and expectations remain private until final frozen-candidate evaluation.",
+  "counts": {
+    "authoredCompositionCases": 21,
+    "authoredCompositionVariants": 22,
+    "byPrimaryFamily": [
+      {
+        "cases": 6,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "module_resolution",
+        "variants": 8
+      },
+      {
+        "cases": 3,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "symbol_owners_and_values",
+        "variants": 3
+      },
+      {
+        "cases": 2,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "consumed_type_information",
+        "variants": 2
+      },
+      {
+        "cases": 3,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "call_targets_and_tests",
+        "variants": 4
+      },
+      {
+        "cases": 6,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "qualified_refusals",
+        "variants": 6
+      },
+      {
+        "cases": 2,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "errors_and_recovery",
+        "variants": 2
+      },
+      {
+        "cases": 1,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "identities_and_coordinates",
+        "variants": 1
+      },
+      {
+        "cases": 0,
+        "expectation_author": "/root/reserved_corpus",
+        "family": "consumed_input_stability",
+        "variants": 0
+      }
+    ],
+    "countingRule": "Each case belongs to one primary family for additive accounting. Variant is a frozen assertion bundle for an ordinary-fact or qualified-semantic predicate projection; it is not an assertion count or a claim of overall admission.",
+    "positiveVariants": 14,
+    "publicSnapshotProjectionCases": 2,
+    "publicSnapshotProjectionVariants": 4,
+    "repositories": 2,
+    "requiredRefusalVariants": 12,
+    "totalCases": 23,
+    "totalVariants": 26,
+    "tsJsMonorepositories": 1
+  },
+  "effortInterval": {
+    "endUtc": "2026-10-17T15:41:11Z",
+    "kind": "Public receipt preparation and independent input verification; original acquisition/preparation interval remains separately preserved",
+    "limitSeconds": 420,
+    "startUtc": "2026-10-17T15:38:17Z"
+  },
+  "environment": {
+    "acquisitionAndOracle": "macOS-27.0.1-arm64-arm-64bit",
+    "node": "v24.22.0",
+    "python": "3.9.6",
+    "supportedTargetsNotExercised": [
+      "Linux",
+      "Windows native"
+    ]
+  },
+  "exclusionsAndUnresolvedObligations": [
+    {
+      "reason": "Installed package/Node/React declaration closures are not frozen; no whole-project PASS, module-resolution completeness or project-typecheck claim.",
+      "scope": "whole-public-project qualification"
+    },
+    {
+      "reason": "The holdout is bounded and does not close the inventory. Uncovered required obligations remain required and unknown; none are waived by these counts.",
+      "scope": "R0 obligation denominator"
+    },
+    {
+      "cases": 0,
+      "reason": "Source/configuration drift, mixed snapshots, late responses and cancellation have no reserved observation here and still require independent R0 evidence.",
+      "scope": "consumed input stability"
+    },
+    {
+      "cases": 0,
+      "reason": "Call-target cases do not establish complete canonical tested_by/covers behavior or observed test execution.",
+      "scope": "test associations"
+    },
+    {
+      "reason": "These bounded counts do not establish exhaustive generic/union/SDK shapes, all coordinate encodings, scopes or identity-domain separation.",
+      "scope": "broader type and identity combinations"
+    },
+    {
+      "reason": "One upstream workspace catalog selects TypeScript 6.0.3. Product-oracle evaluation remains 5.9.3; differences require explicit cause attribution and cannot silently broaden admission.",
+      "scope": "public snapshot compiler version arbitration"
+    },
+    {
+      "reason": "Linux and native Windows have not exercised these holdouts; WSL is not Windows-native evidence.",
+      "scope": "native platform qualification"
+    },
+    {
+      "reason": "Positive semantic predicates alone do not prove Git/diff binding, snapshot stability, capability, freshness or overall admission.",
+      "scope": "overall qualified admission"
+    }
+  ],
+  "frozenUtc": "2026-10-17T15:41:11Z",
+  "privateCommitments": {
+    "custodyCommitSha256": "39eda7f63b07c619527009e36a28098d6353137e401f917a7b55e517e1300b5c",
+    "custodyCommitType": "SHA-256 commitment to private custody envelope; no Git publication",
+    "dependencyClosureObservationSha256": "2088686a0b13ab3a04b264c475945aacf8f0d4cd748802e67c4911df1a737254",
+    "expectationsSha256": "7cc912443371dc343ccdacaaeb45af82f67966d61fe746f330a31e7556d75540",
+    "predecessorReservedCommitmentSha256": "b6be36580393eb2bc8f7be9e16e1edec962a5bc8d9ca94b7e145b8e59d92c32b",
+    "predecessorSourceCustodySha256": "57af2c3698957735621d7f2765ec8174c1c9844f4690f3da19d677aecdacbb64",
+    "privateInputManifestSha256": "07e94f86b1827f587203e0ee52fb4183ca9cd6c04c4d119e0df223c08d57ba2b",
+    "privateVariantAccountingSha256": "37a8e4d7f10dbcef621515492a059c7fae4d7f10e80e353565e9cb3b92340a5f"
+  },
+  "readinessGaps": [
+    "Frozen native candidate identity and invocation contract not received",
+    "Native candidate SDK consumption and capture coherence unobserved",
+    "Full external project dependency closures remain unknown outside selected fact projections",
+    "Linux and Windows-native candidate evaluation not executed"
+  ],
+  "repositories": [
+    {
+      "archiveSha256": "74cc734c8ff3b9c1607ad1d9fa79a3f3683508fb39b8b396840348185a771926",
+      "cases": 1,
+      "commit": "a8a6fbec4e0e866d6d779b10889bb4f5567e70eb",
+      "license": "MIT",
+      "monorepo": false,
+      "projectionClosure": {
+        "completeProjectModuleTypeDependencyClosure": false,
+        "retainedOracleReadCounts": {
+          "configuration": 1,
+          "declaration": 63,
+          "source": 1
+        },
+        "scope": "Only the independently committed local explicit facts and mandatory bounded refusals. Missing installed package declarations cannot discharge additional obligations.",
+        "sufficientForFrozenLocalExplicitFactProjections": true,
+        "wholeProjectQualificationClaimed": false
+      },
+      "repository": "sindresorhus/p-limit",
+      "sourceManifestSha256": "38f6cf5025bf30bbab4c8de665b5295548f0d8e0424cf27793a68aeca63614d8",
+      "variants": 2
+    },
+    {
+      "archiveSha256": "2aad87b53d61abc2a10bf7ad07cd270478f64bd5b790017f0c55bd313ca19d51",
+      "cases": 1,
+      "commit": "a636462b853438903567c9907c188a068021c633",
+      "license": "MIT",
+      "monorepo": true,
+      "projectionClosure": {
+        "completeProjectModuleTypeDependencyClosure": false,
+        "retainedOracleReadCounts": {
+          "configuration": 2,
+          "declaration": 59,
+          "source": 23
+        },
+        "scope": "Only the independently committed local explicit facts and mandatory bounded refusals. Missing installed package declarations cannot discharge additional obligations.",
+        "sufficientForFrozenLocalExplicitFactProjections": true,
+        "wholeProjectQualificationClaimed": false
+      },
+      "repository": "TanStack/query",
+      "sourceManifestSha256": "7d6dac1c342fef04f925053c35e219f3882fbba4a7b0618b0762ad164967bf08",
+      "variants": 2
+    }
+  ],
+  "schemaVersion": 1,
+  "sdk": {
+    "archiveSha256": "10e108c9cf7d5f2879053dff18515fb405abf2ccef63eaaf017d9c571687a1d3",
+    "configuredLibVariants": "Exact configured SDK read sets are retained privately; the default closure is available as frozen required material, without claiming that every configuration consumes every default file.",
+    "nativeCandidateConsumedInputsObserved": false,
+    "nativeCaptureCoherenceProved": false,
+    "requiredDefaultClosureByteVerification": "All 63 required files match the independently acquired archive byte for byte on macOS arm64.",
+    "requiredDefaultClosureBytes": 2389540,
+    "requiredDefaultClosureFiles": 63,
+    "requiredDefaultClosureManifestSha256": "d42a78696550f187d4533e69e332a7020286f5d7778f40699db68e51cdaa0720",
+    "requiredDefaultRoot": "lib/lib.es2022.full.d.ts",
+    "version": "5.9.3"
+  },
+  "status": "FROZEN_BEFORE_FIRST_NATIVE_CANDIDATE_WITH_EXPLICIT_SCOPE_GAPS",
+  "task": "hoklims/semctx#365 T00/R0"
+}

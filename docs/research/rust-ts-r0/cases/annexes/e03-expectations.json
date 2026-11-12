@@ -1,0 +1,81 @@
+{
+  "case_id": "V3-E03-ambiguous-stars-arbitrated-refusal",
+  "status": "APPROVED_TARGET_REASON_AS_DELEGATED_BY_ROOT_PENDING_INDEPENDENT_FREEZE_NOT_OBSERVED_NATIVE",
+  "authority": {
+    "product_arbitration": "https://github.com/hoklims/semctx/issues/365#issuecomment-6235210936",
+    "private_reason": "Root task instruction2026-10-17 proposes exact SOURCE_EXPORT_AMBIGUOUS for both order cases; no existing baseline reason is invented"
+  },
+  "baseline_observation_unchanged": {
+    "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+    "environment": "macOS ARM64 Bun1.4.3 TS/SDK5.9.3",
+    "equivalent_fixture_names_in_comment": "f/run/consumer rather than same/main",
+    "stars_a_then_b": "TS2308; arbitrary edge consumer.run -> a.f; qualified admitted, empty reasons",
+    "stars_b_then_a": "TS2308; arbitrary edge consumer.run -> b.f; qualified admitted, empty reasons",
+    "not_acceptance_oracle": true,
+    "new_execution_by_this_author": false
+  },
+  "variants": [
+    {
+      "id": "E03-a-then-b",
+      "files": {
+        "a.ts": "export function same() { return 1; }",
+        "b.ts": "export function same() { return 2; }",
+        "barrel.ts": "export * from './a';\nexport * from './b';",
+        "main.ts": "import {same} from './barrel';export function main(){return same();}"
+      },
+      "expected": {
+        "exact_ambiguity_reason_codes": [
+          "SOURCE_EXPORT_AMBIGUOUS"
+        ],
+        "canonical_call_target": null,
+        "resolved_edge_to_a_same": false,
+        "resolved_edge_to_b_same": false,
+        "qualified_admission": "refused",
+        "ambiguity_explicit": true
+      },
+      "input_sha256": "sha256:b71294090e2fe85bd89a20ab1e0fe52ab4087eb542deadd44132dd7f89b512bd"
+    },
+    {
+      "id": "E03-b-then-a",
+      "files": {
+        "a.ts": "export function same() { return 1; }",
+        "b.ts": "export function same() { return 2; }",
+        "barrel.ts": "export * from './b';\nexport * from './a';",
+        "main.ts": "import {same} from './barrel';export function main(){return same();}"
+      },
+      "expected": {
+        "exact_ambiguity_reason_codes": [
+          "SOURCE_EXPORT_AMBIGUOUS"
+        ],
+        "canonical_call_target": null,
+        "resolved_edge_to_a_same": false,
+        "resolved_edge_to_b_same": false,
+        "qualified_admission": "refused",
+        "ambiguity_explicit": true
+      },
+      "input_sha256": "sha256:df4570cfe5dbdfccd6371d8c467c608886caa975bfaeed38205c7bf170adb9f1"
+    },
+    {
+      "id": "E03-explicit-named-control",
+      "files": {
+        "a.ts": "export function same() { return 1; }",
+        "b.ts": "export function same() { return 2; }",
+        "barrel.ts": "export {same} from './b';\nexport * from './a';",
+        "main.ts": "import {same} from './barrel';export function main(){return same();}"
+      },
+      "expected": {
+        "exact_ambiguity_reason_codes": [],
+        "canonical_call_target": {
+          "path": "b.ts",
+          "symbol_path": "same"
+        },
+        "resolved_edge_to_a_same": false,
+        "resolved_edge_to_b_same": true,
+        "qualified_admission": "not inferred from absence of ambiguity; other admission prerequisites remain distinct",
+        "ambiguity_explicit": false
+      },
+      "input_sha256": "sha256:c65170bb683f31a3bf21187408267eaa96d6f6c88c10cc8550533b5fc445159f"
+    }
+  ],
+  "counting": "Three explicit execution variants under existing one caseID; this annex does not silently increase236 authored-case denominator."
+}

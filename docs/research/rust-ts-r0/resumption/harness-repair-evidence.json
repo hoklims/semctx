@@ -1,0 +1,258 @@
+{
+  "recordVersion": 1,
+  "recordedUtc": "2026-10-18T13:40:27.432922+00:00",
+  "state": "STEP2_INCOMPLETE_KNOWN_GUARD_CASE_ALIAS_DEFECT",
+  "registration": "correction-pass1-registration.json",
+  "additionalC1Pass": 1,
+  "passStillOpen": true,
+  "scope": "Ten historical harness failed observations: seven qualification units and three supports; no full qualification campaign or obligation credit.",
+  "environment": {
+    "os": "macOS 27.0.1",
+    "architecture": "arm64",
+    "rustc": "1.95.0",
+    "python": "3.10.22",
+    "bun": "1.4.3",
+    "GIT_CONFIG_GLOBAL": "unset",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0"
+  },
+  "producer": {
+    "rebuilt": false,
+    "sha256": "eecefd52e7813ff498ffaf55c0f79a73c46de2fcc8e4a34d313507b59d527081",
+    "fixtureArchiveMember": "historical-fixture/freeze-adapter-bridge.c1-pass2.json",
+    "fixtureUsage": "Only immutable artifact/helper/SDK/rlib/input identities; not reuse of the old campaign authorization."
+  },
+  "repairs": [
+    {
+      "cases": [
+        "P07-namespace-real-owner::base",
+        "V2-E04-default-through-barrel-test-owner::base"
+      ],
+      "mechanism": "Materialize historical discovered test roles and compare actual import owners using the submitted role.",
+      "red": "pass1/role-red.log",
+      "green": "pass1/capability-green.log"
+    },
+    {
+      "cases": [
+        "N13-malformed-worker-evidence::mutation-01",
+        "N13-malformed-worker-evidence::mutation-02",
+        "N13-malformed-worker-evidence::mutation-03"
+      ],
+      "mechanism": "Use the frozen successful extraction modules as emitAbsPaths, independently of the complete rootPaths. Accepted positive controls precede each malformed-response refusal.",
+      "red": "pass1/worker-carrier-red.log",
+      "green": "pass1/capability-green.log"
+    },
+    {
+      "cases": [
+        "P13-worker-preserves-facts",
+        "ORD-WORKER-EMIT-SUBSET"
+      ],
+      "mechanism": "Accept only exact bound negative ancestor-directory refusals; canonicalize issue and path-bearing probe paths before comparison. Preserve exact pathless case_sensitive capability observations. All native root, completeness, read and identity checks remain.",
+      "red": "pass1/guard-native-red.log",
+      "green": "pass1/capability-green.log"
+    },
+    {
+      "cases": [
+        "ENC::R02-retained-bom::retained",
+        "ENC::R06-combined-retained-raw-text::ordinary",
+        "ENC::R06-combined-retained-raw-text::retained"
+      ],
+      "mechanism": "Submit only offsets explicitly declared UTF16 by the frozen input, leaving UTF8 coordinates distinct.",
+      "red": "pass1/encoding-red.log",
+      "green": "pass1/capability-green.log"
+    }
+  ],
+  "reviewDrivenCorrections": [
+    {
+      "defect": "Raw path equality hid aliased unsafe probes.",
+      "negativeWitness": "pass1/alias-red.log",
+      "resolution": "Normalize all path-bearing probes, including ./, .., backslashes and trailing separators; exact negative aliases accepted, aliased reads and positive probes refused."
+    },
+    {
+      "defect": "Resolving the whole output path followed a dangling symlink.",
+      "negativeWitness": "pass1/dangling-output-red.log",
+      "resolution": "Resolve the parent and preserve the leaf for exclusive directory creation; existing dangling link refused."
+    },
+    {
+      "defect": "Normalization incorrectly treated pathless case_sensitive metadata as a path.",
+      "nativeFailure": "pass1/canonical-repairs.log",
+      "negativeWitness": "pass1/capability-red.log",
+      "resolution": "Accept only the exact pathless native case capability shape; malformed metadata and path-bearing unsafe aliases remain refused."
+    },
+    {
+      "defect": "Historical audit digest checks dereferenced original author/temp paths.",
+      "negativeWitness": "pass1/relocation-red.log",
+      "resolution": "Read canonical repository inputs and the packaged immutable predecessor bytes, checking every original digest. Relocated clone test forbids reads of all original paths."
+    }
+  ],
+  "observations": {
+    "focusedNativeRepairTests": {
+      "passed": 6,
+      "failed": 0,
+      "log": "pass1/capability-green.log",
+      "ordinaryNativeGroups": 4,
+      "pureGuardGroups": 2,
+      "rawEvidence": "pass1/capability-green-evidence",
+      "scope": "Earlier exact observer source before appending the new failing case-alias regression. These six passing tests do not establish the guard against case aliases."
+    },
+    "comparatorTests": {
+      "passed": 28,
+      "failed": 0,
+      "log": "pass1/capability-green-comparators.log"
+    },
+    "pythonCliTests": {
+      "passed": 7,
+      "failed": 0,
+      "log": "pass1/portable-green-cli.log"
+    },
+    "recipes": {
+      "units": 354,
+      "gapUnits": 64,
+      "sha256": "399e775c1965154bdc263f0233890d668c445bcba5a2fe4353d5ce44d3cbd6f4",
+      "supportMappingSha256": "17339c1f55f1176c52e743f6409eda9bbc96bc36fb5c83e56d40b439b77dfa4d",
+      "relocatedOutputByteEqual": true
+    },
+    "pendingCaseAliasRegression": {
+      "passed": 0,
+      "failed": 1,
+      "expectedExit": 101,
+      "log": "pass1/casefold-pending-red.log",
+      "nativeBoundaryCodeChangedAfterReview": false,
+      "newCodeOnly": "Appended the confirmed failing regression test; no further guard correction."
+    },
+    "requestedAliasTestOnCheckpointSource": {
+      "passed": 1,
+      "failed": 0,
+      "log": "pass1/requested-alias-final.log"
+    },
+    "comparatorTestsOnCheckpointSource": {
+      "passed": 28,
+      "failed": 0,
+      "log": "pass1/pending-final-comparators.log"
+    }
+  },
+  "canonicalVerification": {
+    "local": "Four verify:pr partitions passed with Bun1.4.3 and GIT_CONFIG_GLOBAL unset. They preceded the last harness alias/pathless/portable-generator deltas; explicit Rust/Python checks cover those deltas. Earlier unsharded cancellation and four missing-helper failures remain nongreen.",
+    "logs": [
+      "canonical/semctx-t00-reopening-verified-1.log",
+      "canonical/semctx-t00-reopening-verified-2.log",
+      "canonical/semctx-t00-reopening-verified-3.log",
+      "canonical/semctx-t00-reopening-verified-4.log"
+    ],
+    "remote": {
+      "head": "07e4b85eea3e86faa75a91596edef751fcbe3ab7",
+      "run": "https://github.com/hoklims/semctx/actions/runs/39127225378",
+      "conclusion": "success",
+      "scope": "Previous reopening checkpoint, existing CI and four native DEV vectors only; no new harness tests or 354-unit campaign."
+    }
+  },
+  "limits": [
+    "The guard remains defective for case-insensitive aliases. Step2 is not complete; steps3–7 have not been executed.",
+    "No newly qualified obligation; last qualification remains 0/240.",
+    "64 GAP units and 178 property/support reviews remain pending.",
+    "No new full three-OS campaign; current focused repairs executed on macOS only.",
+    "The standalone observer tests are explicitly invoked here; wiring into native Actions remains part of step5 before final delivery.",
+    "No reserved payload accessed or executed.",
+    "No frozen expected values or original evidence changed.",
+    "No native producer code changed and no diagnostic exception added.",
+    "Lexical coordinate normalization checks recorded captured probes; no absence-of-all-OS-reads or atomic-live-capture guarantee."
+  ],
+  "archive": {
+    "path": "harness-repair-evidence.tar.gz.b64",
+    "encoding": "base64 of deterministic gzip tar",
+    "encodedBytes": 912718,
+    "encodedSha256": "0e35203e9e455dd5ccc0ec44a78707c0b2dc7c96dfcb369bb408f649aa6db970",
+    "decodedBytes": 675647,
+    "decodedSha256": "3d0bb542bd7c49641ab1d4a364a259cf903579ab700e266682d4e7d20b8a1fa2",
+    "members": 353,
+    "manifest": "MANIFEST.json",
+    "contents": "Raw red/green repair observations, build argv, generator outputs, independent counterexamples, previous canonical stdout and immutable fixture. No compiled executable/rlib or reserved payload."
+  },
+  "testedSourcesBeforePendingRegression": [
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/prepare_recipes.py",
+      "sha256": "fb7a8b4d46de03ed547e0c941a18f389a2afdb8b304a87de5f0ca079d6dcb17d"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/qualification_replay.rs",
+      "sha256": "84a8bc250a7633a3791970b1f907527ab9a5c02268da45310c9bf90031a28f03"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/test_prepare_recipes.py",
+      "sha256": "886335734e610627453e84a2651b046db421ca15c45f097b7b4c1f3fee1e5865"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/reason-routing-audit.json",
+      "sha256": "da2485861d1a5d97d8aa806855b4f4a219f808a4e8c0b7d37b790adc8f1c1691"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/coupled-mapping-scope.json",
+      "sha256": "84482bff6c3c848f6ecff8b0578330caf8e93e67c907226856bc8989f173b4d2"
+    }
+  ],
+  "checkpointSources": [
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/prepare_recipes.py",
+      "sha256": "fb7a8b4d46de03ed547e0c941a18f389a2afdb8b304a87de5f0ca079d6dcb17d"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/qualification_replay.rs",
+      "sha256": "becf2dc5beba3134d1cad0ffbc776535801d7eaae1c1dbb882cbd2d88e8bfc7e"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/test_prepare_recipes.py",
+      "sha256": "886335734e610627453e84a2651b046db421ca15c45f097b7b4c1f3fee1e5865"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/reason-routing-audit.json",
+      "sha256": "da2485861d1a5d97d8aa806855b4f4a219f808a4e8c0b7d37b790adc8f1c1691"
+    },
+    {
+      "path": "../../../../tools/rust-ts-r0/qualification/coupled-mapping-scope.json",
+      "sha256": "84482bff6c3c848f6ecff8b0578330caf8e93e67c907226856bc8989f173b4d2"
+    }
+  ],
+  "unresolvedFinding": {
+    "severity": "P1",
+    "source": "tools/rust-ts-r0/qualification/qualification_replay.rs::worker_negative_boundary_directory_probes",
+    "mechanism": "The verifier always normalizes with sensitive=true, while actual native case_sensitive=false means differently cased paths refer to the same coordinate. An additional read_file(false) or directory_exists(true) with uppercase spelling is ignored by the matching negative-probe group.",
+    "evidence": [
+      "independent/semctx-t00-spec-casefold/run.log",
+      "independent/semctx-t00-corrected-adversarial-20261018/actual-case-alias.log",
+      "pass1/casefold-pending-red.log"
+    ],
+    "disposition": "CONFIRMED_UNRESOLVED_NO_QUALIFICATION_CREDIT",
+    "proposedNextScope": "Honor the native case mode consistently for root, allowed ancestors, issues and probes; preserve raw observations and fail closed for absent or contradictory mode. Test unsafe and equivalent negative case aliases."
+  },
+  "independentReview": {
+    "candidateHead": "07e4b85eea3e86faa75a91596edef751fcbe3ab7",
+    "candidateDiffSha256": "948912d465d5ef79b1fb268f67848e4cc34fc9cdc0d5aeea8346d027efa6ba9b",
+    "standards": {
+      "agent": "/root/harness_corrected_standards",
+      "result": "NO_DEMONSTRATED_STANDARDS_DEFECT"
+    },
+    "spec": {
+      "agent": "/root/harness_corrected_spec",
+      "result": "P1_CASE_ALIAS_CONFIRMED"
+    },
+    "proof": {
+      "agent": "/root/harness_corrected_proof",
+      "result": "PROOF_WEAK_CASE_ALIAS_CONFIRMED"
+    },
+    "reviewedCandidateStable": true,
+    "postReviewDelta": "Append the confirmed failing case-alias regression and document the unresolved finding. No new clean review or positive proof verdict claimed."
+  },
+  "localReviewWorkflow": {
+    "skill": "/Users/sebastien/.agents/skills/review-fix/SKILL.md",
+    "correctionCyclesUsed": 2,
+    "maximumWithoutException": 2,
+    "rule": "After the second, stop with unresolved findings or disagreements instead of restarting the counter or expanding scope.",
+    "state": "INCOMPLETE_STOPPED_FOR_REQUIRED_LOCAL_WORKFLOW_EXCEPTION",
+    "ownerC1BudgetUnchanged": true,
+    "additionalC1PassStillOpen": 1,
+    "ownerAdditionalC1PassesStarted": 1,
+    "ownerAdditionalC1PassesClosed": 0,
+    "ownerAdditionalC1PassesRemaining": 1,
+    "decisionNeeded": "Allow one additional bounded local guard correction/review cycle within the already open first additional C1 pass; no budget increase, counter reset or R0 decision inferred."
+  }
+}

@@ -1,0 +1,9 @@
+
+packages\ts-analyzer\test\runtime-value-imports.test.ts:
+(pass) unused, erased and shadowed import occurrences do not prove runtime use [1481.13ms]
+
+ 1 pass
+ 2 filtered out
+ 0 fail
+ 3 expect() calls
+Ran 1 test across 1 file. [1.62s]

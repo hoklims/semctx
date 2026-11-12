@@ -1,0 +1,479 @@
+{
+  "status": "READ_ONLY_MAPPING_SCOPE_NO_NATIVE_QUERY",
+  "author": "/root/pass2_api_gap_inventory",
+  "generated_utc": "2026-10-17T19:33:51.053339+00:00",
+  "effort_upper_bound_seconds": 180,
+  "rows": [
+    {
+      "unit_id": "P09-outline-logical-set::digest-relation-01",
+      "scenario_pointer": "/execution_units/57",
+      "source_case": {
+        "path": "sources/semantic-cases.json",
+        "sha256": "e89b5080b455f84e6a8b8564bcc64c9eec5c9095bfca7fe1d94479af44797306",
+        "bytes": 1000914,
+        "json_pointer": "/cases/54"
+      },
+      "exact_before_input": {
+        "files": {
+          "src/x.ts": "/** Keys. */\nconst value = 1;\nexport function main() { return value; }\n"
+        },
+        "text_encoding": "UTF-8; preserve exact bytes including CRLF/BOM",
+        "baseline_operation": "outlineTopLevel",
+        "profile": "source-outline",
+        "retained_snapshot": false,
+        "setup": [],
+        "sdk_input_contract": "Standard library consumption is live fallback in the historical retained compiler host. No immutable/coherent SDK capture is established by these input maps; section3654.2 target remains separate."
+      },
+      "frozen_mutation_description": "change comment text or whitespace only",
+      "frozen_expected_projection": {
+        "edit": "change comment text or whitespace only",
+        "equal": true
+      },
+      "native_operation": "outlineTopLevel on src/x.ts for before and after; compare ordered statement digests from native outputs",
+      "target": [
+        "outlines",
+        "src/x.ts",
+        "outline",
+        "statements",
+        "[*].digest"
+      ],
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": false,
+      "exact_after_bytes_in_frozen_case": false,
+      "instantiation_scope": "Frozen relation authorizes comment-text or whitespace-only edit, but contains no exact concrete after bytes. A deterministic recipe instantiation must be explicitly recorded before querying; if policy requires frozen exact after bytes, keep input-instantiation gap. Do not claim an already frozen after source.",
+      "comparison": "Join native ordered statement digest values and compare equality to the frozen boolean; statement digest values themselves are not authored golden bytes.",
+      "limits": [
+        "Statement digest equality, not complete outline object equality: comments/whitespace may affect ranges.",
+        "Do not generate a new expected digest from candidate output.",
+        "No replacement of authored source or assertions in corpus."
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/test/top-level-outline.test.ts",
+          "line": 22,
+          "end_line": 45,
+          "role": "existing assertion, inspected and not executed",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/test/top-level-outline.test.ts#L22"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/test/top-level-outline.test.ts",
+          "line": 56,
+          "end_line": 82,
+          "role": "existing assertion, inspected and not executed",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/test/top-level-outline.test.ts#L56"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 27,
+          "end_line": 80,
+          "role": "implemented baseline source; not architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/top-level-outline.ts#L27"
+        }
+      ]
+    },
+    {
+      "unit_id": "P09-outline-logical-set::digest-relation-02",
+      "scenario_pointer": "/execution_units/58",
+      "source_case": {
+        "path": "sources/semantic-cases.json",
+        "sha256": "e89b5080b455f84e6a8b8564bcc64c9eec5c9095bfca7fe1d94479af44797306",
+        "bytes": 1000914,
+        "json_pointer": "/cases/54"
+      },
+      "exact_before_input": {
+        "files": {
+          "src/x.ts": "/** Keys. */\nconst value = 1;\nexport function main() { return value; }\n"
+        },
+        "text_encoding": "UTF-8; preserve exact bytes including CRLF/BOM",
+        "baseline_operation": "outlineTopLevel",
+        "profile": "source-outline",
+        "retained_snapshot": false,
+        "setup": [],
+        "sdk_input_contract": "Standard library consumption is live fallback in the historical retained compiler host. No immutable/coherent SDK capture is established by these input maps; section3654.2 target remains separate."
+      },
+      "frozen_mutation_description": "change initializer 1 to -1",
+      "frozen_expected_projection": {
+        "edit": "change initializer 1 to -1",
+        "equal": false
+      },
+      "native_operation": "outlineTopLevel on src/x.ts for before and after; compare ordered statement digests from native outputs",
+      "target": [
+        "outlines",
+        "src/x.ts",
+        "outline",
+        "statements",
+        "[*].digest"
+      ],
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "exact_after_bytes_in_frozen_case": false,
+      "instantiation_scope": "Single occurrence initializer 1 becomes -1; complete after bytes derivable unambiguously from frozen before text.",
+      "comparison": "Join native ordered statement digest values and compare equality to the frozen boolean; statement digest values themselves are not authored golden bytes.",
+      "limits": [
+        "Statement digest equality, not complete outline object equality: comments/whitespace may affect ranges.",
+        "Do not generate a new expected digest from candidate output.",
+        "No replacement of authored source or assertions in corpus."
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/test/top-level-outline.test.ts",
+          "line": 22,
+          "end_line": 45,
+          "role": "existing assertion, inspected and not executed",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/test/top-level-outline.test.ts#L22"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/test/top-level-outline.test.ts",
+          "line": 56,
+          "end_line": 82,
+          "role": "existing assertion, inspected and not executed",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/test/top-level-outline.test.ts#L56"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/top-level-outline.ts",
+          "line": 27,
+          "end_line": 80,
+          "role": "implemented baseline source; not architectural authority",
+          "url": "https://github.com/hoklims/semctx/blob/3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b/packages/ts-analyzer/src/top-level-outline.ts#L27"
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-IMPORT-NAME-PROJECTIONS::retained-OL-M01",
+      "scenario_pointer": "/execution_units/291",
+      "source_case": {
+        "path": "sources/outline-cases.json",
+        "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+        "bytes": 218879,
+        "json_pointer": "/cases/28"
+      },
+      "exact_input": {
+        "operation": "outlineTopLevel",
+        "relative_path": "src/specimen.ts",
+        "source_text": "import type { Remote as Local } from \"./mod\";",
+        "source_sha256": "ab85a419b7e3331f6d62db222934397a195faa1ab0a35069684f9db2ee8bda6a",
+        "encoding": "UTF-8, LF, no BOM, no trailing newline",
+        "compiler_program_or_sdk_read_required": false
+      },
+      "native_operation": "ordinary extractTypeScript through existing CLI, selected src/specimen.ts, exact source bytes; retained true for retained modes, false for historical-no-snapshot; source file may import unresolved ./mod",
+      "frozen_expected_projection": [],
+      "expected_origin": {
+        "path": "sources/ordinary-cases.json",
+        "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+        "bytes": 46771,
+        "json_pointer": "/cases/11"
+      },
+      "target": {
+        "collection": "raw_extraction.imports",
+        "match": {
+          "fromRelPath": "src/specimen.ts",
+          "moduleSpecifier": "./mod"
+        },
+        "field": "names"
+      },
+      "comparison": "Exactly one structural import record matching source and module specifier, names array equals frozen authored array; no runtime-coverage or resolved-endpoint inference.",
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "mode": "retained",
+      "limits": [
+        "An empty names array does not authorize omitting the structural import record.",
+        "No ./mod target may be invented; unresolved target is explicitly allowed.",
+        "No other import facts, admission, parser diagnostics or runtime coverage asserted."
+      ],
+      "authority_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-IMPORT-NAME-PROJECTIONS::retained-OL-M02",
+      "scenario_pointer": "/execution_units/292",
+      "source_case": {
+        "path": "sources/outline-cases.json",
+        "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+        "bytes": 218879,
+        "json_pointer": "/cases/29"
+      },
+      "exact_input": {
+        "operation": "outlineTopLevel",
+        "relative_path": "src/specimen.ts",
+        "source_text": "import { type T, type U } from \"./mod\";",
+        "source_sha256": "ac71d283b56b380f492094d742724d9025f91a48d348c7ef8f2286bdcad8e2a5",
+        "encoding": "UTF-8, LF, no BOM, no trailing newline",
+        "compiler_program_or_sdk_read_required": false
+      },
+      "native_operation": "ordinary extractTypeScript through existing CLI, selected src/specimen.ts, exact source bytes; retained true for retained modes, false for historical-no-snapshot; source file may import unresolved ./mod",
+      "frozen_expected_projection": [],
+      "expected_origin": {
+        "path": "sources/ordinary-cases.json",
+        "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+        "bytes": 46771,
+        "json_pointer": "/cases/11"
+      },
+      "target": {
+        "collection": "raw_extraction.imports",
+        "match": {
+          "fromRelPath": "src/specimen.ts",
+          "moduleSpecifier": "./mod"
+        },
+        "field": "names"
+      },
+      "comparison": "Exactly one structural import record matching source and module specifier, names array equals frozen authored array; no runtime-coverage or resolved-endpoint inference.",
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "mode": "retained",
+      "limits": [
+        "An empty names array does not authorize omitting the structural import record.",
+        "No ./mod target may be invented; unresolved target is explicitly allowed.",
+        "No other import facts, admission, parser diagnostics or runtime coverage asserted."
+      ],
+      "authority_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-IMPORT-NAME-PROJECTIONS::retained-OL-M03",
+      "scenario_pointer": "/execution_units/293",
+      "source_case": {
+        "path": "sources/outline-cases.json",
+        "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+        "bytes": 218879,
+        "json_pointer": "/cases/30"
+      },
+      "exact_input": {
+        "operation": "outlineTopLevel",
+        "relative_path": "src/specimen.ts",
+        "source_text": "import { type T, value as local } from \"./mod\";",
+        "source_sha256": "e1e6e839749e7514830e195c314d8f0f6aca28ddc97b417a817aa60ce314124b",
+        "encoding": "UTF-8, LF, no BOM, no trailing newline",
+        "compiler_program_or_sdk_read_required": false
+      },
+      "native_operation": "ordinary extractTypeScript through existing CLI, selected src/specimen.ts, exact source bytes; retained true for retained modes, false for historical-no-snapshot; source file may import unresolved ./mod",
+      "frozen_expected_projection": [
+        "value"
+      ],
+      "expected_origin": {
+        "path": "sources/ordinary-cases.json",
+        "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+        "bytes": 46771,
+        "json_pointer": "/cases/11"
+      },
+      "target": {
+        "collection": "raw_extraction.imports",
+        "match": {
+          "fromRelPath": "src/specimen.ts",
+          "moduleSpecifier": "./mod"
+        },
+        "field": "names"
+      },
+      "comparison": "Exactly one structural import record matching source and module specifier, names array equals frozen authored array; no runtime-coverage or resolved-endpoint inference.",
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "mode": "retained",
+      "limits": [
+        "An empty names array does not authorize omitting the structural import record.",
+        "No ./mod target may be invented; unresolved target is explicitly allowed.",
+        "No other import facts, admission, parser diagnostics or runtime coverage asserted."
+      ],
+      "authority_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-IMPORT-NAME-PROJECTIONS::retained-OL-M05",
+      "scenario_pointer": "/execution_units/294",
+      "source_case": {
+        "path": "sources/outline-cases.json",
+        "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+        "bytes": 218879,
+        "json_pointer": "/cases/32"
+      },
+      "exact_input": {
+        "operation": "outlineTopLevel",
+        "relative_path": "src/specimen.ts",
+        "source_text": "import Default from \"./mod\";",
+        "source_sha256": "cef4d6fdb2fa1e266cad0aaa26d933c740b319a1657fa7ba30810c5acd250974",
+        "encoding": "UTF-8, LF, no BOM, no trailing newline",
+        "compiler_program_or_sdk_read_required": false
+      },
+      "native_operation": "ordinary extractTypeScript through existing CLI, selected src/specimen.ts, exact source bytes; retained true for retained modes, false for historical-no-snapshot; source file may import unresolved ./mod",
+      "frozen_expected_projection": [
+        "default"
+      ],
+      "expected_origin": {
+        "path": "sources/ordinary-cases.json",
+        "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+        "bytes": 46771,
+        "json_pointer": "/cases/11"
+      },
+      "target": {
+        "collection": "raw_extraction.imports",
+        "match": {
+          "fromRelPath": "src/specimen.ts",
+          "moduleSpecifier": "./mod"
+        },
+        "field": "names"
+      },
+      "comparison": "Exactly one structural import record matching source and module specifier, names array equals frozen authored array; no runtime-coverage or resolved-endpoint inference.",
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "mode": "retained",
+      "limits": [
+        "An empty names array does not authorize omitting the structural import record.",
+        "No ./mod target may be invented; unresolved target is explicitly allowed.",
+        "No other import facts, admission, parser diagnostics or runtime coverage asserted."
+      ],
+      "authority_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-IMPORT-NAME-PROJECTIONS::retained-OL-M06",
+      "scenario_pointer": "/execution_units/295",
+      "source_case": {
+        "path": "sources/outline-cases.json",
+        "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+        "bytes": 218879,
+        "json_pointer": "/cases/33"
+      },
+      "exact_input": {
+        "operation": "outlineTopLevel",
+        "relative_path": "src/specimen.ts",
+        "source_text": "import * as ns from \"./mod\";",
+        "source_sha256": "57f62f1755fc21ad13577985850d917c03d05c38f4836387883b9e51c9bb1b3f",
+        "encoding": "UTF-8, LF, no BOM, no trailing newline",
+        "compiler_program_or_sdk_read_required": false
+      },
+      "native_operation": "ordinary extractTypeScript through existing CLI, selected src/specimen.ts, exact source bytes; retained true for retained modes, false for historical-no-snapshot; source file may import unresolved ./mod",
+      "frozen_expected_projection": [
+        "ns"
+      ],
+      "expected_origin": {
+        "path": "sources/ordinary-cases.json",
+        "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+        "bytes": 46771,
+        "json_pointer": "/cases/11"
+      },
+      "target": {
+        "collection": "raw_extraction.imports",
+        "match": {
+          "fromRelPath": "src/specimen.ts",
+          "moduleSpecifier": "./mod"
+        },
+        "field": "names"
+      },
+      "comparison": "Exactly one structural import record matching source and module specifier, names array equals frozen authored array; no runtime-coverage or resolved-endpoint inference.",
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "mode": "retained",
+      "limits": [
+        "An empty names array does not authorize omitting the structural import record.",
+        "No ./mod target may be invented; unresolved target is explicitly allowed.",
+        "No other import facts, admission, parser diagnostics or runtime coverage asserted."
+      ],
+      "authority_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ]
+    },
+    {
+      "unit_id": "ORD-IMPORT-NAME-PROJECTIONS::historical-OL-M05",
+      "scenario_pointer": "/execution_units/296",
+      "source_case": {
+        "path": "sources/outline-cases.json",
+        "sha256": "27364ac7cda5fc8843370999d9726e612f4e8aec8b25f19ab23b924faa86a3e9",
+        "bytes": 218879,
+        "json_pointer": "/cases/32"
+      },
+      "exact_input": {
+        "operation": "outlineTopLevel",
+        "relative_path": "src/specimen.ts",
+        "source_text": "import Default from \"./mod\";",
+        "source_sha256": "cef4d6fdb2fa1e266cad0aaa26d933c740b319a1657fa7ba30810c5acd250974",
+        "encoding": "UTF-8, LF, no BOM, no trailing newline",
+        "compiler_program_or_sdk_read_required": false
+      },
+      "native_operation": "ordinary extractTypeScript through existing CLI, selected src/specimen.ts, exact source bytes; retained true for retained modes, false for historical-no-snapshot; source file may import unresolved ./mod",
+      "frozen_expected_projection": [
+        "Default"
+      ],
+      "expected_origin": {
+        "path": "sources/ordinary-cases.json",
+        "sha256": "191713cc12484489a743d007aac7f36306b8724cfdc038dba745a0245adaa52e",
+        "bytes": 46771,
+        "json_pointer": "/cases/11"
+      },
+      "target": {
+        "collection": "raw_extraction.imports",
+        "match": {
+          "fromRelPath": "src/specimen.ts",
+          "moduleSpecifier": "./mod"
+        },
+        "field": "names"
+      },
+      "comparison": "Exactly one structural import record matching source and module specifier, names array equals frozen authored array; no runtime-coverage or resolved-endpoint inference.",
+      "direct_existing_projection_possible": true,
+      "metamorphic_variant_fully_specified": true,
+      "mode": "historical-no-snapshot",
+      "limits": [
+        "An empty names array does not authorize omitting the structural import record.",
+        "No ./mod target may be invented; unresolved target is explicitly allowed.",
+        "No other import facts, admission, parser diagnostics or runtime coverage asserted."
+      ],
+      "authority_coordinates": [
+        {
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1056,
+          "end_line": 1083,
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "source_status": "implemented historical source, not architectural authority"
+        }
+      ]
+    }
+  ],
+  "counts": {
+    "units": 8,
+    "direct_native_projection_exposed": 8,
+    "exact_import_sources_and_expected_names": 6,
+    "unambiguous_initializer_mutation": 1,
+    "comment_whitespace_class_without_exact_after_bytes": 1
+  },
+  "no_repo_edits": true,
+  "no_expected_values_created": true,
+  "reserved_access": false,
+  "baseline_digest_relation_note": "Historical top-level-outline.test.ts54 compares joined ordered statement digest values;74–82 comments/whitespace preserve them. This scopes relation target without minting expected digest values."
+}

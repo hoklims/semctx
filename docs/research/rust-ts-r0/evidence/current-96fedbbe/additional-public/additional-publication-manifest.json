@@ -1,0 +1,356 @@
+{
+  "schema_version": 1,
+  "kind": "FINITE_ADDITIONAL_PUBLIC_ASSETS",
+  "source_head": "96fedbbe14e8585ae1c89e2656604bf5ecabf2c3",
+  "assets": [
+    {
+      "source_path": "work/public-callable-name-witness/manifest.frozen.json",
+      "logical_path": "public-named-default/manifest.frozen.json",
+      "stored_path": "public-named-default/manifest.frozen.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "111ec56f03c516b2388f40ebae8073a2179ffbd4215c377f85376cfd20f7e38d",
+      "decoded_bytes": 4466,
+      "stored_sha256": "51492e9a6c1a1a90a1e508e1a3602626c44b7be065409d9a5075293a61828278",
+      "stored_bytes": 1676
+    },
+    {
+      "source_path": "work/public-callable-name-witness/baseline.actual.json",
+      "logical_path": "public-named-default/baseline.actual.json",
+      "stored_path": "public-named-default/baseline.actual.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "f9fdca2ee8bd39e890172749f59c76b6b233f90649e7300920033bf3c572da6f",
+      "decoded_bytes": 20477,
+      "stored_sha256": "00b64bce76aff808af3c4d5fe4e18f500a9c2bd0a440960d93f9426bbb1c8767",
+      "stored_bytes": 4458
+    },
+    {
+      "source_path": "work/public-callable-name-witness/expected-oracle.json",
+      "logical_path": "public-named-default/expected-oracle.json",
+      "stored_path": "public-named-default/expected-oracle.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "27e22a56e31aaad3104ac35766bb2a7641418693b07457c61d6676c7f214114a",
+      "decoded_bytes": 1968,
+      "stored_sha256": "1956ee963a18d3536647560529b1ca229a844f751cb0471da918fd60a18da235",
+      "stored_bytes": 750
+    },
+    {
+      "source_path": "work/public-callable-name-witness/reader-controls.json",
+      "logical_path": "public-named-default/reader-controls.json",
+      "stored_path": "public-named-default/reader-controls.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "503e10d479dbd191abc0c67d7ec57c5e785aa2077f5ecfdb40c92125b6f3be86",
+      "decoded_bytes": 2609,
+      "stored_sha256": "9c9fbf0b38e3c1f70f801d204b34f01e1c90187b4edf432fdcd36512b02df9e6",
+      "stored_bytes": 663
+    },
+    {
+      "source_path": "work/public-callable-name-witness/PUBLIC-ACTUAL-TWO-HOST.json",
+      "logical_path": "public-named-default/PUBLIC-ACTUAL-TWO-HOST.json",
+      "stored_path": "public-named-default/PUBLIC-ACTUAL-TWO-HOST.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "7b605cda8315c6f0e82efcb42c20d87dd119d6c4138123942249400ef4686f8a",
+      "decoded_bytes": 11144,
+      "stored_sha256": "8a99daca7333ae6bf527762e4ea63c14b89efbc496e89c12ec3a472122a3a2bf",
+      "stored_bytes": 2964
+    },
+    {
+      "source_path": "work/public-callable-name-witness/reference.cjs",
+      "logical_path": "public-named-default/archived-source/reference.cjs.source",
+      "stored_path": "public-named-default/archived-source/reference.cjs.source",
+      "codec": "identity",
+      "decoded_sha256": "40c9a8416a2280f64733e8f51a343556d6b03a17ffe18e78a24adc7e66e20cf1",
+      "decoded_bytes": 5121,
+      "stored_sha256": "40c9a8416a2280f64733e8f51a343556d6b03a17ffe18e78a24adc7e66e20cf1",
+      "stored_bytes": 5121
+    },
+    {
+      "source_path": "work/public-callable-name-witness/read_public.py",
+      "logical_path": "public-named-default/archived-source/read_public.py.source",
+      "stored_path": "public-named-default/archived-source/read_public.py.source",
+      "codec": "identity",
+      "decoded_sha256": "f344e2f59038b7986c6feafe7fb6c7511e2adfef451c3bf5b86a5bf767f03f23",
+      "decoded_bytes": 9042,
+      "stored_sha256": "f344e2f59038b7986c6feafe7fb6c7511e2adfef451c3bf5b86a5bf767f03f23",
+      "stored_bytes": 9042
+    },
+    {
+      "source_path": "work/public-callable-name-witness/identity_scope_reader.py",
+      "logical_path": "public-named-default/archived-source/identity_scope_reader.py.source",
+      "stored_path": "public-named-default/archived-source/identity_scope_reader.py.source",
+      "codec": "identity",
+      "decoded_sha256": "cd67d4c5d7522389f41e93a578f10836c7d98374f1eaf5bf55ce73e51268a926",
+      "decoded_bytes": 12186,
+      "stored_sha256": "cd67d4c5d7522389f41e93a578f10836c7d98374f1eaf5bf55ce73e51268a926",
+      "stored_bytes": 12186
+    },
+    {
+      "source_path": "work/public-callable-name-witness/prepare_oracle.py",
+      "logical_path": "public-named-default/archived-source/prepare_oracle.py.source",
+      "stored_path": "public-named-default/archived-source/prepare_oracle.py.source",
+      "codec": "identity",
+      "decoded_sha256": "0e421962401dac82b7d86bdec4717d361e860b78c4702da4f34b652d1f95d932",
+      "decoded_bytes": 2925,
+      "stored_sha256": "0e421962401dac82b7d86bdec4717d361e860b78c4702da4f34b652d1f95d932",
+      "stored_bytes": 2925
+    },
+    {
+      "source_path": "work/public-callable-name-witness/staging-v1/capsule.tar.gz",
+      "logical_path": "public-named-default/capsule.tar.gz",
+      "stored_path": "public-named-default/capsule.tar.gz",
+      "codec": "identity",
+      "decoded_sha256": "ad50ac1f877294d5ae37557bfb6ee968d9deafdf37ee5ef11b2f99357a32dbdc",
+      "decoded_bytes": 469613,
+      "stored_sha256": "ad50ac1f877294d5ae37557bfb6ee968d9deafdf37ee5ef11b2f99357a32dbdc",
+      "stored_bytes": 469613
+    },
+    {
+      "source_path": "work/public-callable-name-witness/staging-v1/CONTROLLER-PREFLIGHT-FREEZE.json",
+      "logical_path": "public-named-default/CONTROLLER-PREFLIGHT-FREEZE.json",
+      "stored_path": "public-named-default/CONTROLLER-PREFLIGHT-FREEZE.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "8468664108aa7b63b5deee556caf77b2c9929ebd8768fb27cc04811baee2e544",
+      "decoded_bytes": 1564,
+      "stored_sha256": "fbaf7aac83ffdfe6b0e868c3ac4ee2a8bd8509337535a178996c6e7df9d5b5a6",
+      "stored_bytes": 822
+    },
+    {
+      "source_path": "work/public-callable-name-witness/query-v1/raw-macos-one-shot.tar.gz",
+      "logical_path": "public-named-default/raw-macos-one-shot.tar.gz",
+      "stored_path": "public-named-default/raw-macos-one-shot.tar.gz",
+      "codec": "identity",
+      "decoded_sha256": "4d6859d1192fa51f73b6555c72c822f369f3a7cf61703ab662f1facabac4fc68",
+      "decoded_bytes": 1004868,
+      "stored_sha256": "4d6859d1192fa51f73b6555c72c822f369f3a7cf61703ab662f1facabac4fc68",
+      "stored_bytes": 1004868
+    },
+    {
+      "source_path": "work/public-callable-name-witness/query-v1/raw-macos-one-shot.tar.gz.receipt.json",
+      "logical_path": "public-named-default/raw-macos-one-shot.tar.gz.receipt.json",
+      "stored_path": "public-named-default/raw-macos-one-shot.tar.gz.receipt.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "18e6d585c261905935eb20d36ef6165c9bce9e3e04039779fa971301e63951f8",
+      "decoded_bytes": 20006,
+      "stored_sha256": "47fdb0ca639be1d796c146e612efcacd63a41ad598c45251bdad17b646771082",
+      "stored_bytes": 6727
+    },
+    {
+      "source_path": "work/public-callable-name-witness/query-v1/raw-linux-one-shot.tar.gz",
+      "logical_path": "public-named-default/raw-linux-one-shot.tar.gz",
+      "stored_path": "public-named-default/raw-linux-one-shot.tar.gz",
+      "codec": "identity",
+      "decoded_sha256": "324b2e7205d4c787b6573fcf9467c1a7e885cbe9506b0fba14b688e19132bb75",
+      "decoded_bytes": 1000686,
+      "stored_sha256": "324b2e7205d4c787b6573fcf9467c1a7e885cbe9506b0fba14b688e19132bb75",
+      "stored_bytes": 1000686
+    },
+    {
+      "source_path": "work/public-callable-name-witness/query-v1/raw-linux-one-shot.tar.gz.receipt.json",
+      "logical_path": "public-named-default/raw-linux-one-shot.tar.gz.receipt.json",
+      "stored_path": "public-named-default/raw-linux-one-shot.tar.gz.receipt.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "7ceec538d982d1a04bdb743735ee1ba5787554ed61a17651a454257c2dfb3f05",
+      "decoded_bytes": 19940,
+      "stored_sha256": "ab808bcc9aa03cba84bd43e4e7d125a495035f4edc493118b90903a54cf404f5",
+      "stored_bytes": 6703
+    },
+    {
+      "source_path": "work/public-as-expression-witness/manifest.frozen.json",
+      "logical_path": "public-as-expression/manifest.frozen.json",
+      "stored_path": "public-as-expression/manifest.frozen.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "c63f6c126b5a91155fb379034a1c756f3f2f0de487e5bfc628529a5a506f550b",
+      "decoded_bytes": 4285,
+      "stored_sha256": "c6d5666d2573f06313878f5a8c03b737fa915d7f2284842583c96afaebeb4f9a",
+      "stored_bytes": 1664
+    },
+    {
+      "source_path": "work/public-as-expression-witness/baseline.actual.json",
+      "logical_path": "public-as-expression/baseline.actual.json",
+      "stored_path": "public-as-expression/baseline.actual.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "3b78cf0daad9c0c8782f75c4ffd22247aaa82257e89bc88e742f5ee3ba82e899",
+      "decoded_bytes": 79805,
+      "stored_sha256": "e1ab5e659fd19508c2af961f218726ea0d4fa6ea2731273eb29ec023fb08a090",
+      "stored_bytes": 6827
+    },
+    {
+      "source_path": "work/public-as-expression-witness/expected-oracle.json",
+      "logical_path": "public-as-expression/expected-oracle.json",
+      "stored_path": "public-as-expression/expected-oracle.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "e735077c8e4a2331cae55b3e3779225ba971537d70a8834fc9937675f46ccb2f",
+      "decoded_bytes": 2787,
+      "stored_sha256": "3767c0539a279d073712973a91833e0f3b723570702f8073c1bd1642c1a7877e",
+      "stored_bytes": 884
+    },
+    {
+      "source_path": "work/public-as-expression-witness/reader-controls.json",
+      "logical_path": "public-as-expression/reader-controls.json",
+      "stored_path": "public-as-expression/reader-controls.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "f1502496bce799af8177dc4d4025bdc96bb548cd6e9f18ba19bae5fa967ddafa",
+      "decoded_bytes": 5759,
+      "stored_sha256": "2b5d78a3b8730acf2a0bcdb27a3814da7b4f1180a3c7b8ba8050522231eabf32",
+      "stored_bytes": 711
+    },
+    {
+      "source_path": "work/public-as-expression-witness/PUBLIC-ACTUAL-TWO-HOST.json",
+      "logical_path": "public-as-expression/PUBLIC-ACTUAL-TWO-HOST.json",
+      "stored_path": "public-as-expression/PUBLIC-ACTUAL-TWO-HOST.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "28900fe0403632cd4aeac0fd56f21a8211ffa9cb0e9069820cdb8e2c5b23c18a",
+      "decoded_bytes": 8719,
+      "stored_sha256": "d80dd5bfab5580fc922ff4f4372e1f3329cc0ea9b8b4b049088904a04579f998",
+      "stored_bytes": 2746
+    },
+    {
+      "source_path": "work/public-as-expression-witness/baseline.cjs",
+      "logical_path": "public-as-expression/archived-source/baseline.cjs.source",
+      "stored_path": "public-as-expression/archived-source/baseline.cjs.source",
+      "codec": "identity",
+      "decoded_sha256": "1c1474610cc1da46d3364102d4b5f9c2827c730a1de1c3caf3bc7c9ea82e6695",
+      "decoded_bytes": 6413,
+      "stored_sha256": "1c1474610cc1da46d3364102d4b5f9c2827c730a1de1c3caf3bc7c9ea82e6695",
+      "stored_bytes": 6413
+    },
+    {
+      "source_path": "work/public-as-expression-witness/read_public.py",
+      "logical_path": "public-as-expression/archived-source/read_public.py.source",
+      "stored_path": "public-as-expression/archived-source/read_public.py.source",
+      "codec": "identity",
+      "decoded_sha256": "c4e62e6ce82b2e6675f572c8ceb115d70d0d66c8ad8df59ea12ed6ef7579c4b8",
+      "decoded_bytes": 5802,
+      "stored_sha256": "c4e62e6ce82b2e6675f572c8ceb115d70d0d66c8ad8df59ea12ed6ef7579c4b8",
+      "stored_bytes": 5802
+    },
+    {
+      "source_path": "work/public-as-expression-witness/identity_scope_reader.py",
+      "logical_path": "public-as-expression/archived-source/identity_scope_reader.py.source",
+      "stored_path": "public-as-expression/archived-source/identity_scope_reader.py.source",
+      "codec": "identity",
+      "decoded_sha256": "cd67d4c5d7522389f41e93a578f10836c7d98374f1eaf5bf55ce73e51268a926",
+      "decoded_bytes": 12186,
+      "stored_sha256": "cd67d4c5d7522389f41e93a578f10836c7d98374f1eaf5bf55ce73e51268a926",
+      "stored_bytes": 12186
+    },
+    {
+      "source_path": "work/public-as-expression-witness/prepare_oracle.py",
+      "logical_path": "public-as-expression/archived-source/prepare_oracle.py.source",
+      "stored_path": "public-as-expression/archived-source/prepare_oracle.py.source",
+      "codec": "identity",
+      "decoded_sha256": "bf346661473f6a468b3981a747b9cdd399a2761149554d4dbcdbd036402f231e",
+      "decoded_bytes": 1713,
+      "stored_sha256": "bf346661473f6a468b3981a747b9cdd399a2761149554d4dbcdbd036402f231e",
+      "stored_bytes": 1713
+    },
+    {
+      "source_path": "work/public-as-expression-witness/staging-v1/capsule.tar.gz",
+      "logical_path": "public-as-expression/capsule.tar.gz",
+      "stored_path": "public-as-expression/capsule.tar.gz",
+      "codec": "identity",
+      "decoded_sha256": "8e69b0e77961542118cb0b721c455ff90a02288014318ff4185e44961cf9bc6c",
+      "decoded_bytes": 477113,
+      "stored_sha256": "8e69b0e77961542118cb0b721c455ff90a02288014318ff4185e44961cf9bc6c",
+      "stored_bytes": 477113
+    },
+    {
+      "source_path": "work/public-as-expression-witness/staging-v1/CONTROLLER-PREFLIGHT-FREEZE.json",
+      "logical_path": "public-as-expression/CONTROLLER-PREFLIGHT-FREEZE.json",
+      "stored_path": "public-as-expression/CONTROLLER-PREFLIGHT-FREEZE.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "2bc9693815e414e881580c3b19331f393dcadd92c2e43b12587e6aaeef7d96e7",
+      "decoded_bytes": 2013,
+      "stored_sha256": "a2b489b8cbabf8289b0125c8e6a706b9c18d6235d20fec5bf8fd6c73c5e40501",
+      "stored_bytes": 1022
+    },
+    {
+      "source_path": "work/public-as-expression-witness/staging-v1/raw-macos-one-shot.tar.gz",
+      "logical_path": "public-as-expression/raw-macos-one-shot.tar.gz",
+      "stored_path": "public-as-expression/raw-macos-one-shot.tar.gz",
+      "codec": "identity",
+      "decoded_sha256": "9df302865a8d74e1ea5dd7b89ec4a8a35fc1367acfa0c56bf4c9deb554d73210",
+      "decoded_bytes": 938752,
+      "stored_sha256": "9df302865a8d74e1ea5dd7b89ec4a8a35fc1367acfa0c56bf4c9deb554d73210",
+      "stored_bytes": 938752
+    },
+    {
+      "source_path": "work/public-as-expression-witness/staging-v1/raw-macos-one-shot.tar.gz.receipt.json",
+      "logical_path": "public-as-expression/raw-macos-one-shot.tar.gz.receipt.json",
+      "stored_path": "public-as-expression/raw-macos-one-shot.tar.gz.receipt.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "63d06152dd8976d6a8fba80b3f2b30bfd19bee65d0dfb7779161cc622b4e9176",
+      "decoded_bytes": 21993,
+      "stored_sha256": "67276d868dc6264cab7922e7c0f6d7a1bd3a358fd13f6b218c30f39a73ea5e71",
+      "stored_bytes": 7216
+    },
+    {
+      "source_path": "work/public-as-expression-witness/staging-v1/raw-linux-one-shot.tar.gz",
+      "logical_path": "public-as-expression/raw-linux-one-shot.tar.gz",
+      "stored_path": "public-as-expression/raw-linux-one-shot.tar.gz",
+      "codec": "identity",
+      "decoded_sha256": "d55d514a6c73cede3fc693b4c607e288da1f7befbe183d5a0ac7144e5fb76d51",
+      "decoded_bytes": 931001,
+      "stored_sha256": "d55d514a6c73cede3fc693b4c607e288da1f7befbe183d5a0ac7144e5fb76d51",
+      "stored_bytes": 931001
+    },
+    {
+      "source_path": "work/public-as-expression-witness/staging-v1/raw-linux-one-shot.tar.gz.receipt.json",
+      "logical_path": "public-as-expression/raw-linux-one-shot.tar.gz.receipt.json",
+      "stored_path": "public-as-expression/raw-linux-one-shot.tar.gz.receipt.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "6a865ff81bed890e2b3072b87a084ca2b8375487eefb2e0847d31e31441c2156",
+      "decoded_bytes": 21927,
+      "stored_sha256": "492749ede668655346b49e45560b39cb2aeaacceeff38728592045c8abea2efb",
+      "stored_bytes": 7205
+    },
+    {
+      "source_path": "work/public-as-expression-witness/PUBLIC-ACTUAL-RESULTS.md",
+      "logical_path": "public-as-expression/PUBLIC-ACTUAL-RESULTS.md",
+      "stored_path": "public-as-expression/PUBLIC-ACTUAL-RESULTS.md",
+      "codec": "identity",
+      "decoded_sha256": "6d193d0cbbaf7973f1fc510310e7438175027485f8300bea7841a05eb6d2d995",
+      "decoded_bytes": 2426,
+      "stored_sha256": "6d193d0cbbaf7973f1fc510310e7438175027485f8300bea7841a05eb6d2d995",
+      "stored_bytes": 2426
+    },
+    {
+      "source_path": "work/root-public-dossier-96/root-property221-1-acceptance.json",
+      "logical_path": "root-acceptance/root-property221-1-acceptance.json",
+      "stored_path": "root-acceptance/root-property221-1-acceptance.json.gz",
+      "codec": "gzip",
+      "decoded_sha256": "5bbefb26ecfafc78550d7fa3099ed28a714eac8b90e4c57fafab0a424a46b809",
+      "decoded_bytes": 977,
+      "stored_sha256": "67e53fb19a40176b8109c15062b3e34b8179fc5d6cb9e59b15327a975560f615",
+      "stored_bytes": 631
+    }
+  ],
+  "references_only": [
+    {
+      "source_path": "work/root-public-dossier-96/current-source-mechanisms.root-v2.json",
+      "decoded_sha256": "1ed202376cc7b2ae1a2b28e78e1476e26712aa9f0332eecc2ffc462eb931c09c",
+      "decoded_bytes": 2647589,
+      "existing_packet_path": "source-selection/current-source-mechanisms.root-v2.json.gz",
+      "existing_stored_sha256": "0ffad1ea477c39674eec2208956c869c819e7dfa419a2df9ff470401ad30db07",
+      "existing_stored_bytes": 127740,
+      "copied_by_this_helper": false
+    },
+    {
+      "existing_packet_path": "publication-storage-index.json",
+      "schema_version": 4,
+      "sha256": "a5d91d14286d3471c74bbcfd3a04527db04b725cd60eca30bf7fd9521b57d146",
+      "copied_or_edited_by_this_helper": false
+    }
+  ],
+  "original_payload_bytes": 5110286,
+  "stored_payload_bytes": 4933516,
+  "native_queries": 0,
+  "qualification_credit": 0,
+  "R0_decision": null,
+  "limits": [
+    "Literal public file allowlist only; no private payloads, recursive reference following, code execution, TAR extraction or new native invocation.",
+    "Both original 23-file public freezes were byte checked; their opaque original capsules retain the complete frozen staging inputs.",
+    "Frozen PY/CJS files are published as .source; JSON gzip containers preserve decoded bytes including CRLF.",
+    "Original TAR/capsule bytes use identity storage only; no recompression of already compressed data.",
+    "Root selection and existing storage index are reference-only; existing assets and publisher remain untouched."
+  ]
+}

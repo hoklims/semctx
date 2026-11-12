@@ -1,0 +1,45 @@
+'use strict';
+// Independent public TS reference, without executing a candidate.
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
+const tsPath='C:/maintenence/semctx.codex-t00-review-20261021/node_modules/.bun/typescript@5.9.3/node_modules/typescript/lib/typescript.js';
+const extractorPath='C:/maintenence/semctx.codex-t00-review-20261021/packages/ts-analyzer/src/ts-symbols.ts';
+const ts=require(tsPath),production=require(extractorPath);
+if(ts.version!=='5.9.3'||production.TYPESCRIPT_DIALECT_VERSION!=='5.9.3'||Bun.version!=='1.4.3')throw Error('wrong pinned reference runtime');
+const H=b=>crypto.createHash('sha256').update(b).digest('hex');
+if(H(fs.readFileSync(extractorPath))!=='9e025956b492b77cd13c59e9b5196c76506367db484180f28824ccd508665d7f')throw Error('production extractor source differs');
+const requestRaw=fs.readFileSync(path.join(__dirname,'request.local.json'));
+const sdkRaw=fs.readFileSync(path.join(__dirname,'sdk.frozen.json'));
+const request=JSON.parse(requestRaw),sdk=JSON.parse(sdkRaw);
+for(const [p,t]of Object.entries({...request.files,...sdk.files}))if(!fs.readFileSync(p).equals(Buffer.from(t)))throw Error('physical captured bytes differ');
+const norm=p=>path.resolve(p).replaceAll('\\','/').toLowerCase();
+const texts=new Map(Object.entries({...request.files,...sdk.files}).map(([p,t])=>[norm(p),t]));
+const options={target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,allowJs:true,jsx:ts.JsxEmit.Preserve,skipLibCheck:true,noEmit:true,strict:false,types:[]};
+const host=ts.createCompilerHost(options),reads=[];
+host.getCurrentDirectory=()=>request.cwd;
+host.getDefaultLibFileName=o=>path.join(request.sdk_directory,ts.getDefaultLibFileName(o));
+host.getDefaultLibLocation=()=>request.sdk_directory;
+host.fileExists=p=>texts.has(norm(p));
+host.readFile=p=>{const t=texts.get(norm(p));if(t!==undefined)reads.push({file:p,sha256:H(Buffer.from(t))});return t;};
+host.getSourceFile=(p,v)=>{const t=host.readFile(p);return t===undefined?undefined:ts.createSourceFile(p,t,v,true);};
+const program=ts.createProgram(request.roots,options,host),checker=program.getTypeChecker();
+const diagnostics=[...program.getSyntacticDiagnostics(),...program.getSemanticDiagnostics()].map(d=>({code:d.code,startUtf16:d.start,file:d.file?.fileName}));
+if(diagnostics.length)throw Error('reference fixture has diagnostics');
+const sf=program.getSourceFile(request.roots[0]);if(!sf)throw Error('source missing');
+function node(n){return {kind:ts.SyntaxKind[n.kind],file:n.getSourceFile().fileName,startUtf16:n.getStart(),endUtf16:n.end,defaultLibrary:program.isSourceFileDefaultLibrary(n.getSourceFile())};}
+const calls=[];
+function walk(n){if(ts.isCallExpression(n)){
+ const symbol=checker.getSymbolAtLocation(n.expression);if(!symbol)throw Error('checker symbol absent');
+ calls.push({call:node(n),text:n.getText(sf),expression:node(n.expression),symbol:{name:symbol.getName(),valueDeclaration:symbol.valueDeclaration?node(symbol.valueDeclaration):null,declarations:(symbol.getDeclarations()||[]).map(node)}});
+}ts.forEachChild(n,walk);}walk(sf);
+const extraction=production.extractTypeScript(request.roots,request.cwd,new Map(Object.entries(request.files)));
+if(calls.length!==1||extraction.calls.length!==1)throw Error('one-call public witness required');
+const typed=calls[0],canonical=extraction.calls[0];
+if(typed.symbol.name!=='increment'||typed.symbol.valueDeclaration?.kind!=='MethodDeclaration'||canonical.calleeSymbolPath!=='Counter.increment'||canonical.calleeRelPath!=='entry.ts'||typed.symbol.name===canonical.calleeSymbolPath)throw Error('independent scoped-name distinction not established; stop before candidate');
+const output={schema:1,kind:'PUBLIC_SCOPED_METHOD_TYPESCRIPT_REFERENCE_NOT_CANDIDATE',typescript:ts.version,bun:Bun.version,
+ typescriptModuleSha256:H(fs.readFileSync(tsPath)),extractorSourceSha256:H(fs.readFileSync(extractorPath)),extractorGitBlob:'2400cdd94c0903195df82c2b2c387bcbaa1513b0',
+ requestSha256:H(requestRaw),sdkDescriptorSha256:H(sdkRaw),sourceSha256:H(fs.readFileSync(request.roots[0])),
+ diagnostics,readBindings:reads,typedCalls:calls,productionExtraction:extraction,
+ distinction:'simple_checker_name_is_not_qualified_declaration_coordinate',candidateQueries:0,candidateBuilds:0,hostActions:0};
+const target=path.join(__dirname,'baseline.actual.json');fs.writeFileSync(target,JSON.stringify(output,null,2)+'\n',{flag:'wx'});
+console.log(JSON.stringify({baselineSha256:H(fs.readFileSync(target)),checkerName:typed.symbol.name,canonicalTarget:canonical.calleeSymbolPath,
+  declarationKind:typed.symbol.valueDeclaration.kind,callUtf16:[typed.call.startUtf16,typed.call.endUtf16],diagnostics:0,readBindings:reads.length,candidateQueries:0}));

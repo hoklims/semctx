@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "platform": "linux",
+  "manifestSha256": "066d42d450c170102b35dd0b8f6206dddc16792f31e455764cd6a497f1ba90af",
+  "fixtureSha256": "9dfa73a875fa588c10711eea017e2c0ff7e7421f96fc3f3c15a7a3d9053b3ae3",
+  "units": [
+    {
+      "id": "PUBLIC-symbolsparallel-separate-1",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "592c33e496e9ea48fab1b6f07cc83e8a18ecd66ecdf913e3e63876023123912a",
+      "requestSha256": "5bc991181b3e8d1d1cd24948d78523c273847676588f8bb5b11badb9879d086e"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-separate-2",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true,
+        "helperBinding": true
+      },
+      "pass": true,
+      "rawSha256": "a51f98ed1e9a6384af199854b56a43771f35fa2b23f7ef3e0114234de646cbde",
+      "requestSha256": "badfab389ecc94766fda723060852353ed74a61041956b8ba770f8edc72567a4"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-connected-1",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "b1692d9678a03dadb9b1898570c74e538ff3a3fe393906d9f099b2b203a49dbb",
+      "requestSha256": "5ce3f3056c5b04e0b4d9f5f6d02f3e58ccb243e3063d1addb21acc207844b5b4"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-connected-2",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "c6ab2b28bec9dc9fda7ae15e55345da4c726ef85f1607481fb9b4a463db4e08f",
+      "requestSha256": "931f11115903bf505c19fd0cb3c36a438e9cd2bc7fc23b4bd9ea07107c7898f1"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-missing-1",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "42b75ee72db7ba4dc2b02438cbda15740266808684cff57c97036ad013598abd",
+      "requestSha256": "4ce677f7e499585c83723294c3e0d441a5048d4c98f0e0963aff8812301b644a"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-missing-2",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true,
+        "helperBinding": true
+      },
+      "pass": true,
+      "rawSha256": "f9757b76849c3cd6442cbe9c1d1528816490454bc41366d62d4b2cdbd8437378",
+      "requestSha256": "828dc92b29ba3677768bda613ef30425422c2c856aef2c1412418b98e6c38705"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-declaration-root-1",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "82a852924c88bf81a48f2320d8cd48e35aae58c673f426911e76af4d083c1344",
+      "requestSha256": "8836ecbcc109add2d66f8627a9ae4c2103bff9f03c0372d25df4f0ecf942c82b"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-declaration-root-2",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true,
+        "helperBinding": true
+      },
+      "pass": true,
+      "rawSha256": "23714ee81c07e80f72d96b9ad8e39c21282410d698c2e3d75ad1920d4fbcaab9",
+      "requestSha256": "f6fc3404165737a1452bacc17325c7f1db8b0a61a520991b84edbdd0fdfe6712"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-dynamic-1",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true
+      },
+      "pass": true,
+      "rawSha256": "9a92fb32e71290d3ebe13892159746ac455cd0e4a3b5ad0184d45267528e20b8",
+      "requestSha256": "9b8f69489536e437724acb9a37e8508f386b8f2d5c1b234b19e43d68b7c0fd6e"
+    },
+    {
+      "id": "PUBLIC-symbolsparallel-dynamic-2",
+      "checks": {
+        "exit0": true,
+        "requestBinding": true,
+        "artifactBinding": true,
+        "sdkBinding": true,
+        "executed": true,
+        "unsupported": true,
+        "noAdmission": true,
+        "scope": true,
+        "parallelism": true,
+        "fullExtraction": true,
+        "helperBinding": true
+      },
+      "pass": true,
+      "rawSha256": "212e4cf56e8b7306f8a8e2c45ba983c3f0de76ea3c488d55d8b1b47b08e278f9",
+      "requestSha256": "9fce5d71dac2ff9049390c1f7d837a92838e133d7ce3bd8d9cd7ea81117c1844"
+    }
+  ],
+  "formalR0Qualified": false
+}

@@ -1,0 +1,795 @@
+[
+  {
+    "id": "directory-alias",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/discovery-missing-import-alias.test.ts"
+    ],
+    "expectedTests": 3,
+    "passed": 3,
+    "failed": 0,
+    "names": [
+      "keeps missing in-repository imports selected when the repository root has a directory alias",
+      "still rejects genuinely escaping missing paths under a directory alias",
+      "still rejects missing targets below an existing external directory symlink"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "91348eafc32f7b211ba78be4665472a62a7a7a2c91591f9db5c3698e191dc78d"
+    }
+  },
+  {
+    "id": "reference-confinement",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/discovery-selection.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/discovery-selection.test.ts",
+      "--test-name-pattern",
+      "records relative imports and reference paths escaping"
+    ],
+    "expectedTests": 1,
+    "passed": 1,
+    "failed": 0,
+    "names": [
+      "versioned source selection > records relative imports and reference paths escaping the repository as failed"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "d3a238706083b36d3aaf65bd8a9b32aff94d7e5ba1e19180eae8a313bcaa4934"
+    }
+  },
+  {
+    "id": "native-inert",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/create-require.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/create-require.test.ts",
+      "--test-name-pattern",
+      "type-only native bindings"
+    ],
+    "expectedTests": 1,
+    "passed": 1,
+    "failed": 0,
+    "names": [
+      "type-only native bindings are inert and the compatibility predicate makes no opaque-member execution claim"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "d27bf06c9b27faa4dd19a7f2bb98a7c298d8875d2c0922c83186e8ec3e8b4748"
+    }
+  },
+  {
+    "id": "mixed-fallback",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/javascript.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/javascript.test.ts",
+      "--test-name-pattern",
+      "keeps mixed extraction in one semantic Program"
+    ],
+    "expectedTests": 1,
+    "passed": 1,
+    "failed": 0,
+    "names": [
+      "keeps mixed extraction in one semantic Program when workers are requested"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "8dd185976ae8e9f64a5744f7a9e10bbf971600466fb822b6b92d8155cd320d82"
+    }
+  },
+  {
+    "id": "external-partition",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/parallel-extraction.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/parallel-extraction.test.ts",
+      "--test-name-pattern",
+      "does not connect independent roots through the same external"
+    ],
+    "expectedTests": 1,
+    "passed": 1,
+    "failed": 0,
+    "names": [
+      "parallel TypeScript extraction > does not connect independent roots through the same external node_modules package"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "90a71f388830b9f9dad9c8fc83956db464a9179d8022aec5cc3f55da5a4b1499"
+    }
+  },
+  {
+    "id": "namespace-owners",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/semantic-js-contracts.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/semantic-js-contracts.test.ts",
+      "--test-name-pattern",
+      "non-call namespace members retain|namespace destructuring preserves|unmodeled object members cannot claim"
+    ],
+    "expectedTests": 3,
+    "passed": 3,
+    "failed": 0,
+    "names": [
+      "non-call namespace members retain barrel/default owners and reject shadows or unmodeled homonyms",
+      "namespace destructuring preserves leaf/default owners and rejects a local shadow or unmodeled homonym",
+      "unmodeled object members cannot claim namespace test coverage of a global homonym"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "6de03cc1af8e1a91b7b3ee4d3f1069f020c2e9495c9fe165904c6a02ae5923a5"
+    }
+  },
+  {
+    "id": "runtime-erased",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/runtime-value-imports.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/runtime-value-imports.test.ts",
+      "--test-name-pattern",
+      "unused, erased and shadowed"
+    ],
+    "expectedTests": 1,
+    "passed": 1,
+    "failed": 0,
+    "names": [
+      "unused, erased and shadowed import occurrences do not prove runtime use"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "e48a347d87d4abf72c1183874e79e2f16f337bd6016c423c5ffac68c627614e8"
+    }
+  },
+  {
+    "id": "workspace-boundaries",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/workspace-configuration-links.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/workspace-configuration-links.test.ts",
+      "--test-name-pattern",
+      "installed dependency keeps precedence|workspace declared above|legacy TS-only extraction"
+    ],
+    "expectedTests": 3,
+    "passed": 3,
+    "failed": 0,
+    "names": [
+      "an installed dependency keeps precedence over the workspace link",
+      "a workspace declared above the repository boundary receives no link",
+      "legacy TS-only extraction does not consume live workspace configuration"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "eefdbb8b0749d81192feec2c7eccb188323fe421c313c92a4229f9583ecf54b4"
+    }
+  },
+  {
+    "id": "opaque-ownership",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/ts-analyzer/test/opaque-inline-ownership.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/ts-analyzer/test/opaque-inline-ownership.test.ts",
+      "--test-name-pattern",
+      "opaque inline ownership|actual test binding ownership|anonymous default declaration"
+    ],
+    "expectedTests": 7,
+    "passed": 7,
+    "failed": 0,
+    "names": [
+      "opaque inline ownership register(() => helper())",
+      "opaque inline ownership register(() => helper)",
+      "opaque inline ownership helper(); register(() => helper)",
+      "opaque inline ownership register(() => unknown)",
+      "opaque inline ownership register(() => 1)",
+      "actual test binding ownership preserves the unchanged public Vitest callback",
+      "anonymous default declaration owns its already modeled inline call"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "87b4c77675c42012d91c3187d74791dcdd7e7ba42fb3554a50bc4f6a9cb6b99b",
+      "stderr": "94906389506a9a1b4a6d269054744b973e256e989a678df73170146de7de15f1"
+    }
+  },
+  {
+    "id": "scope-admission",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "packages/app-services/test/qualified-analysis.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "packages/app-services/test/qualified-analysis.test.ts",
+      "--test-name-pattern",
+      "unretained generated reference|manifest optional dependencies|excluded parse-failed or computed"
+    ],
+    "expectedTests": 3,
+    "passed": 3,
+    "failed": 0,
+    "names": [
+      "round2 unretained generated reference returns structured rejected admission",
+      "manifest optional dependencies are admitted as opaque external boundaries",
+      "excluded parse-failed or computed importers cannot silently disappear from dependency scope"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "b35c76c5fa1d8e2eb6310a0d618d37e993e9c4dd7aef9568f63b668920ec3516"
+    }
+  },
+  {
+    "id": "pilot-builtin",
+    "authority": {
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "file": "scripts/test/impact-pilot.test.ts"
+    },
+    "argv": [
+      "test",
+      "--timeout",
+      "60000",
+      "scripts/test/impact-pilot.test.ts",
+      "--test-name-pattern",
+      "extractRelativeImportSpecifiers keeps only relative"
+    ],
+    "expectedTests": 1,
+    "passed": 1,
+    "failed": 0,
+    "names": [
+      "baselines > extractRelativeImportSpecifiers keeps only relative specifiers"
+    ],
+    "exitCode": 0,
+    "status": "BASELINE_OBSERVED",
+    "runtimeEvidence": {
+      "bun": "1.4.3",
+      "platform": "win32",
+      "arch": "x64",
+      "dependencies": [
+        {
+          "name": "@lezer/python",
+          "version": "1.1.19",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+python@1.1.19/node_modules/@lezer/python",
+          "filesVerified": 16,
+          "expectedFileManifestSha256": "25d61f4c87d9792d075d78ff577923915553f9ba6c19651936f8769078883f0a"
+        },
+        {
+          "name": "@lezer/common",
+          "version": "1.5.2",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+common@1.5.2/node_modules/@lezer/common",
+          "filesVerified": 7,
+          "expectedFileManifestSha256": "ff03d438c2720622156b1c6f6f994122462d7b1da310a208a4025a8e465aac84"
+        },
+        {
+          "name": "@lezer/lr",
+          "version": "1.4.10",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/@lezer+lr@1.4.10/node_modules/@lezer/lr",
+          "filesVerified": 9,
+          "expectedFileManifestSha256": "3910901d50202739cd78ef18f70f88e0d34a7d3cfe4b0b800641e560d5b27053"
+        },
+        {
+          "name": "zod",
+          "version": "3.25.76",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/zod@3.25.76/node_modules/zod",
+          "filesVerified": 596,
+          "expectedFileManifestSha256": "a8240a9aff5f92ec5231e0be909564d2b7e6c65325d07c01ca83a432eec59a10"
+        },
+        {
+          "name": "typescript",
+          "version": "5.9.3",
+          "root": "C:/Users/Hokli/Documents/Codex/2026-10-21/re/work/t00-qualification-supplement-v2/primary/baseline-source/node_modules/.bun/typescript@5.9.3/node_modules/typescript",
+          "filesVerified": 132,
+          "expectedFileManifestSha256": "2d256e66694c2b0fff0e6874e0fec468a5b580093112a021e7a1eccb860c0854"
+        }
+      ],
+      "sdkFilesVerified": 101,
+      "sdkManifestSha256": "d86bf34bcc252d37408a93389eda2ad1d03cbb2754046cd3f4f749f7888610d6"
+    },
+    "raw": {
+      "stdout": "93e17c6d85569f385aa7b45405c874ee0eea42e855761a831066dd5dcffcdf89",
+      "stderr": "4f3fcdeae3c5b00f5a3a29a4acdb151bfc835fdaa24cf20e13b2b0a3153de6a5"
+    }
+  }
+]

@@ -1,0 +1,144 @@
+{
+  "recordVersion": 1,
+  "state": "ORIGINAL_MACOS_CAMPAIGN_EXECUTED_RAW_NONPASS_FORMAL_REVIEW_OPEN",
+  "authorTask": "/root/retained_unresolved_evidence_author",
+  "auditorTask": "/root/retained_unresolved_evidence_author/macos_campaign_claim_auditor",
+  "claimAudit": "step4-macos-campaign-claim-audit.md",
+  "sourceCommit": "f6102579d27164dbe05b544536e4c9c0f509c5c9",
+  "lastPublishedHead": "50f10c4a1f98adf4dcd1f54b608ba9e4bd8ec39e",
+  "environment": "macOS27.0.1 ARM64; release Rust1.95.0; Bun1.4.3; GIT_CONFIG_GLOBAL absent; GOPORT_LIB_PARSE_SNAPSHOT=0,GOPORT_LIB_SNAPSHOT=0,RUST_TEST_THREADS=1",
+  "temporaryEvidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceRetention": "Local temporary raw files; hashes identify bytes, not durable retention. No self-contained durable archive is claimed.",
+  "bindings": {
+    "producerSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+    "observerSha256": "b1c08511888837c6493dca77e3e6116533ef58ec784b420105d2481b26c4f761",
+    "recipesSha256": "3e2a55686d2cd86987be339964354ae4b66bb08c7603784351c2b1521152cdef",
+    "sourcePatchSha256": "bdcb7f13f36099faab2b0f9b7af3ee4d7af290bee0a1ad08fab58a77cdcead7d"
+  },
+  "outlineAbsenceCorrection": {
+    "scope": "Existing frozen OL optional fields moduleSpecifier/importBindings/loadsModule/sideEffectImport and P10 links_exact.whole only.",
+    "mechanism": "indexed_field_absences checks object contains_key at the declared index; presence of null is not absence. Existing checks are retained.",
+    "recipesExtended": 56, "outlineAbsences": 161, "p10Absences": 2,
+    "nativeCarriers": 9, "controlledNullInsertionsRejected": 22,
+    "history": "Initial RED and v1 missing-sideEffectImport finding remain in their original reports; sideeffect RED then v2 GREEN close that demonstrated gap only.",
+    "oracles": ["step4-outline-absence-red-v1.log", "step4-outline-absence-sideeffect-red-v1.log", "step4-outline-absence-green-v2.log"],
+    "checks": "65 observer comparators,8 Python tests,Ruff,Clippy PASS; WindowsGNU cargo check only. Default release324 PASS belongs to50f10; no rerun claimed for this qualification-only delta.",
+    "proofScope": "Targeted reviews predate the separate full macOS campaign below; their no-full-campaign limitation remains historical."
+  },
+  "originalMacosCampaign": {
+    "authority": "Existing owner Steps4-5 authority in campaign-macos-freeze-v1.json; original frozen354unit/51support inputs only.",
+    "unitsExecuted": 354, "unitsRawPass": 352, "unitsRawNonpass": 2,
+    "supportsExecuted": 51, "supportsRawPass": 50, "supportsRawNonpass": 1,
+    "testExitCode": 101, "qualified": false, "qualifiedObligations": 0, "obligationDenominator": 240,
+    "obligationState": "REQUIRES_PROPERTY_AND_SUPPORT_REVIEW", "R0": "NOT_MADE_BY_ADAPTER",
+    "rawNonpass": [
+      {"id":"N17c-importhelpers-es5-actual-emission::base","arbitration":"T00-ARB-003","scope":"__generator absent; existing output hash and7.1.0-dev compiler observed; other raw checks pass"},
+      {"id":"ORD-DIALECT-CAPABILITY::base","arbitration":"T00-ARB-004","scope":"two frozen5.9.3 compiler/dialect identity checks mismatch7.1.0-dev; other raw checks pass"},
+      {"id":"ENC::UTF16LE-lone-high-surrogate::ordinary","arbitration":"T00-ARB-002","scope":"actual parser diagnostic1490 versus frozen1127,syntax error retained; owner classification is not new root-cause proof"}
+    ],
+    "arbitrationEffect": "Existing individual version classifications only; raw NONPASS and frozen expected bytes remain unchanged. No new approval,PASS,waiver or qualification credit.",
+    "scopeLimit": "Execution completeness is not closure of each canonical property,consumer/support obligation or global admission. No native Linux/Windows354/51 campaign or reserved23cases/26variants execution."
+  },
+  "staticReview": {
+    "reviewedObligations": 240, "qualifiedObligations": 0,
+    "historical178": {"supportedPlans":94,"gaps":84,"source":"step4-178-review-consolidated-v2.json"},
+    "other62": {"supportedPlans":44,"gaps":18,"groups":[15,17,30]},
+    "countMeaning": "Read-only pre-adoption snapshots; proposed remaps and the absence correction are not consolidated into new closure totals. No native execution or qualification follows from source reading.",
+    "prospectiveWitnessDecision": "REQUESTED_NOT_RECEIVED; proposal not adopted; no frozen expectations or input sources changed"
+  },
+  "publicationAndCiReceipt": {
+    "verifyPr": "Full local verify:pr PASS at50f10 only; identity-support-milestone-verify-pr-v1.log does not coverf610.",
+    "mergeabilityReceiptObservedUtc": "2026-10-19T22:45:07.311284+00:00",
+    "codeqlFinalReceiptUpdatedUtc": "2026-10-19T22:48:35Z",
+    "receiptChronology": "Composite: dynamic CodeQL existed at22:45:07; SUCCESS is established only by the later final receipt,updated22:48:35. No CodeQL success is claimed at22:45.",
+    "codeqlRun": 39336746469, "codeqlConclusion": "SUCCESS",
+    "ciPullRequestFor50f10": "ABSENT_AT_RETAINED_OBSERVATION",
+    "mergeability": "GitHub dirty/mergeablefalse contradicts same local merge/head tree d3be57f3ec144dd975f45fba2b7cb1608d6d1fd6; no semantic conflict established.",
+    "candidateCi": "No publishedf610 or candidate CI success claimed; no manual launch or policy change authorized by this receipt."
+  },
+  "unchanged": "Original64 staticUNITGAP mappings and51 supportplans remain historical; formal0/240,R0pending,reservedunread/unexecuted. Owner8fdc budget/pass counters and CI/publication constraints unchanged.",
+  "evidence": [
+    {"path": "step4-outline-absence-source-anchor-v2.json", "sha256": "0b2fa46afd932b07360a28499c5e69b992f1b1f38c974f7106ba815396c0ac1a"},
+    {"path": "step4-outline-absence-check-receipt-v2.json", "sha256": "1407e733adc8ee0969af2ea7bf8f2c73c1c42c09ca50a59c2cfc74fa5b270e7a"},
+    {"path": "step4-outline-absence-final-spec-proof-v2.md", "sha256": "d0ceec639f400f5ff106df4f8510699b2dd5b01cdf3ff7d5a3b161f96177c24b"},
+    {"path": "step4-outline-absence-final-standards-v2.md", "sha256": "0fd6af0229ed9a6d0ecf7558802313b1b618304de628ab8effd7f774e3993931"},
+    {"path": "step4-outline-absence-adversarial-v2.md", "sha256": "1000a56c4b15db6bcd22e06bd8562933eb76ad4171430ebbd28f96c01d995e3c"},
+    {"path": "campaign-macos-freeze-v1.json", "sha256": "6f382028676e9e67b6a17b5d06f1362a193c53528fc69101582c35ca4b64afdb"},
+    {"path": "campaign-macos-original354-v1/report.json", "sha256": "dad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d"},
+    {"path": "campaign-macos-original354-v1.log", "sha256": "5085bffc35ccb337b5d11743e89e31f1fb6dca401017953c395cbbc61478c3ed"},
+    {"path": "campaign-macos-summary-v1.json", "sha256": "663d81470b9f0611426a436c234f792f299abf4184fa62c743be95147ea5eb5b"},
+    {"path": "campaign-macos-version-bindings-v1.json", "sha256": "8f23fa0dc32727fc705dd973984e5a94ca178f9bc0b589bd8e47633917cdff55"},
+    {"path": "step4-178-review-consolidated-v2.json", "sha256": "87a92cf7734233ad236db80e85ab3e2b8e4438a96591d01c413c278a29ddd0d5"},
+    {"path": "step4-other62-extraction-outline-review-v1.json", "sha256": "4a2177ac97103e9ddf73e24146f85192c16f709ae59793eba985aa17363dcee6"},
+    {"path": "step4-other62-ownership-worker-identity-review-v1.json", "sha256": "b1bfbcdce240020e400541a3ef6be87d396419cb1f3b55ca69fada2c180f2e5c"},
+    {"path": "step4-other62-scope-config-review-v1.json", "sha256": "123a6c98b1fe29857d8ce3b12dd0b54352ca94922d02c12bf1b6eb98e2650c37"},
+    {"path": "ci-50f10-mergeability-contradiction-v1.json", "sha256": "1114d52109d2a50127cb498fec58450a59feb2e2a05c71d9efce2de3ef9cc053"},
+    {"path": "identity-support-milestone-verify-pr-v1.log", "sha256": "a3067e7e2ced980739f7b46a393b2e7e2c4b36ecb952383420b30142ade5c4ba"},
+    {"path": "ci-50f10-codeql-final-v1.json", "sha256": "6d1ae4b09018aa348d5d94cbcb0f28d495b85efb5bf0ce0c5fce2c96e9a7b12d"}
+  ],
+  "versionArbitrationReceipt": {
+    "authorTask": "/root/retained_unresolved_evidence_author",
+    "auditorTask": "/root/retained_unresolved_evidence_author/version_arbitrations_claim_auditor",
+    "sourceCommit": "10d16de23302ad99a390754061a1867804998575",
+    "sourceSha256": "2ce086486ca8b488b40c587135fa40695654146ab4999eff7439ef7ee3169520",
+    "patchSha256": "c39e458a0a0d6a3fa5e776e38a44994ec6f3cdebec4359dd4a13bcfdc62f2205",
+    "scope": "Exact existing ARB-002/003/004 classifications only; no authority change,automatic extension,new expectation or waiver.",
+    "campaignBinding": "Immutable v1 observer3b434756f4d86033ca3f309f0e279c955d02927f33b54f57959d199ecfe8a52d; freeze source9e4e3c512f4116749ff687986a5f5464ec723410 plus archivedv1patch. Not a clean10d build or fullv2 runtime replay.",
+    "v1ToV2": "Only binding_complete renamed bindings_verified,four test clones replaced by from_ref,and formatting; independent source-delta reviews support bounded reuse of unchanged executable logic.",
+    "environment": "macOS27.0.1 (Darwin27.0.0) ARM64,Rust1.95.0,Bun1.4.3,GIT_CONFIG_GLOBAL absent; GoPort snapshots disabled,serial test as recorded in freeze.",
+    "aggregate": {"test":"qualification_replay_requires_explicit_optimized_freeze","pass":true,"elapsedSeconds":127.68,"unitsRawPass":352,"unitsRawNonpass":2,"supportsRawPass":50,"supportsRawNonpass":1,"qualificationCredit":0},
+    "classificationTrustBoundary": "version_arbitration constructs the three exact classifications internally; comparison_resolved consumes rawpass/state and arbitrationstate/credit0 without independently authenticating id,signature or checks. A directly forged result object is accepted at this isolated source-copy boundary; no route from forged native classification into the campaign is demonstrated.",
+    "rawEquality": "Against original reportdad581308c7817adb6b86355e91054099feec576d8e616aa1e9acd02b801271d: all354unit/51support state,pass,checks,relations,gaps and all240obligations are structurally identical. Reports differ in timestamps,temporary paths and captures/bindings; no byte equality claimed.",
+    "formal": "qualified=false; all240 REQUIRES_PROPERTY_AND_SUPPORT_REVIEW; R0=NOT_MADE_BY_ADAPTER. Aggregate classification does not qualify obligations.",
+    "targetedChecks": "Currentv2 exact three-arbitration native testPASS;66comparatorsPASS;Clippy alltargets/featurePASS; WindowsGNU compilationPASS onDarwin,notWindowsruntime.",
+    "acceptedOmission": "Actual source-copy adversarial test accepts capture_probes=[] for ARB003/004 after removing584/592probes. JOINED_REPORTED_SUCCESSFUL_READS_ONLY returns emptyread_paths; classification resolves with rawNONPASS/credit0 unchanged. This limit is retained,not fixed.",
+    "readScope": "Descriptor/artifact binding plus reported successful-read joins only; no mandatoryrootread,completecaptureinventory,allSDKconsumption or OS-sandbox proof. No pinned-producer omission or end-to-end forgery demonstrated; campaign classifications are recomputed internally.",
+    "pending": "Fullverify:pr at10d,push/remoteCI,Linux/Windowsruntime,threeOSqualification,reserved23/26,R0. OfftreeCIproposal notapproved; no prospectivewitness/input adoption or reserved read/run.",
+    "historyAndRetention": "Prior receipts and owner8fdc unlimitedpasses unchanged; rawproofs remain local temporary files,not durable archive.",
+    "evidence": [
+      {"path": "version-arbitrations-source-anchor-v2.json", "sha256": "bd3b86689fe57bea1cf2e84fa5703542ae9dda0eed60c8c11d871e53c19ea647"},
+      {"path": "version-arbitrations-check-receipt-v2.json", "sha256": "4d5196fe5c94fce3b80d5514bab0228ef505c993caa67e8239af00c2dcc518f6"},
+      {"path": "version-arbitrations-source-v2.patch", "sha256": "c39e458a0a0d6a3fa5e776e38a44994ec6f3cdebec4359dd4a13bcfdc62f2205"},
+      {"path": "version-arbitrations-standards-v2.md", "sha256": "b59bdc96c2e0e4d0810aa5968722547e905a49a89c8bd2254f8706749a5cdf8d"},
+      {"path": "version-arbitrations-spec-proof-v2.md", "sha256": "9733759583df17b46dfc81f4b4b6d783c8a825b5d41820301e40b033555dfb0a"},
+      {"path": "version-arbitrations-adversarial-v1.md", "sha256": "9e00bd29ccb16e62d186a89acd7d5f10931c056a7dcde88408494ad82d48b5d7"},
+      {"path": "campaign-macos-version-arbitrations-freeze-v1.json", "sha256": "11ece0dd04eecb38aaf444789521d871e96b0ef72fe68d367577ccb9c872b69e"},
+      {"path": "campaign-macos-version-arbitrations-v1/report.json", "sha256": "362361620782ce093f58256ce69656d637408ef30b8231e187256d40fcf89e99"},
+      {"path": "campaign-macos-version-arbitrations-v1.log", "sha256": "ad16b1102ce729d99e1bdbcd8b4d2386076554c76a8c9abb3c9357137983579c"}
+    ]
+  },
+  "defaultExclusionReceipt": {
+    "authorTask": "/root/default_exclusion_receipt_author",
+    "auditorTask": "/root/default_exclusion_receipt_author/default_exclusion_auditor",
+    "sourceCommit": "aa943454509f76593af674af4ced8b29608703cc",
+    "authority": "Existing FROZEN_PRESELECTION obligations 10 and 11; one shared default-export assignment/declaration property and native V2-E05/PUBLIC-PATHE-03 pair. No new expected input or case.",
+    "mapping": "V2-E05 default.mjs retainedWithoutSource excludes SOURCE_DEFAULT_EXPRESSION_UNSUPPORTED, requires executed=true and unsupported=[]; two existing checks and PUBLIC-PATHE-03 remain unchanged. Unrelated reasons remain allowed.",
+    "checks": "Integrated native RED exit 101 then GREEN exit 0; 66 comparators, 8 Python tests, Ruff, format and Clippy PASS; Windows GNU compilation PASS on Darwin only.",
+    "environment": "macOS 27.0.1 (Darwin 27.0.0) ARM64; Rust 1.95.0; Bun 1.4.3; Python 3.10.22; GIT_CONFIG_GLOBAL absent.",
+    "campaign": {
+      "observerSha256": "23fe02c76aca253680d67d63a9d43c753577a6124a074d164f295dfd34c73653",
+      "producerSha256": "d2b5e4aa79a321aec4472baa86496df8a6f2371e6a114425d66b71901f1dad38",
+      "binding": "Current aa943 observer with retained immutable C1 producer; no clean-aa943 producer rebuild claimed.",
+      "test": "qualification_replay_requires_explicit_optimized_freeze",
+      "pass": true,
+      "elapsedSeconds": 126.56,
+      "delta": "Against report 36236162, all 354 unit and 51 support raw states/pass/relations/gaps/arbitrations and all 240 obligations are structurally unchanged. Only V2-E05 checks grow from 2 to 5, retaining the original two.",
+      "reportSha256": "42a287d07cb167d74ae8bbfaa855dfbd7e5befbcbfd49d12e2bd4261d421d081"
+    },
+    "limits": "Formal credit remains 0/240 and R0 pending. Retained full verify:pr PASS covers dfed4696 only. No remote CI, native Linux/Windows runtime or reserved/prospective run is established. Historical snapshots, owner budget/counters and pending CI/witness decisions remain unchanged.",
+    "evidence": [
+      {
+        "path": "step4-default-exclusion-integrated-receipt-v2.json",
+        "sha256": "b6995ca096a2cc24f3e1aecbfddfb76eb2f2ab98b4ea81595560376009fda9a6"
+      },
+      {
+        "path": "step4-frozen-default-exclusion-authority-v1.md",
+        "sha256": "7a1095b56cd73c619a15ee99dae1f949aa0d50ad53ac205c9226410ff4bebfcf"
+      },
+      {
+        "path": "step4-default-exclusion-obligation-reconciliation-v1.json",
+        "sha256": "7f591e3889e6e42b99e56509968c5a7b324c594444ad8b04de83e2dcd851d16f"
+      }
+    ]
+  }
+}

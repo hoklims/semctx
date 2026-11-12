@@ -1,0 +1,133 @@
+{
+  "recordVersion": 1,
+  "state": "ONE_FROZEN_QUALIFIED_PATH_ELIGIBILITY_COMPONENT_LIMITED_PASS_MACOS_REVIEWED",
+  "author_task": "/root/retained_unresolved_evidence_author",
+  "auditor_task": "/root/retained_unresolved_evidence_author/eligibility_claim_auditor",
+  "claimLedger": "gap-qualified-eligibility-claim-audit.md",
+  "authority": {
+    "architecture": "Accepted ADR0035; predicate/causal metadata intent, not complete ADR qualification.",
+    "frozenUnit": "cases/qualification/scenarios.json#/execution_units/286: ORD-QUALIFIED-ELIGIBILITY::base; allocation/input-index.json; obligation createQualifiedPathEligibility.",
+    "frozenMeaning": "Two frozen assertions mapped to ten checks in two contexts, not ten units or ten separately frozen assertions.",
+    "baseline": "Implemented historical TS5.9.3 source at3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b; current nonzero-error/predicate/metadata tail unchanged, full Git preamble differs."
+  },
+  "sourceAnchor": {
+    "base": "9acd0caae5435079b68cfc41bc96fb8081fa8a39",
+    "files": {
+      "tools/rust-ts-r0/qualification/prepare_recipes.py": "4812aa0717a4067fc9c5929d61dc362312c7736351a2e33b1342c8c1363e2f1b",
+      "tools/rust-ts-r0/qualification/qualification_replay.rs": "d2b3412b86405d537fb72b8953b7f9da990ac852d3f145df2540fd1dcaec1d0f",
+      "tools/rust-ts-r0/qualification/repository_replay.rs": "c6139fddee959121f8d0347f27a1a50aa505581710c768ccce97450c6b1f7d51",
+      "tools/rust-ts-r0/src/main.rs": "652e6fc0f2d0a75ca3a20930b23a459248e538b6288f7c38df30340efea3a189",
+      "tools/rust-ts-r0/src/qualified_path_eligibility.rs": "8918862cd07904bededbbab427c0bbfa171874f682d7ca7b3846e04c327c4844",
+      "tools/rust-ts-r0/src/repository_discovery.rs": "e25b38f71b65b8801fcb9540e84596995a5077f6db086f164257ffc3891c31aa",
+      "tools/rust-ts-r0/src/retained_manifest.rs": "8e05c71e88512a91aaccb295e996facc0cf521ecbaac4998078a57e8c2b0bd32",
+      "tools/rust-ts-r0/tests/native_discovery_flow.rs": "b4f1a837a696fcdbfaaec9ff54600043cbe505624d7fbde840e59e17b566b9a9"
+    },
+    "manifestSha256": "dea80a2971ef29bee4a78d4d1d3f6e582d9e9456aa0306698f26fba0267762fe",
+    "patchSha256": "77c99af3708026597fc2950fe5c087bac9a67ebeb1cd625a640313a683d7fc9a"
+  },
+  "artifacts": {
+    "producerSha256": "9f67f55fe6199e6cf2f4726b3e175589a6e374ec3424ecfe8b7883ef70f5cca5",
+    "observerSha256": "a71f4e0365d0ec05a670180bba3a3797993daf485eab464e0aa592d3816dca47",
+    "helperSha256": "488a08c9a98349b44f2ac154e896e4a614c73dd1470e8522cd066d639791201c",
+    "sdkSha256": "d1e98c4875cc3d1fe302edea4964aa12a58b391a25e6368c800413d45386b654",
+    "fixtureSha256": "ba25d328fcf0c25c3ebca0f09abc26799c8336d09fc206fb4c17ef73bda483a4",
+    "canonicalRecipeSha256": "760ca2459f8928f10844d796e40af631fdc5bcd538fef6921fc1aa2b13a674dc",
+    "provenance": "Named artifacts and before/after identities; no independent source→binary reconstruction or SDK behavioral credit. v4→v5 only changes the native test permission literal0→0o0."
+  },
+  "focusedReplay": {
+    "oracle": "gap_qualified_path_eligibility_preserves_metadata_and_refuses_git_failure",
+    "unitId": "ORD-QUALIFIED-ELIGIBILITY::base",
+    "state": "PASS_FROZEN_GIT_ELIGIBILITY_COMPONENT",
+    "frozenAssertions": 2,
+    "contexts": 2,
+    "projectedChecks": 10,
+    "healthyEligibleResults": [
+      true,
+      true,
+      true,
+      false,
+      true,
+      false
+    ],
+    "gitArgv": [
+      "ls-files",
+      "-z",
+      "--cached",
+      "--others",
+      "--exclude-per-directory=.gitignore"
+    ],
+    "failureControl": "Same physical input outside Git: real git exit128, eligible_results:null and exact frozen IO_ERROR. Outer producer completion does not mean eligibility established.",
+    "identityBinding": "Request,producer,helper,cwd,Gitargv,capturehash/length/kind,query/result denominator and two exact causal metadata reads.",
+    "resultsSha256": "c825480406c9b473793d5265a630e9e712ea850faf39d5788c1c688e4c19649a",
+    "healthyProcessSha256": "ea1d69d0e05b9e06ebb3a6704162ec3b8a926928c0f504dc51ed61dea76c0e41",
+    "failureProcessSha256": "eccaeda95c747fdccf9956549b2c45ff0dd53eea9be773abab4d5d2ae1fd4999",
+    "globalAdmissionInferred": false
+  },
+  "correctedOwnedDefects": [
+    "Partial JSONC diagnostic formerly discarded an already-recovered relative extends; qualified metadata now preserves that recovery without relaxing the strict manifest inspector. RED1→GREEN1 and independent native/historical checks.",
+    "A .git directory formerly pruned causal metadata as if it were a nested worktree; qualified traversal now distinguishes file/symlink markers from directories, leaving ordinary discovery unchanged. RED2→GREEN1 and independent marker controls."
+  ],
+  "oracles": {
+    "environment": "macOS27.0.1/DarwinARM64, Bun1.4.3, TypeScript5.9.3, pinned Rust1.95.0; local native process evidence only.",
+    "v4BroadTests": "49library+244binary+25native integrations PASS at v4 provenance.",
+    "v5Checks": "2targeted native tests,58comparators,focused replay,Clippy PASS. E03 carryover passes its existing three-unit oracle; no additional eligibility credit.",
+    "independentSpec": "Canonical replay passes, metadata-removal and ignore-removal mutations fail, restoration passes; actual historical TS/native comparison agrees on frozen six, partialJSONC,nested.gitdirectory,cycle and nonrepository controls.",
+    "adversarial": "25bounded attempts:24real native requests+24actual historical-function calls+existing compiled comparator;23/24vectors equal,24causal readinventories/digests equal; no demonstrated predicate/closure bypass within this scope.",
+    "windows": "WindowsGNU x86_64-pc-windows-gnu cargo check on Darwin PASS; no Windows/Linux runtime evidence.",
+    "notRun": "No current full verify:pr, exact-head remoteCI,354campaign,178obligationreview or reserved replay."
+  },
+  "trustBoundary": {
+    "recipe": "Separate documentary SHA verification of the exact canonical recipe; focused repair_units does not authenticate recipe hash or complete check inventory. No self-authenticating policy claim.",
+    "gitPreamble": "No whole-function byte parity. Inherited invalid GIT_INDEX_FILE makes historical Git fail while the isolated native helper succeeds (adverse23). Historical/current tail equality does not cover inherited Git variables, timeouts, output limits or arbitrary environmental faults.",
+    "fullCampaign": "Future complete replay must bind canonical freeze/recipes; focused PASS is neither optimized freeze nor qualification."
+  },
+  "progress": {
+    "originalGapUnits": 64,
+    "mappedOriginalGapUnits": 56,
+    "limitedFocusedPassAcrossRecordedCheckpoints": 55,
+    "versionAttributedNonpassAcrossRecordedCheckpoints": 1,
+    "residualStaticGapUnits": 8,
+    "recipesWithoutKnownGaps": 346,
+    "unitDenominator": 354,
+    "qualifiedObligations": 0,
+    "obligationDenominator": 240,
+    "historicalReviewRequiredObligations": 178,
+    "review178": "PENDING; historical classification not recomputed",
+    "campaign354ThreeOS": "PENDING",
+    "reserved23Cases26Variants": "NOT_EXECUTED; not read by this documentary author/auditor",
+    "R0": "UNDECIDED",
+    "ownerAdditionalPass1": "OPEN",
+    "ownerAdditionalPass2": "NOT_STARTED",
+    "scope": "Cumulative checkpoints on distinct artifacts, not a current single-artifact campaign."
+  },
+  "limits": [
+    "Private component only: no global admission, public assembly, full health/storage/services, full SDK consumption, sandbox, race/resource/performance or universal glob/JSONC guarantee.",
+    "Named scope, captures and restored controls only; no future-edit guarantee.",
+    "No new budget decision:8fdc remains operative, no fixed pass ceiling, pass1OPEN, pass2NOT_STARTED and counters unchanged.",
+    "Compact paths/hashes/projections; local raw evidence may expire, no archive duplicated."
+  ],
+  "evidenceRoot": "/private/tmp/semctx-t00-import-scope-20261019",
+  "evidenceSha256": {
+    "eligibility-source-anchor-v5.json": "dea80a2971ef29bee4a78d4d1d3f6e582d9e9456aa0306698f26fba0267762fe",
+    "eligibility-source-v5.patch": "77c99af3708026597fc2950fe5c087bac9a67ebeb1cd625a640313a683d7fc9a",
+    "fixture-eligibility-v4.json": "ba25d328fcf0c25c3ebca0f09abc26799c8336d09fc206fb4c17ef73bda483a4",
+    "eligibility-baseline-binding.json": "5dfd6d4dbfe453974264eb390f557f22157fea88d3d62cc4bdf3197b90ce5f8e",
+    "eligibility-recipes-v1/replay-recipes.json": "760ca2459f8928f10844d796e40af631fdc5bcd538fef6921fc1aa2b13a674dc",
+    "eligibility-recipes-v1/preparation-summary.json": "72feea482df8478d815f421cf09994cb0ba0b7e45711551aec1c2b3fdbbe3629",
+    "eligibility-v4-spec-proof.md": "82b791d3adff6419bd9507c6b1788762dbf6eb28c475ca78f58b2b0373e55285",
+    "eligibility-v4-standards.md": "92817c4d0ae3aa4f937b82d3dd6f9cac3383d20b31b768d0e2080174410a9453",
+    "eligibility-v5-adversarial.md": "9364f7cade59a5e88bee3c258d15d61bb1d01610c0d8aeea59bcbbe18b519a53",
+    "eligibility-tests-v4.log": "6c8b7baa6b17ba315e42fdea8b80bac97159fcfdb53529216dae864f20ff2920",
+    "eligibility-native-v5.log": "568d0b76f7f0806fdc8ee90225fc33d4551bfdbb3655fd61bff4dcb9f54fa40e",
+    "eligibility-comparators-v5.log": "6eb7aa95f1719d487a150f75edee73abc49df2e9e285285db4ddf6645e41dfe3",
+    "eligibility-replay-v5.log": "3a7b887736d7f558e7148ce08291d294d0b8d073f68ed0c594be31cdaf14b431",
+    "eligibility-carryover-e03-v5.log": "3079a6cdeb1544a1ad26d6ccf32aaf8785cee9dddf737dff066a8ad6fd6da43e",
+    "eligibility-clippy-v5.log": "a27510d77a4c93e0f508daa87764e09fbfc64f576418fbc756c4cfc569bc6162",
+    "eligibility-windows-check-v5.log": "84b59cdbe59fb2269737263024505422c21b7aed39410f85c56b4c67b33e21d4",
+    "eligibility-correction-red1.log": "842f953f991ffe2818f306605b0bbd382f74c6145b3d90c859f67259ced9d32a",
+    "eligibility-correction-red2.log": "3092229239cfd3c01c1af7976ba5bb6c696714d675b8c813405163363b388f9d",
+    "eligibility-correction-green1.log": "3658f519b1950d059004a96611344a30c4ecc62ca77ff08e21a931bac4d1baa4",
+    "eligibility-v5-adversarial-data/before.json": "fb7f773a77d7c0b34745c0d522a247ea45bf79e7ca9a72f4c6830875250b5d59",
+    "eligibility-v5-adversarial-data/after.json": "fb7f773a77d7c0b34745c0d522a247ea45bf79e7ca9a72f4c6830875250b5d59"
+  }
+}

@@ -1,0 +1,1099 @@
+{
+  "schema_version": 1,
+  "kind": "fresh development bootstrap input fixtures",
+  "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY",
+  "allocation_rule": "Never promote these development fixtures to qualification. Existing268 authored qualification records are excluded from candidate construction/execution. Shared pinned SDK context is allowed.",
+  "author": "/root/ordinary_ts_inventory",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "status": "SOURCE_AUTHORED_NOT_EXECUTED_NO_CANDIDATE_SELECTED",
+  "effort": {
+    "started_utc": "2026-10-17T15:38:08Z",
+    "finished_utc": "2026-10-17T15:42:42.263499+00:00",
+    "budget_minutes": 6
+  },
+  "records": [
+    {
+      "id": "t00Development01InterfileAlias",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development01UniqueAlias",
+          "files": {
+            "t00DevelopmentInterfile01/t00DevelopmentLeaf01.ts": "export function t00DevelopmentLeaf01() { return 101; }\n",
+            "t00DevelopmentInterfile01/t00DevelopmentCaller01.ts": "import { t00DevelopmentLeaf01 as t00DevelopmentAlias01 } from \"./t00DevelopmentLeaf01\";\nfunction t00DevelopmentLeaf01() { return 909; }\nexport function t00DevelopmentCaller01() { return t00DevelopmentAlias01(); }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentInterfile01/t00DevelopmentCaller01.ts",
+                "encoding": "UTF-8",
+                "content_base64": "aW1wb3J0IHsgdDAwRGV2ZWxvcG1lbnRMZWFmMDEgYXMgdDAwRGV2ZWxvcG1lbnRBbGlhczAxIH0gZnJvbSAiLi90MDBEZXZlbG9wbWVudExlYWYwMSI7CmZ1bmN0aW9uIHQwMERldmVsb3BtZW50TGVhZjAxKCkgeyByZXR1cm4gOTA5OyB9CmV4cG9ydCBmdW5jdGlvbiB0MDBEZXZlbG9wbWVudENhbGxlcjAxKCkgeyByZXR1cm4gdDAwRGV2ZWxvcG1lbnRBbGlhczAxKCk7IH0K",
+                "sha256": "33aeaedf00936578e31099aaf6314d8caf882327ebe308fcc5ec61fff7569f09",
+                "size_bytes": 213
+              },
+              {
+                "path": "t00DevelopmentInterfile01/t00DevelopmentLeaf01.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50TGVhZjAxKCkgeyByZXR1cm4gMTAxOyB9Cg==",
+                "sha256": "d7b62f0f8f27aa2056c9e0f3a5a19f18b3c564d47bf535e98928ef96a0d96e23",
+                "size_bytes": 55
+              }
+            ],
+            "operation": "extractTypeScript",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentInterfile01/t00DevelopmentCaller01.ts",
+              "t00DevelopmentInterfile01/t00DevelopmentLeaf01.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "635fbf2965d0f4e009b416cfdf260ad66db20cbe78a56ca7be79e39e743945fc",
+          "file_map_sha256": "ba4b84ba7e13cf7e70f37390319b7db1ba1778d550e3418bc181b3f40a2c03e4",
+          "source_byte_multiset_sha256": "ff640a708a2f1f99822f6e81aa1aa4b3a87338fbce1144c14cf4745d8c96e417",
+          "expected_projection": {
+            "calls_projection_exact": [
+              {
+                "caller": [
+                  "t00DevelopmentInterfile01/t00DevelopmentCaller01.ts",
+                  "t00DevelopmentCaller01"
+                ],
+                "callee": [
+                  "t00DevelopmentInterfile01/t00DevelopmentLeaf01.ts",
+                  "t00DevelopmentLeaf01"
+                ]
+              }
+            ],
+            "forbidden_callee": [
+              "t00DevelopmentInterfile01/t00DevelopmentCaller01.ts",
+              "t00DevelopmentLeaf01"
+            ]
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1187,
+          "end_line": 1221,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Imported alias resolves its declaration owner, not a same-spelling local homonym. The homonym supplies a relevant wrong-target counter without adding an ambiguous export.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development02UniqueCycle",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development02CyclicUniqueOwner",
+          "files": {
+            "t00DevelopmentCycle02/t00DevelopmentOrigin02.ts": "export function t00DevelopmentLeaf02() { return 202; }\nexport function t00DevelopmentUnused02() { return 808; }\n",
+            "t00DevelopmentCycle02/t00DevelopmentBarrelA02.ts": "export { t00DevelopmentLeaf02, t00DevelopmentUnused02 } from \"./t00DevelopmentOrigin02\";\nexport * from \"./t00DevelopmentBarrelB02\";\n",
+            "t00DevelopmentCycle02/t00DevelopmentBarrelB02.ts": "export * from \"./t00DevelopmentBarrelA02\";\n",
+            "t00DevelopmentCycle02/t00DevelopmentCaller02.ts": "import { t00DevelopmentLeaf02 as t00DevelopmentAlias02 } from \"./t00DevelopmentBarrelB02\";\nexport function t00DevelopmentCaller02() { return t00DevelopmentAlias02(); }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentCycle02/t00DevelopmentBarrelA02.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IHsgdDAwRGV2ZWxvcG1lbnRMZWFmMDIsIHQwMERldmVsb3BtZW50VW51c2VkMDIgfSBmcm9tICIuL3QwMERldmVsb3BtZW50T3JpZ2luMDIiOwpleHBvcnQgKiBmcm9tICIuL3QwMERldmVsb3BtZW50QmFycmVsQjAyIjsK",
+                "sha256": "9635c35291c8cd7621997cac657ddd86b88c7eac31782141f7db83a5bb10cba8",
+                "size_bytes": 132
+              },
+              {
+                "path": "t00DevelopmentCycle02/t00DevelopmentBarrelB02.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0ICogZnJvbSAiLi90MDBEZXZlbG9wbWVudEJhcnJlbEEwMiI7Cg==",
+                "sha256": "005a0836ef6e0e0ddab2457095c98d32e1b70c4e6540f1975198ddb77b3558fe",
+                "size_bytes": 43
+              },
+              {
+                "path": "t00DevelopmentCycle02/t00DevelopmentCaller02.ts",
+                "encoding": "UTF-8",
+                "content_base64": "aW1wb3J0IHsgdDAwRGV2ZWxvcG1lbnRMZWFmMDIgYXMgdDAwRGV2ZWxvcG1lbnRBbGlhczAyIH0gZnJvbSAiLi90MDBEZXZlbG9wbWVudEJhcnJlbEIwMiI7CmV4cG9ydCBmdW5jdGlvbiB0MDBEZXZlbG9wbWVudENhbGxlcjAyKCkgeyByZXR1cm4gdDAwRGV2ZWxvcG1lbnRBbGlhczAyKCk7IH0K",
+                "sha256": "4be4ea9657d3c9ddd4d107666815bfc3d834a31694889071738a53ad95ee36b2",
+                "size_bytes": 168
+              },
+              {
+                "path": "t00DevelopmentCycle02/t00DevelopmentOrigin02.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50TGVhZjAyKCkgeyByZXR1cm4gMjAyOyB9CmV4cG9ydCBmdW5jdGlvbiB0MDBEZXZlbG9wbWVudFVudXNlZDAyKCkgeyByZXR1cm4gODA4OyB9Cg==",
+                "sha256": "bf5d89a72c5ff6c12e963b364d753b7abb213c9cd928ae263c5bdda2c44fb314",
+                "size_bytes": 112
+              }
+            ],
+            "operation": "extractTypeScript",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentCycle02/t00DevelopmentBarrelA02.ts",
+              "t00DevelopmentCycle02/t00DevelopmentBarrelB02.ts",
+              "t00DevelopmentCycle02/t00DevelopmentCaller02.ts",
+              "t00DevelopmentCycle02/t00DevelopmentOrigin02.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "5f81e27ffdfe04b71d73c92a7e500832acf3822838af4c5b1c0eeadfcb759410",
+          "file_map_sha256": "76e035bee0334663510028bfb4a0b2a5670ebd4720829d1892b3a9d741d16c90",
+          "source_byte_multiset_sha256": "61dfefad2ecbc6a1d52950eb562cd1a28abad708eb43243302327f015bd60999",
+          "expected_projection": {
+            "calls_projection_exact": [
+              {
+                "caller": [
+                  "t00DevelopmentCycle02/t00DevelopmentCaller02.ts",
+                  "t00DevelopmentCaller02"
+                ],
+                "callee": [
+                  "t00DevelopmentCycle02/t00DevelopmentOrigin02.ts",
+                  "t00DevelopmentLeaf02"
+                ]
+              }
+            ],
+            "forbidden_callee_names": [
+              "t00DevelopmentUnused02"
+            ]
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1195,
+          "end_line": 1217,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "A cyclic barrel route with one actual declaration preserves that unique owner. An exported unused sibling cannot become the callee. No ambiguous-star policy is exercised.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development03ArrowVersusData",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development03Arrow",
+          "files": {
+            "t00DevelopmentVariables03/t00DevelopmentVariables03.ts": "export const t00DevelopmentValue03 = () => 303;\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentVariables03/t00DevelopmentVariables03.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGNvbnN0IHQwMERldmVsb3BtZW50VmFsdWUwMyA9ICgpID0+IDMwMzsK",
+                "sha256": "c2d6341522aa778f7597b9d2f4dec6a38c1deb00b2a7d5da6c5d4525244375d9",
+                "size_bytes": 48
+              }
+            ],
+            "operation": "extractTypeScript",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentVariables03/t00DevelopmentVariables03.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "773f0499852417e19f16845e652e337e8a8be34ea77425585b4186b0400fbcd1",
+          "file_map_sha256": "b53d42c3f987c026bfe0f205158a06bc92288309c4c2ae0ebed553d2a6a853f4",
+          "source_byte_multiset_sha256": "5ccc4161be8db75ff18ed3b1095f498b655c1f1353d5d05439c17a8ac2dbd7f3",
+          "expected_projection": {
+            "symbols_matching_path_and_name_exact": [
+              {
+                "path": "t00DevelopmentVariables03/t00DevelopmentVariables03.ts",
+                "name": "t00DevelopmentValue03",
+                "kind": "function",
+                "scope": []
+              }
+            ]
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development03Data",
+          "files": {
+            "t00DevelopmentVariables03/t00DevelopmentVariables03.ts": "export const t00DevelopmentValue03 = 303;\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentVariables03/t00DevelopmentVariables03.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGNvbnN0IHQwMERldmVsb3BtZW50VmFsdWUwMyA9IDMwMzsK",
+                "sha256": "7c8d6ad31afc7d4d619fad3e5e052394f2f660b7a7c854998e53cd0558e35a37",
+                "size_bytes": 42
+              }
+            ],
+            "operation": "extractTypeScript",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentVariables03/t00DevelopmentVariables03.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "91a14d7be20eb58964359810638db29bc8f4b5f500f6e657031067c6789d28c2",
+          "file_map_sha256": "ec94ccd28f7b964e861b66ffa05aaf31ccc282ce8494e74107954dd230cf0ffc",
+          "source_byte_multiset_sha256": "1368200582bd4ff40224c4b16d5040802366e6ba7ff034d8809a0c9f7ed861b7",
+          "expected_projection": {
+            "symbols_matching_path_and_name_exact": []
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 479,
+          "end_line": 506,
+          "status": "implemented historical source; not architectural authority"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1047,
+          "end_line": 1049,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Arrow-valued named variable supplies a callable symbol; ordinary data variable does not fabricate one.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development04ScopedHomonyms",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development04TwoScopes",
+          "files": {
+            "t00DevelopmentScopes04/t00DevelopmentScopes04.ts": "export class t00DevelopmentBox04 {\n  t00DevelopmentLeft04() { function t00DevelopmentSame04() { return 401; } return t00DevelopmentSame04(); }\n  t00DevelopmentRight04() { function t00DevelopmentSame04() { return 402; } return t00DevelopmentSame04(); }\n}\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentScopes04/t00DevelopmentScopes04.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGNsYXNzIHQwMERldmVsb3BtZW50Qm94MDQgewogIHQwMERldmVsb3BtZW50TGVmdDA0KCkgeyBmdW5jdGlvbiB0MDBEZXZlbG9wbWVudFNhbWUwNCgpIHsgcmV0dXJuIDQwMTsgfSByZXR1cm4gdDAwRGV2ZWxvcG1lbnRTYW1lMDQoKTsgfQogIHQwMERldmVsb3BtZW50UmlnaHQwNCgpIHsgZnVuY3Rpb24gdDAwRGV2ZWxvcG1lbnRTYW1lMDQoKSB7IHJldHVybiA0MDI7IH0gcmV0dXJuIHQwMERldmVsb3BtZW50U2FtZTA0KCk7IH0KfQo=",
+                "sha256": "bbb87bf2b76ea3440cbc48efa33d4e68d388ce7769a15096263c015e3b18c310",
+                "size_bytes": 254
+              }
+            ],
+            "operation": "extractTypeScript",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentScopes04/t00DevelopmentScopes04.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "25d43a6d30a0d99707af12d7bfa25a6f650e28a98250b304fed9267c924499a4",
+          "file_map_sha256": "4ce849ac2fa1392849fd6236f1ef27ba84a3ce92b3e08c2946a938595224a09b",
+          "source_byte_multiset_sha256": "4341131e598919cf6a3d6c4ebae5a66bbd142bd6505dad6ae51d12f08cae5ec5",
+          "expected_projection": {
+            "nested_symbols_projection_exact": [
+              {
+                "name": "t00DevelopmentSame04",
+                "scope": [
+                  "t00DevelopmentBox04",
+                  "t00DevelopmentLeft04"
+                ]
+              },
+              {
+                "name": "t00DevelopmentSame04",
+                "scope": [
+                  "t00DevelopmentBox04",
+                  "t00DevelopmentRight04"
+                ]
+              }
+            ],
+            "call_callee_paths_exact": [
+              "t00DevelopmentBox04.t00DevelopmentLeft04.t00DevelopmentSame04",
+              "t00DevelopmentBox04.t00DevelopmentRight04.t00DevelopmentSame04"
+            ],
+            "forbidden_callee_symbol_paths": [
+              "t00DevelopmentSame04"
+            ],
+            "methods_extracted_as_standalone_symbols": false
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1152,
+          "end_line": 1176,
+          "status": "implemented historical source; not architectural authority"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 1205,
+          "end_line": 1217,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Same local function spelling in distinct class methods retains distinct canonical scope coordinates. A bare homonym coordinate is not invented.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development05SdkOriginControl",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development05SdkCallback",
+          "files": {
+            "t00DevelopmentSdk05/t00DevelopmentSdk05.ts": "export function t00DevelopmentSdk05(t00DevelopmentItems05: number[]) {\n  return t00DevelopmentItems05.map(t00DevelopmentItem05 => t00DevelopmentItem05 + 505);\n}\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentSdk05/t00DevelopmentSdk05.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50U2RrMDUodDAwRGV2ZWxvcG1lbnRJdGVtczA1OiBudW1iZXJbXSkgewogIHJldHVybiB0MDBEZXZlbG9wbWVudEl0ZW1zMDUubWFwKHQwMERldmVsb3BtZW50SXRlbTA1ID0+IHQwMERldmVsb3BtZW50SXRlbTA1ICsgNTA1KTsKfQo=",
+                "sha256": "f1861afb3c48aa5a630c7c7663a0df785bf8b544c02bf35a387beffdd1335dd2",
+                "size_bytes": 161
+              }
+            ],
+            "operation": "inspectSemanticDependencies with retained baseline Program/checker",
+            "configuration": null,
+            "profile": "retained-semantic-reason-projection-development",
+            "roots": [
+              "t00DevelopmentSdk05/t00DevelopmentSdk05.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "966dc35b2a7413771fc97753ef51aa14d06fe036f88c468bdc4964181b25568f",
+          "file_map_sha256": "eede778a35baa1c65880e936cd143d9c3f1c58ee462189a3752578018c2b47df",
+          "source_byte_multiset_sha256": "6538ca9987c5a9657a0280b3d6f4548001d551d63562cd46d70f7594626bc9e6",
+          "expected_projection": {
+            "reasons_contains": [
+              "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+            ],
+            "exact_reason_set": null
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development05OwnMethod",
+          "files": {
+            "t00DevelopmentSdk05/t00DevelopmentSdk05.ts": "const t00DevelopmentOwn05 = { map(t00DevelopmentNumber05: number) { return t00DevelopmentNumber05 + 505; } };\nexport function t00DevelopmentLocal05() { return t00DevelopmentOwn05.map(17); }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentSdk05/t00DevelopmentSdk05.ts",
+                "encoding": "UTF-8",
+                "content_base64": "Y29uc3QgdDAwRGV2ZWxvcG1lbnRPd24wNSA9IHsgbWFwKHQwMERldmVsb3BtZW50TnVtYmVyMDU6IG51bWJlcikgeyByZXR1cm4gdDAwRGV2ZWxvcG1lbnROdW1iZXIwNSArIDUwNTsgfSB9OwpleHBvcnQgZnVuY3Rpb24gdDAwRGV2ZWxvcG1lbnRMb2NhbDA1KCkgeyByZXR1cm4gdDAwRGV2ZWxvcG1lbnRPd24wNS5tYXAoMTcpOyB9Cg==",
+                "sha256": "2407d1c70a2a0c6786617fcff9606724cc756fd462dd384576f8a123e699b8f7",
+                "size_bytes": 190
+              }
+            ],
+            "operation": "inspectSemanticDependencies with retained baseline Program/checker",
+            "configuration": null,
+            "profile": "retained-semantic-reason-projection-development",
+            "roots": [
+              "t00DevelopmentSdk05/t00DevelopmentSdk05.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "8ad2c04f7bcee9d3291ebfa363e34f0c7bc723cf9cae22e841fd56f6d7cc8791",
+          "file_map_sha256": "64710eb6a7f37eb42ba1ae515769039330776cb6aacee84910e646cec9216323",
+          "source_byte_multiset_sha256": "022addb2a94a03fa53d0a43445c4a834e6561290432d3aff565c543c9eb42757",
+          "expected_projection": {
+            "reasons_excludes": [
+              "SOURCE_SDK_CALLBACK_UNSUPPORTED"
+            ],
+            "exact_reason_set": null
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+          "line": 749,
+          "end_line": 836,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Actual SDK Array.map callback origin is refused by the named rule; an owned method with the same SDK member spelling is its control. Other reasons remain unasserted.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development06ConfigurationBoundary",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development06EsNext",
+          "files": {
+            "t00DevelopmentConfiguration06/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\"},\"files\":[\"t00DevelopmentConfiguration06.ts\"]}\n",
+            "t00DevelopmentConfiguration06/t00DevelopmentConfiguration06.ts": "export function t00DevelopmentConfiguration06() { return 606; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentConfiguration06/t00DevelopmentConfiguration06.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50Q29uZmlndXJhdGlvbjA2KCkgeyByZXR1cm4gNjA2OyB9Cg==",
+                "sha256": "f5488f72fa099d97f5851e5b791f2ef5b0a001987c550958411b88d65b86ec20",
+                "size_bytes": 64
+              },
+              {
+                "path": "t00DevelopmentConfiguration06/tsconfig.json",
+                "encoding": "UTF-8",
+                "content_base64": "eyJjb21waWxlck9wdGlvbnMiOnsibW9kdWxlIjoiRVNOZXh0IiwibW9kdWxlUmVzb2x1dGlvbiI6IkJ1bmRsZXIifSwiZmlsZXMiOlsidDAwRGV2ZWxvcG1lbnRDb25maWd1cmF0aW9uMDYudHMiXX0K",
+                "sha256": "862a3cbbf20061cffa0e41e12c83c5f4bbe08cf6144a1c7a3484e65ef9243b90",
+                "size_bytes": 114
+              }
+            ],
+            "operation": "inspectModuleConfiguration(sourcePath,R,retainedInputs), without fourth SourceFile scope arg",
+            "configuration": {
+              "nearest_named_config": "t00DevelopmentConfiguration06/tsconfig.json",
+              "source_scope_projection": "not asserted"
+            },
+            "profile": "retained-configuration-reason-projection-development",
+            "roots": [
+              "t00DevelopmentConfiguration06/t00DevelopmentConfiguration06.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "9e35e9ce241fcb8b2c9907c97f4b0687400c0ab1a2657749720760ba212fa636",
+          "file_map_sha256": "495af094b0486cf3a7c5d4fc66037e42dc52050020dd0468d402bd3e858e1d79",
+          "source_byte_multiset_sha256": "c07f017141e420e61f11734e348a1841727413ac69a6922b38b43487eac0a6d4",
+          "expected_projection": {
+            "reasons_excludes_prefix": [
+              "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:"
+            ],
+            "exact_reason_set": null
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development06CommonJs",
+          "files": {
+            "t00DevelopmentConfiguration06/tsconfig.json": "{\"compilerOptions\":{\"module\":\"CommonJS\",\"moduleResolution\":\"Bundler\"},\"files\":[\"t00DevelopmentConfiguration06.ts\"]}\n",
+            "t00DevelopmentConfiguration06/t00DevelopmentConfiguration06.ts": "export function t00DevelopmentConfiguration06() { return 606; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentConfiguration06/t00DevelopmentConfiguration06.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50Q29uZmlndXJhdGlvbjA2KCkgeyByZXR1cm4gNjA2OyB9Cg==",
+                "sha256": "f5488f72fa099d97f5851e5b791f2ef5b0a001987c550958411b88d65b86ec20",
+                "size_bytes": 64
+              },
+              {
+                "path": "t00DevelopmentConfiguration06/tsconfig.json",
+                "encoding": "UTF-8",
+                "content_base64": "eyJjb21waWxlck9wdGlvbnMiOnsibW9kdWxlIjoiQ29tbW9uSlMiLCJtb2R1bGVSZXNvbHV0aW9uIjoiQnVuZGxlciJ9LCJmaWxlcyI6WyJ0MDBEZXZlbG9wbWVudENvbmZpZ3VyYXRpb24wNi50cyJdfQo=",
+                "sha256": "25e05e242bfd75a9024eba9e29f95f86cdc408ebaaf440d391c7bf117ac58a0a",
+                "size_bytes": 116
+              }
+            ],
+            "operation": "inspectModuleConfiguration(sourcePath,R,retainedInputs), without fourth SourceFile scope arg",
+            "configuration": {
+              "nearest_named_config": "t00DevelopmentConfiguration06/tsconfig.json",
+              "source_scope_projection": "not asserted"
+            },
+            "profile": "retained-configuration-reason-projection-development",
+            "roots": [
+              "t00DevelopmentConfiguration06/t00DevelopmentConfiguration06.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "81c866d2b15aa8a79d09f345a48d880f463f929b8bff70e31ea36f759f769e04",
+          "file_map_sha256": "ff5371df3120600b2c1e2e5b31bce6b174e21d1c070a435b39b266f728c08232",
+          "source_byte_multiset_sha256": "65fc2c3031cdc3cfdd8569f691d1cef41e13a3c409515ef741a5ab6437cd0486",
+          "expected_projection": {
+            "reasons_contains": [
+              "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:CommonJS"
+            ]
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 363,
+          "end_line": 427,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Retained named configuration permits ESNext and emits explicit unsupported CommonJS reason. Only module-option eligibility is tested, not complete scope/admission.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development07ParsingRefusal",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development07Valid",
+          "files": {
+            "t00DevelopmentParsing07/t00DevelopmentParsing07.js": "export function t00DevelopmentParsed07() { return 707; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentParsing07/t00DevelopmentParsing07.js",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50UGFyc2VkMDcoKSB7IHJldHVybiA3MDc7IH0K",
+                "sha256": "edb57089ee9388f37b10a7a13c6f6c0d73026dac726e465163de79da28b64d51",
+                "size_bytes": 57
+              }
+            ],
+            "operation": "inspectSourceParsing",
+            "configuration": null,
+            "profile": "syntax-only-development",
+            "roots": [
+              "t00DevelopmentParsing07/t00DevelopmentParsing07.js"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": false,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "3da453056d11e4438069fafa97dfe7a854ecb5519527c1c7914e29b918b69a14",
+          "file_map_sha256": "4f3680ef8eee37e99b10c6017add0bd3e5b68ea9299256897451617feb67bb5f",
+          "source_byte_multiset_sha256": "0d3cf899005847b5fded68cf6bc6ddc050216cdd6184bd60f06c230c951f1492",
+          "expected_projection": {
+            "reasons_exact": []
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development07Malformed",
+          "files": {
+            "t00DevelopmentParsing07/t00DevelopmentParsing07.js": "export const t00DevelopmentBroken07 = ;\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentParsing07/t00DevelopmentParsing07.js",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGNvbnN0IHQwMERldmVsb3BtZW50QnJva2VuMDcgPSA7Cg==",
+                "sha256": "c8a8713bb63abebdd432fc658fc3dc628d842408a088f621344f33f31371e6a7",
+                "size_bytes": 40
+              }
+            ],
+            "operation": "inspectSourceParsing",
+            "configuration": null,
+            "profile": "syntax-only-development",
+            "roots": [
+              "t00DevelopmentParsing07/t00DevelopmentParsing07.js"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": false,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "22d3e45f89212f5302a570b49ad3089ebc2af6f6a00fce767df81c185165ae50",
+          "file_map_sha256": "baa4994b363ba50f18c30ee9e08a1452c6cdcfd7197334bb6e59a549925d61ca",
+          "source_byte_multiset_sha256": "6a1d45fe7764740e183d30b9527661bfdd492e3c3842bc1d659e483e75392951",
+          "expected_projection": {
+            "reasons_nonempty": true,
+            "every_reason_prefix": "SOURCE_PARSE_ERROR:"
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/javascript-diagnostics.ts",
+          "line": 333,
+          "end_line": 338,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "A valid source has no syntax reasons; the malformed initializer has a parser reason. No exact diagnostic wording or aggregate admission is invented.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development08Coordinates",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development08BomCrLfAstral",
+          "files": {
+            "t00DevelopmentCoordinates08/t00DevelopmentCoordinates08.ts": "﻿const t00DevelopmentEmoji08 = \"🧭\";\r\nexport function t00DevelopmentCoordinate08() {\r\n  return t00DevelopmentEmoji08;\r\n}\r\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentCoordinates08/t00DevelopmentCoordinates08.ts",
+                "encoding": "UTF-8",
+                "content_base64": "77u/Y29uc3QgdDAwRGV2ZWxvcG1lbnRFbW9qaTA4ID0gIvCfp60iOw0KZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50Q29vcmRpbmF0ZTA4KCkgew0KICByZXR1cm4gdDAwRGV2ZWxvcG1lbnRFbW9qaTA4Ow0KfQ0K",
+                "sha256": "53eaa42e11b5ba1df0634e86d2c64351be53e632f1a86abc01a63917a0312ad1",
+                "size_bytes": 126
+              }
+            ],
+            "operation": "extractTypeScript; optional independent byte/UTF16 support observation",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentCoordinates08/t00DevelopmentCoordinates08.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "1fdf24784fe02f1355fcc5c235f05480d274599d24bb6d55bf1cfd55e0055ee2",
+          "file_map_sha256": "f904d7c79294e03de040b1e97c0cb0efba71a9058e168ce4db559ddaf7957e1d",
+          "source_byte_multiset_sha256": "de4ac536d217b733f1d953b85de440d1f06fd36317816ec618f6e0ae95bcea42",
+          "expected_projection": {
+            "function_matching_name_projection": {
+              "name": "t00DevelopmentCoordinate08",
+              "startLine": 2,
+              "endLine": 4
+            },
+            "independently_counted_support": {
+              "BOM_UTF8_bytes": [
+                239,
+                187,
+                191
+              ],
+              "astral_UTF8_width": 4,
+              "astral_UTF16_width": 2,
+              "astral_UTF8_start_zero_based": 34,
+              "astral_UTF16_start_zero_based": 32,
+              "export_UTF8_start_zero_based": 42,
+              "export_UTF16_start_zero_based": 38
+            },
+            "support_is_product_DTO": false
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development08SingleLineControl",
+          "files": {
+            "t00DevelopmentCoordinates08/t00DevelopmentCoordinates08.ts": "export function t00DevelopmentCoordinate08() { return \"🧭\"; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentCoordinates08/t00DevelopmentCoordinates08.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50Q29vcmRpbmF0ZTA4KCkgeyByZXR1cm4gIvCfp60iOyB9Cg==",
+                "sha256": "820f5f5b83556555dd2eed03fa0bbdd40da465088da09f9e0ac731a9b17019e1",
+                "size_bytes": 64
+              }
+            ],
+            "operation": "extractTypeScript",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentCoordinates08/t00DevelopmentCoordinates08.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {},
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "8e373fa81a7de10671bb9e9bc0b37cc571ff87577fa6b5230e4cf72ffad46654",
+          "file_map_sha256": "abb4507417d8c09ed870bffa3a41d2050aca2c3be8b5083f9a8dba508e917806",
+          "source_byte_multiset_sha256": "0afab4da676677adecf4d0f35c2911b0018610b9f0a941403c2861c2b180a464",
+          "expected_projection": {
+            "function_matching_name_projection": {
+              "name": "t00DevelopmentCoordinate08",
+              "startLine": 1,
+              "endLine": 1
+            }
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 191,
+          "end_line": 193,
+          "status": "implemented historical source; not architectural authority"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 454,
+          "end_line": 472,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Exact authored bytes make BOM/CRLF/astral positions independently countable. Extracted function lines use one-based physical lines; the single-line source is its meaningful coordinate control.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development09RetainedAndRefusal",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development09RetainedSurvivesLiveChange",
+          "files": {
+            "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentStable09() { return 909; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentCapture09/t00DevelopmentCapture09.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50U3RhYmxlMDkoKSB7IHJldHVybiA5MDk7IH0K",
+                "sha256": "f76dbb64b8c83d13c4a9b7ed9d8cddac0acc0bf2ad5574c90b21d603fe88bc79",
+                "size_bytes": 57
+              }
+            ],
+            "operation": "extractTypeScript using retained map while live file has changed",
+            "configuration": null,
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentCapture09/t00DevelopmentCapture09.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {
+              "retained_files": {
+                "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentStable09() { return 909; }\n"
+              },
+              "live_files_after_capture": {
+                "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentDrift09() { return 919; }\n"
+              }
+            },
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "c0f9419ec7e20e1093a588fb9923094c7da367e19c6ff38556cf097c606fc05c",
+          "file_map_sha256": "a8aa334c9010ac85f6c66f73502e00fdca23ba4d5998126e10753d139347d4f6",
+          "source_byte_multiset_sha256": "794baf2d5acac830855792affa7518026635ae9be974d05581853bf95da195e1",
+          "expected_projection": {
+            "symbol_names_matching_file_exact": [
+              "t00DevelopmentStable09"
+            ],
+            "forbidden_symbol_names": [
+              "t00DevelopmentDrift09"
+            ]
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development09InconsistentDiscovery",
+          "files": {
+            "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentStable09() { return 909; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentCapture09/t00DevelopmentCapture09.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50U3RhYmxlMDkoKSB7IHJldHVybiA5MDk7IH0K",
+                "sha256": "f76dbb64b8c83d13c4a9b7ed9d8cddac0acc0bf2ad5574c90b21d603fe88bc79",
+                "size_bytes": 57
+              }
+            ],
+            "operation": "analyzeRepository with discovery content from drift bytes and original retained map",
+            "configuration": {
+              "constructor": "baseline createGlobSelectionConfig(R)",
+              "overrides": {
+                "include": [
+                  "t00DevelopmentCapture09/t00DevelopmentCapture09.ts"
+                ]
+              },
+              "all_other_defaults": "unchanged exact baseline defaults; constructor defined by pinned baseline source"
+            },
+            "profile": "ordinary-retained-development",
+            "roots": [
+              "t00DevelopmentCapture09/t00DevelopmentCapture09.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": true,
+            "setup": {
+              "retained_files": {
+                "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentStable09() { return 909; }\n"
+              },
+              "live_files_after_capture": {
+                "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentDrift09() { return 919; }\n"
+              },
+              "discovery_content_override": {
+                "t00DevelopmentCapture09/t00DevelopmentCapture09.ts": "export function t00DevelopmentDrift09() { return 919; }\n"
+              }
+            },
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "a1fc5ee311b7b6a8ccb8836912ce00e812b9360b1371e522f526bde95f0d3153",
+          "file_map_sha256": "a8aa334c9010ac85f6c66f73502e00fdca23ba4d5998126e10753d139347d4f6",
+          "source_byte_multiset_sha256": "794baf2d5acac830855792affa7518026635ae9be974d05581853bf95da195e1",
+          "expected_projection": {
+            "error_contains": "SOURCE_SNAPSHOT_MISMATCH",
+            "analysis_success": false
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/ts-symbols.ts",
+          "line": 16,
+          "end_line": 45,
+          "status": "implemented historical source; not architectural authority"
+        },
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/analyze.ts",
+          "line": 407,
+          "end_line": 420,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "Retained source text determines extraction despite a live mutation. Deliberately inconsistent discovery metadata is refused instead of being promoted to success. No new identity or capture policy is prescribed.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    },
+    {
+      "id": "t00Development10RequestFraming",
+      "allocation": "DEVELOPMENT_BOOTSTRAP_ONLY_EXCLUDED_FROM_QUALIFICATION",
+      "author": "/root/ordinary_ts_inventory",
+      "status": "SOURCE_AUTHORED_BOOTSTRAP_NOT_EXECUTED",
+      "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "variants": [
+        {
+          "id": "t00Development10ValidFrame",
+          "files": {
+            "t00DevelopmentFraming10/t00DevelopmentFraming10.ts": "export function t00DevelopmentFrame10() { return 1010; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentFraming10/t00DevelopmentFraming10.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50RnJhbWUxMCgpIHsgcmV0dXJuIDEwMTA7IH0K",
+                "sha256": "713b8002a9eb82d5fbe2573710e1328bf5a202e04b52380eaa20e94971206e6f",
+                "size_bytes": 57
+              }
+            ],
+            "operation": "index-worker existing self.onmessage boundary",
+            "configuration": null,
+            "profile": "ordinary-worker-development",
+            "roots": [
+              "t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": false,
+            "setup": {
+              "request": {
+                "schemaVersion": 1,
+                "jobId": "t00DevelopmentJob10",
+                "repoRoot": "R",
+                "rootAbsPaths": [
+                  "R/t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+                ],
+                "emitAbsPaths": [
+                  "R/t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+                ]
+              }
+            },
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "298be745e48d10343fe460d1e880dbd28587e83a201b02e6b096841a1c844dd0",
+          "file_map_sha256": "dc010c680101073488913fe978a1dd678996b41f36495bdf8b6ab9818b82ff2e",
+          "source_byte_multiset_sha256": "1d31bbbe5b91d7b5949c8fe47d4095e2c9842676a2dc35ddfacd5bb65234b737",
+          "expected_projection": {
+            "response_projection": {
+              "schemaVersion": 1,
+              "jobId": "t00DevelopmentJob10",
+              "ok": true,
+              "modules": [
+                "t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+              ],
+              "symbol_names": [
+                "t00DevelopmentFrame10"
+              ],
+              "imports": [],
+              "calls": []
+            }
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        },
+        {
+          "id": "t00Development10MalformedFrame",
+          "files": {
+            "t00DevelopmentFraming10/t00DevelopmentFraming10.ts": "export function t00DevelopmentFrame10() { return 1010; }\n"
+          },
+          "input_manifest": {
+            "files": [
+              {
+                "path": "t00DevelopmentFraming10/t00DevelopmentFraming10.ts",
+                "encoding": "UTF-8",
+                "content_base64": "ZXhwb3J0IGZ1bmN0aW9uIHQwMERldmVsb3BtZW50RnJhbWUxMCgpIHsgcmV0dXJuIDEwMTA7IH0K",
+                "sha256": "713b8002a9eb82d5fbe2573710e1328bf5a202e04b52380eaa20e94971206e6f",
+                "size_bytes": 57
+              }
+            ],
+            "operation": "index-worker existing self.onmessage boundary",
+            "configuration": null,
+            "profile": "ordinary-worker-development",
+            "roots": [
+              "t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+            ],
+            "root_identity": "R: native absolute disposable root",
+            "retained_snapshot": false,
+            "setup": {
+              "request": {
+                "schemaVersion": 0,
+                "jobId": "t00DevelopmentInvalidJob10",
+                "repoRoot": "R",
+                "rootAbsPaths": [
+                  "R/t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+                ],
+                "emitAbsPaths": [
+                  "R/t00DevelopmentFraming10/t00DevelopmentFraming10.ts"
+                ]
+              }
+            },
+            "shared_sdk_identity": "pinned-typescript-5.9.3-baseline; SDK bytes may be shared with qualification",
+            "profile_interpretation": "Artifact scope label; no new product analysisProfile is defined."
+          },
+          "normalized_input_manifest_sha256": "593817d7292497c4535fae5629ced4512fb2d426069a178111a5afc2a2fb234f",
+          "file_map_sha256": "dc010c680101073488913fe978a1dd678996b41f36495bdf8b6ab9818b82ff2e",
+          "source_byte_multiset_sha256": "1d31bbbe5b91d7b5949c8fe47d4095e2c9842676a2dc35ddfacd5bb65234b737",
+          "expected_projection": {
+            "response_exact": {
+              "schemaVersion": 1,
+              "jobId": "unbound",
+              "ok": false,
+              "error": "malformed extraction request"
+            }
+          },
+          "expectation_status": "source_authored_before_observation_not_executed",
+          "global_admission_inferred": false
+        }
+      ],
+      "authority_coordinates": [
+        {
+          "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+          "path": "packages/ts-analyzer/src/index-worker.ts",
+          "line": 14,
+          "end_line": 50,
+          "status": "implemented historical source; not architectural authority"
+        }
+      ],
+      "independent_rule": "The existing ordinary worker boundary echoes a valid job identity and refuses a wrong request schema. This is product worker behavior, not a newly invented qualification transport protocol.",
+      "scope": "Only listed fields/relations are asserted. Absent single reason never establishes general admission. Native proof and qualification verdict are not supplied.",
+      "code_comments_added": 0
+    }
+  ],
+  "record_count": 10,
+  "variant_count": 17,
+  "source_authoring_rules": [
+    "Fresh source bytes, t00Development identifiers and repo-relative paths; no source copied from qualification vectors.",
+    "Source/byte counts authored independently of TypeScript output; no golden generated.",
+    "Expected projection is deliberately scoped; absence of a named reason never implies full admission.",
+    "Every code fixture contains zero comments.",
+    "Canonical input manifests include exact bytes, configuration/profile/roots and setup phases.",
+    "No executable harness, validator, producer or public API is supplied."
+  ]
+}

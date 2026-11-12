@@ -1,0 +1,64 @@
+{
+  "id": "SEM-KEY-LEXICAL-NATIVE-CASE-PAIR",
+  "author": "/root/qualification383",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "status": "SOURCE_AUTHORED_MINIMAL_PAIR_PENDING_REVIEW",
+  "family_ids": [
+    "ordinary-confinement",
+    "qualified-semantic-context"
+  ],
+  "input": {
+    "native_root": "absolute ASCII disposableRoot with no symlinks; platform observed separately",
+    "path_recipe": "same native absolute root prefix for each path; actual filesystem existence is not required for this lexical helper",
+    "cases": [
+      {
+        "id": "dot-segment-alias",
+        "left": "ROOT/src/Alpha.ts",
+        "right": "ROOT/src/../src/Alpha.ts"
+      },
+      {
+        "id": "different-leaf",
+        "left": "ROOT/src/Alpha.ts",
+        "right": "ROOT/src/Beta.ts"
+      },
+      {
+        "id": "native-case-control",
+        "left": "ROOT/src/Alpha.ts",
+        "right": "ROOT/src/alpha.ts"
+      },
+      {
+        "id": "backslash-separator-alias",
+        "left": "ROOT/src/Alpha.ts",
+        "right": "ROOT\\src\\Alpha.ts"
+      }
+    ],
+    "case_sensitive_context": "observed ts.sys.useCaseSensitiveFileNames / equivalent native context; exercise true and false contexts as controlled predicate variants, record native target separately"
+  },
+  "expected_observations": {
+    "dot-segment-alias": {
+      "keys_equal": true
+    },
+    "different-leaf": {
+      "keys_equal": false
+    },
+    "native-case-control": {
+      "case_sensitive_true_keys_equal": false,
+      "case_sensitive_false_keys_equal": true
+    },
+    "backslash-separator-alias": {
+      "keys_equal": true
+    },
+    "operation_order": "resolve path lexically, replace all backslashes with slash, then lowercase only when native case-sensitive-file-name context is false",
+    "not_realpath": "No realpath/symlink resolution is performed by this helper; do not credit ordinary canonicalFilesystemPath witnesses as this pair."
+  },
+  "authority_coordinates": [
+    {
+      "commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+      "path": "packages/ts-analyzer/src/semantic-dependency-diagnostics.ts",
+      "line": 15,
+      "end_line": 18,
+      "role": "implemented exact historical semantic-context helper"
+    }
+  ],
+  "native_execution": false
+}
