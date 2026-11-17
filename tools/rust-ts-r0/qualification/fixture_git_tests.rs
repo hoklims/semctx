@@ -187,7 +187,7 @@ fn child(root: &Path) {
 }
 
 #[test]
-fn fixture_local_line_endings_preserve_bytes_and_external_policy() {
+fn comparator_fixture_local_line_endings_preserve_bytes_and_external_policy() {
     if let Some(root) = std::env::var_os(CHILD_ROOT) {
         child(&PathBuf::from(root));
         return;
@@ -219,7 +219,9 @@ fn fixture_local_line_endings_preserve_bytes_and_external_policy() {
     )
     .unwrap();
     let module = module_path!().split_once("::").unwrap().1;
-    let name = format!("{module}::fixture_local_line_endings_preserve_bytes_and_external_policy");
+    let name = format!(
+        "{module}::comparator_fixture_local_line_endings_preserve_bytes_and_external_policy"
+    );
     let mut command = Command::new(std::env::current_exe().unwrap());
     command
         .args(["--exact", &name, "--nocapture", "--test-threads=1"])
