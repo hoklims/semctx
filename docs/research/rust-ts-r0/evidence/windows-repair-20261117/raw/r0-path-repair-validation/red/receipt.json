@@ -1,0 +1,35 @@
+{
+  "phase": "red",
+  "argv": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "tools/rust-ts-r0/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--features",
+    "qualification-observer",
+    "--test",
+    "qualification_replay",
+    "comparator_post_capture_ordinary_root_preserves_request",
+    "--",
+    "--nocapture",
+    "--exact"
+  ],
+  "head": "a754b59bb1ffe037c5a06f35b7601bde4aae7b89",
+  "source_sha256": "636bca809611acc4636cfca55c461cb988b10010fe723391df439953dd2e4528",
+  "exit_code": 101,
+  "seconds": 180.33141840001917,
+  "stdout_sha256": "dad5bd450aa826712c551ab4de4ce7391e2d827ed5cdc40dc76ef0897b5c3ac4",
+  "stderr_sha256": "3b98c91e4ff2f8ba04961cd6fb82020de9056fc4df75bc30edafd456a8cacc79",
+  "source_unchanged": true,
+  "qualification_credit": 0,
+  "environment": {
+    "CARGO_BUILD_JOBS": "2",
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "RUST_TEST_THREADS": "1",
+    "RUSTUP_TOOLCHAIN": "1.95.0",
+    "CARGO_NET_OFFLINE": "true"
+  }
+}

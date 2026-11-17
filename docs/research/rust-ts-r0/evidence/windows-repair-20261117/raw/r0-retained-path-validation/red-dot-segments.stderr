@@ -1,0 +1,20 @@
+   Compiling semctx-r0-probe v0.1.0 (C:\Users\Hokli\.codex\worktrees\semctx-r0-path-repair\semctx.codex-t00-reconcile-20261024\tools\rust-ts-r0)
+    Finished `release` profile [optimized] target(s) in 32.78s
+     Running unittests src\main.rs (tools\rust-ts-r0\target\release\deps\semctx_r0_probe-60140d6156df03ed.exe)
+
+thread 'tests::retained_drive_dot_segments_preserve_internal_origins_and_external_control' (53868) panicked at src\..\tests\unit\main_tests.rs:90:9:
+assertion `left == right` failed: C:/SemctxRetainedFixture/MixedCase: helper-primitive
+  left: Array [String("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")]
+ right: Array []
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'tests::retained_drive_verbatim_dot_segments_preserve_internal_origins_and_external_control' (50576) panicked at src\..\tests\unit\main_tests.rs:90:9:
+assertion `left == right` failed: //?/C:/SemctxRetainedFixture/MixedCase: helper-primitive
+  left: Array [String("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")]
+ right: Array []
+
+thread 'tests::retained_posix_dot_segments_preserve_internal_origins_and_external_control' (61460) panicked at src\..\tests\unit\main_tests.rs:90:9:
+assertion `left == right` failed: /SemctxRetainedFixture/MixedCase: helper-primitive
+  left: Array [String("SOURCE_OPAQUE_CALLBACK_UNSUPPORTED")]
+ right: Array []
+error: test failed, to rerun pass `--bin semctx-r0-probe`

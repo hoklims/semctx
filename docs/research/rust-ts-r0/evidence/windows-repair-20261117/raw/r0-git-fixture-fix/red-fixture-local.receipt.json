@@ -1,0 +1,33 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "tools/rust-ts-r0/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--release",
+    "--features",
+    "qualification-observer",
+    "--test",
+    "qualification_replay",
+    "fixture_local_line_endings_preserve_bytes_and_external_policy",
+    "--",
+    "--nocapture",
+    "--test-threads=1"
+  ],
+  "cwd": "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024",
+  "head": "f0836b9d0395e86e2afc13447c807499732f5e90",
+  "files_sha256": {
+    "tools/rust-ts-r0/qualification/qualified_public_replay.rs": "87c78cdca723743a0f9003b5e70d6e82e2c13e826cc40eac78d37bf1779b615c",
+    "tools/rust-ts-r0/qualification/fixture_git_tests.rs": "bc56cafc314b81fb39edc96e22b623488256a2cf58e086cd0ab87a27764e1564"
+  },
+  "exit_code": 101,
+  "elapsed_seconds": 45.957,
+  "summaries": [
+    "test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 194 filtered out; finished in 0.88s"
+  ],
+  "stdout_sha256": "c00d7d55c131467a39359dcfdb442effc6271c8d53c126920d6e6a517d814bd9",
+  "stderr_sha256": "8d586d5d6d03c060e37dd3fe681e3201578770b4000a108884f1273d59bce801",
+  "helper_sha256": "a8835a65b196b2349281bf02ede0ba178babb5c13857956727f103db47917216"
+}

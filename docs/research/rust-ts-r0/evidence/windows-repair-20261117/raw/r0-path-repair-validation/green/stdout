@@ -1,0 +1,9 @@
+
+running 4 tests
+test comparator_post_capture_does_not_substitute_another_namespace_key ... ok
+test comparator_post_capture_ordinary_root_preserves_request ... ok
+test comparator_post_capture_setup_changes_physical_bytes_and_preserves_request ... ok
+test comparator_post_capture_target_guards_preserve_all_bytes ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 190 filtered out; finished in 0.05s
+

@@ -1,0 +1,73 @@
+{
+  "head": "605eb775adf14a517aab17db4ddab200dbbb521a",
+  "binary_sha256": "89588806c9ec7a7d3c53167c8e790b1c50155af12f54c48d6efcb781ccddf3a7",
+  "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+  "rows": [
+    {
+      "case": "native-process-unknown",
+      "argv": [
+        "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024\\tools\\rust-ts-r0\\target\\release\\semctx-r0-probe.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\supplement-evidence\\source__native-process-unknown\\observation-000\\request.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\sdk-input.json"
+      ],
+      "request_sha256": "4453757e60d65f8664113618624b22bf7034fbf0065cfcdb1c46158ae0ca0146",
+      "exit_code": 0,
+      "reasons": [
+        "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+        "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+      ],
+      "stdout_sha256": "27b265c20eb6825599c607331029463cd796740792500a9511c362ccc14ce435"
+    },
+    {
+      "case": "helper-primitive",
+      "argv": [
+        "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024\\tools\\rust-ts-r0\\target\\release\\semctx-r0-probe.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\supplement-evidence\\source__helper-primitive\\observation-000\\request.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\sdk-input.json"
+      ],
+      "request_sha256": "9019f3faf2745b32b0fc9f068650bdfdc4d6f374334ab8e9e840cf9da87cb3e4",
+      "exit_code": 0,
+      "reasons": [],
+      "stdout_sha256": "5c508af0c54af634678f73ff9757f15aa2653c7cfdb4a29e89a3c07237df44f7"
+    },
+    {
+      "case": "heritage-internal",
+      "argv": [
+        "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024\\tools\\rust-ts-r0\\target\\release\\semctx-r0-probe.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\supplement-evidence\\source__heritage-internal\\observation-000\\request.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\sdk-input.json"
+      ],
+      "request_sha256": "5ce27984857e302ef1be75d369b2d0006a0d0922b982b543b65b5e25aa249e9a",
+      "exit_code": 0,
+      "reasons": [
+        "SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"
+      ],
+      "stdout_sha256": "1a2aa4af50abe933c78e73f1bf23bfa6d262a84d790b927dbfb8282c53ec71a1"
+    },
+    {
+      "case": "wasm-local",
+      "argv": [
+        "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024\\tools\\rust-ts-r0\\target\\release\\semctx-r0-probe.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\supplement-evidence\\source__wasm-local\\observation-000\\request.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\sdk-input.json"
+      ],
+      "request_sha256": "fb93bfca0729a95d5b90a15dd103fd9de547d65119cf2cb075ab97eafce09bea",
+      "exit_code": 0,
+      "reasons": [],
+      "stdout_sha256": "bd3214dd8684941ca71cb2ce653cfc9a7887da0d70641f24154b858069275927"
+    },
+    {
+      "case": "script-local",
+      "argv": [
+        "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024\\tools\\rust-ts-r0\\target\\release\\semctx-r0-probe.exe",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\supplement-evidence\\source__script-local\\observation-000\\request.json",
+        "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\sdk-input.json"
+      ],
+      "request_sha256": "c62c8b5c16634c6cd8b8a8d3792758019b2482096bae7dc3b49a20b55ecb8f77",
+      "exit_code": 0,
+      "reasons": [],
+      "stdout_sha256": "620fa8787fad5689fb10b39622446c64e3e6520e92f0224e3d500bd90a79af3f"
+    }
+  ],
+  "qualification_credit": 0
+}

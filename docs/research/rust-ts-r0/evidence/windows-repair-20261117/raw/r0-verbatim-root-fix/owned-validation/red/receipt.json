@@ -1,0 +1,37 @@
+{
+  "phase": "red",
+  "group": "roots",
+  "head": "f0836b9d0395e86e2afc13447c807499732f5e90",
+  "argv": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "tools/rust-ts-r0/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--release",
+    "--bin",
+    "semctx-r0-probe",
+    "owned_capture_",
+    "--",
+    "--nocapture"
+  ],
+  "exit_code": 101,
+  "seconds": 541.1502344000037,
+  "before": {
+    "tools\\rust-ts-r0\\src\\main.rs": "1a01e684e2b00e98135f0ae0cd63e31ed0a9f3a3c427ff3b76975863aee2c21c",
+    "tools\\rust-ts-r0\\tests\\unit\\main_tests.rs": "9715940e602e119119036d2342dc68dc87e55d0daf4f186f01777a72d0cfc243",
+    "tools\\rust-ts-r0\\Cargo.toml": "0b43b88e27452e3bac3a1fbffae4ab0b6d6126c46143c53507c294eddd0f8cde",
+    "tools\\rust-ts-r0\\Cargo.lock": "be43a704646e43d94bd0f17596b35fd6cde017382cbedfb8e2352cb195404f68"
+  },
+  "after": {
+    "tools\\rust-ts-r0\\src\\main.rs": "1a01e684e2b00e98135f0ae0cd63e31ed0a9f3a3c427ff3b76975863aee2c21c",
+    "tools\\rust-ts-r0\\tests\\unit\\main_tests.rs": "9715940e602e119119036d2342dc68dc87e55d0daf4f186f01777a72d0cfc243",
+    "tools\\rust-ts-r0\\Cargo.toml": "0b43b88e27452e3bac3a1fbffae4ab0b6d6126c46143c53507c294eddd0f8cde",
+    "tools\\rust-ts-r0\\Cargo.lock": "be43a704646e43d94bd0f17596b35fd6cde017382cbedfb8e2352cb195404f68"
+  },
+  "inputs_unchanged": true,
+  "stdout_sha256": "a14bf8558d26b6fd0bbca8d2dc361fe168e4cf306ac21e133ded499ca6f9db71",
+  "stderr_sha256": "94f4963a1e97eed098822a6b7b6a031fbcb421c6161e784977362f57467a273f",
+  "qualification_credit": 0
+}

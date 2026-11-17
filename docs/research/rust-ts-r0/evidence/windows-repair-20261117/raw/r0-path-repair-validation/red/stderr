@@ -1,0 +1,44 @@
+   Compiling zmij v1.0.23
+   Compiling rustc-hash v2.1.2
+   Compiling simd-adler32 v0.3.10
+   Compiling jiff-tzdb v0.1.9
+   Compiling signal-hook v0.4.4
+   Compiling ryu-js v1.0.2
+   Compiling adler2 v2.0.1
+   Compiling miniz_oxide v0.9.1
+   Compiling goport_util v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c4)
+   Compiling jiff-tzdb-platform v0.1.3
+   Compiling syn v3.0.9
+   Compiling crc32fast v1.5.2
+   Compiling serde_core v1.0.229
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling signal-hook-registry v1.4.8
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling jiff-core v0.1.1
+   Compiling jiff v0.2.37
+   Compiling digest v0.10.7
+   Compiling flate2 v1.1.10
+   Compiling serde_derive v1.0.229
+   Compiling miow v0.6.1
+   Compiling itoa v1.0.18
+   Compiling cpufeatures v0.2.17
+   Compiling smallvec v1.15.1
+   Compiling xxhash-rust v0.8.15
+   Compiling bumpalo v3.20.3
+   Compiling goport_core v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c4)
+   Compiling sha2 v0.10.9
+   Compiling goport_lsproto v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c4)
+   Compiling tinyvec v1.13.3
+   Compiling unicode-normalization v0.1.25
+   Compiling semctx-gates v0.1.0 (C:\Users\Hokli\.codex\worktrees\semctx-r0-path-repair\semctx.codex-t00-reconcile-20261024\tools\gates)
+   Compiling ts_goport v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=d1f3c0c442ab71a2fce7a01980ed892bd27b9842#d1f3c0c4)
+   Compiling semctx-r0-probe v0.1.0 (C:\Users\Hokli\.codex\worktrees\semctx-r0-path-repair\semctx.codex-t00-reconcile-20261024\tools\rust-ts-r0)
+    Finished `test` profile [unoptimized] target(s) in 3m 00s
+     Running qualification\qualification_replay.rs (tools\rust-ts-r0\target\debug\deps\qualification_replay-4c7c130c6cf6b003.exe)
+
+thread 'comparator_post_capture_ordinary_root_preserves_request' (34892) panicked at qualification\qualification_replay.rs:4092:88:
+called `Result::unwrap()` on an `Err` value: "physical mutation must target captured source"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--test qualification_replay`

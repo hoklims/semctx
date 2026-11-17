@@ -1,0 +1,14 @@
+
+running 3 tests
+test tests::owned_capture_configuration_stops_at_actual_root ... ok
+test tests::owned_capture_roots_never_store_pseudoancestors ... FAILED
+test tests::owned_capture_roots_preserve_directory_spelling ... FAILED
+
+failures:
+
+failures:
+    tests::owned_capture_roots_never_store_pseudoancestors
+    tests::owned_capture_roots_preserve_directory_spelling
+
+test result: FAILED. 1 passed; 2 failed; 0 ignored; 0 measured; 284 filtered out; finished in 0.00s
+

@@ -1,0 +1,23 @@
+{
+  "kind": "EXPERIMENTAL_BRANCH_PUBLICATION_NOT_ADMISSION",
+  "repository": "https://github.com/hoklims/ts-rust.git",
+  "branch": "codex/semctx-r0-verbatim-root-20261117",
+  "head": "85671c0de022b8f34e89a1bf9c72d4c1c1631a2d",
+  "parent": "d1f3c0c442ab71a2fce7a01980ed892bd27b9842",
+  "source_path": "crates/ts_goport/src/frontend/tspath/path.rs",
+  "source_sha256": "684281c71164c5ae4ccd546a4468d3feb45ef3ffe6e6b7c295676a814dee80f8",
+  "source_git_blob": "2616ebe0de12a883b03d00d42196c48e4f5e6e7c",
+  "push_exit_code": 0,
+  "remote_head_readback_matches": true,
+  "tests": {"focused": 2, "path_regressions_including_focused": 10, "goport_util_full": 116},
+  "review": "Independent source review found no concrete defect in the path-root change. Local utility evidence only.",
+  "upstream_acceptance": false,
+  "merge": false,
+  "release": false,
+  "qualification_credit": 0,
+  "limitations": [
+    "Protected upstream test-set comparison and four-project binary identity have not run.",
+    "The branch extends the Semctx scanner fork; current upstream main is a separate lineage.",
+    "The publication makes exact experimental source retrievable; it does not certify a compiler release."
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "packages": {
+    "goport_core": "git+https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0de022b8f34e89a1bf9c72d4c1c1631a2d",
+    "goport_lsproto": "git+https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0de022b8f34e89a1bf9c72d4c1c1631a2d",
+    "goport_util": "git+https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0de022b8f34e89a1bf9c72d4c1c1631a2d",
+    "ts_goport": "git+https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0de022b8f34e89a1bf9c72d4c1c1631a2d"
+  },
+  "unchanged_other_lock_content": true,
+  "lock_sha256": "be43a704646e43d94bd0f17596b35fd6cde017382cbedfb8e2352cb195404f68",
+  "collector_revision": "85671c0de022b8f34e89a1bf9c72d4c1c1631a2d",
+  "qualification_credit": 0
+}

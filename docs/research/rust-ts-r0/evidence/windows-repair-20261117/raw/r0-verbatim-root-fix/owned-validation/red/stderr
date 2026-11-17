@@ -1,0 +1,17 @@
+   Compiling goport_util v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0d)
+   Compiling goport_core v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0d)
+   Compiling goport_lsproto v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0d)
+   Compiling ts_goport v7.0.0-dev (https://github.com/hoklims/ts-rust.git?rev=85671c0de022b8f34e89a1bf9c72d4c1c1631a2d#85671c0d)
+   Compiling semctx-r0-probe v0.1.0 (C:\Users\Hokli\.codex\worktrees\semctx-r0-path-repair\semctx.codex-t00-reconcile-20261024\tools\rust-ts-r0)
+    Finished `release` profile [optimized] target(s) in 9m 01s
+     Running unittests src\main.rs (tools\rust-ts-r0\target\release\deps\semctx_r0_probe-ba55f67c179188cf.exe)
+
+thread 'tests::owned_capture_roots_never_store_pseudoancestors' (47856) panicked at src\..\tests\unit\main_tests.rs:2850:9:
+OWNED_CAPTURE_PSEUDOANCESTOR://?
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'tests::owned_capture_roots_preserve_directory_spelling' (62316) panicked at src\..\tests\unit\main_tests.rs:2834:9:
+assertion `left == right` failed: OWNED_CAPTURE_ROOT_SPELLING:C:/
+  left: "C:"
+ right: "C:/"
+error: test failed, to rerun pass `--bin semctx-r0-probe`

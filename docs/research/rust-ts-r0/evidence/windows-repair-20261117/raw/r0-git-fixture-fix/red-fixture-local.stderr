@@ -1,0 +1,26 @@
+   Compiling semctx-r0-probe v0.1.0 (C:\Users\Hokli\.codex\worktrees\semctx-r0-path-repair\semctx.codex-t00-reconcile-20261024\tools\rust-ts-r0)
+    Finished `release` profile [optimized] target(s) in 44.98s
+     Running qualification\qualification_replay.rs (tools\rust-ts-r0\target\release\deps\qualification_replay-ead1411c654f6131.exe)
+
+thread 'qualified_public_replay::fixture_git_tests::fixture_local_line_endings_preserve_bytes_and_external_policy' (50516) panicked at qualification\fixture_git_tests.rs:169:5:
+isolated Git fixture failed: 
+running 1 test
+test qualified_public_replay::fixture_git_tests::fixture_local_line_endings_preserve_bytes_and_external_policy ... FAILED
+
+failures:
+
+failures:
+    qualified_public_replay::fixture_git_tests::fixture_local_line_endings_preserve_bytes_and_external_policy
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 194 filtered out; finished in 0.87s
+
+
+
+thread 'qualified_public_replay::fixture_git_tests::fixture_local_line_endings_preserve_bytes_and_external_policy' (53004) panicked at qualification\fixture_git_tests.rs:116:5:
+assertion `left == right` failed: configured fixture still inherited Git conversion warnings
+  left: String("warning: in the working copy of 'fixture.ts', LF will be replaced by CRLF the next time Git touches it\n")
+ right: ""
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+error: test failed, to rerun pass `--test qualification_replay`

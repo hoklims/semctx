@@ -1,0 +1,44 @@
+{
+  "label": "green-all-paths",
+  "argv": [
+    "cargo",
+    "test",
+    "--manifest-path",
+    "tools/rust-ts-r0/Cargo.toml",
+    "--locked",
+    "--offline",
+    "--release",
+    "--bin",
+    "semctx-r0-probe",
+    "preserve_internal_origins_and_external_control",
+    "--",
+    "--nocapture",
+    "--test-threads=1"
+  ],
+  "cwd": "C:\\Users\\Hokli\\.codex\\worktrees\\semctx-r0-path-repair\\semctx.codex-t00-reconcile-20261024",
+  "head": "5080f2a867581b889d4f03d878a0b47cd919f2b9",
+  "source_sha256": {
+    "tools/rust-ts-r0/src/main.rs": "1a01e684e2b00e98135f0ae0cd63e31ed0a9f3a3c427ff3b76975863aee2c21c",
+    "tools/rust-ts-r0/tests/unit/main_tests.rs": "28a3e0720a7284674125fcd47eb2ddcf489102de60f3adc2dbf630cff0ca0026"
+  },
+  "source_unchanged": true,
+  "exit_code": 0,
+  "elapsed_seconds": 49.098,
+  "test_summaries": [
+    "test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 278 filtered out; finished in 8.31s"
+  ],
+  "helper_sha256": "a8835a65b196b2349281bf02ede0ba178babb5c13857956727f103db47917216",
+  "environment": {
+    "GOPORT_LIB_PARSE_SNAPSHOT": "0",
+    "GOPORT_LIB_SNAPSHOT": "0",
+    "RUST_TEST_THREADS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "RUSTUP_TOOLCHAIN": "1.95.0",
+    "CARGO_HOME": "C:\\Users\\Hokli\\scoop\\persist\\rustup-gnu\\.cargo",
+    "CARGO_TARGET_DIR": null,
+    "RUSTUP_HOME": "C:\\Users\\Hokli\\scoop\\persist\\rustup-gnu\\.rustup",
+    "SEMCTX_PROCESS_HELPER": "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-windows-native-a754\\frozen-binaries\\semctx-gates.exe"
+  },
+  "stdout_sha256": "492569513f1e2ef0063bd90a5bde5b9743eb6839358c3cbe6885e0de752b3bf6",
+  "stderr_sha256": "e8013a857295f9f48e94889c66815054f7160fbd398f573659f357528a17fa25"
+}

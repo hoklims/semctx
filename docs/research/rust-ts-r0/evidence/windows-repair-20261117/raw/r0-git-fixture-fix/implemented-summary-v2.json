@@ -1,0 +1,35 @@
+{
+  "kind": "FIXTURE_GIT_ISOLATED_HOME_FINAL_READBACK",
+  "head": "f0836b9d0395e86e2afc13447c807499732f5e90",
+  "files_sha256": {
+    "tools/rust-ts-r0/qualification/qualified_public_replay.rs": "9c26cec427bc8bd39927ef54344af0ada0ecf908937b3469eac99fded8025c8c",
+    "tools/rust-ts-r0/qualification/fixture_git_tests.rs": "47b3bfe1e898a0dcaab2f8a417f399d33ede8d72c685502fd1548505a1813eb4"
+  },
+  "patch_sha256": "4f270863f48383f2336110ed3b032da753d7fbbaf19deaf7922dc9443a0c1430",
+  "evidence_path": "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-git-fixture-fix\\rust-evidence\\semctx-git-fixture-21744-1794893219527255600",
+  "origins": {
+    "global-origin": "file:C:/Users/Hokli/Documents/Codex/2026-11-17/re/work/r0-git-fixture-fix/rust-evidence/semctx-git-fixture-21744-1794893219527255600/home/.gitconfig\ttrue\n",
+    "outside-config": "file:C:/Users/Hokli/Documents/Codex/2026-11-17/re/work/r0-git-fixture-fix/rust-evidence/semctx-git-fixture-21744-1794893219527255600/home/.gitconfig\ttrue\n",
+    "local-autocrlf": "file:.git/config\tfalse\n",
+    "local-safecrlf": "file:.git/config\tfalse\n"
+  },
+  "captured_stderr_bytes": {
+    "outside-add": 103,
+    "bad-ref": 32,
+    "git-setup-1": 0
+  },
+  "home_binding": {
+    "HOME": "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-git-fixture-fix\\rust-evidence\\semctx-git-fixture-21744-1794893219527255600\\home",
+    "USERPROFILE": "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-git-fixture-fix\\rust-evidence\\semctx-git-fixture-21744-1794893219527255600\\home",
+    "XDG_CONFIG_HOME": "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-git-fixture-fix\\rust-evidence\\semctx-git-fixture-21744-1794893219527255600\\xdg",
+    "global_config": "C:\\Users\\Hokli\\Documents\\Codex\\2026-11-17\\re\\work\\r0-git-fixture-fix\\rust-evidence\\semctx-git-fixture-21744-1794893219527255600\\home\\.gitconfig",
+    "global_config_sha256": "f02d50c977cb4ad43eb742ffb73040043d1697f177420e69849c9212b7a1855a",
+    "scope": "test child process only; GIT_ overrides are not relied upon"
+  },
+  "origin_red_exit": 101,
+  "final_green_exit": 0,
+  "linux_execution_observed": false,
+  "previous_isolation_claim_withdrawn": true,
+  "committed_by_this_agent": false,
+  "R0_decision": null
+}
