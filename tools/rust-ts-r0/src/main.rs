@@ -875,7 +875,16 @@ fn inspect_subject(
     let retained_files = project
         .as_ref()
         .iter()
-        .map(|(path, text)| (fs.key(path), text.clone()))
+        .map(|(path, text)| {
+            // Match normalized compiler source paths without changing their namespace.
+            let path = ts_goport::frontend::tspath::normalize_path(path);
+            let path = if case_sensitive {
+                path
+            } else {
+                path.to_lowercase()
+            };
+            (path, text.clone())
+        })
         .collect::<BTreeMap<_, _>>();
     let builtin: serde_json::Value = serde_json::from_str(include_str!("../builtin-modules.json"))
         .map_err(|error| error.to_string())?;

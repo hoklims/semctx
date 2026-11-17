@@ -15,6 +15,127 @@ fn component_sdk() -> Sdk {
     .unwrap()
 }
 
+fn assert_retained_path_origins(root: &str, case_sensitive: bool) {
+    assert_retained_path_origins_at(root, "main.ts", case_sensitive);
+}
+
+fn assert_retained_path_origins_at(root: &str, source_tail: &str, case_sensitive: bool) {
+    for (id, text, reasons) in [
+        (
+            "helper-primitive",
+            "import { register } from 'opaque'; function helper() { return 1; } export function main() { return register(helper()); }",
+            serde_json::json!([]),
+        ),
+        (
+            "helper-object-external-control",
+            "import { register } from 'opaque'; function helper() { return {}; } export function main() { return register(helper()); }",
+            serde_json::json!(["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"]),
+        ),
+        (
+            "heritage-internal",
+            "class Base {} export class Child extends Base {}",
+            serde_json::json!(["SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"]),
+        ),
+        (
+            "native-process-unknown",
+            "export const native = process.binding('contextify');",
+            serde_json::json!([
+                "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+                "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+            ]),
+        ),
+        (
+            "wasm-local",
+            "const WebAssembly = { instantiate(value) { return 1; } }; export function main(bytes) { return WebAssembly.instantiate(bytes); }",
+            serde_json::json!([]),
+        ),
+        (
+            "script-local",
+            "const document = { createElement(value) { return {}; }, body: { appendChild(value) { return 1; } } }; document.body.appendChild(document.createElement('script')); export {};",
+            serde_json::json!([]),
+        ),
+    ] {
+        let source_path = format!("{root}/{source_tail}");
+        let package_path = format!("{root}/package.json");
+        let files = BTreeMap::from([
+            (source_path.clone(), text.to_owned()),
+            (
+                package_path,
+                r#"{"dependencies":{"opaque":"1.0.0"}}"#.to_owned(),
+            ),
+        ]);
+        let request: Request = serde_json::from_value(serde_json::json!({
+            "id": id, "cwd": root, "sdk_directory": "/sdk/lib",
+            "case_sensitive": case_sensitive,
+            "roots": [source_path], "files": files, "retained": true,
+            "qualified": false,
+            "options": {"target":"ES2022","module":"ESNext","moduleResolution":"Bundler",
+                "allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false}
+        }))
+        .unwrap();
+        let observed = analyze(request, component_sdk()).unwrap();
+        let subject = observed["subjects"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|subject| subject["path"] == "main.ts")
+            .unwrap();
+        let configuration = &subject["moduleConfigurationObservations"]["retainedWithoutSource"];
+        assert_eq!(configuration["executed"], true, "{root}: {id}");
+        assert_eq!(
+            configuration["unsupported"],
+            serde_json::json!([]),
+            "{root}: {id}"
+        );
+        assert_eq!(configuration["reasons"], reasons, "{root}: {id}");
+    }
+}
+
+#[test]
+fn retained_drive_paths_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins("C:/SemctxRetainedFixture/MixedCase", false);
+}
+
+#[test]
+fn retained_drive_verbatim_paths_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins("//?/C:/SemctxRetainedFixture/MixedCase", false);
+}
+
+#[test]
+fn retained_posix_paths_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins(
+        "/SemctxRetainedFixture/MixedCase",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
+#[test]
+fn retained_drive_dot_segments_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins_at(
+        "C:/SemctxRetainedFixture/MixedCase",
+        "sub/../main.ts",
+        false,
+    );
+}
+
+#[test]
+fn retained_drive_verbatim_dot_segments_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins_at(
+        "//?/C:/SemctxRetainedFixture/MixedCase",
+        "sub/../main.ts",
+        false,
+    );
+}
+
+#[test]
+fn retained_posix_dot_segments_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins_at(
+        "/SemctxRetainedFixture/MixedCase",
+        "sub/../main.ts",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
 fn dynamic_import_request(text: &str) -> Request {
     let mut request = component_request("dynamicImportDev", "/repo/src/target.test.ts", text);
     request.qualified = true;
