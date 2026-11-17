@@ -1,4 +1,4 @@
-pub const ENGINE_REVISION: &str = "d1f3c0c442ab71a2fce7a01980ed892bd27b9842";
+pub const ENGINE_REVISION: &str = "85671c0de022b8f34e89a1bf9c72d4c1c1631a2d";
 pub const ENGINE_UPSTREAM_REVISION: &str = "780dc512d64f40afebffa6a7028207649fb7ed1c";
 
 use serde_json::Value;

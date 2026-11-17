@@ -2818,3 +2818,89 @@ fn supplemental_retained_reference_case_variant_is_unretained() {
         "RETAINED_REFERENCE_CASE_VARIANT_MEMBERSHIP"
     );
 }
+
+#[test]
+fn owned_capture_roots_preserve_directory_spelling() {
+    for (source, root, sensitive) in [
+        ("/repo/main.ts", "/", true),
+        ("C:/repo/main.ts", "C:/", false),
+        ("//?/C:/repo/main.ts", "//?/C:/", false),
+    ] {
+        let fs = CaptureFs::new(
+            BTreeMap::from([(source.into(), "export const captured = 1;".into())]),
+            sensitive,
+        );
+        assert!(
+            fs.directory_exists(root),
+            "OWNED_CAPTURE_ROOT_EXISTS:{root}"
+        );
+        assert_eq!(
+            fs.log.borrow().last().unwrap().path,
+            root,
+            "OWNED_CAPTURE_ROOT_SPELLING:{root}"
+        );
+        assert_eq!(
+            fs.read_file(source),
+            ("export const captured = 1;".into(), true)
+        );
+    }
+}
+
+#[test]
+fn owned_capture_roots_never_store_pseudoancestors() {
+    let fs = CaptureFs::new(
+        BTreeMap::from([(
+            "//?/C:/repo/main.ts".into(),
+            "export const captured = 1;".into(),
+        )]),
+        false,
+    );
+    for pseudo in ["//?", "//?/", "//?/C:"] {
+        assert!(
+            !fs.spelling.values().any(|path| path == pseudo),
+            "OWNED_CAPTURE_PSEUDOANCESTOR:{pseudo}"
+        );
+    }
+    assert!(
+        !fs.dirs.contains(&fs.key("//?")),
+        "OWNED_CAPTURE_NAMESPACE_IS_NOT_DIRECTORY"
+    );
+}
+
+#[test]
+fn owned_capture_configuration_stops_at_actual_root() {
+    for (source, repository, expected) in [
+        (
+            "/repo/main.ts",
+            "/repo",
+            ["/repo/tsconfig.json", "/tsconfig.json"],
+        ),
+        (
+            "C:/repo/main.ts",
+            "C:/repo",
+            ["C:/repo/tsconfig.json", "C:/tsconfig.json"],
+        ),
+        (
+            "//?/C:/repo/main.ts",
+            "//?/C:/repo",
+            ["//?/C:/repo/tsconfig.json", "//?/C:/tsconfig.json"],
+        ),
+    ] {
+        let fs = Rc::new(CaptureFs::new(
+            BTreeMap::from([(source.into(), "export const captured = 1;".into())]),
+            false,
+        ));
+        configuration::inspect(fs.clone(), source, repository).unwrap();
+        let probes = fs
+            .log
+            .borrow()
+            .iter()
+            .filter(|probe| probe.operation == "configuration_discovery_file_exists")
+            .map(|probe| probe.path.clone())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            probes, expected,
+            "OWNED_CAPTURE_CONFIGURATION_ROOT:{repository}"
+        );
+    }
+}

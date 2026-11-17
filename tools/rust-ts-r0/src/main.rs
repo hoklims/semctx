@@ -152,16 +152,13 @@ impl CaptureFs {
             let path = path.replace('\\', "/");
             let key = result.key(&path);
             result.spelling.insert(key.clone(), path.clone());
-            let mut parent = path.as_str();
-            while let Some((dir, _)) = parent.rsplit_once('/') {
-                let dir = if dir.is_empty() { "/" } else { dir };
-                let key = result.key(dir);
+            let mut parent = path.clone();
+            loop {
+                let dir = ts_goport::frontend::tspath::get_directory_path(&parent);
+                let key = result.key(&dir);
                 result.dirs.insert(key.clone());
-                result
-                    .spelling
-                    .entry(key)
-                    .or_insert_with(|| dir.to_string());
-                if dir == "/" {
+                result.spelling.entry(key).or_insert_with(|| dir.clone());
+                if dir == parent || dir == "/" {
                     break;
                 }
                 parent = dir;
