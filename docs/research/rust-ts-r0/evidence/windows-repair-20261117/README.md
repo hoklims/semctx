@@ -64,7 +64,7 @@ ne constitue pas une revue d’acceptation globale des corrections Semctx.
 
 `manifest.json` liste les reçus, leurs empreintes et les résultats numériques.
 Le `manifest.json` de ce dossier épingle les sources du candidat et les copies
-exactes des reçus et journaux publics sous `raw/`. Les chemins inscrits dans les
+sans perte des reçus et journaux publics sous `raw/` (gzip). Les chemins inscrits dans les
 reçus gardent leur sens original. Les grandes captures restent sur leurs hôtes;
 leurs résumés n'en remplacent pas la chaîne de conservation.
 Les charges réservées, données privées et grandes captures ne sont pas copiées.
@@ -90,3 +90,9 @@ fichier modifié. Le scope-map historique reste intact : sa présence ne permet
 pas de qualifier cette nouvelle source. La CI actuelle conditionne encore la
 campagne terminale à PR386. Un futur parcours de qualification doit faire
 l'objet d'un successeur vérifié du protocole et d'un véritable job Windows.
+
+Les entrées du manifeste donnent les SHA-256 et tailles du fichier gzip et du
+contenu décodé. `gzip.decompress` restitue les octets originaux, y compris CRLF
+et lignes vides finales. Ce stockage évite toute normalisation Git des preuves.
+Les commits précédents restent dans l'historique ; leurs formats ne deviennent
+pas des preuves différentes.

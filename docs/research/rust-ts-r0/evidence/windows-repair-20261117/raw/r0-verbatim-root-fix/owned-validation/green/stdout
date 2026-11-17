@@ -1,8 +1,0 @@
-
-running 3 tests
-test tests::owned_capture_configuration_stops_at_actual_root ... ok
-test tests::owned_capture_roots_never_store_pseudoancestors ... ok
-test tests::owned_capture_roots_preserve_directory_spelling ... ok
-
-test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 284 filtered out; finished in 0.00s
-

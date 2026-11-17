@@ -1,3 +1,0 @@
-   Compiling semctx-r0-probe v0.1.0 (C:\Users\Hokli\.codex\worktrees\semctx-r0-path-repair\semctx.codex-t00-reconcile-20261024\tools\rust-ts-r0)
-    Finished `release` profile [optimized] target(s) in 46.78s
-     Running unittests src\main.rs (tools\rust-ts-r0\target\release\deps\semctx_r0_probe-ba55f67c179188cf.exe)
