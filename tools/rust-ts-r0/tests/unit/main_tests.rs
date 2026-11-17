@@ -15,6 +15,120 @@ fn component_sdk() -> Sdk {
     .unwrap()
 }
 
+fn assert_retained_declaration_companion(root: &str, runtime_tail: Option<&str>) {
+    let main = format!("{root}/main.mjs");
+    let declaration = format!("{root}/dep.d.ts");
+    let mut request = component_request(
+        "retained-declaration-companion",
+        &main,
+        "import { leaf } from './dep.js'; export function main() { return leaf(); }",
+    );
+    request.cwd = root.into();
+    request.retained = true;
+    request.files.insert(
+        declaration,
+        "export declare function leaf(): number;".into(),
+    );
+    if let Some(tail) = runtime_tail {
+        let runtime = format!("{root}/{tail}");
+        request.files.insert(
+            runtime.clone(),
+            "export function leaf() { return 1; }".into(),
+        );
+        request.roots.push(runtime);
+    }
+    let result = analyze(request, component_sdk()).unwrap();
+    let extraction = &result["raw_extraction"];
+    assert_eq!(
+        extraction["imports"][0]["resolvedRelPath"],
+        if runtime_tail.is_some() {
+            "dep.js"
+        } else {
+            "dep.d.ts"
+        },
+        "runtime companion import for {root} / {runtime_tail:?}",
+    );
+    assert_eq!(
+        extraction["calls"][0]["calleeRelPath"],
+        runtime_tail.map_or(serde_json::Value::Null, |_| serde_json::json!("dep.js")),
+        "runtime companion call for {root} / {runtime_tail:?}",
+    );
+    assert!(
+        !extraction["modules"]
+            .as_array()
+            .unwrap()
+            .contains(&serde_json::json!("dep.d.ts"))
+    );
+}
+
+#[test]
+fn retained_declaration_companion_uses_source_spellings() {
+    for root in ["/repo", "C:/repo", "//?/C:/repo"] {
+        for runtime in [None, Some("dep.js"), Some("nested/../dep.js")] {
+            assert_retained_declaration_companion(root, runtime);
+        }
+    }
+}
+
+#[test]
+fn retained_declaration_companion_preserves_namespace_boundary() {
+    let root = "//?/C:/repo";
+    let main = format!("{root}/main.mjs");
+    let mut request = component_request(
+        "retained-declaration-namespace",
+        &main,
+        "import { leaf } from './dep.js'; export function main() { return leaf(); }",
+    );
+    request.cwd = root.into();
+    request.retained = true;
+    request.files.insert(
+        format!("{root}/dep.d.ts"),
+        "export declare function leaf(): number;".into(),
+    );
+    request.files.insert(
+        "C:/repo/dep.js".into(),
+        "export function leaf() { return 1; }".into(),
+    );
+    let result = analyze(request, component_sdk()).unwrap();
+    assert_eq!(
+        result["raw_extraction"]["imports"][0]["resolvedRelPath"],
+        "dep.d.ts"
+    );
+    assert!(result["raw_extraction"]["calls"][0]["calleeRelPath"].is_null());
+}
+
+#[test]
+fn retained_declaration_companion_refuses_compiler_path_collision() {
+    let main = "C:/repo/main.mjs";
+    let mut request = component_request(
+        "retained-declaration-collision",
+        main,
+        "import { leaf } from './dep.js'; export function main() { return leaf(); }",
+    );
+    request.cwd = "C:/repo".into();
+    request.retained = true;
+    request.files.insert(
+        "C:/repo/dep.d.ts".into(),
+        "export declare function leaf(): number;".into(),
+    );
+    request.files.insert(
+        "C:/repo/dep.js".into(),
+        "export function leaf() { return 1; }".into(),
+    );
+    request.files.insert(
+        "C:/../repo/dep.js".into(),
+        "export function leaf() { return 2; }".into(),
+    );
+    request.roots.push("C:/repo/dep.js".into());
+    let result = analyze(request, component_sdk());
+    assert!(
+        result
+            .as_ref()
+            .is_err_and(|error| error.contains("conflicting compiler source key")),
+        "ambiguous compiler source names must be refused: {result:?}",
+    );
+}
+
 fn assert_retained_path_origins(root: &str, case_sensitive: bool) {
     assert_retained_path_origins_at(root, "main.ts", case_sensitive);
 }

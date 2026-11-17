@@ -1475,7 +1475,28 @@ fn analyze_internal(
     let mut extraction = ordinary::Extraction::default();
     let mut dynamic_imports = BTreeSet::new();
     let mut outlines = BTreeMap::new();
-    let captured_files = std::sync::Arc::new(fs.files.clone());
+    // Extraction compares compiler source names, not CaptureFs lookup keys.
+    // Preserve the captured namespace while normalizing lexical path segments.
+    let mut captured_files = BTreeMap::new();
+    for (key, text) in &fs.files {
+        let spelling = fs
+            .spelling
+            .get(key)
+            .ok_or_else(|| format!("missing captured source spelling: {key}"))?;
+        let source_path = ts_goport::frontend::tspath::normalize_path(spelling);
+        let source_key = if fs.sensitive {
+            source_path
+        } else {
+            source_path.to_lowercase()
+        };
+        if captured_files
+            .insert(source_key.clone(), text.clone())
+            .is_some()
+        {
+            return Err(format!("conflicting compiler source key: {source_key}"));
+        }
+    }
+    let captured_files = std::sync::Arc::new(captured_files);
     let case_sensitive = fs.sensitive;
     for path in &roots {
         if [".d.ts", ".d.mts", ".d.cts"]
