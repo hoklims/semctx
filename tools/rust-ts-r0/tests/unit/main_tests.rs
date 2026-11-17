@@ -93,12 +93,18 @@ fn assert_retained_path_origins_at(root: &str, source_tail: &str, case_sensitive
 
 #[test]
 fn retained_drive_paths_preserve_internal_origins_and_external_control() {
-    assert_retained_path_origins("C:/SemctxRetainedFixture/MixedCase", false);
+    assert_retained_path_origins(
+        "C:/SemctxRetainedFixture/MixedCase",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
 }
 
 #[test]
 fn retained_drive_verbatim_paths_preserve_internal_origins_and_external_control() {
-    assert_retained_path_origins("//?/C:/SemctxRetainedFixture/MixedCase", false);
+    assert_retained_path_origins(
+        "//?/C:/SemctxRetainedFixture/MixedCase",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
 }
 
 #[test]
@@ -114,7 +120,7 @@ fn retained_drive_dot_segments_preserve_internal_origins_and_external_control() 
     assert_retained_path_origins_at(
         "C:/SemctxRetainedFixture/MixedCase",
         "sub/../main.ts",
-        false,
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
     );
 }
 
@@ -123,7 +129,7 @@ fn retained_drive_verbatim_dot_segments_preserve_internal_origins_and_external_c
     assert_retained_path_origins_at(
         "//?/C:/SemctxRetainedFixture/MixedCase",
         "sub/../main.ts",
-        false,
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
     );
 }
 
