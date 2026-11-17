@@ -3,6 +3,9 @@
 use super::*;
 #[path = "public_batch_binding.rs"]
 mod batch_binding;
+#[cfg(test)]
+#[path = "fixture_git_tests.rs"]
+mod fixture_git_tests;
 #[path = "ordinary_physical_capture.rs"]
 mod ordinary_physical_capture;
 #[path = "public_working_tree_replay.rs"]
@@ -73,6 +76,98 @@ fn json_success(outcome: &process::Outcome) -> Result<Value, String> {
     serde_json::from_str(&outcome.stdout).map_err(|e| e.to_string())
 }
 
+fn configure_fixture_line_endings(
+    root: &Path,
+    dir: &Path,
+    helper: &Path,
+    pins: &[(&Path, &str)],
+) -> Result<(), String> {
+    let git_dir = root.join(".git");
+    let metadata = fs::symlink_metadata(&git_dir).map_err(|error| error.to_string())?;
+    if !git_dir.is_absolute() || !metadata.is_dir() || metadata.file_type().is_symlink() {
+        return Err("fixture Git configuration requires its own local .git directory".into());
+    }
+    for (label, key) in [("autocrlf", "core.autocrlf"), ("safecrlf", "core.safecrlf")] {
+        let prefix = vec![
+            "git".to_string(),
+            "--git-dir".into(),
+            git_dir.to_string_lossy().into_owned(),
+            "config".into(),
+            "--local".into(),
+            "--type=bool".into(),
+        ];
+        let mut set = prefix.clone();
+        set.extend([key.to_owned(), "false".into()]);
+        let outcome = invoke(
+            &set,
+            root,
+            &dir.join(format!("git-fixture-{label}-set.json")),
+            helper,
+            pins,
+        )?;
+        if outcome.kind != "success"
+            || outcome.exit_code != Some(0)
+            || !outcome.stdout.is_empty()
+            || !outcome.stderr.is_empty()
+        {
+            return Err(format!("fixture local Git configuration failed: {key}"));
+        }
+        let mut read = prefix;
+        read.extend(["--get".into(), key.to_owned()]);
+        let outcome = invoke(
+            &read,
+            root,
+            &dir.join(format!("git-fixture-{label}-read.json")),
+            helper,
+            pins,
+        )?;
+        if outcome.kind != "success"
+            || outcome.exit_code != Some(0)
+            || outcome.stdout.trim() != "false"
+            || !outcome.stderr.is_empty()
+        {
+            return Err(format!(
+                "fixture local Git configuration readback differs: {key}"
+            ));
+        }
+    }
+    Ok(())
+}
+
+fn initialize_fixture_git(
+    commands: &Value,
+    root: &Path,
+    dir: &Path,
+    helper: &Path,
+    pins: &[(&Path, &str)],
+) -> Result<(), String> {
+    for (index, command) in commands
+        .as_array()
+        .ok_or("Git setup absent")?
+        .iter()
+        .enumerate()
+    {
+        let argv: Vec<String> =
+            serde_json::from_value(command.clone()).map_err(|e| e.to_string())?;
+        let outcome = invoke(
+            &argv,
+            root,
+            &dir.join(format!("git-setup-{index}.json")),
+            helper,
+            pins,
+        )?;
+        if outcome.kind != "success" || outcome.exit_code != Some(0) {
+            return Err("actual Git setup failed".into());
+        }
+        if argv.first().map(String::as_str) == Some("git")
+            && argv.get(1).map(String::as_str) == Some("init")
+        {
+            configure_fixture_line_endings(root, dir, helper, pins)?;
+        }
+    }
+    Ok(())
+}
+
 pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, String> {
     if fixture["public_lifecycle_execution_enabled"] != true {
         return Ok(
@@ -99,25 +194,7 @@ pub(super) fn run(recipe: &Value, dir: &Path, fixture: &Value) -> Result<Value, 
     }
     fs::create_dir_all(&root).map_err(|e| e.to_string())?;
     files(&root, &recipe["physical_files"])?;
-    for (index, command) in recipe["git_setup"]
-        .as_array()
-        .ok_or("Git setup absent")?
-        .iter()
-        .enumerate()
-    {
-        let argv: Vec<String> =
-            serde_json::from_value(command.clone()).map_err(|e| e.to_string())?;
-        let outcome = invoke(
-            &argv,
-            &root,
-            &dir.join(format!("git-setup-{index}.json")),
-            helper,
-            &pins,
-        )?;
-        if outcome.kind != "success" || outcome.exit_code != Some(0) {
-            return Err("actual Git setup failed".into());
-        }
-    }
+    initialize_fixture_git(&recipe["git_setup"], &root, dir, helper, &pins)?;
     files(&root, &recipe["physical_current_files"])?;
     for (index, command) in recipe["git_after_current"]
         .as_array()

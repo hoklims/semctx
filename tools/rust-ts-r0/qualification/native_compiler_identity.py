@@ -6,7 +6,9 @@ import os
 from pathlib import Path
 import subprocess
 
-REVISION = 'd1f3c0c442ab71a2fce7a01980ed892bd27b9842'
+REVISION = '85671c0de022b8f34e89a1bf9c72d4c1c1631a2d'
+SCANNER_REVISION = 'd1f3c0c442ab71a2fce7a01980ed892bd27b9842'
+PATH_SOURCE = 'crates/ts_goport/src/frontend/tspath/path.rs'
 UPSTREAM_BASE_REVISION = '780dc512d64f40afebffa6a7028207649fb7ed1c'
 SOURCE = 'crates/ts_goport/src/core.rs'
 
@@ -34,15 +36,34 @@ def record_native_compiler_source(output, env):
     checkout = source.parents[3]
     command = ['git', '-C', str(checkout)]
     parent = subprocess.check_output(command+['rev-parse', 'HEAD^'], env=env).decode().strip()
-    if parent != UPSTREAM_BASE_REVISION:
-        raise ValueError('engine correction is not based on the frozen upstream source')
+    if parent != SCANNER_REVISION:
+        raise ValueError('path correction parent differs from the frozen scanner revision')
+    scanner_parent = subprocess.check_output(command+['rev-parse', SCANNER_REVISION+'^'], env=env).decode().strip()
+    if scanner_parent != UPSTREAM_BASE_REVISION:
+        raise ValueError('scanner correction is not based on the frozen upstream source')
+    changed = subprocess.check_output(command+['diff', '--name-only', SCANNER_REVISION, REVISION], env=env).decode().splitlines()
+    if changed != [PATH_SOURCE]:
+        raise ValueError('path correction changes files outside the exact path source')
+    if subprocess.check_output(command+['show', SCANNER_REVISION+':'+SOURCE], env=env) != actual:
+        raise ValueError('compiler version source changed outside the path correction')
+    path_before = subprocess.check_output(command+['show', SCANNER_REVISION+':'+PATH_SOURCE], env=env)
+    path_after = subprocess.check_output(command+['show', REVISION+':'+PATH_SOURCE], env=env)
+    if (checkout/PATH_SOURCE).read_bytes() != path_after or path_before == path_after:
+        raise ValueError('cached path correction differs or is empty')
+    path_patch = {'path': PATH_SOURCE, 'base_revision': SCANNER_REVISION, 'revision': REVISION,
+                  'before_source': path_before.decode('utf-8'), 'after_source': path_after.decode('utf-8'),
+                  'before_sha256': hashlib.sha256(path_before).hexdigest(),
+                  'after_sha256': hashlib.sha256(path_after).hexdigest(),
+                  'before_git_blob': subprocess.check_output(command+['rev-parse', SCANNER_REVISION+':'+PATH_SOURCE], env=env).decode().strip(),
+                  'after_git_blob': subprocess.check_output(command+['rev-parse', REVISION+':'+PATH_SOURCE], env=env).decode().strip()}
     patch_sources = []
     for relative in ['crates/ts_goport/src/frontend/scanner/scanner_p1.rs',
                      'crates/ts_goport/src/frontend/scanner/t00_utf16_source_tests.rs']:
         committed = subprocess.check_output(command+['show', 'HEAD:'+relative], env=env)
         data = (checkout/relative).read_bytes()
-        if committed != data:
-            raise ValueError('cached corrected engine source differs from its Git blob')
+        scanner_bytes = subprocess.check_output(command+['show', SCANNER_REVISION+':'+relative], env=env)
+        if committed != data or committed != scanner_bytes:
+            raise ValueError('cached scanner correction differs from its frozen scanner bytes')
         patch_sources.append({'path': relative, 'git_blob': subprocess.check_output(
             command+['rev-parse', 'HEAD:'+relative], env=env).decode().strip(),
             'sha256': hashlib.sha256(data).hexdigest(), 'bytes': len(data)})
@@ -56,6 +77,9 @@ def record_native_compiler_source(output, env):
     (output/'upstream-compiler-core.rs').write_bytes(actual)
     receipt = {'upstream_revision': REVISION, 'engine_source_revision': REVISION,
                'upstream_base_revision': UPSTREAM_BASE_REVISION, 'fork_patch_source_bindings': patch_sources,
+               'scanner_revision': SCANNER_REVISION, 'engine_parent_revision': parent,
+               'scanner_parent_revision': scanner_parent, 'engine_delta_paths': changed,
+               'path_patch_binding': path_patch,
                'path': SOURCE, 'cache_path': str(source),
                'git_blob': blob, 'git_blob_matches_actual_bytes': True,
                'source_sha256': hashlib.sha256(actual).hexdigest(), 'source_bytes': len(actual),

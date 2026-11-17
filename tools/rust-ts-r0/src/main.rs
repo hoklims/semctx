@@ -152,16 +152,13 @@ impl CaptureFs {
             let path = path.replace('\\', "/");
             let key = result.key(&path);
             result.spelling.insert(key.clone(), path.clone());
-            let mut parent = path.as_str();
-            while let Some((dir, _)) = parent.rsplit_once('/') {
-                let dir = if dir.is_empty() { "/" } else { dir };
-                let key = result.key(dir);
+            let mut parent = path.clone();
+            loop {
+                let dir = ts_goport::frontend::tspath::get_directory_path(&parent);
+                let key = result.key(&dir);
                 result.dirs.insert(key.clone());
-                result
-                    .spelling
-                    .entry(key)
-                    .or_insert_with(|| dir.to_string());
-                if dir == "/" {
+                result.spelling.entry(key).or_insert_with(|| dir.clone());
+                if dir == parent || dir == "/" {
                     break;
                 }
                 parent = dir;
@@ -875,7 +872,16 @@ fn inspect_subject(
     let retained_files = project
         .as_ref()
         .iter()
-        .map(|(path, text)| (fs.key(path), text.clone()))
+        .map(|(path, text)| {
+            // Match normalized compiler source paths without changing their namespace.
+            let path = ts_goport::frontend::tspath::normalize_path(path);
+            let path = if case_sensitive {
+                path
+            } else {
+                path.to_lowercase()
+            };
+            (path, text.clone())
+        })
         .collect::<BTreeMap<_, _>>();
     let builtin: serde_json::Value = serde_json::from_str(include_str!("../builtin-modules.json"))
         .map_err(|error| error.to_string())?;
@@ -1469,7 +1475,28 @@ fn analyze_internal(
     let mut extraction = ordinary::Extraction::default();
     let mut dynamic_imports = BTreeSet::new();
     let mut outlines = BTreeMap::new();
-    let captured_files = std::sync::Arc::new(fs.files.clone());
+    // Extraction compares compiler source names, not CaptureFs lookup keys.
+    // Preserve the captured namespace while normalizing lexical path segments.
+    let mut captured_files = BTreeMap::new();
+    for (key, text) in &fs.files {
+        let spelling = fs
+            .spelling
+            .get(key)
+            .ok_or_else(|| format!("missing captured source spelling: {key}"))?;
+        let source_path = ts_goport::frontend::tspath::normalize_path(spelling);
+        let source_key = if fs.sensitive {
+            source_path
+        } else {
+            source_path.to_lowercase()
+        };
+        if captured_files
+            .insert(source_key.clone(), text.clone())
+            .is_some()
+        {
+            return Err(format!("conflicting compiler source key: {source_key}"));
+        }
+    }
+    let captured_files = std::sync::Arc::new(captured_files);
     let case_sensitive = fs.sensitive;
     for path in &roots {
         if [".d.ts", ".d.mts", ".d.cts"]

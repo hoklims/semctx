@@ -15,6 +15,247 @@ fn component_sdk() -> Sdk {
     .unwrap()
 }
 
+fn assert_retained_declaration_companion(root: &str, runtime_tail: Option<&str>) {
+    let main = format!("{root}/main.mjs");
+    let declaration = format!("{root}/dep.d.ts");
+    let mut request = component_request(
+        "retained-declaration-companion",
+        &main,
+        "import { leaf } from './dep.js'; export function main() { return leaf(); }",
+    );
+    request.cwd = root.into();
+    request.retained = true;
+    request.files.insert(
+        declaration,
+        "export declare function leaf(): number;".into(),
+    );
+    if let Some(tail) = runtime_tail {
+        let runtime = format!("{root}/{tail}");
+        request.files.insert(
+            runtime.clone(),
+            "export function leaf() { return 1; }".into(),
+        );
+        request.roots.push(runtime);
+    }
+    let result = analyze(request, component_sdk()).unwrap();
+    let extraction = &result["raw_extraction"];
+    assert_eq!(
+        extraction["imports"][0]["resolvedRelPath"],
+        if runtime_tail.is_some() {
+            "dep.js"
+        } else {
+            "dep.d.ts"
+        },
+        "runtime companion import for {root} / {runtime_tail:?}",
+    );
+    assert_eq!(
+        extraction["calls"][0]["calleeRelPath"],
+        runtime_tail.map_or(serde_json::Value::Null, |_| serde_json::json!("dep.js")),
+        "runtime companion call for {root} / {runtime_tail:?}",
+    );
+    assert!(
+        !extraction["modules"]
+            .as_array()
+            .unwrap()
+            .contains(&serde_json::json!("dep.d.ts"))
+    );
+}
+
+#[test]
+fn retained_declaration_companion_uses_source_spellings() {
+    for root in ["/repo", "C:/repo", "//?/C:/repo"] {
+        for runtime in [None, Some("dep.js"), Some("nested/../dep.js")] {
+            assert_retained_declaration_companion(root, runtime);
+        }
+    }
+}
+
+#[test]
+fn retained_declaration_companion_preserves_namespace_boundary() {
+    let root = "//?/C:/repo";
+    let main = format!("{root}/main.mjs");
+    let mut request = component_request(
+        "retained-declaration-namespace",
+        &main,
+        "import { leaf } from './dep.js'; export function main() { return leaf(); }",
+    );
+    request.cwd = root.into();
+    request.retained = true;
+    request.files.insert(
+        format!("{root}/dep.d.ts"),
+        "export declare function leaf(): number;".into(),
+    );
+    request.files.insert(
+        "C:/repo/dep.js".into(),
+        "export function leaf() { return 1; }".into(),
+    );
+    let result = analyze(request, component_sdk()).unwrap();
+    assert_eq!(
+        result["raw_extraction"]["imports"][0]["resolvedRelPath"],
+        "dep.d.ts"
+    );
+    assert!(result["raw_extraction"]["calls"][0]["calleeRelPath"].is_null());
+}
+
+#[test]
+fn retained_declaration_companion_refuses_compiler_path_collision() {
+    let main = "C:/repo/main.mjs";
+    let mut request = component_request(
+        "retained-declaration-collision",
+        main,
+        "import { leaf } from './dep.js'; export function main() { return leaf(); }",
+    );
+    request.cwd = "C:/repo".into();
+    request.retained = true;
+    request.files.insert(
+        "C:/repo/dep.d.ts".into(),
+        "export declare function leaf(): number;".into(),
+    );
+    request.files.insert(
+        "C:/repo/dep.js".into(),
+        "export function leaf() { return 1; }".into(),
+    );
+    request.files.insert(
+        "C:/../repo/dep.js".into(),
+        "export function leaf() { return 2; }".into(),
+    );
+    request.roots.push("C:/repo/dep.js".into());
+    let result = analyze(request, component_sdk());
+    assert!(
+        result
+            .as_ref()
+            .is_err_and(|error| error.contains("conflicting compiler source key")),
+        "ambiguous compiler source names must be refused: {result:?}",
+    );
+}
+
+fn assert_retained_path_origins(root: &str, case_sensitive: bool) {
+    assert_retained_path_origins_at(root, "main.ts", case_sensitive);
+}
+
+fn assert_retained_path_origins_at(root: &str, source_tail: &str, case_sensitive: bool) {
+    for (id, text, reasons) in [
+        (
+            "helper-primitive",
+            "import { register } from 'opaque'; function helper() { return 1; } export function main() { return register(helper()); }",
+            serde_json::json!([]),
+        ),
+        (
+            "helper-object-external-control",
+            "import { register } from 'opaque'; function helper() { return {}; } export function main() { return register(helper()); }",
+            serde_json::json!(["SOURCE_OPAQUE_CALLBACK_UNSUPPORTED"]),
+        ),
+        (
+            "heritage-internal",
+            "class Base {} export class Child extends Base {}",
+            serde_json::json!(["SOURCE_INTERNAL_HERITAGE_UNSUPPORTED"]),
+        ),
+        (
+            "native-process-unknown",
+            "export const native = process.binding('contextify');",
+            serde_json::json!([
+                "SOURCE_CALLABLE_EXPORT_UNSUPPORTED",
+                "SOURCE_UNRESOLVED_CALLEE_UNSUPPORTED"
+            ]),
+        ),
+        (
+            "wasm-local",
+            "const WebAssembly = { instantiate(value) { return 1; } }; export function main(bytes) { return WebAssembly.instantiate(bytes); }",
+            serde_json::json!([]),
+        ),
+        (
+            "script-local",
+            "const document = { createElement(value) { return {}; }, body: { appendChild(value) { return 1; } } }; document.body.appendChild(document.createElement('script')); export {};",
+            serde_json::json!([]),
+        ),
+    ] {
+        let source_path = format!("{root}/{source_tail}");
+        let package_path = format!("{root}/package.json");
+        let files = BTreeMap::from([
+            (source_path.clone(), text.to_owned()),
+            (
+                package_path,
+                r#"{"dependencies":{"opaque":"1.0.0"}}"#.to_owned(),
+            ),
+        ]);
+        let request: Request = serde_json::from_value(serde_json::json!({
+            "id": id, "cwd": root, "sdk_directory": "/sdk/lib",
+            "case_sensitive": case_sensitive,
+            "roots": [source_path], "files": files, "retained": true,
+            "qualified": false,
+            "options": {"target":"ES2022","module":"ESNext","moduleResolution":"Bundler",
+                "allowJs":true,"jsx":"Preserve","skipLibCheck":true,"noEmit":true,"strict":false}
+        }))
+        .unwrap();
+        let observed = analyze(request, component_sdk()).unwrap();
+        let subject = observed["subjects"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|subject| subject["path"] == "main.ts")
+            .unwrap();
+        let configuration = &subject["moduleConfigurationObservations"]["retainedWithoutSource"];
+        assert_eq!(configuration["executed"], true, "{root}: {id}");
+        assert_eq!(
+            configuration["unsupported"],
+            serde_json::json!([]),
+            "{root}: {id}"
+        );
+        assert_eq!(configuration["reasons"], reasons, "{root}: {id}");
+    }
+}
+
+#[test]
+fn retained_drive_paths_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins(
+        "C:/SemctxRetainedFixture/MixedCase",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
+#[test]
+fn retained_drive_verbatim_paths_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins(
+        "//?/C:/SemctxRetainedFixture/MixedCase",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
+#[test]
+fn retained_posix_paths_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins(
+        "/SemctxRetainedFixture/MixedCase",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
+#[test]
+fn retained_drive_dot_segments_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins_at(
+        "C:/SemctxRetainedFixture/MixedCase",
+        "sub/../main.ts",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
+#[test]
+fn retained_drive_verbatim_dot_segments_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins_at(
+        "//?/C:/SemctxRetainedFixture/MixedCase",
+        "sub/../main.ts",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
+#[test]
+fn retained_posix_dot_segments_preserve_internal_origins_and_external_control() {
+    assert_retained_path_origins_at(
+        "/SemctxRetainedFixture/MixedCase",
+        "sub/../main.ts",
+        ts_goport::frontend::vfs::osvfs_fs().use_case_sensitive_file_names(),
+    );
+}
+
 fn dynamic_import_request(text: &str) -> Request {
     let mut request = component_request("dynamicImportDev", "/repo/src/target.test.ts", text);
     request.qualified = true;
@@ -2696,4 +2937,90 @@ fn supplemental_retained_reference_case_variant_is_unretained() {
         references[0]["retained"], false,
         "RETAINED_REFERENCE_CASE_VARIANT_MEMBERSHIP"
     );
+}
+
+#[test]
+fn owned_capture_roots_preserve_directory_spelling() {
+    for (source, root, sensitive) in [
+        ("/repo/main.ts", "/", true),
+        ("C:/repo/main.ts", "C:/", false),
+        ("//?/C:/repo/main.ts", "//?/C:/", false),
+    ] {
+        let fs = CaptureFs::new(
+            BTreeMap::from([(source.into(), "export const captured = 1;".into())]),
+            sensitive,
+        );
+        assert!(
+            fs.directory_exists(root),
+            "OWNED_CAPTURE_ROOT_EXISTS:{root}"
+        );
+        assert_eq!(
+            fs.log.borrow().last().unwrap().path,
+            root,
+            "OWNED_CAPTURE_ROOT_SPELLING:{root}"
+        );
+        assert_eq!(
+            fs.read_file(source),
+            ("export const captured = 1;".into(), true)
+        );
+    }
+}
+
+#[test]
+fn owned_capture_roots_never_store_pseudoancestors() {
+    let fs = CaptureFs::new(
+        BTreeMap::from([(
+            "//?/C:/repo/main.ts".into(),
+            "export const captured = 1;".into(),
+        )]),
+        false,
+    );
+    for pseudo in ["//?", "//?/", "//?/C:"] {
+        assert!(
+            !fs.spelling.values().any(|path| path == pseudo),
+            "OWNED_CAPTURE_PSEUDOANCESTOR:{pseudo}"
+        );
+    }
+    assert!(
+        !fs.dirs.contains(&fs.key("//?")),
+        "OWNED_CAPTURE_NAMESPACE_IS_NOT_DIRECTORY"
+    );
+}
+
+#[test]
+fn owned_capture_configuration_stops_at_actual_root() {
+    for (source, repository, expected) in [
+        (
+            "/repo/main.ts",
+            "/repo",
+            ["/repo/tsconfig.json", "/tsconfig.json"],
+        ),
+        (
+            "C:/repo/main.ts",
+            "C:/repo",
+            ["C:/repo/tsconfig.json", "C:/tsconfig.json"],
+        ),
+        (
+            "//?/C:/repo/main.ts",
+            "//?/C:/repo",
+            ["//?/C:/repo/tsconfig.json", "//?/C:/tsconfig.json"],
+        ),
+    ] {
+        let fs = Rc::new(CaptureFs::new(
+            BTreeMap::from([(source.into(), "export const captured = 1;".into())]),
+            false,
+        ));
+        configuration::inspect(fs.clone(), source, repository).unwrap();
+        let probes = fs
+            .log
+            .borrow()
+            .iter()
+            .filter(|probe| probe.operation == "configuration_discovery_file_exists")
+            .map(|probe| probe.path.clone())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            probes, expected,
+            "OWNED_CAPTURE_CONFIGURATION_ROOT:{repository}"
+        );
+    }
 }

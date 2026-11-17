@@ -83,11 +83,27 @@ def tokens(host,coordinate):
     return {'state':'RELEVANT_PASS' if projected(actual,expected) else 'NONPASS','actual':actual,'expected':expected,'raw_refs':[pin(base/n) for n in ('request.json','process-outcome.json','process-invocation.json','actual-token-observations.json','token-report.json')],
       'scope':'Frozen13 issuance+7 revalidation+1 Map identity over actual bound native ownership context; controlled seals, no index-store attestation','binding':provenance,'coordinate':coordinate}
 
+def validate_compiler_lineage(source):
+    require(source['engine_source_revision']=='85671c0de022b8f34e89a1bf9c72d4c1c1631a2d' and source['upstream_base_revision']=='780dc512d64f40afebffa6a7028207649fb7ed1c','compiler fork/base differs')
+    require(source['engine_parent_revision']==source['scanner_revision']=='d1f3c0c442ab71a2fce7a01980ed892bd27b9842'
+            and source['scanner_parent_revision']=='780dc512d64f40afebffa6a7028207649fb7ed1c','compiler correction lineage differs')
+    require(source['engine_delta_paths']==['crates/ts_goport/src/frontend/tspath/path.rs'],'compiler correction scope differs')
+    path_patch=source['path_patch_binding']
+    require(path_patch['path']==source['engine_delta_paths'][0] and path_patch['base_revision']==source['scanner_revision']
+            and path_patch['revision']==source['engine_source_revision'],'path source lineage differs')
+    for phase,expected_sha,expected_blob in (
+        ('before','f773832a22a061d71ab26dc6583db7c11ce1884323d21a3b6a0dd3809b4342b7','5c324e0b5438a1e9eb0df956f12f1ba51b71942a'),
+        ('after','684281c71164c5ae4ccd546a4468d3feb45ef3ffe6e6b7c295676a814dee80f8','2616ebe0de12a883b03d00d42196c48e4f5e6e7c')):
+        content=path_patch[phase+'_source'].encode('utf-8')
+        require(API.sha(content)==path_patch[phase+'_sha256']==expected_sha,'path source bytes differ')
+        require(hashlib.sha1(b'blob '+str(len(content)).encode()+b'\0'+content).hexdigest()==path_patch[phase+'_git_blob']==expected_blob,'path source Git blob differs')
+    require(path_patch['before_sha256']!=path_patch['after_sha256'],'empty path correction')
+
 def compiler(host):
     binding=host.get('native_compiler_identity');require(isinstance(binding,dict),'explicit native_compiler_identity source/core/build_environment pins required')
     source=API.load_pin(binding['receipt']);core=Path(binding['core']['path']).read_bytes();require(API.sha(core)==binding['core']['sha256']==source['source_sha256'] and len(core)==source['source_bytes'],'compiler core actual bytes differ')
     require(hashlib.sha1(b'blob '+str(len(core)).encode()+b'\0'+core).hexdigest()==source['git_blob'],'compiler core Git blob differs')
-    require(source['engine_source_revision']=='d1f3c0c442ab71a2fce7a01980ed892bd27b9842' and source['upstream_base_revision']=='780dc512d64f40afebffa6a7028207649fb7ed1c','compiler fork/base differs')
+    validate_compiler_lineage(source)
     expression=['pub(crate) const VERSION: &str = match option_env!("GOPORT_BUILD_VERSION") {','    Some(version) => version,','    None => "7.1.0-dev",','};']
     require(core.decode().splitlines()[source['version_expression_first_line']-1:source['version_expression_first_line']+3]==expression and source['version_expression']==expression and source['GOPORT_BUILD_VERSION_present_in_build_environment'] is False,'compiler version source/override differs')
     env=API.load_pin(binding['build_environment']);require(env['source_head']==host['source_head'] and env['GOPORT_BUILD_VERSION_present'] is False and env['source_identity_sha256']==binding['receipt']['sha256'] and env['artifact_sha256']==host['fixture']['artifact_sha256'],'compiler build environment/source/artifact join absent')
