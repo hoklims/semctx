@@ -4070,6 +4070,188 @@ fn comparator_post_capture_setup_changes_physical_bytes_and_preserves_request() 
     fs::remove_dir_all(root).unwrap();
 }
 
+#[test]
+fn comparator_post_capture_ordinary_root_preserves_request() {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let root = std::env::temp_dir().join(format!("semctx-adapter-ordinary-owned-dev-{stamp}"));
+    fs::create_dir_all(&root).unwrap();
+    let source = "export const adapterCapture = 177;";
+    let request = materialize(
+        &json!({"files":{"adapterCapture.ts":source},"roots":["adapterCapture.ts"]}),
+        &root,
+        true,
+    )
+    .unwrap();
+    let request_path = root.join("request.json");
+    save(&request_path, &request).unwrap();
+    let original = fs::read(&request_path).unwrap();
+    let mutation = json!({"adapterCapture.ts":"export const adapterCapture = 179;"});
+    let proof = apply_physical_post_capture(&request, &mutation, &root, &request_path).unwrap();
+    assert_eq!(proof[0]["physical_differs_from_retained"], true);
+    assert_eq!(fs::read(&request_path).unwrap(), original);
+    assert_eq!(read_json(&request_path).unwrap(), request);
+    assert!(
+        apply_physical_post_capture(
+            &request,
+            &json!({"../foreign.ts":"foreign"}),
+            &root,
+            &request_path
+        )
+        .is_err()
+    );
+    fs::remove_dir_all(root).unwrap();
+}
+
+#[test]
+fn comparator_post_capture_target_guards_preserve_all_bytes() {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let envelope = std::env::temp_dir().join(format!("semctx-mutation-guards-{stamp}"));
+    let root = envelope.join("workspace");
+    fs::create_dir_all(&root).unwrap();
+    let request = materialize(
+        &json!({"files":{"entry.ts":"export const retained = 1;"},"roots":["entry.ts"]}),
+        &root,
+        true,
+    )
+    .unwrap();
+    let request_path = root.join("request.json");
+    save(&request_path, &request).unwrap();
+    fs::write(envelope.join("outside.ts"), b"outside bytes").unwrap();
+    let original_request = fs::read(&request_path).unwrap();
+    let original_source = fs::read(root.join("entry.ts")).unwrap();
+    let absolute = std::path::absolute(root.join("entry.ts"))
+        .unwrap()
+        .to_string_lossy()
+        .into_owned();
+    for path in [
+        "../outside.ts".to_string(),
+        absolute,
+        "missing.ts".to_string(),
+    ] {
+        let mut mutation = serde_json::Map::new();
+        mutation.insert(path, json!("changed"));
+        assert!(
+            apply_physical_post_capture(&request, &Value::Object(mutation), &root, &request_path)
+                .is_err()
+        );
+        assert_eq!(fs::read(&request_path).unwrap(), original_request);
+        assert_eq!(fs::read(root.join("entry.ts")).unwrap(), original_source);
+        assert_eq!(
+            fs::read(envelope.join("outside.ts")).unwrap(),
+            b"outside bytes"
+        );
+    }
+    let error = apply_physical_post_capture(
+        &request,
+        &json!({"request.json":"changed"}),
+        &root,
+        &request_path,
+    )
+    .unwrap_err();
+    assert_eq!(
+        error,
+        "physical mutation target is outside captured source root"
+    );
+    assert_eq!(fs::read(&request_path).unwrap(), original_request);
+    #[cfg(unix)]
+    {
+        std::os::unix::fs::symlink(envelope.join("outside.ts"), root.join("escape.ts")).unwrap();
+        let error = apply_physical_post_capture(
+            &request,
+            &json!({"escape.ts":"changed"}),
+            &root,
+            &request_path,
+        )
+        .unwrap_err();
+        assert_eq!(
+            error,
+            "physical mutation target is outside captured source root"
+        );
+        std::os::unix::fs::symlink(&request_path, root.join("request-alias.ts")).unwrap();
+        let error = apply_physical_post_capture(
+            &request,
+            &json!({"request-alias.ts":"changed"}),
+            &root,
+            &request_path,
+        )
+        .unwrap_err();
+        assert_eq!(
+            error,
+            "physical mutation target is outside captured source root"
+        );
+        assert_eq!(fs::read(&request_path).unwrap(), original_request);
+        assert_eq!(
+            fs::read(envelope.join("outside.ts")).unwrap(),
+            b"outside bytes"
+        );
+    }
+    fs::remove_dir_all(envelope).unwrap();
+}
+
+#[cfg(windows)]
+#[test]
+fn comparator_post_capture_does_not_substitute_another_namespace_key() {
+    let stamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_nanos();
+    let root = std::env::temp_dir().join(format!("semctx-mutation-namespace-{stamp}"));
+    fs::create_dir_all(&root).unwrap();
+    let mut request = materialize(
+        &json!({"files":{"entry.ts":"export const retained = 1;"},"roots":["entry.ts"]}),
+        &root,
+        false,
+    )
+    .unwrap();
+    let original_key = request["files"]
+        .as_object()
+        .unwrap()
+        .keys()
+        .next()
+        .unwrap()
+        .clone();
+    let canonical_key = root
+        .join("entry.ts")
+        .canonicalize()
+        .unwrap()
+        .to_string_lossy()
+        .replace('\\', "/");
+    assert_ne!(
+        original_key, canonical_key,
+        "ordinary Windows namespace required for the control"
+    );
+    let text = request["files"]
+        .as_object_mut()
+        .unwrap()
+        .remove(&original_key)
+        .unwrap();
+    request["files"]
+        .as_object_mut()
+        .unwrap()
+        .insert(canonical_key, text);
+    let request_path = root.join("request.json");
+    save(&request_path, &request).unwrap();
+    let before_request = fs::read(&request_path).unwrap();
+    let before_source = fs::read(root.join("entry.ts")).unwrap();
+    let error = apply_physical_post_capture(
+        &request,
+        &json!({"entry.ts":"changed"}),
+        &root,
+        &request_path,
+    )
+    .unwrap_err();
+    assert_eq!(error, "physical mutation must target captured source");
+    assert_eq!(fs::read(&request_path).unwrap(), before_request);
+    assert_eq!(fs::read(root.join("entry.ts")).unwrap(), before_source);
+    fs::remove_dir_all(root).unwrap();
+}
+
 fn validate_reason_routing(check: &Value) -> Result<(), String> {
     let target = check["target"]
         .as_array()
@@ -4294,6 +4476,13 @@ fn apply_physical_post_capture(
 ) -> Result<Value, String> {
     let before_request = fs::read(request_path).map_err(|e| e.to_string())?;
     let root_canonical = root.canonicalize().map_err(|e| e.to_string())?;
+    let request_canonical = request_path.canonicalize().map_err(|e| e.to_string())?;
+    // Keep the exact spelling used by materialize. Windows canonicalize adds
+    // a verbatim prefix; that physical name is not the retained Map identity.
+    let captured_root = std::path::absolute(root)
+        .map_err(|e| e.to_string())?
+        .to_string_lossy()
+        .replace('\\', "/");
     let mut proof = vec![];
     for (path, text) in mutations
         .as_object()
@@ -4304,14 +4493,17 @@ fn apply_physical_post_capture(
         }
         let target = root.join(path);
         let canonical = target.canonicalize().map_err(|e| e.to_string())?;
-        if !canonical.starts_with(&root_canonical) || canonical == request_path {
+        if !canonical.starts_with(&root_canonical) || canonical == request_canonical {
             return Err("physical mutation target is outside captured source root".into());
         }
-        let key = canonical.to_string_lossy().replace('\\', "/");
+        let key = format!("{captured_root}/{path}");
         let retained = request["files"]
             .get(&key)
             .and_then(Value::as_str)
             .ok_or("physical mutation must target captured source")?;
+        if Path::new(&key).canonicalize().map_err(|e| e.to_string())? != canonical {
+            return Err("captured mutation key resolves to a different physical target".into());
+        }
         let physical_before = fs::read(&canonical).map_err(|e| e.to_string())?;
         if physical_before != retained.as_bytes() {
             return Err("physical source differs before declared post-capture mutation".into());
