@@ -89,11 +89,8 @@ function wiringProblems(text: string): string[] {
   ]);
   const observer = (native.steps ?? []).find(step => step.name === "Exercise T00 observer comparators and recipe CLI");
   if (observer?.env?.GOPORT_LIB_PARSE_SNAPSHOT !== "0" || observer?.env?.GOPORT_LIB_SNAPSHOT !== "0") problems.push("observer comparators must run with both snapshot switches at 0");
-  const milestone = (native.steps ?? []).filter(step => step.name === "Acquire the ordered T00 Windows milestone");
-  const milestoneGuard = "matrix.os == 'windows-latest' && github.event.pull_request.number == 386 && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha";
-  if (milestone.length !== 1 || milestone[0]?.if !== milestoneGuard
-    || (commands(native).match(/python tools\/rust-ts-r0\/qualification\/run_windows_milestone\.py/g) ?? []).length !== 1) {
-    problems.push("Windows milestone must remain unique and bound to the authorized candidate");
+  if (Object.values(jobs).some(job => commands(job).includes("run_windows_milestone.py"))) {
+    problems.push("PR CI must not invoke the T00 Windows milestone");
   }
   const nativeSteps = native.steps ?? [];
   const install = nativeSteps.findIndex(step => normalized(step.run).includes("bun install --frozen-lockfile"));
@@ -259,15 +256,15 @@ describe("Rust gate invocation and admission", () => {
       .toContain("Exercise T00 observer comparators and recipe CLI: shell failure semantics changed");
   });
 
-  test("rejects removing the unique Windows milestone candidate guard", () => {
-    const guard = "if: matrix.os == 'windows-latest' && github.event.pull_request.number == 386 && vars.T00_NATIVE_CANDIDATE_SHA == github.event.pull_request.head.sha";
-    // The acquisition step has the same guard as its provisioning step: target it by name.
-    const target = `name: Acquire the ordered T00 Windows milestone\n        ${guard}`;
-    expect(source.includes(target)).toBe(true);
-    expect(wiringProblems(source.replace(target, "name: Acquire the ordered T00 Windows milestone\n        if: true")))
-      .toContain("Windows milestone must remain unique and bound to the authorized candidate");
-    const command = "python tools/rust-ts-r0/qualification/run_windows_milestone.py";
-    expect(wiringProblems(source.replace(command, `${command} ${command}`)))
-      .toContain("Windows milestone must remain unique and bound to the authorized candidate");
+  test("rejects reintroducing the Windows milestone in any PR CI job", () => {
+    const diagnostic = "PR CI must not invoke the T00 Windows milestone";
+    expect(wiringProblems(source)).not.toContain(diagnostic);
+    const workflow = Bun.YAML.parse(source) as Workflow;
+    for (const job of Object.values(workflow.jobs)) {
+      const step = { run: "python tools/rust-ts-r0/qualification/run_windows_milestone.py" };
+      job.steps!.push(step);
+      expect(wiringProblems(Bun.YAML.stringify(workflow))).toContain(diagnostic);
+      job.steps!.pop();
+    }
   });
 });
