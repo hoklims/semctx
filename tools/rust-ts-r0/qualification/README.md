@@ -80,11 +80,12 @@ observation modes do not run extraction. Their comparator accepts only the
 explicit source/compiler component fields and refuses extraction checks or
 relations before launching a producer.
 
-For PR386, the existing Windows CI job acquires the original and supplemental
-campaigns after owner review of the native Mac/Linux observations. The required
-`T00_NATIVE_REVIEW_SHA256` repository variable identifies that external review;
-an absent or placeholder reference fails acquisition. The event HEAD, clean
-source inventory, locked builds and actual artifacts are recorded independently.
-The reference authorizes acquisition and does not prove prior results. Raw
-differences remain available; scoped noncontract digest/message observations
-never rewrite the frozen expectations or supply qualification credit.
+Run the original and supplemental Windows campaigns as a separate qualification
+operation after the owner reviews the native macOS and Linux observations.
+The collector takes the exact candidate HEAD and the SHA-256 of that external
+review. An absent or placeholder reference fails acquisition. The collector
+records the candidate HEAD, clean source inventory, locked builds and actual
+artifacts. The reference authorizes acquisition. Prior results retain their own
+proof. Raw differences remain available, and scoped noncontract digest or
+message observations leave the frozen expectations and qualification credit
+intact.
