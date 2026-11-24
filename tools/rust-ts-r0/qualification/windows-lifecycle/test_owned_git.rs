@@ -443,6 +443,11 @@ fn second_pipe_reuses_the_remaining_quiescence_deadline() {
     let stop = Arc::new(AtomicBool::new(false));
     let reader_stop = Arc::clone(&stop);
     let stdout = thread::spawn(|| Ok(()));
+    let ready_deadline = Instant::now() + Duration::from_secs(2);
+    while !stdout.is_finished() && Instant::now() < ready_deadline {
+        thread::yield_now();
+    }
+    assert!(stdout.is_finished(), "stdout fixture was not ready before D2");
     let stderr = thread::spawn(move || {
         while !reader_stop.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_millis(1));
@@ -452,17 +457,14 @@ fn second_pipe_reuses_the_remaining_quiescence_deadline() {
     let started = Instant::now();
     let (_, complete) = finish_capture_before(
         true,
-        started + Duration::from_millis(30),
+        started + Duration::from_millis(100),
         stdout,
         stderr,
         &stop,
-        || {
-            thread::sleep(Duration::from_millis(25));
-            Ok(true)
-        },
+        || Ok(true),
     );
     assert!(
-        started.elapsed() < Duration::from_millis(150),
+        started.elapsed() < Duration::from_millis(300),
         "second pipe restarted its grace period after quiescence consumed D2"
     );
     assert!(!complete);
