@@ -73,17 +73,22 @@ def resolve_windows_git_payload(path):
         if not stat.S_ISREG(metadata.st_mode):
             raise ValueError('Git payload is not a regular file')
         return candidate.resolve(strict=True)
-    regular(path)
+    path=regular(path)
     if path.name.lower() != 'git.exe':
         raise ValueError('unsupported Windows Git layout')
-    if path.parent.name.lower()=='bin' and path.parent.parent.name.lower() in ('mingw64','ucrt64'):
-        return regular(path)
-    if path.parent.name.lower() != 'cmd':
+    direct=path.parent.name.lower()=='bin' and path.parent.parent.name.lower() in ('mingw64','ucrt64')
+    if direct:
+        installation=path.parent.parent.parent
+    elif path.parent.name.lower()=='cmd':
+        installation=path.parent.parent
+    else:
         raise ValueError('unsupported Windows Git launcher layout')
-    candidates=[path.parent.parent/layout/'bin/git.exe' for layout in ('mingw64','ucrt64')]
+    candidates=[installation/layout/'bin/git.exe' for layout in ('mingw64','ucrt64')]
     candidates=[payload for candidate in candidates if (payload:=regular(candidate,True)) is not None]
     if len(candidates)!=1:
         raise ValueError('Git payload is absent or ambiguous')
+    if direct and candidates[0]!=path:
+        raise ValueError('direct Git payload differs from unique installation payload')
     return regular(candidates[0])
 
 

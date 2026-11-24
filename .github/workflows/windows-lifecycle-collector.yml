@@ -87,16 +87,21 @@ jobs:
             if ([IO.Path]::GetFileName($entry) -ine 'git.exe') { throw 'unknown Git executable' }
             $parent = Split-Path $entry
             $layout = Split-Path $parent
-            if ((Split-Path $parent -Leaf) -ieq 'bin' -and (Split-Path $layout -Leaf) -iin @('mingw64','ucrt64')) {
-              return $entry
+            $direct = (Split-Path $parent -Leaf) -ieq 'bin' -and (Split-Path $layout -Leaf) -iin @('mingw64','ucrt64')
+            if ($direct) {
+              $installRoot = Split-Path $layout
+            } elseif ((Split-Path $parent -Leaf) -ieq 'cmd') {
+              $installRoot = $layout
+            } else {
+              throw 'unknown Git launcher layout'
             }
-            if ((Split-Path $parent -Leaf) -ine 'cmd') { throw 'unknown Git launcher layout' }
             $payloads = @()
             foreach ($name in @('mingw64','ucrt64')) {
-              $payload = Get-SafeGitFile (Join-Path $layout "$name/bin/git.exe") $true
+              $payload = Get-SafeGitFile (Join-Path $installRoot "$name/bin/git.exe") $true
               if ($null -ne $payload) { $payloads += $payload }
             }
             if ($payloads.Count -ne 1) { throw 'Git payload is absent or ambiguous' }
+            if ($direct -and $payloads[0] -ine $entry) { throw 'direct Git payload differs from unique installation payload' }
             return $payloads[0]
           }
           $entry = (Get-Command git.exe -CommandType Application).Source

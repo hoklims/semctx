@@ -114,6 +114,30 @@ class AuthorityTests(unittest.TestCase):
 
 
 class GitPayloadTests(unittest.TestCase):
+    def test_direct_payload_checks_both_layouts_before_selecting(self):
+        from types import SimpleNamespace
+        for layout in ('mingw64','ucrt64'):
+            for mode in ('ambiguous','dangling','reparse-metadata'):
+                with self.subTest(layout=layout,mode=mode),tempfile.TemporaryDirectory() as temporary:
+                    root=Path(temporary).resolve();direct=root/layout/'bin/git.exe'
+                    direct.parent.mkdir(parents=True);direct.write_bytes(b'direct payload')
+                    alternative=root/('ucrt64' if layout=='mingw64' else 'mingw64')
+                    original=Path.lstat
+                    if mode=='ambiguous':
+                        (alternative/'bin').mkdir(parents=True);(alternative/'bin/git.exe').write_bytes(b'alternative')
+                    elif mode=='dangling':
+                        alternative.symlink_to(root/'missing',target_is_directory=True)
+                    else:
+                        alternative.mkdir()
+                    def lstat(path,alternative=alternative,original=original,mode=mode):
+                        metadata=original(path)
+                        if mode=='reparse-metadata' and path==alternative:
+                            return SimpleNamespace(st_mode=metadata.st_mode,st_file_attributes=0x400)
+                        return metadata
+                    diagnostic='absent or ambiguous' if mode=='ambiguous' else 'link/reparse'
+                    with patch.object(Path,'lstat',lstat),self.assertRaisesRegex(ValueError,diagnostic):
+                        route.resolve_windows_git_payload(direct)
+
     def test_two_layouts_resolve_and_pin_payload_without_reading_launcher(self):
         for layout in ('mingw64','ucrt64'):
             with self.subTest(layout=layout),tempfile.TemporaryDirectory() as temporary:
@@ -274,6 +298,31 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_actual_powershell_direct_payload_rejects_alternative_layout(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        text=self.workflow();start=text.index('      - name: Resolve and pin host Git payload')
+        block=text[start:text.index('      - uses:',start)]
+        script='\n'.join(line[10:] for line in block.splitlines()[3:])+'\n'
+        for layout in ('mingw64','ucrt64'):
+            for mode in ('ambiguous','dangling'):
+                with self.subTest(layout=layout,mode=mode),tempfile.TemporaryDirectory() as temporary:
+                    root=Path(temporary).resolve();direct=root/layout/'bin/git.exe'
+                    direct.parent.mkdir(parents=True);direct.write_text('#!/bin/sh\nexit 99\n');direct.chmod(0o755)
+                    alternative=root/('ucrt64' if layout=='mingw64' else 'mingw64')
+                    if mode=='ambiguous':
+                        (alternative/'bin').mkdir(parents=True);(alternative/'bin/git.exe').write_bytes(b'alternative')
+                    else:
+                        alternative.symlink_to(root/'missing',target_is_directory=True)
+                    path=root/'resolve.ps1';path.write_text(script);observed=root/'environment'
+                    env=dict(os.environ,PATH=str(direct.parent)+os.pathsep+os.environ['PATH'],GITHUB_ENV=str(observed))
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
+                    self.assertNotEqual(result.returncode,0,'direct payload bypassed installation checks')
+                    diagnostic=b'absent or ambiguous' if mode=='ambiguous' else b'link/reparse'
+                    self.assertIn(diagnostic,result.stderr)
+                    self.assertFalse(observed.exists())
+
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()
 

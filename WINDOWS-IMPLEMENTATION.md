@@ -34,7 +34,8 @@ review to the saved report and favorable product/evidence first line.
 Cleanup order is terminate owned tree → wait/reap helper → release Child handle → bounded kernel query
 → bounded pipe drain → second kernel query → close the owned job → seal receipt.
 Only after all steps and checkout/executable postflight may the workflow upload.
-The two-second quiescence deadline fails closed. A query is a momentary job-level
+The two queries share a separate two-second quiescence deadline that also covers
+pipe draining; this deadline fails closed. A query is a momentary job-level
 observation; it does not prove that an administrator cannot assign a new process
 later. The trusted runner/controller must not reuse the job or initiate launches
 after sealing. Nested-job restrictions or unavailable QUERY/TERMINATE rights
@@ -52,8 +53,13 @@ from ActiveProcesses accounting; native Windows validation remains required.
 The collector opts into checked termination and bounded try_wait before spawn/ACK.
 Its first cleanup fixes one absolute two-second deadline; failure and Drop reuse
 that deadline. Failed termination/reap never establishes a complete capture.
-Legacy process callers retain their existing cleanup semantics. Closing a live
-job on failure is best-effort cleanup, not evidence of completed termination.
+The terminate/try_wait cleanup deadline and the quiescence/drain deadline are two
+distinct budgets, not one combined two-second limit. These checks provide no
+hard realtime guarantee for OS calls or scheduling. After refusal, finalization
+may still close the Windows Job with KILL_ON_JOB_CLOSE or send a best-effort Unix
+SIGKILL without waiting. Such finalization never establishes a timely successful
+reap, quiescence observation or complete capture. Legacy process callers retain
+their existing cleanup semantics; no final cleanup action is removed.
 Workflow pin syntax is checked by trusted inline PowerShell before checkout;
 host Git then checks both exact clean HEADs before any candidate Cargo build.
 
