@@ -509,14 +509,17 @@ class WorkflowTests(unittest.TestCase):
         ruby="require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))"
         path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
         result=subprocess.run(['ruby','-e',ruby,str(path)],capture_output=True,check=False)
-        self.assertEqual(result.returncode,0,result.stderr);job=json.loads(result.stdout)['jobs']['collect'];steps=job['steps']
+        self.assertEqual(result.returncode,0,result.stderr);jobs=json.loads(result.stdout)['jobs'];job=jobs['build'];steps=job['steps']
         provision=[i for i,step in enumerate(steps) if step.get('name')=='Provision admitted Rust toolchain']
         self.assertEqual(len(provision),1,'declared Rust toolchain must be explicitly provisioned')
         index=provision[0];approval=next(i for i,step in enumerate(steps) if step.get('name')=='Verify checked out identities before build');build=next(i for i,step in enumerate(steps) if step.get('name')=='Build admitted transport and helper')
         guard=next(i for i,step in enumerate(steps) if step.get('name')=='Validate protected pin syntax before checkout')
         self.assertLess(guard,approval);self.assertLess(approval,index,'toolchain provisioning ran before source approval');self.assertLess(index,build,'Cargo reached before toolchain provisioning')
-        python_pin=next(i for i,step in enumerate(steps) if step.get('id')=='startup_python')
-        self.assertLess(approval,python_pin);self.assertLess(python_pin,index)
+        receiver=jobs['collect']['steps']
+        python_pin=next(i for i,step in enumerate(receiver) if step.get('id')=='startup_python')
+        receiver_approval=next(i for i,step in enumerate(receiver) if step.get('name')=='Verify checked out identities before build')
+        receiver_launch=next(i for i,step in enumerate(receiver) if step.get('name')=='Collect once after authority and provenance checks')
+        self.assertLess(receiver_approval,python_pin);self.assertLess(python_pin,receiver_launch)
         self.assertEqual(steps[index]['run'].split(),['rustup','toolchain','install','1.95.0','--profile','minimal']);self.assertEqual(str(job['env']['RUSTUP_TOOLCHAIN']),'1.95.0')
 
     def test_actual_powershell_refuses_relative_and_redundant_git_spellings(self):
