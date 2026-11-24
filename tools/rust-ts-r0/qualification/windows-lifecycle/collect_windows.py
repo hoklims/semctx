@@ -55,6 +55,29 @@ def file_pin(path):
     return {'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
+def check_verified_binary(path,expected):
+    if not expected['path'] or re.fullmatch('[0-9a-f]{64}',expected['sha256']) is None or expected['sha256']=='0'*64:
+        raise ValueError('verified binary observation is missing or invalid')
+    try:
+        canonical=git_entry(expected['path'])
+        if str(path)!=str(canonical):
+            raise ValueError('path differs')
+        items=(*reversed(canonical.parents),canonical)
+        for index,item in enumerate(items):
+            metadata=item.lstat()
+            if stat.S_ISLNK(metadata.st_mode) or getattr(metadata,'st_file_attributes',0)&0x400:
+                raise ValueError('link/reparse point')
+            if index<len(items)-1 and not stat.S_ISDIR(metadata.st_mode):
+                raise ValueError('ancestor is not a directory')
+        if not stat.S_ISREG(metadata.st_mode) or canonical.resolve(strict=True)!=canonical:
+            raise ValueError('not a canonical regular file')
+        if file_pin(canonical)!=expected:
+            raise ValueError('bytes changed')
+    except (ValueError,OSError) as error:
+        raise ValueError('verified binary differs from completed artifact observation') from error
+    return expected
+
+
 def git_entry(path):
     raw=str(path)
     if any(part in ('.','..') for part in re.split(r'[\\/]',raw)):
@@ -203,6 +226,8 @@ def main():
     parser.add_argument('--execute',action='store_true')
     parser.add_argument('--review-bundle',type=Path,required=True)
     args=parser.parse_args()
+    observed_binaries={name:{'path':os.environ.get('WINDOWS_VERIFIED_'+name.upper()+'_PATH',''),
+        'sha256':os.environ.get('WINDOWS_VERIFIED_'+name.upper()+'_SHA256','')} for name in ('helper','executor')} if args.execute else {}
     bound_git=BoundGit.capture(args.git)
     git=bound_git.path
     observed_git=bound_git.pin
@@ -239,8 +264,9 @@ def main():
         raise ValueError('native collection requires the admitted Windows Actions runner')
     if args.output.exists() or args.output.is_relative_to(args.product_root) or args.output.is_relative_to(args.collector_root):
         raise ValueError('output must be fresh and outside both checkouts')
-    runtime={'git':file_pin(git),'helper':file_pin(args.helper),
-             'executor':file_pin(args.executor),'system_root':os.environ['SystemRoot']}
+    runtime={'git':file_pin(git),**observed_binaries,'system_root':os.environ['SystemRoot']}
+    for name,expected in observed_binaries.items():
+        check_verified_binary(getattr(args,name),expected)
     if observed_git is not None and runtime['git']!=observed_git:
         raise ValueError('observed Git payload changed before collection')
     request={'schema':1,'product_sha':SOURCE_HEAD,'authority':pins,'runtime':runtime,'output':str(args.output),
@@ -281,6 +307,7 @@ def main():
         os.fsync(stream.fileno())
     provenance={'schema':1,'context':context,'protected_approval_pins':pins,'prior_native_review':prior_native,
         'input_pins_before_after':input_pins,'prebuild_observed_git':observed_git,
+        'verified_build_binaries':observed_binaries,
         'runtime_before':runtime,'runtime_after':runtime_after,
         'request_sha256':hashlib.sha256(raw).hexdigest(),'product_tree':SOURCE_TREE,
         'workflow_run_id':os.environ.get('GITHUB_RUN_ID'),'workflow_run_attempt':os.environ.get('GITHUB_RUN_ATTEMPT'),

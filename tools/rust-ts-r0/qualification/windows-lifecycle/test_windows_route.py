@@ -310,7 +310,7 @@ class StartupGitTests(unittest.TestCase):
         from types import SimpleNamespace
         import subprocess
         import contextlib,io
-        for tamper in ('stable','postflight','bundle-dry','bundle-execute'):
+        for tamper in ('stable','postflight','bundle-dry','bundle-execute','binary-helper','binary-executor','missing-helper','invalid-executor','copied-helper'):
             with self.subTest(tamper=tamper),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();git=root/'ucrt64/bin/git.exe'
                 git.parent.mkdir(parents=True);git.write_bytes(b'original payload')
@@ -327,8 +327,17 @@ class StartupGitTests(unittest.TestCase):
                 env={'SystemRoot':str(root),'GITHUB_ACTIONS':'true','WINDOWS_APPROVED_COLLECTOR_SHA':'b'*40,
                      'WINDOWS_OBSERVED_GIT_PAYLOAD_PATH':str(git),
                      'WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256':hashlib.sha256(b'original payload').hexdigest()}
+                for name,path in [('HELPER',helper),('EXECUTOR',executor)]:
+                    env['WINDOWS_VERIFIED_'+name+'_PATH']=str(path)
+                    env['WINDOWS_VERIFIED_'+name+'_SHA256']=hashlib.sha256(path.read_bytes()).hexdigest()
+                if tamper=='missing-helper':env.pop('WINDOWS_VERIFIED_HELPER_SHA256')
+                if tamper=='invalid-executor':env['WINDOWS_VERIFIED_EXECUTOR_SHA256']='invalid'
+                if tamper=='copied-helper':
+                    alias=root/'copied-helper';alias.write_bytes(helper.read_bytes());env['WINDOWS_VERIFIED_HELPER_PATH']=str(alias)
                 executed=[];tree_calls=[];printed=io.StringIO()
-                def verify(*args,tamper=tamper,git=git):
+                def verify(*args,tamper=tamper,git=git,helper=helper,executor=executor):
+                    if tamper.startswith('binary-'):
+                        (helper if tamper=='binary-helper' else executor).write_bytes(b'changed after completed manifest verification')
                     if tamper.startswith("bundle-"):
                         git.write_bytes(b"changed during bundle verification")
                         os.environ["WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256"]=hashlib.sha256(git.read_bytes()).hexdigest()
@@ -352,11 +361,17 @@ class StartupGitTests(unittest.TestCase):
                       patch.object(route,'load_locked',return_value=[]),patch.object(route,'git_value',side_effect=identity),
                       patch.object(route.subprocess,'run',side_effect=execute),contextlib.redirect_stdout(printed)):
                     if tamper!='stable':
-                        with self.assertRaisesRegex(ValueError,'runtime executable changed|observed Git payload'):
+                        with self.assertRaisesRegex(ValueError,'runtime executable changed|observed Git payload|verified binary'):
                             route.main()
                     else:
                         route.main()
                 self.assertEqual(bool(executed),tamper in ('stable','postflight'))
+                if tamper=='stable':
+                    provenance=json.loads((output/'CONTROLLER-PROVENANCE.json').read_bytes())
+                    self.assertIn('verified_build_binaries',provenance)
+                    for name in ('helper','executor'):
+                        self.assertEqual(provenance['verified_build_binaries'][name],provenance['runtime_before'][name])
+                        self.assertEqual(provenance['verified_build_binaries'][name],provenance['runtime_after'][name])
                 if tamper.startswith('bundle-'):
                     self.assertFalse(tree_calls,'changed payload reached TREE read')
                     self.assertNotIn('INPUTS_AND_APPROVED_ROUTE_VERIFIED',printed.getvalue())
@@ -416,7 +431,7 @@ class WorkflowTests(unittest.TestCase):
             shell,args=step['shell'].split(' ',1)
             self.assertEqual(shell,r'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe')
             self.assertIn('-NoProfile',args);self.assertNotIn('-ExecutionPolicy',args)
-        for case in ('source','python','missing-pin','path-only','module-path-only'):
+        for case in ('source','python','missing-pin','path-only','module-path-only','binary-helper','binary-executor'):
             with self.subTest(case=case),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();temp=root/'temp';temp.mkdir();module_root=root/'collector/tools/rust-ts-r0/qualification/windows-lifecycle';module_root.mkdir(parents=True);(root/'product').mkdir()
                 for name in ('collect_windows.py','collector.py','prior_review.py'):shutil.copy2(Path(__file__).parent/name,module_root/name)
@@ -427,6 +442,29 @@ class WorkflowTests(unittest.TestCase):
                 shadow=root/'shadow/python';shadow.parent.mkdir();shadow.write_text('#!/bin/sh\ntouch "'+str(shadow_marker)+'"\n');shadow.chmod(0o755)
                 git=root/'git/mingw64/bin/git.exe';git.parent.mkdir(parents=True);git.write_text('#!/bin/sh\ncase "$*" in *"rev-parse HEAD"*) case "$*" in *collector*) printf "%s\\n" "$WINDOWS_APPROVED_COLLECTOR_SHA";; *) printf "%s\\n" "04b83a5f394431e1dcca533889f6c02e32d02a0d";; esac;; esac\n');git.chmod(0o755)
                 env=dict(os.environ,WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=str(git),WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=hashlib.sha256(git.read_bytes()).hexdigest(),WINDOWS_APPROVED_COLLECTOR_SHA='a'*40,WINDOWS_APPROVED_WORKFLOW_SHA='b'*40,WINDOWS_APPROVED_PRIOR_REVIEW_SHA256='c'*64,RUNNER_TEMP=str(temp),WINDOWS_TRUSTED_RUNNER_TEMP=str(temp))
+                all_jobs=json.loads(parsed.stdout)['jobs']
+                producer=next(item for item in all_jobs['build']['steps'] if item.get('name')=='Bind binaries to completed source observations')
+                verifier=next(item for item in all_jobs['collect']['steps'] if item.get('name')=='Validate the exact binary transport tree')
+                release=root/'collector/tools/gates/target/release';(release/'examples').mkdir(parents=True)
+                for relative in ('examples/windows_lifecycle_collector.exe','semctx-gates.exe'):
+                    shutil.copy2(root/'native-binaries'/relative,release/relative)
+                binary_output=root/'verified-step-output'
+                env.update(BUILD_SOURCE_COMMIT='a'*40,BUILD_SOURCE_TREE='d'*40,BUILD_WORKFLOW_SHA='b'*40,BUILD_RUN_ID='123',BUILD_RUN_ATTEMPT='1',GITHUB_OUTPUT=str(binary_output))
+                for label,body in [('build-record',producer['run']),('verify-record',verifier['run'])]:
+                    path=root/(label+'.ps1');path.write_text(body)
+                    if label=='verify-record':shutil.copy2(release/'BUILD-PROVENANCE.json',root/'native-binaries/BUILD-PROVENANCE.json')
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,env=env,capture_output=True,check=False)
+                    self.assertEqual(result.returncode,0,result.stderr)
+                verified=dict(line.split('=',1) for line in binary_output.read_text().splitlines())
+                for name in ('HELPER','EXECUTOR'):
+                    for part in ('PATH','SHA256'):
+                        key='WINDOWS_VERIFIED_'+name+'_'+part
+                        self.assertIn(key,verified,'manifest verification did not preserve binary identity')
+                        self.assertEqual(step.get('env',{}).get(key),'${{ steps.verified_binaries.outputs.'+key+' }}')
+                        env[key]=verified[key]
+                if case.startswith('binary-'):
+                    changed=root/'native-binaries'/('semctx-gates.exe' if case=='binary-helper' else 'examples/windows_lifecycle_collector.exe')
+                    changed.write_bytes(b'changed after completed manifest verification')
                 if startup:
                     path=root/'startup.ps1';path.write_text(startup['run']);output=root/'startup-output'
                     observed=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,env=env|{'PATH':str(original.parent)+os.pathsep+os.environ['PATH'],'GITHUB_OUTPUT':str(output)},capture_output=True,check=False)
@@ -882,7 +920,7 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
             with self.subTest(binding=case),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();release=root/'collector/tools/gates/target/release';(release/'examples').mkdir(parents=True)
                 (release/'examples/windows_lifecycle_collector.exe').write_bytes(b'collector fixture');(release/'semctx-gates.exe').write_bytes(b'helper fixture')
-                environment=dict(os.environ,BUILD_SOURCE_COMMIT='b'*40,BUILD_SOURCE_TREE='c'*40,BUILD_WORKFLOW_SHA='a'*40,BUILD_RUN_ID='123',BUILD_RUN_ATTEMPT='1')
+                environment=dict(os.environ,BUILD_SOURCE_COMMIT='b'*40,BUILD_SOURCE_TREE='c'*40,BUILD_WORKFLOW_SHA='a'*40,BUILD_RUN_ID='123',BUILD_RUN_ATTEMPT='1',GITHUB_OUTPUT=str(root/'step-output'))
                 script=root/'produce.ps1';script.write_text(producer['run'])
                 result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=environment,capture_output=True,check=False)
                 self.assertEqual(result.returncode,0,result.stderr)
@@ -898,6 +936,33 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
                 self.assertEqual(result.returncode==0,case=='exact',result.stderr)
                 self.assertEqual(b'EXECUTE_SENTINEL' in result.stdout,case=='exact',result.stderr)
                 if case!='exact':self.assertIn(b'binary build provenance',result.stderr)
+
+    def test_manifest_json_scalar_types_are_not_coerced(self):
+        import subprocess
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(path)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr);jobs=json.loads(parsed.stdout)['jobs']
+        producer=next(step for step in jobs['build']['steps'] if step.get('name')=='Bind binaries to completed source observations')
+        verify=next(step for step in jobs['collect']['steps'] if step.get('name')=='Validate the exact binary transport tree')
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        cases=[('schema',True),('schema','1'),('schema',1.0),('bytes','1'),('bytes',1.0),('bytes',True),('path',True),('sha256',True)]
+        for field,value in cases:
+            with self.subTest(field=field,value=value),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();release=root/'collector/tools/gates/target/release';(release/'examples').mkdir(parents=True)
+                for file in ['examples/windows_lifecycle_collector.exe','semctx-gates.exe']:(release/file).write_bytes(b'x')
+                env=dict(os.environ,BUILD_SOURCE_COMMIT='b'*40,BUILD_SOURCE_TREE='c'*40,BUILD_WORKFLOW_SHA='a'*40,BUILD_RUN_ID='123',BUILD_RUN_ATTEMPT='1',GITHUB_OUTPUT=str(root/'step-output'))
+                script=root/'produce.ps1';script.write_text(producer['run'])
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=env,capture_output=True,check=False)
+                self.assertEqual(result.returncode,0,result.stderr);shutil.copytree(release,root/'native-binaries')
+                manifest=root/'native-binaries/BUILD-PROVENANCE.json';record=json.loads(manifest.read_bytes())
+                if field=='schema':record[field]=value
+                else:record['files'][0][field]=value
+                manifest.write_text(json.dumps(record))
+                script=root/'verify.ps1';script.write_text(verify['run']+"\nWrite-Output 'EXECUTE_SENTINEL'\n")
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=env,capture_output=True,check=False)
+                self.assertNotEqual(result.returncode,0,'coerced manifest scalar reached execution')
+                self.assertIn(b'binary build provenance',result.stderr);self.assertNotIn(b'EXECUTE_SENTINEL',result.stdout)
 
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()

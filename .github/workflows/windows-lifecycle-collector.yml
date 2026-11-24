@@ -577,6 +577,7 @@ jobs:
           name: windows-lifecycle-admitted-binaries
           path: native-binaries
       - name: Validate the exact binary transport tree
+        id: verified_binaries
         env:
           BUILD_SOURCE_COMMIT: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
           BUILD_SOURCE_TREE: ${{ steps.collect_identity.outputs.collector_tree }}
@@ -599,7 +600,7 @@ jobs:
           $record = ConvertFrom-Json -InputObject ([IO.File]::ReadAllText((Join-Path $root 'BUILD-PROVENANCE.json')))
           $keys = @($record.PSObject.Properties.Name | Sort-Object)
           $wanted = @('schema','source_commit','source_tree','workflow_sha','run_id','run_attempt','files') | Sort-Object
-          if (($keys -join ',') -cne ($wanted -join ',') -or $record.schema -ne 1) { throw 'binary build provenance schema differs' }
+          if (($keys -join ',') -cne ($wanted -join ',') -or ($record.schema -isnot [int] -and $record.schema -isnot [long]) -or $record.schema -ne 1) { throw 'binary build provenance schema differs' }
           foreach ($pair in @(@('source_commit',$env:BUILD_SOURCE_COMMIT),@('source_tree',$env:BUILD_SOURCE_TREE),@('workflow_sha',$env:BUILD_WORKFLOW_SHA),@('run_id',$env:BUILD_RUN_ID),@('run_attempt',$env:BUILD_RUN_ATTEMPT))) {
             if (!$pair[1] -or $record.($pair[0]) -isnot [string] -or $record.($pair[0]) -cne $pair[1]) { throw 'binary build provenance source/run identity differs' }
           }
@@ -607,12 +608,22 @@ jobs:
           if (@($record.files).Count -ne 2) { throw 'binary build provenance file count differs' }
           for ($i=0; $i -lt 2; $i++) {
             $entry = $record.files[$i]
-            if ((@($entry.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'bytes,path,sha256' -or $entry.path -cne $files[$i]) { throw 'binary build provenance file identity differs' }
+            if ((@($entry.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'bytes,path,sha256' -or $entry.path -isnot [string] -or $entry.path -cne $files[$i]) { throw 'binary build provenance file identity differs' }
             $path = Join-Path $root $files[$i]
-            if ($entry.sha256 -cnotmatch '\A[0-9a-f]{64}\z' -or $entry.sha256 -cne (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -or $entry.bytes -ne (Get-Item -LiteralPath $path).Length) { throw 'binary build provenance payload bytes differ' }
+            if ($entry.sha256 -isnot [string] -or ($entry.bytes -isnot [int] -and $entry.bytes -isnot [long]) -or $entry.bytes -lt 0 -or $entry.sha256 -cnotmatch '\A[0-9a-f]{64}\z' -or $entry.sha256 -cne (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -or $entry.bytes -ne (Get-Item -LiteralPath $path).Length) { throw 'binary build provenance payload bytes differ' }
+          }
+          for ($i=0; $i -lt 2; $i++) {
+            $name = if ($i -eq 0) { 'EXECUTOR' } else { 'HELPER' }
+            $path = [IO.Path]::GetFullPath((Join-Path $root $files[$i]))
+            "WINDOWS_VERIFIED_${name}_PATH=$path" >> $env:GITHUB_OUTPUT
+            "WINDOWS_VERIFIED_${name}_SHA256=$($record.files[$i].sha256)" >> $env:GITHUB_OUTPUT
           }
       - name: Collect once after authority and provenance checks
         env:
+          WINDOWS_VERIFIED_HELPER_PATH: ${{ steps.verified_binaries.outputs.WINDOWS_VERIFIED_HELPER_PATH }}
+          WINDOWS_VERIFIED_HELPER_SHA256: ${{ steps.verified_binaries.outputs.WINDOWS_VERIFIED_HELPER_SHA256 }}
+          WINDOWS_VERIFIED_EXECUTOR_PATH: ${{ steps.verified_binaries.outputs.WINDOWS_VERIFIED_EXECUTOR_PATH }}
+          WINDOWS_VERIFIED_EXECUTOR_SHA256: ${{ steps.verified_binaries.outputs.WINDOWS_VERIFIED_EXECUTOR_SHA256 }}
           WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
           WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256 }}
           WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
@@ -718,7 +729,7 @@ jobs:
           Assert-ObservedFile $git $pin
           $controllerRoot = Join-Path $pwd 'collector/tools/rust-ts-r0/qualification/windows-lifecycle'
           $sources = @{
-            'collect_windows.py' = '99a63c47e65a7a38913516263adc398c12ed3544ff3ad270c9fb491502b5c2c0'
+            'collect_windows.py' = 'e260f6e3493ba4e20bcf5d2c54ff7a7f9e6e3b6ed26b5177038cff0fba4c6305'
             'collector.py' = 'c9f640c8eff10c2bb0e594ceaf01f17f71e438af17d98548b6cea2480c0c2b55'
             'prior_review.py' = 'b737fd27920dbdd65177a130d4d974c491cee4484b123f77d264fc208a87e175'
           }
@@ -727,8 +738,11 @@ jobs:
           }
           $python = $env:WINDOWS_OBSERVED_PYTHON_PATH
           Assert-ObservedFile $python $env:WINDOWS_OBSERVED_PYTHON_SHA256
-          Assert-ObservedFile (Join-Path $pwd 'native-binaries/examples/windows_lifecycle_collector.exe') '' $false
-          Assert-ObservedFile (Join-Path $pwd 'native-binaries/semctx-gates.exe') '' $false
+          $executor = $env:WINDOWS_VERIFIED_EXECUTOR_PATH
+          $helper = $env:WINDOWS_VERIFIED_HELPER_PATH
+          if ($executor -cne [IO.Path]::GetFullPath((Join-Path $pwd 'native-binaries/examples/windows_lifecycle_collector.exe')) -or $helper -cne [IO.Path]::GetFullPath((Join-Path $pwd 'native-binaries/semctx-gates.exe'))) { throw 'postbuild verified binary path differs' }
+          Assert-ObservedFile $executor $env:WINDOWS_VERIFIED_EXECUTOR_SHA256
+          Assert-ObservedFile $helper $env:WINDOWS_VERIFIED_HELPER_SHA256
           $cache = Join-Path $env:WINDOWS_TRUSTED_RUNNER_TEMP ('windows-controller-cache-' + [guid]::NewGuid().ToString('N'))
           New-Item -ItemType Directory -Path $cache -ErrorAction Stop | Out-Null
           $bootstrap = @'
@@ -749,8 +763,8 @@ jobs:
             "--product-root", "$pwd/product", "--collector-root", "$pwd/collector",
             "--inputs", "$pwd/preparation", "--prior-review", "$pwd/prior-native/REVIEW.json",
             "--review-bundle", "$pwd/prior-native",
-            "--executor", "$pwd/native-binaries/examples/windows_lifecycle_collector.exe",
-            "--git", $git, "--helper", "$pwd/native-binaries/semctx-gates.exe",
+            "--executor", $executor,
+            "--git", $git, "--helper", $helper,
             "--output", $output, "--execute")
           & $python @arguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

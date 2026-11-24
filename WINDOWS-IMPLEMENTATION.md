@@ -210,3 +210,19 @@ own approved checkout observation, workflow/run/attempt to direct GitHub context
 and hashes/sizes to actual downloaded bytes. Retrying only collection after a pin
 change or a new run attempt refuses the stale artifact. Manifest data is not a
 fourth authority; no hermetic or reproducible-build guarantee is claimed.
+
+V16 preserves each helper/executor path and SHA from the successful artifact
+verification step through completed step outputs. The launch step restores those
+four observations directly, checks the canonical artifact locations and hashes
+before Python, and passes those same paths. Python snapshots the expected records
+once before prerequisite reads, requires them for execution, checks canonical
+regular files and all ancestors, and compares actual bytes before request creation.
+Runtime/request records use the expected observations rather than adopting new
+hashes; final provenance includes verified_build_binaries equal to both runtime
+snapshots. Dry preflight does not require executable observations.
+
+Manifest schema and byte counts accept only JSON integers represented as Int32 or
+Int64 (nonnegative counts); schema must equal 1. File paths and SHA values require
+JSON strings. Booleans, floating values and numeric strings are refused rather
+than coerced. These are finite observation checks, not atomic filesystem or
+hard real-time guarantees; native Windows remains a separate runtime obligation.
