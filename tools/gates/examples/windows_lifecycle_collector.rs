@@ -195,8 +195,21 @@ fn run() -> Result<(), String> {
     let request: Request = serde_json::from_slice(&raw).map_err(|e| e.to_string())?;
     collect(request)
 }
+fn dispatch_with_cancellation(
+    install: impl FnOnce() -> Result<(), String>,
+    dispatch: impl FnOnce() -> Result<(), String>,
+) -> Result<(), String> {
+    install()?;
+    if semctx_gates::process::cancellation_requested() {
+        return Err("collector cancelled before dispatch".into());
+    }
+    dispatch()
+}
 fn main() {
-    if let Err(error) = run() {
+    if let Err(error) = dispatch_with_cancellation(
+        || semctx_gates::process::install_cancellation_checked().map_err(|error| error.to_string()),
+        run,
+    ) {
         eprintln!("{}", json!({"error":error}));
         std::process::exit(2);
     }
@@ -205,6 +218,59 @@ fn main() {
 #[cfg(test)]
 mod publication_tests {
     use super::*;
+    #[test]
+    fn cancellation_registration_failure_prevents_dispatch() {
+        let dispatched = std::cell::Cell::new(false);
+        let result = dispatch_with_cancellation(
+            || Err("registration unavailable".into()),
+            || {
+                dispatched.set(true);
+                Ok(())
+            },
+        );
+        assert_eq!(result, Err("registration unavailable".to_owned()));
+        assert!(!dispatched.get(), "registration failure reached dispatch");
+    }
+    #[test]
+    fn compiled_dispatch_installs_real_signal_handler() {
+        #[cfg(unix)]
+        {
+            const CHILD: &str = "SEMCTX_CANCELLATION_TEST_CHILD";
+            if std::env::var_os(CHILD).is_some() {
+                let result = dispatch_with_cancellation(
+                    || {
+                        semctx_gates::process::install_cancellation_checked()
+                            .map_err(|error| error.to_string())?;
+                        // SAFETY: this test child has installed its own process-local handler.
+                        assert_eq!(unsafe { libc::raise(libc::SIGTERM) }, 0);
+                        Ok(())
+                    },
+                    || panic!("cancelled entry reached dispatch"),
+                );
+                assert_eq!(
+                    result,
+                    Err("collector cancelled before dispatch".to_owned())
+                );
+                return;
+            }
+            let output = std::process::Command::new(std::env::current_exe().unwrap())
+                .args([
+                    "--exact",
+                    "publication_tests::compiled_dispatch_installs_real_signal_handler",
+                    "--nocapture",
+                ])
+                .env(CHILD, "1")
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "compiled cancellation route failed: {:?}\n{}\n{}",
+                output.status,
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+    }
     #[test]
     fn unknown_quiescence_cannot_seal_complete_evidence() {
         let output =

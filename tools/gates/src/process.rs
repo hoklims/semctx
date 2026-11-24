@@ -474,14 +474,25 @@ fn finalize_job(terminate_on_drop: bool, terminate: impl FnOnce(), close: impl F
 }
 
 pub fn install_cancellation() {
+    let _ = install_cancellation_checked();
+}
+
+/// Register the process-local cancellation handler before dispatching owned work.
+pub fn install_cancellation_checked() -> Result<()> {
     #[cfg(unix)]
     // SAFETY: libc::signal receives a static C-ABI handler that only stores an AtomicBool.
     unsafe {
         extern "C" fn handler(_: i32) {
             CANCELLED.store(true, Ordering::SeqCst);
         }
-        libc::signal(libc::SIGINT, handler as *const () as libc::sighandler_t);
-        libc::signal(libc::SIGTERM, handler as *const () as libc::sighandler_t);
+        for signal in [libc::SIGINT, libc::SIGTERM] {
+            if libc::signal(signal, handler as *const () as libc::sighandler_t) == libc::SIG_ERR {
+                return Err(ProcessError::io(
+                    "register cancellation handler",
+                    std::io::Error::last_os_error(),
+                ));
+            }
+        }
     }
     #[cfg(windows)]
     // SAFETY: Win32 retains this static system-ABI callback; it only stores an AtomicBool.
@@ -494,8 +505,14 @@ pub fn install_cancellation() {
                 0
             }
         }
-        windows_sys::Win32::System::Console::SetConsoleCtrlHandler(Some(handler), 1);
+        if windows_sys::Win32::System::Console::SetConsoleCtrlHandler(Some(handler), 1) == 0 {
+            return Err(ProcessError::io(
+                "register cancellation handler",
+                std::io::Error::last_os_error(),
+            ));
+        }
     }
+    Ok(())
 }
 
 // The helper cannot execute the requested command until its parent has assigned its process tree.

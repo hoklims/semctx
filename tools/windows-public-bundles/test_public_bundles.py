@@ -141,15 +141,18 @@ class Workflow(unittest.TestCase):
     def test_actual_bash_source_guard_rejects_other_or_malformed_identity(self):
         script = self.workflow['jobs']['publish']['steps'][0]['run']
         expected = 'a' * 40
-        for source, head, workflow, code in ((expected, expected, expected, 0),
-                                            ('main', expected, expected, 2),
-                                            ('0' * 40, '0' * 40, '0' * 40, 2),
-                                            (expected, 'b' * 40, expected, 2),
-                                            (expected, expected, 'b' * 40, 2)):
-            with self.subTest(source=source, head=head, workflow=workflow):
-                result = subprocess.run(['bash', '-c', script], env=dict(os.environ, SOURCE_SHA=source,
-                    GITHUB_SHA=head, GITHUB_WORKFLOW_SHA=workflow), capture_output=True, check=False)
+        for source, head, workflow, approved, code in ((expected, expected, expected, expected, 0),
+                                            (expected, expected, expected, 'b' * 40, 2),
+                                            (expected, expected, expected, '', 2),
+                                            ('main', expected, expected, expected, 2),
+                                            ('0' * 40, '0' * 40, '0' * 40, '0' * 40, 2),
+                                            (expected, 'b' * 40, expected, expected, 2),
+                                            (expected, expected, 'b' * 40, expected, 2)):
+            with self.subTest(source=source, head=head, workflow=workflow, approved=approved):
+                result = subprocess.run(['bash', '-c', script+'\nprintf PUBLISH\n'], env=dict(os.environ, SOURCE_SHA=source,
+                    GITHUB_SHA=head, GITHUB_WORKFLOW_SHA=workflow,WINDOWS_APPROVED_WORKFLOW_SHA=approved), capture_output=True, check=False)
                 self.assertEqual(result.returncode, code, result.stderr)
+                self.assertEqual(b'PUBLISH' in result.stdout,code==0)
 
 
 if __name__ == '__main__':

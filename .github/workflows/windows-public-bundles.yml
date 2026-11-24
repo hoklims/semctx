@@ -19,12 +19,14 @@ jobs:
     timeout-minutes: 5
     env:
       SOURCE_SHA: ${{ inputs.source_sha }}
+      WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
     steps:
       - name: Require exact dispatched source before checkout
         shell: bash
         run: |
           set -euo pipefail
           if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$SOURCE_SHA" =~ ^0+$ ]]; then exit 2; fi
+          if [[ "$SOURCE_SHA" != "$WINDOWS_APPROVED_WORKFLOW_SHA" ]]; then exit 2; fi
           if [[ "$GITHUB_SHA" != "$SOURCE_SHA" || "$GITHUB_WORKFLOW_SHA" != "$SOURCE_SHA" ]]; then exit 2; fi
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
