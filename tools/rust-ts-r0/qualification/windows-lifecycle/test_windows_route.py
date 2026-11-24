@@ -846,30 +846,31 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
         import subprocess
         executable=shutil.which('pwsh')
         if not executable:self.skipTest('PowerShell unavailable')
-        text=self.workflow();start=text.index('      - name: Verify checked out identities')
-        block=text[start:text.index('      - uses:',start)]
-        lines=block.splitlines();body=lines.index('        run: |')+1
-        script='\n'.join(line[10:] for line in lines[body:])+'\n'
-        helper=script[:script.index('$git = $env:')]
-        for mode in ('stable','before','during'):
-            with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temporary:
-                root=Path(temporary).resolve();payload=root/'ucrt64/bin/git.exe';payload.parent.mkdir(parents=True)
-                payload.write_text('#!/bin/sh\nrun() {\n printf "read-result\\n"\n : > "$CASE_CALLED"\n if [ "$CASE_CHANGE" = "1" ]; then /bin/cp "$CASE_REPLACEMENT" "$0"; fi\n}\nrun\n')
-                payload.chmod(0o755);digest=hashlib.sha256(payload.read_bytes()).hexdigest()
-                replacement=root/'changed';replacement.write_bytes(b'changed payload')
-                if mode=='before':payload.write_bytes(replacement.read_bytes())
-                path=root/'invoke.ps1';path.write_text(helper+"$value=Invoke-ObservedGit $env:CASE_PAYLOAD $env:CASE_SHA $env:CASE_ROOT @('rev-parse','HEAD')\nWrite-Output $value\nSet-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
-                marker=root/'BUILD';called=root/'CALLED'
-                env=dict(os.environ,CASE_PAYLOAD=str(payload),CASE_SHA=digest,CASE_ROOT=str(root),CASE_BUILD=str(marker),
-                    CASE_CALLED=str(called),CASE_REPLACEMENT=str(replacement),CASE_CHANGE='1' if mode=='during' else '0')
-                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
-                if mode=='stable':
-                    self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(result.stdout.strip(),b'read-result')
-                    self.assertTrue(marker.exists());self.assertTrue(called.exists())
-                else:
-                    self.assertNotEqual(result.returncode,0);self.assertIn(b'prebuild Git payload changed',result.stderr)
-                    self.assertNotIn(b'read-result',result.stdout);self.assertFalse(marker.exists())
-                    self.assertEqual(called.exists(),mode=='during')
+        for step,message in (('Verify checked out identities before build',b'prebuild Git payload changed'),('Collect once after authority and provenance checks',b'postbuild runtime payload changed')):
+            text=self.workflow();start=text.index('      - name: '+step)
+            block=text[start:]
+            lines=block.splitlines();body=lines.index('        run: |')+1
+            script='\n'.join(line[10:] for line in lines[body:])+'\n'
+            helper=script[:script.index('$git = $env:')]
+            for mode in ('stable','before','during'):
+                with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temporary:
+                    root=Path(temporary).resolve();payload=root/'ucrt64/bin/git.exe';payload.parent.mkdir(parents=True)
+                    payload.write_text('#!/bin/sh\nrun() {\n printf "read-result\\n"\n : > "$CASE_CALLED"\n if [ "$CASE_CHANGE" = "1" ]; then /bin/cp "$CASE_REPLACEMENT" "$0"; fi\n}\nrun\n')
+                    payload.chmod(0o755);digest=hashlib.sha256(payload.read_bytes()).hexdigest()
+                    replacement=root/'changed';replacement.write_bytes(b'changed payload')
+                    if mode=='before':payload.write_bytes(replacement.read_bytes())
+                    path=root/'invoke.ps1';path.write_text(helper+"$value=Invoke-ObservedGit $env:CASE_PAYLOAD $env:CASE_SHA $env:CASE_ROOT @('rev-parse','HEAD')\nWrite-Output $value\nSet-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
+                    marker=root/'BUILD';called=root/'CALLED'
+                    env=dict(os.environ,CASE_PAYLOAD=str(payload),CASE_SHA=digest,CASE_ROOT=str(root),CASE_BUILD=str(marker),
+                        CASE_CALLED=str(called),CASE_REPLACEMENT=str(replacement),CASE_CHANGE='1' if mode=='during' else '0')
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
+                    if mode=='stable':
+                        self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(result.stdout.strip(),b'read-result')
+                        self.assertTrue(marker.exists());self.assertTrue(called.exists())
+                    else:
+                        self.assertNotEqual(result.returncode,0);self.assertIn(message,result.stderr)
+                        self.assertNotIn(b'read-result',result.stdout);self.assertFalse(marker.exists())
+                        self.assertEqual(called.exists(),mode=='during')
 
 
 if __name__=='__main__':

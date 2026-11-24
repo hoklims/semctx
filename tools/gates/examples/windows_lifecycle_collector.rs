@@ -64,10 +64,12 @@ fn seal_observation(
     output: &Path,
     label: &str,
     observed: &owned_git::GitObservation,
+    mut writer: impl FnMut(&Path, &[u8]) -> Result<(), String>,
 ) -> Result<(), String> {
+    require_uncancelled()?;
     let raw = &observed.capture;
-    write(&output.join(format!("{label}.stdout")), &raw.stdout)?;
-    write(&output.join(format!("{label}.stderr")), &raw.stderr)?;
+    writer(&output.join(format!("{label}.stdout")), &raw.stdout)?;
+    writer(&output.join(format!("{label}.stderr")), &raw.stderr)?;
     let accepted = observed.step_accepted && raw.complete_capture && raw.owned_tree_quiescent;
     let record = json!({"argv":observed.argv,"cwd":observed.cwd,"exit_code":raw.exit_code,
         "timed_out":raw.timed_out,"complete_capture":raw.complete_capture && raw.owned_tree_quiescent,
@@ -75,14 +77,35 @@ fn seal_observation(
         "owned_tree_quiescent":raw.owned_tree_quiescent,"output_exceeded":raw.output_exceeded,
         "elapsed_ms":raw.duration_ms,"stdout_sha256":digest(&raw.stdout),
         "stderr_sha256":digest(&raw.stderr),"pins_unchanged":observed.pins_unchanged,"step_accepted":accepted});
-    write(
+    writer(
         &output.join(format!("{label}.json")),
         record.to_string().as_bytes(),
     )?;
+    require_uncancelled()?;
     require(
         accepted,
         "Git fixture step refused; preserve raw evidence, no complete result or upload",
     )
+}
+fn require_uncancelled() -> Result<(), String> {
+    require(
+        !semctx_gates::process::cancellation_requested(),
+        "collector cancelled during finalization",
+    )
+}
+fn seal_result(
+    path: &Path,
+    raw: &[u8],
+    writer: impl FnOnce(&Path, &[u8]) -> Result<(), String>,
+) -> Result<(), String> {
+    require_uncancelled()?;
+    writer(path, raw)?;
+    // This is a finite sample after durable writing, not an atomic signal/write boundary.
+    if let Err(error) = require_uncancelled() {
+        fs::remove_file(path).map_err(|error| error.to_string())?;
+        return Err(error);
+    }
+    Ok(())
 }
 fn collect(request: Request) -> Result<(), String> {
     require(cfg!(windows), "native collector requires Windows")?;
@@ -164,18 +187,19 @@ fn collect(request: Request) -> Result<(), String> {
         for (label, step) in steps {
             let observed = native.observe(&fixture.key, step)?;
             require(observed.cwd == cwd, "observed fixture cwd differs")?;
-            seal_observation(&output, label, &observed)?;
+            seal_observation(&output, label, &observed, write)?;
             commands += usize::from(label != "git-version");
         }
     }
     require(commands == 161, "Git command denominator differs")?;
-    write(
+    seal_result(
         &request.output.join("RESULT.json"),
         json!({"state":"WINDOWS_GIT_FIXTURES_CAPTURED",
         "fixture_groups":23,"initial_files":70,"git_commands":commands,"candidate_queries":0,
         "qualification_credit":0,"native_quiescence":"KERNEL_OWNED_TREE_EMPTY_EACH_STEP"})
         .to_string()
         .as_bytes(),
+        write,
     )
 }
 fn run() -> Result<(), String> {
@@ -272,6 +296,77 @@ mod publication_tests {
         }
     }
     #[test]
+    fn cancellation_during_finalization_refuses_success() {
+        #[cfg(unix)]
+        {
+            const CHILD: &str = "SEMCTX_FINALIZATION_TEST_CHILD";
+            if let Some(case) = std::env::var_os(CHILD) {
+                semctx_gates::process::install_cancellation_checked().unwrap();
+                let output = std::env::temp_dir()
+                    .join(format!("windows-finalization-{}", std::process::id()));
+                fs::create_dir(&output).unwrap();
+                let signal = || {
+                    // SAFETY: this isolated child has installed its process-local handler.
+                    assert_eq!(unsafe { libc::raise(libc::SIGTERM) }, 0);
+                };
+                let result = if case == "observation" {
+                    let observation = owned_git::GitObservation {
+                        argv: vec!["harmless-fixture".into()],
+                        cwd: output.clone(),
+                        capture: owned_git::Observed {
+                            exit_code: Some(0),
+                            complete_capture: true,
+                            owned_tree_quiescent: true,
+                            ..Default::default()
+                        },
+                        pins_unchanged: true,
+                        step_accepted: true,
+                    };
+                    seal_observation(&output, "step", &observation, |path, raw| {
+                        write(path, raw)?;
+                        if path.extension().is_some_and(|value| value == "json") {
+                            signal();
+                        }
+                        Ok(())
+                    })
+                } else {
+                    seal_result(
+                        &output.join("RESULT.json"),
+                        b"complete fixture",
+                        |path, raw| {
+                            write(path, raw)?;
+                            signal();
+                            Ok(())
+                        },
+                    )
+                };
+                assert_eq!(
+                    result,
+                    Err("collector cancelled during finalization".into())
+                );
+                assert!(!output.join("RESULT.json").exists());
+                fs::remove_dir_all(output).unwrap();
+                return;
+            }
+            for case in ["observation", "result"] {
+                let output = std::process::Command::new(std::env::current_exe().unwrap())
+                    .args([
+                        "--exact",
+                        "publication_tests::cancellation_during_finalization_refuses_success",
+                        "--nocapture",
+                    ])
+                    .env(CHILD, case)
+                    .output()
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "finalization cancellation {case} was accepted: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+        }
+    }
+    #[test]
     fn unknown_quiescence_cannot_seal_complete_evidence() {
         let output =
             std::env::temp_dir().join(format!("windows-seal-negative-{}", std::process::id()));
@@ -288,7 +383,7 @@ mod publication_tests {
             pins_unchanged: true,
             step_accepted: true,
         };
-        let result = seal_observation(&output, "step", &observation);
+        let result = seal_observation(&output, "step", &observation, write);
         assert!(result.is_err());
         let receipt: serde_json::Value =
             serde_json::from_slice(&fs::read(output.join("step.json")).unwrap()).unwrap();
