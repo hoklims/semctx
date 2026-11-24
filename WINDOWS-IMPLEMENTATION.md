@@ -71,8 +71,11 @@ reap, quiescence observation or complete capture. Legacy process callers retain
 their existing cleanup semantics; no final cleanup action is removed.
 Workflow pin syntax is checked by trusted inline PowerShell before checkout;
 host Git then checks both exact clean HEADs before any candidate Cargo build.
+After those identity checks, the workflow explicitly provisions the already
+declared Rust1.95.0 minimal toolchain before Cargo. This mirrors the existing CI
+prerequisite; setting RUSTUP_TOOLCHAIN alone does not install it on a runner.
 
-Git runtime provenance resolves the cmd/git.exe wrapper without executing it to
+Git runtime provenance resolves the cmd/git.exe or top-level bin/git.exe wrapper without executing it to
 exactly one existing x64 payload: {mingw64,ucrt64}/bin/git.exe. Explicit payloads
 in either layout are accepted; missing, ambiguous, unknown or linked/reparse
 layouts refuse. Python identity reads and runtime pins, then Rust NativeGit,
@@ -80,6 +83,11 @@ use that same payload. Host OS/DLLs remain trusted, not a hermetic closure.
 Primary Git for Windows sources:
 - https://gitforwindows.org/git-wrapper.html
 - https://github.com/git-for-windows/build-extra/blob/main/ReleaseNotes.md
+- https://github.com/actions/runner-images/blob/main/images/windows/scripts/build/Install-Git.ps1
+The official runner image puts Git/bin on PATH; historical successful Windows
+job44058909832/job133955742578 also logged that launcher. Local Python and real
+PowerShell fixtures exercise both payload layouts and a launcher sentinel that
+must never execute. This is macOS fixture evidence, not a native Windows run.
 After both reader joins, the shared stop flag is sticky refusal: even Ok EOF
 following the capture cutoff cannot establish a complete capture.
 

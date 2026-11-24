@@ -109,7 +109,7 @@ jobs:
             $direct = (Split-Path $parent -Leaf) -ieq 'bin' -and (Split-Path $layout -Leaf) -iin @('mingw64','ucrt64')
             if ($direct) {
               $installRoot = Split-Path $layout
-            } elseif ((Split-Path $parent -Leaf) -ieq 'cmd') {
+            } elseif ((Split-Path $parent -Leaf) -iin @('cmd','bin')) {
               $installRoot = $layout
             } else {
               throw 'unknown Git launcher layout'
@@ -201,6 +201,9 @@ jobs:
           path: prior-native
           merge-multiple: true
           github-token: ${{ github.token }}
+      - name: Provision admitted Rust toolchain
+        shell: pwsh
+        run: rustup toolchain install 1.95.0 --profile minimal
       - name: Build admitted transport and helper
         run: cargo build --locked --release --manifest-path collector/tools/gates/Cargo.toml --example windows_lifecycle_collector --bin semctx-gates
       - name: Collect once after authority and provenance checks

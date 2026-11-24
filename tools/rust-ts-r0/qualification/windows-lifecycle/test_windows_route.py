@@ -114,6 +114,23 @@ class AuthorityTests(unittest.TestCase):
 
 
 class GitPayloadTests(unittest.TestCase):
+    def test_standard_bin_launcher_resolves_payload_without_execution(self):
+        for layout in ('mingw64','ucrt64'):
+            with self.subTest(layout=layout),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();shim=root/'bin/git.exe';payload=root/layout/'bin/git.exe';marker=root/'launcher-executed'
+                shim.parent.mkdir();payload.parent.mkdir(parents=True)
+                shim.write_text('#!/bin/sh\ntouch "'+str(marker)+'"\nexit 99\n');shim.chmod(0o755);payload.write_bytes(b'actual payload')
+                try:
+                    selected=route.resolve_windows_git_payload(shim)
+                except ValueError as error:
+                    self.fail('standard top-level bin launcher refused: '+str(error))
+                self.assertEqual(selected,payload);self.assertEqual(route.file_pin(selected)['sha256'],hashlib.sha256(b'actual payload').hexdigest());self.assertFalse(marker.exists())
+                other=root/('ucrt64' if layout=='mingw64' else 'mingw64');(other/'bin').mkdir(parents=True);(other/'bin/git.exe').write_bytes(b'other')
+                with self.assertRaisesRegex(ValueError,'absent or ambiguous'):route.resolve_windows_git_payload(shim)
+                shutil.rmtree(other);other.symlink_to(root/'missing',target_is_directory=True)
+                with self.assertRaisesRegex(ValueError,'link/reparse'):route.resolve_windows_git_payload(shim)
+                self.assertFalse(marker.exists())
+
     def test_physical_resolution_cannot_redirect_regular_entry(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary).resolve()
@@ -366,6 +383,42 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_actual_powershell_standard_bin_launcher_is_not_executed(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        text=self.workflow();start=text.index('      - name: Resolve and pin host Git payload')
+        block=text[start:text.index('      - uses:',start)];lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
+        for layout in ('mingw64','ucrt64'):
+            with self.subTest(layout=layout),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();shim=root/'bin/git.exe';payload=root/layout/'bin/git.exe';marker=root/'launcher-executed'
+                shim.parent.mkdir();payload.parent.mkdir(parents=True);payload.write_bytes(b'actual payload')
+                shim.write_text('#!/bin/sh\ntouch "'+str(marker)+'"\nexit 99\n');shim.chmod(0o755)
+                script_path=root/'resolve.ps1';script_path.write_text(script);output=root/'output'
+                env=dict(os.environ,PATH=str(shim.parent)+os.pathsep+os.environ['PATH'],GITHUB_OUTPUT=str(output))
+                def invoke(script_path=script_path,env=env):return subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script_path)],env=env,capture_output=True,check=False)
+                result=invoke()
+                self.assertEqual(result.returncode,0,'standard top-level bin launcher refused: '+result.stderr.decode())
+                self.assertIn('WINDOWS_OBSERVED_GIT_PAYLOAD_PATH='+str(payload),output.read_text());self.assertIn(hashlib.sha256(b'actual payload').hexdigest(),output.read_text());self.assertFalse(marker.exists())
+                other=root/('ucrt64' if layout=='mingw64' else 'mingw64');(other/'bin').mkdir(parents=True);(other/'bin/git.exe').write_bytes(b'other');output.unlink()
+                result=invoke();self.assertNotEqual(result.returncode,0);self.assertIn(b'absent or ambiguous',result.stderr);self.assertFalse(output.exists())
+                shutil.rmtree(other);other.symlink_to(root/'missing',target_is_directory=True)
+                result=invoke();self.assertNotEqual(result.returncode,0);self.assertIn(b'link/reparse',result.stderr);self.assertFalse(output.exists());self.assertFalse(marker.exists())
+
+    def test_toolchain_provisioning_follows_identity_approval_and_precedes_build(self):
+        import subprocess
+        ruby="require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))"
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        result=subprocess.run(['ruby','-e',ruby,str(path)],capture_output=True,check=False)
+        self.assertEqual(result.returncode,0,result.stderr);job=json.loads(result.stdout)['jobs']['collect'];steps=job['steps']
+        provision=[i for i,step in enumerate(steps) if step.get('name')=='Provision admitted Rust toolchain']
+        self.assertEqual(len(provision),1,'declared Rust toolchain must be explicitly provisioned')
+        index=provision[0];approval=next(i for i,step in enumerate(steps) if step.get('name')=='Verify checked out identities before build');build=next(i for i,step in enumerate(steps) if step.get('name')=='Build admitted transport and helper')
+        guard=next(i for i,step in enumerate(steps) if step.get('name')=='Validate protected pin syntax before checkout')
+        self.assertLess(guard,approval);self.assertLess(approval,index,'toolchain provisioning ran before source approval');self.assertLess(index,build,'Cargo reached before toolchain provisioning')
+        self.assertEqual(steps[index]['run'].split(),['rustup','toolchain','install','1.95.0','--profile','minimal']);self.assertEqual(str(job['env']['RUSTUP_TOOLCHAIN']),'1.95.0')
+
     def test_actual_powershell_refuses_relative_and_redundant_git_spellings(self):
         import subprocess
         executable=shutil.which('pwsh')

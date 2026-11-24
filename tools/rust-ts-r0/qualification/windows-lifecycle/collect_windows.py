@@ -92,7 +92,7 @@ def resolve_windows_git_payload(path):
     direct=path.parent.name.lower()=='bin' and path.parent.parent.name.lower() in ('mingw64','ucrt64')
     if direct:
         installation=path.parent.parent.parent
-    elif path.parent.name.lower()=='cmd':
+    elif path.parent.name.lower() in ('cmd','bin'):
         installation=path.parent.parent
     else:
         raise ValueError('unsupported Windows Git launcher layout')
