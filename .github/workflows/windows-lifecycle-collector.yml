@@ -141,6 +141,7 @@ jobs:
           path: product
           persist-credentials: false
       - name: Verify checked out identities before build
+        id: build_identity
         env:
           WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
           WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256 }}
@@ -239,6 +240,10 @@ jobs:
             Assert-TrackedSource $git $pin $checkout[0]
           }
           Assert-ObservedGit $git $pin
+          $commit = Invoke-ObservedGit $git $pin 'collector' @('rev-parse','HEAD')
+          $tree = Invoke-ObservedGit $git $pin 'collector' @('rev-parse','HEAD^{tree}')
+          "collector_commit=$commit" >> $env:GITHUB_OUTPUT
+          "collector_tree=$tree" >> $env:GITHUB_OUTPUT
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           run-id: ${{ inputs.inputs_run_id }}
@@ -268,13 +273,37 @@ jobs:
         run: rustup toolchain install 1.95.0 --profile minimal
       - name: Build admitted transport and helper
         run: cargo build --locked --release --manifest-path collector/tools/gates/Cargo.toml --example windows_lifecycle_collector --bin semctx-gates
-      - name: Transfer only the two built binaries
+      - name: Bind binaries to completed source observations
+        shell: pwsh
+        env:
+          BUILD_SOURCE_COMMIT: ${{ steps.build_identity.outputs.collector_commit }}
+          BUILD_SOURCE_TREE: ${{ steps.build_identity.outputs.collector_tree }}
+          BUILD_WORKFLOW_SHA: ${{ github.workflow_sha }}
+          BUILD_RUN_ID: ${{ github.run_id }}
+          BUILD_RUN_ATTEMPT: ${{ github.run_attempt }}
+        run: |
+          $env:PSModulePath = [IO.Path]::Combine($PSHOME, 'Modules')
+          $ErrorActionPreference = 'Stop'
+          $root = [IO.Path]::GetFullPath('collector/tools/gates/target/release')
+          $files = @('examples/windows_lifecycle_collector.exe', 'semctx-gates.exe')
+          $records = @()
+          foreach ($relative in $files) {
+            $path = Join-Path $root $relative
+            $file = Get-Item -LiteralPath $path -Force
+            if ($file -isnot [IO.FileInfo] -or ($file.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'binary build provenance nonregular output' }
+            $records += [ordered]@{path=$relative;sha256=(Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant();bytes=$file.Length}
+          }
+          $record = [ordered]@{schema=1;source_commit=$env:BUILD_SOURCE_COMMIT;source_tree=$env:BUILD_SOURCE_TREE;workflow_sha=$env:BUILD_WORKFLOW_SHA;run_id=$env:BUILD_RUN_ID;run_attempt=$env:BUILD_RUN_ATTEMPT;files=$records}
+          $json = ConvertTo-Json -InputObject $record -Depth 4 -Compress
+          [IO.File]::WriteAllText((Join-Path $root 'BUILD-PROVENANCE.json'),$json,[Text.UTF8Encoding]::new($false))
+      - name: Transfer the two binaries and typed build provenance
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
           name: windows-lifecycle-admitted-binaries
           path: |
             collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe
             collector/tools/gates/target/release/semctx-gates.exe
+            collector/tools/gates/target/release/BUILD-PROVENANCE.json
           if-no-files-found: error
           retention-days: 7
   collect:
@@ -387,6 +416,7 @@ jobs:
           path: product
           persist-credentials: false
       - name: Verify checked out identities before build
+        id: collect_identity
         env:
           WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
           WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256 }}
@@ -485,6 +515,10 @@ jobs:
             Assert-TrackedSource $git $pin $checkout[0]
           }
           Assert-ObservedGit $git $pin
+          $commit = Invoke-ObservedGit $git $pin 'collector' @('rev-parse','HEAD')
+          $tree = Invoke-ObservedGit $git $pin 'collector' @('rev-parse','HEAD^{tree}')
+          "collector_commit=$commit" >> $env:GITHUB_OUTPUT
+          "collector_tree=$tree" >> $env:GITHUB_OUTPUT
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
         with:
           run-id: ${{ inputs.inputs_run_id }}
@@ -543,18 +577,39 @@ jobs:
           name: windows-lifecycle-admitted-binaries
           path: native-binaries
       - name: Validate the exact binary transport tree
+        env:
+          BUILD_SOURCE_COMMIT: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+          BUILD_SOURCE_TREE: ${{ steps.collect_identity.outputs.collector_tree }}
+          BUILD_WORKFLOW_SHA: ${{ github.workflow_sha }}
+          BUILD_RUN_ID: ${{ github.run_id }}
+          BUILD_RUN_ATTEMPT: ${{ github.run_attempt }}
         shell: pwsh
         run: |
           $env:PSModulePath = [IO.Path]::Combine($PSHOME, 'Modules')
           $ErrorActionPreference = 'Stop'
           $root = [IO.Path]::GetFullPath('native-binaries')
           $entries = @(Get-ChildItem -LiteralPath $root -Recurse -Force)
-          $expected = @('examples', 'examples/windows_lifecycle_collector.exe', 'semctx-gates.exe')
+          $expected = @('examples', 'examples/windows_lifecycle_collector.exe', 'semctx-gates.exe', 'BUILD-PROVENANCE.json')
           if ($entries.Count -ne $expected.Count) { throw 'unexpected binary transport entries' }
           foreach ($entry in $entries) {
             $relative = $entry.FullName.Substring($root.Length + 1).Replace('\', '/')
             if ($relative -cnotin $expected -or ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'foreign or linked binary transport entry' }
             if (($relative -ceq 'examples' -and !$entry.PSIsContainer) -or ($relative -cne 'examples' -and $entry -isnot [IO.FileInfo])) { throw 'nonregular binary transport entry' }
+          }
+          $record = ConvertFrom-Json -InputObject ([IO.File]::ReadAllText((Join-Path $root 'BUILD-PROVENANCE.json')))
+          $keys = @($record.PSObject.Properties.Name | Sort-Object)
+          $wanted = @('schema','source_commit','source_tree','workflow_sha','run_id','run_attempt','files') | Sort-Object
+          if (($keys -join ',') -cne ($wanted -join ',') -or $record.schema -ne 1) { throw 'binary build provenance schema differs' }
+          foreach ($pair in @(@('source_commit',$env:BUILD_SOURCE_COMMIT),@('source_tree',$env:BUILD_SOURCE_TREE),@('workflow_sha',$env:BUILD_WORKFLOW_SHA),@('run_id',$env:BUILD_RUN_ID),@('run_attempt',$env:BUILD_RUN_ATTEMPT))) {
+            if (!$pair[1] -or $record.($pair[0]) -isnot [string] -or $record.($pair[0]) -cne $pair[1]) { throw 'binary build provenance source/run identity differs' }
+          }
+          $files = @('examples/windows_lifecycle_collector.exe','semctx-gates.exe')
+          if (@($record.files).Count -ne 2) { throw 'binary build provenance file count differs' }
+          for ($i=0; $i -lt 2; $i++) {
+            $entry = $record.files[$i]
+            if ((@($entry.PSObject.Properties.Name | Sort-Object) -join ',') -cne 'bytes,path,sha256' -or $entry.path -cne $files[$i]) { throw 'binary build provenance file identity differs' }
+            $path = Join-Path $root $files[$i]
+            if ($entry.sha256 -cnotmatch '\A[0-9a-f]{64}\z' -or $entry.sha256 -cne (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLowerInvariant() -or $entry.bytes -ne (Get-Item -LiteralPath $path).Length) { throw 'binary build provenance payload bytes differ' }
           }
       - name: Collect once after authority and provenance checks
         env:

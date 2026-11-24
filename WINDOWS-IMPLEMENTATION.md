@@ -198,3 +198,15 @@ Primary references:
 No native Windows result, source admission, pin enrollment or R0 credit is created
 by these local source and fixture checks. WindowsPowerShell5, console cancellation
 and real artifact transport still require the admitted native job.
+
+
+V15 build transport binding: the build identity step completes before Cargo and records
+collector commit/tree through completed step outputs. A typed BUILD-PROVENANCE.json
+then binds those observations, workflow SHA, GitHub run ID/attempt, and the two
+regular executable byte hashes/sizes. The fresh receiver admits exactly those two
+executables plus that manifest (and their examples directory). Before execution it
+compares manifest source commit to the direct protected collector pin, tree to its
+own approved checkout observation, workflow/run/attempt to direct GitHub context,
+and hashes/sizes to actual downloaded bytes. Retrying only collection after a pin
+change or a new run attempt refuses the stale artifact. Manifest data is not a
+fourth authority; no hermetic or reproducible-build guarantee is claimed.

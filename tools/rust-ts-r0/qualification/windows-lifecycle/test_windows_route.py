@@ -838,7 +838,7 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
         upload=next(step for step in build['steps'] if step.get('uses','').startswith('actions/upload-artifact@'))
         self.assertEqual(upload['uses'],'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9')
         self.assertEqual(upload['with']['name'],'windows-lifecycle-admitted-binaries')
-        self.assertEqual(upload['with']['path'].splitlines(),['collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe','collector/tools/gates/target/release/semctx-gates.exe'])
+        self.assertEqual(upload['with']['path'].splitlines(),['collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe','collector/tools/gates/target/release/semctx-gates.exe','collector/tools/gates/target/release/BUILD-PROVENANCE.json'])
         receive=next(step for step in collect['steps'] if step.get('with',{}).get('name')==upload['with']['name'])
         self.assertEqual(receive['uses'],'actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333')
         self.assertEqual(receive['with'],{'name':'windows-lifecycle-admitted-binaries','path':'native-binaries'})
@@ -852,14 +852,52 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
         for case in ('exact','foreign','linked'):
             with self.subTest(artifact=case),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();files=root/'native-binaries';(files/'examples').mkdir(parents=True)
-                (files/'examples/windows_lifecycle_collector.exe').write_bytes(b'harmless fixture');(files/'semctx-gates.exe').write_bytes(b'harmless fixture')
+                (files/'examples/windows_lifecycle_collector.exe').write_bytes(b'harmless fixture');(files/'semctx-gates.exe').write_bytes(b'harmless fixture');(files/'BUILD-PROVENANCE.json').write_bytes(b'{}')
                 if case=='foreign':(files/'extra.dll').write_bytes(b'foreign fixture')
                 if case=='linked':
                     target=root/'outside';target.write_bytes(b'harmless fixture');(files/'semctx-gates.exe').unlink();(files/'semctx-gates.exe').symlink_to(target)
-                script=root/'artifact.ps1';script.write_text(verify['run'])
+                script=root/'artifact.ps1';script.write_text(verify['run'].split('$record = ConvertFrom-Json',1)[0])
                 observed=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,capture_output=True,check=False)
                 self.assertEqual(observed.returncode==0,case=='exact',observed.stderr)
                 if case!='exact':self.assertIn(b'binary transport',observed.stderr)
+
+    def test_binary_build_provenance_binds_retry_source_and_payload(self):
+        import subprocess
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(path)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr);jobs=json.loads(parsed.stdout)['jobs']
+        producers=[step for step in jobs['build']['steps'] if step.get('name')=='Bind binaries to completed source observations']
+        self.assertEqual(len(producers),1,'binary artifact has no completed-source/run-attempt binding')
+        producer=producers[0];verify=next(step for step in jobs['collect']['steps'] if step.get('name')=='Validate the exact binary transport tree')
+        identity=next(step for step in jobs['build']['steps'] if step.get('name')=='Verify checked out identities before build')
+        self.assertEqual(identity.get('id'),'build_identity')
+        self.assertEqual(producer['env']['BUILD_SOURCE_COMMIT'],'${{ steps.build_identity.outputs.collector_commit }}')
+        self.assertEqual(producer['env']['BUILD_SOURCE_TREE'],'${{ steps.build_identity.outputs.collector_tree }}')
+        for name,expression in [('BUILD_WORKFLOW_SHA','${{ github.workflow_sha }}'),('BUILD_RUN_ID','${{ github.run_id }}'),('BUILD_RUN_ATTEMPT','${{ github.run_attempt }}')]:
+            self.assertEqual(producer['env'][name],expression);self.assertEqual(verify['env'][name],expression)
+        self.assertEqual(verify['env']['BUILD_SOURCE_COMMIT'],'${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}')
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        for case in ('exact','retry','source','tree','workflow','run','payload'):
+            with self.subTest(binding=case),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();release=root/'collector/tools/gates/target/release';(release/'examples').mkdir(parents=True)
+                (release/'examples/windows_lifecycle_collector.exe').write_bytes(b'collector fixture');(release/'semctx-gates.exe').write_bytes(b'helper fixture')
+                environment=dict(os.environ,BUILD_SOURCE_COMMIT='b'*40,BUILD_SOURCE_TREE='c'*40,BUILD_WORKFLOW_SHA='a'*40,BUILD_RUN_ID='123',BUILD_RUN_ATTEMPT='1')
+                script=root/'produce.ps1';script.write_text(producer['run'])
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=environment,capture_output=True,check=False)
+                self.assertEqual(result.returncode,0,result.stderr)
+                shutil.copytree(release,root/'native-binaries')
+                if case=='retry':environment['BUILD_RUN_ATTEMPT']='2'
+                if case=='source':environment['BUILD_SOURCE_COMMIT']='d'*40
+                if case=='tree':environment['BUILD_SOURCE_TREE']='f'*40
+                if case=='workflow':environment['BUILD_WORKFLOW_SHA']='e'*40
+                if case=='run':environment['BUILD_RUN_ID']='124'
+                if case=='payload':(root/'native-binaries/semctx-gates.exe').write_bytes(b'substituted fixture')
+                script=root/'verify.ps1';script.write_text(verify['run']+"\nWrite-Output 'EXECUTE_SENTINEL'\n")
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=environment,capture_output=True,check=False)
+                self.assertEqual(result.returncode==0,case=='exact',result.stderr)
+                self.assertEqual(b'EXECUTE_SENTINEL' in result.stdout,case=='exact',result.stderr)
+                if case!='exact':self.assertIn(b'binary build provenance',result.stderr)
 
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()
