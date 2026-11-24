@@ -130,7 +130,8 @@ def git_value(git, root, *args):
                  'GIT_TERMINAL_PROMPT':'0','LC_ALL':'C'}
     if os.name=='nt':
         environment.update(SystemRoot=os.environ['SystemRoot'],WINDIR=os.environ['SystemRoot'])
-    result=subprocess.run([str(git),'--no-optional-locks','-c','core.fsmonitor=false','-C',str(root),*args],
+    result=subprocess.run([str(git),'--no-replace-objects','--no-optional-locks','-c','core.fsmonitor=false','-C',str(root),
+                           '--git-dir='+str(Path(root)/'.git'),'--work-tree='+str(root),*args],
                           env=environment,capture_output=True,check=False,timeout=20)
     if result.returncode:
         raise ValueError('checkout identity read failed')
@@ -169,6 +170,31 @@ class BoundGit:
         finally:
             self.check()
 
+    def verify_checkout(self,root):
+        root=Path(root)
+        if not root.is_absolute() or root.resolve(strict=True)!=root:
+            raise ValueError('physical source root is not canonical')
+        entries=self.read(root,'ls-tree','-r','-z','--full-tree','HEAD').split('\0')
+        for entry in filter(None,entries):
+            header,separator,relative=entry.partition('\t')
+            mode,kind,oid=header.split(' ')
+            parts=relative.split('/')
+            if (not separator or mode!='100644' or kind!='blob' or not re.fullmatch('[0-9a-f]{40}',oid)
+                    or any(part in ('','.','..') for part in parts) or '\\' in relative):
+                raise ValueError('unsupported tracked source entry')
+            path=root
+            for index,part in enumerate(parts):
+                path=path/part;metadata=path.lstat()
+                if (stat.S_ISLNK(metadata.st_mode) or getattr(metadata,'st_file_attributes',0)&0x400
+                        or (index<len(parts)-1 and not stat.S_ISDIR(metadata.st_mode))
+                        or (index==len(parts)-1 and not stat.S_ISREG(metadata.st_mode))):
+                    raise ValueError('physical tracked source is linked or nonregular')
+            raw=path.read_bytes()
+            actual=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw,usedforsecurity=False).hexdigest()
+            if actual!=oid:
+                raise ValueError('physical tracked source bytes differ from HEAD')
+        self.check()
+
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -197,6 +223,8 @@ def main():
     prior_native=verify_bundle(review_raw,args.review_bundle,SOURCE_HEAD)
     if bound_git.read(args.product_root,'rev-parse','HEAD^{tree}') != SOURCE_TREE:
         raise ValueError('frozen product tree differs')
+    for root in (args.product_root,args.collector_root):
+        bound_git.verify_checkout(root)
     locked_inputs={name:args.inputs/filename for name,filename in [
         ('preflight','preflight.json'),('public_plan','public-plan.json'),('source_snapshot','source-snapshot.json')]}
     input_pins={name:file_pin(path) for name,path in locked_inputs.items()}
@@ -238,6 +266,7 @@ def main():
         if (bound_git.read(root,'rev-parse','HEAD') != expected
                 or bound_git.read(root,'status','--porcelain','--untracked-files=all')):
             raise ValueError('source checkout changed during collection')
+        bound_git.verify_checkout(root)
     bound_git.check()
     # This is the final executable snapshot, after the final Git identity read.
     for name in ('git','helper','executor'):

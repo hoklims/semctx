@@ -480,19 +480,20 @@ pub fn install_cancellation() {
 /// Register the process-local cancellation handler before dispatching owned work.
 pub fn install_cancellation_checked() -> Result<()> {
     #[cfg(unix)]
-    // SAFETY: libc::signal receives a static C-ABI handler that only stores an AtomicBool.
-    unsafe {
+    {
         extern "C" fn handler(_: i32) {
             CANCELLED.store(true, Ordering::SeqCst);
         }
-        for signal in [libc::SIGINT, libc::SIGTERM] {
-            if libc::signal(signal, handler as *const () as libc::sighandler_t) == libc::SIG_ERR {
-                return Err(ProcessError::io(
-                    "register cancellation handler",
-                    std::io::Error::last_os_error(),
-                ));
+        install_unix_cancellation(|signal| {
+            // SAFETY: signal receives a static C-ABI handler storing only an AtomicBool.
+            if unsafe { libc::signal(signal, handler as *const () as libc::sighandler_t) }
+                == libc::SIG_ERR
+            {
+                Err(std::io::Error::last_os_error())
+            } else {
+                Ok(())
             }
-        }
+        })?;
     }
     #[cfg(windows)]
     // SAFETY: Win32 retains this static system-ABI callback; it only stores an AtomicBool.
@@ -513,6 +514,20 @@ pub fn install_cancellation_checked() -> Result<()> {
         }
     }
     Ok(())
+}
+
+#[cfg(unix)]
+fn install_unix_cancellation(mut install: impl FnMut(i32) -> std::io::Result<()>) -> Result<()> {
+    let mut first_error = None;
+    for signal in [libc::SIGINT, libc::SIGTERM] {
+        if let Err(error) = install(signal) {
+            first_error.get_or_insert(error);
+        }
+    }
+    match first_error {
+        Some(error) => Err(ProcessError::io("register cancellation handler", error)),
+        None => Ok(()),
+    }
 }
 
 // The helper cannot execute the requested command until its parent has assigned its process tree.
@@ -1005,6 +1020,24 @@ fn run_mode(
 #[cfg(test)]
 mod bounded_cleanup_tests {
     use super::*;
+    #[cfg(unix)]
+    #[test]
+    fn registration_attempts_both_signals_after_first_failure() {
+        let mut attempted = Vec::new();
+        let result = install_unix_cancellation(|signal| {
+            attempted.push(signal);
+            if signal == libc::SIGINT {
+                Err(std::io::Error::other("first registration refused"))
+            } else {
+                Ok(())
+            }
+        });
+        assert_eq!(attempted, [libc::SIGINT, libc::SIGTERM]);
+        assert!(
+            result.is_err(),
+            "registration failure must remain a refusal"
+        );
+    }
     #[test]
     fn termination_failure_is_refusal_without_polling() {
         let started = Instant::now();

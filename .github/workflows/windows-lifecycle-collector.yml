@@ -30,7 +30,8 @@ concurrency:
   group: windows-lifecycle-observation
   cancel-in-progress: false
 jobs:
-  collect:
+  build:
+    name: Build admitted Windows transport
     # Protected pins are enrolled only after independent source admission.
     if: >-
       github.repository == 'hoklims/semctx' &&
@@ -173,18 +174,54 @@ jobs:
             $env:GIT_OPTIONAL_LOCKS = '0'
             $env:GIT_TERMINAL_PROMPT = '0'
             Assert-ObservedGit $Path $Digest
-            $indexEntries = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root ls-files -v -z
+            $rootFull = [IO.Path]::GetFullPath($Root)
+            $metadata = [IO.Path]::Combine($rootFull, '.git')
+            $indexEntries = & $Path --no-replace-objects --no-optional-locks -c core.fsmonitor=false -C $rootFull --git-dir=$metadata --work-tree=$rootFull ls-files -v -z
             $indexCode = $LASTEXITCODE
             Assert-ObservedGit $Path $Digest
             if ($indexCode -ne 0) { throw 'observed Git index read failed' }
             foreach ($entry in (($indexEntries -join "`n") -split "`0")) {
               if ($entry -and ($entry[0].ToString() -cmatch '[a-zS]')) { throw 'hidden Git index entries forbid source verification' }
             }
-            $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
+            $output = & $Path --no-replace-objects --no-optional-locks -c core.fsmonitor=false -C $rootFull --git-dir=$metadata --work-tree=$rootFull @GitArguments
             $code = $LASTEXITCODE
             Assert-ObservedGit $Path $Digest
             if ($code -ne 0) { throw 'observed Git identity read failed' }
             return $output
+          }
+          function Assert-TrackedSource([string]$Path, [string]$Digest, [string]$Root) {
+            $rootFull = [IO.Path]::GetFullPath($Root)
+            $anchor = [IO.Path]::GetPathRoot($rootFull)
+            $current = $anchor
+            foreach ($part in ($rootFull.Substring($anchor.Length) -split '[\\/]' | Where-Object { $_ })) {
+              $current = Join-Path $current $part
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if (!$item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'physical source root is linked or noncanonical' }
+            }
+            $entries = Invoke-ObservedGit $Path $Digest $rootFull @('ls-tree','-r','-z','--full-tree','HEAD')
+            foreach ($entry in (($entries -join "`n") -split "`0")) {
+              if (!$entry) { continue }
+              $fields = $entry -split "`t", 2
+              if ($fields.Count -ne 2 -or $fields[0] -cnotmatch '\A100644 blob ([0-9a-f]{40})\z') { throw 'unsupported tracked source entry' }
+              $oid = $Matches[1]
+              $parts = $fields[1] -split '/'
+              if ([IO.Path]::IsPathRooted($fields[1]) -or $fields[1].Contains('\') -or ($parts | Where-Object { $_ -in @('','.','..') })) { throw 'unsupported tracked source path' }
+              $current = $rootFull
+              for ($index = 0; $index -lt $parts.Count; $index++) {
+                $current = Join-Path $current $parts[$index]
+                $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+                if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) -or ($index -eq $parts.Count - 1 -and $item -isnot [IO.FileInfo])) { throw 'physical tracked source is linked or nonregular' }
+              }
+              $bytes = [IO.File]::ReadAllBytes($current)
+              $prefix = [Text.Encoding]::ASCII.GetBytes('blob ' + $bytes.Length + "`0")
+              $hash = [Security.Cryptography.SHA1]::Create()
+              try {
+                [void]$hash.TransformBlock($prefix, 0, $prefix.Length, $prefix, 0)
+                [void]$hash.TransformFinalBlock($bytes, 0, $bytes.Length)
+                $actual = [BitConverter]::ToString($hash.Hash).Replace('-', '').ToLowerInvariant()
+              } finally { $hash.Dispose() }
+              if ($actual -cne $oid) { throw 'physical tracked source bytes differ from HEAD' }
+            }
           }
           $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
           $pin = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256
@@ -199,6 +236,253 @@ jobs:
             if ($head -cne $checkout[1]) { throw 'checkout HEAD rejected before build' }
             $dirty = Invoke-ObservedGit $git $pin $checkout[0] @('status','--porcelain','--untracked-files=all')
             if ($dirty) { throw 'dirty checkout rejected before build' }
+            Assert-TrackedSource $git $pin $checkout[0]
+          }
+          Assert-ObservedGit $git $pin
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          run-id: ${{ inputs.inputs_run_id }}
+          artifact-ids: ${{ inputs.inputs_artifact_id }}
+          path: preparation
+          merge-multiple: true
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          run-id: ${{ inputs.review_run_id }}
+          artifact-ids: ${{ inputs.review_artifact_id }}
+          path: prior-native
+          merge-multiple: true
+          github-token: ${{ github.token }}
+      - name: Validate prior review bytes before build
+        env:
+          WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $review = Join-Path $pwd 'prior-native/REVIEW.json'
+          if ((Get-FileHash -LiteralPath $review -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:WINDOWS_APPROVED_PRIOR_REVIEW_SHA256) {
+            throw 'prior review bytes differ before build'
+          }
+      - name: Provision admitted Rust toolchain
+        shell: pwsh
+        run: rustup toolchain install 1.95.0 --profile minimal
+      - name: Build admitted transport and helper
+        run: cargo build --locked --release --manifest-path collector/tools/gates/Cargo.toml --example windows_lifecycle_collector --bin semctx-gates
+      - name: Transfer only the two built binaries
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: windows-lifecycle-admitted-binaries
+          path: |
+            collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe
+            collector/tools/gates/target/release/semctx-gates.exe
+          if-no-files-found: error
+          retention-days: 7
+  collect:
+    needs: build
+    # Protected pins are enrolled only after independent source admission.
+    if: >-
+      github.repository == 'hoklims/semctx' &&
+      github.repository_id == '1289209764' &&
+      inputs.product_sha == '04b83a5f394431e1dcca533889f6c02e32d02a0d' &&
+      vars.WINDOWS_APPROVED_WORKFLOW_SHA != '' &&
+      vars.WINDOWS_APPROVED_COLLECTOR_SHA != '' &&
+      vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 != '' &&
+      github.workflow_sha == vars.WINDOWS_APPROVED_WORKFLOW_SHA
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
+      WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+      WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
+    steps:
+      - name: Validate exact artifact input identities
+        env:
+          WINDOWS_INPUTS_RUN_ID: ${{ inputs.inputs_run_id }}
+          WINDOWS_INPUTS_ARTIFACT_ID: ${{ inputs.inputs_artifact_id }}
+          WINDOWS_REVIEW_RUN_ID: ${{ inputs.review_run_id }}
+          WINDOWS_REVIEW_ARTIFACT_ID: ${{ inputs.review_artifact_id }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($value in @($env:WINDOWS_INPUTS_RUN_ID, $env:WINDOWS_INPUTS_ARTIFACT_ID,
+                               $env:WINDOWS_REVIEW_RUN_ID, $env:WINDOWS_REVIEW_ARTIFACT_ID)) {
+            [UInt64]$id = 0
+            if ($value -cnotmatch '\A[1-9][0-9]*\z' -or -not [UInt64]::TryParse($value, [ref]$id) -or $id -gt 9007199254740991) {
+              throw 'artifact input identity rejected before checkout/download'
+            }
+          }
+      - name: Validate protected pin syntax before checkout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pins = @(
+            @($env:WINDOWS_APPROVED_WORKFLOW_SHA, 40),
+            @($env:WINDOWS_APPROVED_COLLECTOR_SHA, 40),
+            @($env:WINDOWS_APPROVED_PRIOR_REVIEW_SHA256, 64))
+          foreach ($pin in $pins) {
+            if ($pin[0] -cnotmatch ('\A[0-9a-f]{' + $pin[1] + '}\z') -or $pin[0] -cmatch '\A0+\z') {
+              throw 'protected pin syntax rejected before checkout/build'
+            }
+          }
+      - name: Resolve and pin host Git payload before identity reads
+        id: startup_git
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Get-SafeGitFile([string]$Path, [bool]$AllowMissing = $false) {
+            $full = [IO.Path]::GetFullPath($Path)
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              try { $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop }
+              catch [System.Management.Automation.ItemNotFoundException] {
+                if ($AllowMissing) { return $null }; throw
+              }
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Git path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'Git ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo]) { throw 'Git payload is not a regular file' }
+            return $item.FullName
+          }
+          function Resolve-GitPayload([string]$Entry) {
+            if ($Entry -match '(?:^|[\\/])\.{1,2}(?:[\\/]|$)') { throw 'Git entry is not lexically canonical' }
+            if (-not [IO.Path]::IsPathFullyQualified($Entry) -or [IO.Path]::GetFullPath($Entry) -cne $Entry -or $Entry -match '[\\/]$') { throw 'Git entry is not lexically canonical' }
+            $entry = Get-SafeGitFile $Entry
+            if ([IO.Path]::GetFileName($entry) -ine 'git.exe') { throw 'unknown Git executable' }
+            $parent = Split-Path $entry
+            $layout = Split-Path $parent
+            $direct = (Split-Path $parent -Leaf) -ieq 'bin' -and (Split-Path $layout -Leaf) -iin @('mingw64','ucrt64')
+            if ($direct) {
+              $installRoot = Split-Path $layout
+            } elseif ((Split-Path $parent -Leaf) -iin @('cmd','bin')) {
+              $installRoot = $layout
+            } else {
+              throw 'unknown Git launcher layout'
+            }
+            $payloads = @()
+            foreach ($name in @('mingw64','ucrt64')) {
+              $payload = Get-SafeGitFile (Join-Path $installRoot "$name/bin/git.exe") $true
+              if ($null -ne $payload) { $payloads += $payload }
+            }
+            if ($payloads.Count -ne 1) { throw 'Git payload is absent or ambiguous' }
+            if ($direct -and $payloads[0] -ine $entry) { throw 'direct Git payload differs from unique installation payload' }
+            return $payloads[0]
+          }
+          $entry = (Get-Command git.exe -CommandType Application).Source
+          $payload = Resolve-GitPayload $entry
+          if ($payload -match '[\r\n]') { throw 'invalid Git payload environment path' }
+          $digest = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=$payload"
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=$digest"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+          path: collector
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 04b83a5f394431e1dcca533889f6c02e32d02a0d
+          path: product
+          persist-credentials: false
+      - name: Verify checked out identities before build
+        env:
+          WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
+          WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256 }}
+          WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
+          WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+          WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Assert-ObservedGit([string]$Path, [string]$Digest) {
+            $full = [IO.Path]::GetFullPath($Path)
+            if ($full -cne $Path) { throw 'prebuild Git path is not canonical' }
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'prebuild Git path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'prebuild Git ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'prebuild Git path is not a canonical regular file' }
+            if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest) { throw 'prebuild Git payload changed' }
+          }
+          function Invoke-ObservedGit([string]$Path, [string]$Digest, [string]$Root, [string[]]$GitArguments) {
+            Get-ChildItem Env: | Where-Object { $_.Name -like 'GIT_*' } | ForEach-Object {
+              Remove-Item -LiteralPath ('Env:' + $_.Name)
+            }
+            $env:GIT_CONFIG_NOSYSTEM = '1'
+            $env:GIT_CONFIG_GLOBAL = 'NUL'
+            $env:GIT_OPTIONAL_LOCKS = '0'
+            $env:GIT_TERMINAL_PROMPT = '0'
+            Assert-ObservedGit $Path $Digest
+            $rootFull = [IO.Path]::GetFullPath($Root)
+            $metadata = [IO.Path]::Combine($rootFull, '.git')
+            $indexEntries = & $Path --no-replace-objects --no-optional-locks -c core.fsmonitor=false -C $rootFull --git-dir=$metadata --work-tree=$rootFull ls-files -v -z
+            $indexCode = $LASTEXITCODE
+            Assert-ObservedGit $Path $Digest
+            if ($indexCode -ne 0) { throw 'observed Git index read failed' }
+            foreach ($entry in (($indexEntries -join "`n") -split "`0")) {
+              if ($entry -and ($entry[0].ToString() -cmatch '[a-zS]')) { throw 'hidden Git index entries forbid source verification' }
+            }
+            $output = & $Path --no-replace-objects --no-optional-locks -c core.fsmonitor=false -C $rootFull --git-dir=$metadata --work-tree=$rootFull @GitArguments
+            $code = $LASTEXITCODE
+            Assert-ObservedGit $Path $Digest
+            if ($code -ne 0) { throw 'observed Git identity read failed' }
+            return $output
+          }
+          function Assert-TrackedSource([string]$Path, [string]$Digest, [string]$Root) {
+            $rootFull = [IO.Path]::GetFullPath($Root)
+            $anchor = [IO.Path]::GetPathRoot($rootFull)
+            $current = $anchor
+            foreach ($part in ($rootFull.Substring($anchor.Length) -split '[\\/]' | Where-Object { $_ })) {
+              $current = Join-Path $current $part
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if (!$item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'physical source root is linked or noncanonical' }
+            }
+            $entries = Invoke-ObservedGit $Path $Digest $rootFull @('ls-tree','-r','-z','--full-tree','HEAD')
+            foreach ($entry in (($entries -join "`n") -split "`0")) {
+              if (!$entry) { continue }
+              $fields = $entry -split "`t", 2
+              if ($fields.Count -ne 2 -or $fields[0] -cnotmatch '\A100644 blob ([0-9a-f]{40})\z') { throw 'unsupported tracked source entry' }
+              $oid = $Matches[1]
+              $parts = $fields[1] -split '/'
+              if ([IO.Path]::IsPathRooted($fields[1]) -or $fields[1].Contains('\') -or ($parts | Where-Object { $_ -in @('','.','..') })) { throw 'unsupported tracked source path' }
+              $current = $rootFull
+              for ($index = 0; $index -lt $parts.Count; $index++) {
+                $current = Join-Path $current $parts[$index]
+                $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+                if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) -or ($index -eq $parts.Count - 1 -and $item -isnot [IO.FileInfo])) { throw 'physical tracked source is linked or nonregular' }
+              }
+              $bytes = [IO.File]::ReadAllBytes($current)
+              $prefix = [Text.Encoding]::ASCII.GetBytes('blob ' + $bytes.Length + "`0")
+              $hash = [Security.Cryptography.SHA1]::Create()
+              try {
+                [void]$hash.TransformBlock($prefix, 0, $prefix.Length, $prefix, 0)
+                [void]$hash.TransformFinalBlock($bytes, 0, $bytes.Length)
+                $actual = [BitConverter]::ToString($hash.Hash).Replace('-', '').ToLowerInvariant()
+              } finally { $hash.Dispose() }
+              if ($actual -cne $oid) { throw 'physical tracked source bytes differ from HEAD' }
+            }
+          }
+          $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
+          $pin = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256
+          Assert-ObservedGit $git $pin
+          $env:GIT_CONFIG_NOSYSTEM = '1'
+          $env:GIT_CONFIG_GLOBAL = 'NUL'
+          $env:GIT_OPTIONAL_LOCKS = '0'
+          $env:GIT_TERMINAL_PROMPT = '0'
+          foreach ($checkout in @(@('collector', $env:WINDOWS_APPROVED_COLLECTOR_SHA),
+                                   @('product', '04b83a5f394431e1dcca533889f6c02e32d02a0d'))) {
+            $head = Invoke-ObservedGit $git $pin $checkout[0] @('rev-parse','HEAD')
+            if ($head -cne $checkout[1]) { throw 'checkout HEAD rejected before build' }
+            $dirty = Invoke-ObservedGit $git $pin $checkout[0] @('status','--porcelain','--untracked-files=all')
+            if ($dirty) { throw 'dirty checkout rejected before build' }
+            Assert-TrackedSource $git $pin $checkout[0]
           }
           Assert-ObservedGit $git $pin
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
@@ -253,11 +537,25 @@ jobs:
           Assert-ObservedFile $python $digest
           Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_PYTHON_PATH=$python"
           Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_PYTHON_SHA256=$digest"
-      - name: Provision admitted Rust toolchain
+      - name: Receive only this run's fixed binary artifact
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          name: windows-lifecycle-admitted-binaries
+          path: native-binaries
+      - name: Validate the exact binary transport tree
         shell: pwsh
-        run: rustup toolchain install 1.95.0 --profile minimal
-      - name: Build admitted transport and helper
-        run: cargo build --locked --release --manifest-path collector/tools/gates/Cargo.toml --example windows_lifecycle_collector --bin semctx-gates
+        run: |
+          $env:PSModulePath = [IO.Path]::Combine($PSHOME, 'Modules')
+          $ErrorActionPreference = 'Stop'
+          $root = [IO.Path]::GetFullPath('native-binaries')
+          $entries = @(Get-ChildItem -LiteralPath $root -Recurse -Force)
+          $expected = @('examples', 'examples/windows_lifecycle_collector.exe', 'semctx-gates.exe')
+          if ($entries.Count -ne $expected.Count) { throw 'unexpected binary transport entries' }
+          foreach ($entry in $entries) {
+            $relative = $entry.FullName.Substring($root.Length + 1).Replace('\', '/')
+            if ($relative -cnotin $expected -or ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'foreign or linked binary transport entry' }
+            if (($relative -ceq 'examples' -and !$entry.PSIsContainer) -or ($relative -cne 'examples' -and $entry -isnot [IO.FileInfo])) { throw 'nonregular binary transport entry' }
+          }
       - name: Collect once after authority and provenance checks
         env:
           WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
@@ -271,6 +569,7 @@ jobs:
         shell: >-
           C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -NonInteractive -Command ". ([scriptblock]::Create([IO.File]::ReadAllText('{0}')))"
         run: |
+          $env:PSModulePath = [IO.Path]::Combine($PSHOME, 'Modules')
           $ErrorActionPreference = 'Stop'
           function Assert-ObservedFile([string]$Path, [string]$Digest, [bool]$RequirePin = $true) {
             if ($RequirePin -and ($Digest -cnotmatch '\A[0-9a-f]{64}\z' -or $Digest -cmatch '\A0+\z')) { throw 'postbuild runtime pin is missing or invalid' }
@@ -297,18 +596,54 @@ jobs:
             $env:GIT_OPTIONAL_LOCKS = '0'
             $env:GIT_TERMINAL_PROMPT = '0'
             Assert-ObservedFile $Path $Digest
-            $indexEntries = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root ls-files -v -z
+            $rootFull = [IO.Path]::GetFullPath($Root)
+            $metadata = [IO.Path]::Combine($rootFull, '.git')
+            $indexEntries = & $Path --no-replace-objects --no-optional-locks -c core.fsmonitor=false -C $rootFull --git-dir=$metadata --work-tree=$rootFull ls-files -v -z
             $indexCode = $LASTEXITCODE
             Assert-ObservedFile $Path $Digest
             if ($indexCode -ne 0) { throw 'observed Git index read failed' }
             foreach ($entry in (($indexEntries -join "`n") -split "`0")) {
               if ($entry -and ($entry[0].ToString() -cmatch '[a-zS]')) { throw 'hidden Git index entries forbid source verification' }
             }
-            $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
+            $output = & $Path --no-replace-objects --no-optional-locks -c core.fsmonitor=false -C $rootFull --git-dir=$metadata --work-tree=$rootFull @GitArguments
             $code = $LASTEXITCODE
             Assert-ObservedFile $Path $Digest
             if ($code -ne 0) { throw 'observed Git identity read failed' }
             return $output
+          }
+          function Assert-TrackedSource([string]$Path, [string]$Digest, [string]$Root) {
+            $rootFull = [IO.Path]::GetFullPath($Root)
+            $anchor = [IO.Path]::GetPathRoot($rootFull)
+            $current = $anchor
+            foreach ($part in ($rootFull.Substring($anchor.Length) -split '[\\/]' | Where-Object { $_ })) {
+              $current = Join-Path $current $part
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if (!$item.PSIsContainer -or ($item.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'physical source root is linked or noncanonical' }
+            }
+            $entries = Invoke-ObservedGit $Path $Digest $rootFull @('ls-tree','-r','-z','--full-tree','HEAD')
+            foreach ($entry in (($entries -join "`n") -split "`0")) {
+              if (!$entry) { continue }
+              $fields = $entry -split "`t", 2
+              if ($fields.Count -ne 2 -or $fields[0] -cnotmatch '\A100644 blob ([0-9a-f]{40})\z') { throw 'unsupported tracked source entry' }
+              $oid = $Matches[1]
+              $parts = $fields[1] -split '/'
+              if ([IO.Path]::IsPathRooted($fields[1]) -or $fields[1].Contains('\') -or ($parts | Where-Object { $_ -in @('','.','..') })) { throw 'unsupported tracked source path' }
+              $current = $rootFull
+              for ($index = 0; $index -lt $parts.Count; $index++) {
+                $current = Join-Path $current $parts[$index]
+                $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+                if (($item.Attributes -band [IO.FileAttributes]::ReparsePoint) -or ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) -or ($index -eq $parts.Count - 1 -and $item -isnot [IO.FileInfo])) { throw 'physical tracked source is linked or nonregular' }
+              }
+              $bytes = [IO.File]::ReadAllBytes($current)
+              $prefix = [Text.Encoding]::ASCII.GetBytes('blob ' + $bytes.Length + "`0")
+              $hash = [Security.Cryptography.SHA1]::Create()
+              try {
+                [void]$hash.TransformBlock($prefix, 0, $prefix.Length, $prefix, 0)
+                [void]$hash.TransformFinalBlock($bytes, 0, $bytes.Length)
+                $actual = [BitConverter]::ToString($hash.Hash).Replace('-', '').ToLowerInvariant()
+              } finally { $hash.Dispose() }
+              if ($actual -cne $oid) { throw 'physical tracked source bytes differ from HEAD' }
+            }
           }
           $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
           $pin = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256
@@ -323,11 +658,12 @@ jobs:
             if ($head -cne $checkout[1]) { throw 'checkout HEAD rejected postbuild' }
             $dirty = Invoke-ObservedGit $git $pin $checkout[0] @('status','--porcelain','--untracked-files=all')
             if ($dirty) { throw 'dirty checkout rejected postbuild' }
+            Assert-TrackedSource $git $pin $checkout[0]
           }
           Assert-ObservedFile $git $pin
           $controllerRoot = Join-Path $pwd 'collector/tools/rust-ts-r0/qualification/windows-lifecycle'
           $sources = @{
-            'collect_windows.py' = 'd0835ab7306b50a6127565efd9a6a9afa4b64e281617d7ca5eaea681811fb0d9'
+            'collect_windows.py' = '99a63c47e65a7a38913516263adc398c12ed3544ff3ad270c9fb491502b5c2c0'
             'collector.py' = 'c9f640c8eff10c2bb0e594ceaf01f17f71e438af17d98548b6cea2480c0c2b55'
             'prior_review.py' = 'b737fd27920dbdd65177a130d4d974c491cee4484b123f77d264fc208a87e175'
           }
@@ -336,8 +672,8 @@ jobs:
           }
           $python = $env:WINDOWS_OBSERVED_PYTHON_PATH
           Assert-ObservedFile $python $env:WINDOWS_OBSERVED_PYTHON_SHA256
-          Assert-ObservedFile (Join-Path $pwd 'collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe') '' $false
-          Assert-ObservedFile (Join-Path $pwd 'collector/tools/gates/target/release/semctx-gates.exe') '' $false
+          Assert-ObservedFile (Join-Path $pwd 'native-binaries/examples/windows_lifecycle_collector.exe') '' $false
+          Assert-ObservedFile (Join-Path $pwd 'native-binaries/semctx-gates.exe') '' $false
           $cache = Join-Path $env:WINDOWS_TRUSTED_RUNNER_TEMP ('windows-controller-cache-' + [guid]::NewGuid().ToString('N'))
           New-Item -ItemType Directory -Path $cache -ErrorAction Stop | Out-Null
           $bootstrap = @'
@@ -358,8 +694,8 @@ jobs:
             "--product-root", "$pwd/product", "--collector-root", "$pwd/collector",
             "--inputs", "$pwd/preparation", "--prior-review", "$pwd/prior-native/REVIEW.json",
             "--review-bundle", "$pwd/prior-native",
-            "--executor", "$pwd/collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe",
-            "--git", $git, "--helper", "$pwd/collector/tools/gates/target/release/semctx-gates.exe",
+            "--executor", "$pwd/native-binaries/examples/windows_lifecycle_collector.exe",
+            "--git", $git, "--helper", "$pwd/native-binaries/semctx-gates.exe",
             "--output", $output, "--execute")
           & $python @arguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

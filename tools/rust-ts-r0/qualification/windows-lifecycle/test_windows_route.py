@@ -348,6 +348,7 @@ class StartupGitTests(unittest.TestCase):
                 with (patch.object(sys,'argv',argv),patch.dict(os.environ,env),patch.object(route,'os',platform),
                       patch.object(route,'authority_matches',return_value=True),
                       patch.object(route,'verify_bundle',side_effect=verify),
+                      patch.object(route.BoundGit,'verify_checkout',return_value=None),
                       patch.object(route,'load_locked',return_value=[]),patch.object(route,'git_value',side_effect=identity),
                       patch.object(route.subprocess,'run',side_effect=execute),contextlib.redirect_stdout(printed)):
                     if tamper!='stable':
@@ -415,12 +416,12 @@ class WorkflowTests(unittest.TestCase):
             shell,args=step['shell'].split(' ',1)
             self.assertEqual(shell,r'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe')
             self.assertIn('-NoProfile',args);self.assertNotIn('-ExecutionPolicy',args)
-        for case in ('source','python','missing-pin','path-only'):
+        for case in ('source','python','missing-pin','path-only','module-path-only'):
             with self.subTest(case=case),tempfile.TemporaryDirectory() as temporary:
-                root=Path(temporary).resolve();temp=root/'temp';temp.mkdir();module_root=root/'collector/tools/rust-ts-r0/qualification/windows-lifecycle';module_root.mkdir(parents=True)
+                root=Path(temporary).resolve();temp=root/'temp';temp.mkdir();module_root=root/'collector/tools/rust-ts-r0/qualification/windows-lifecycle';module_root.mkdir(parents=True);(root/'product').mkdir()
                 for name in ('collect_windows.py','collector.py','prior_review.py'):shutil.copy2(Path(__file__).parent/name,module_root/name)
                 for name in ('examples/windows_lifecycle_collector.exe','semctx-gates.exe'):
-                    built=root/'collector/tools/gates/target/release'/name;built.parent.mkdir(parents=True,exist_ok=True);built.write_bytes(b'harmless built fixture')
+                    built=root/'native-binaries'/name;built.parent.mkdir(parents=True,exist_ok=True);built.write_bytes(b'harmless built fixture')
                 original=root/'runtime/python';original.parent.mkdir();marker=root/'original-launched';shadow_marker=root/'shadow-launched';arguments=root/'arguments'
                 original.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "'+str(arguments)+'"\ntouch "'+str(marker)+'"\n');original.chmod(0o755)
                 shadow=root/'shadow/python';shadow.parent.mkdir();shadow.write_text('#!/bin/sh\ntouch "'+str(shadow_marker)+'"\n');shadow.chmod(0o755)
@@ -436,6 +437,12 @@ class WorkflowTests(unittest.TestCase):
                 if case=='missing-pin':observed_python['WINDOWS_OBSERVED_PYTHON_SHA256']=''
                 if case=='source':(module_root/'collect_windows.py').write_bytes((module_root/'collect_windows.py').read_bytes()+b'\n# altered by build\n')
                 if case=='python':original.write_text(original.read_text()+'# altered by build\n')
+                module_marker=root/'hostile-module-executed'
+                if case=='module-path-only':
+                    module=root/'modules/Microsoft.PowerShell.Utility';module.mkdir(parents=True)
+                    (module/'Microsoft.PowerShell.Utility.psd1').write_text("@{RootModule='Microsoft.PowerShell.Utility.psm1';ModuleVersion='1.0';FunctionsToExport=@('Get-FileHash')}\n")
+                    (module/'Microsoft.PowerShell.Utility.psm1').write_text("function Get-FileHash { [IO.File]::WriteAllText($env:CASE_MODULE_MARKER,'executed'); throw 'hostile PowerShell module executed' }\nExport-ModuleMember -Function Get-FileHash\n")
+                    env.update(PSModulePath=str(root/'modules'),CASE_MODULE_MARKER=str(module_marker))
                 env['PATH']=str(shadow.parent)+os.pathsep+os.environ['PATH']
                 env.update(WINDOWS_OBSERVED_PYTHON_PATH=str(shadow),WINDOWS_OBSERVED_PYTHON_SHA256=hashlib.sha256(shadow.read_bytes()).hexdigest())
                 for key,value in observed_python.items():
@@ -446,9 +453,10 @@ class WorkflowTests(unittest.TestCase):
                 path=root/('collect-without-extension' if startup else 'collect.ps1');path.write_text(step['run'].replace('${{ github.run_id }}','123').replace('${{ github.run_attempt }}','1'))
                 shell_args=[part.format(str(path)) for part in shlex.split(args)] if startup else ['-NoProfile','-NonInteractive','-File',str(path)]
                 result=subprocess.run([executable,*shell_args],cwd=root,env=env,capture_output=True,check=False)
-                if case=='path-only':
+                self.assertFalse(module_marker.exists(),'hostile module autoload executed before the trusted postbuild guard')
+                if case in ('path-only','module-path-only'):
                     self.assertEqual(result.returncode,0,result.stderr);self.assertTrue(marker.exists(),'post-build PATH replaced the pre-build interpreter')
-                    args=arguments.read_text().splitlines();self.assertIn('-I',args);self.assertIn('-B',args);self.assertIn('-X',args);self.assertTrue(any(a.startswith('pycache_prefix=') for a in args))
+                    launch_args=arguments.read_text().splitlines();self.assertIn('-I',launch_args);self.assertIn('-B',launch_args);self.assertIn('-X',launch_args);self.assertTrue(any(a.startswith('pycache_prefix=') for a in launch_args))
                 else:
                     self.assertNotEqual(result.returncode,0,'post-build mutation reached interpreter resolution/loading')
                     self.assertIn(b'postbuild',result.stderr);self.assertFalse(marker.exists())
@@ -758,6 +766,91 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
                         result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
                         self.assertNotEqual(result.returncode,0,'hidden source mutation reached BUILD')
                         self.assertIn(b'hidden Git index entries',result.stderr);self.assertFalse(marker.exists())
+
+    def test_physical_source_bytes_refuse_worktree_and_statcache_redirects(self):
+        import contextlib,io,subprocess,time
+        executable=shutil.which('pwsh');git=shutil.which('git')
+        if not executable or not git:self.skipTest('PowerShell/Git unavailable')
+        git=Path(git).resolve();text=self.workflow()
+        clean={key:value for key,value in os.environ.items() if not key.startswith('GIT_')}
+        for case in ('core-worktree','statcache'):
+            with tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();repository=root/'repository';repository.mkdir()
+                def call(*args,repository=repository):return subprocess.run([str(git),'-C',str(repository),*args],env=clean,capture_output=True,check=True).stdout
+                call('init');tracked=repository/'controller.py';tracked.write_bytes(b'ORIGINAL')
+                old=time.time_ns()-5_000_000_000;os.utime(tracked,ns=(old,old))
+                call('add','controller.py');call('-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','fixture')
+                head=call('rev-parse','HEAD').decode().strip();tree=call('rev-parse','HEAD^{tree}').decode().strip()
+                review=root/'review.json';review.write_bytes(b'test-only prior-admission prerequisite stub')
+                for filename in ('preflight.json','public-plan.json','source-snapshot.json'):(root/filename).write_bytes(b'test-only locked-input prerequisite stub')
+                argv=['collect_windows.py']
+                for name,value in [('product-root',repository),('collector-root',repository),('inputs',root),('prior-review',review),('review-bundle',root),('executor',git),('git',git),('helper',git),('output',root/'output')]:argv+=['--'+name,str(value)]
+                def invoke(argv=argv,head=head,tree=tree):
+                    with (patch.object(sys,'argv',argv),patch.object(route,'SOURCE_HEAD',head),patch.object(route,'SOURCE_TREE',tree),
+                          patch.object(route,'authority_matches',return_value=True),patch.object(route,'verify_bundle',return_value={'test_only_prerequisite_stub':True}),patch.object(route,'load_locked',return_value=[])):
+                        route.main()
+                with contextlib.redirect_stdout(io.StringIO()):invoke()
+                if case=='core-worktree':
+                    shadow=root/'shadow';shadow.mkdir();(shadow/'controller.py').write_bytes(b'ORIGINAL')
+                    call('config','core.worktree',str(shadow))
+                else:
+                    call('config','core.trustctime','false');call('config','core.checkStat','minimal')
+                    self.assertLess(tracked.stat().st_mtime_ns,(repository/'.git/index').stat().st_mtime_ns-1_000_000_000)
+                timestamp=tracked.stat();tracked.write_bytes(b'MODIFIED');os.utime(tracked,ns=(timestamp.st_atime_ns,timestamp.st_mtime_ns))
+                self.assertEqual(call('status','--porcelain','--untracked-files=all'),b'','fixture mutation was not hidden')
+                self.assertTrue(call('ls-files','-v','-z').startswith(b'H '))
+                with self.subTest(case=case,boundary='Python main'),contextlib.redirect_stdout(io.StringIO()) as captured:
+                    with self.assertRaisesRegex(ValueError,'physical tracked source bytes differ'):invoke()
+                    self.assertEqual(captured.getvalue(),'');self.assertFalse((root/'output').exists())
+                for step in ('Verify checked out identities before build','Collect once after authority and provenance checks'):
+                    with self.subTest(case=case,boundary=step):
+                        start=text.index('      - name: '+step);lines=text[start:].splitlines();body=lines.index('        run: |')+1
+                        script='\n'.join(line[10:] for line in lines[body:]);helper=script[:script.index('$git = $env:')]
+                        marker=root/'BUILD';path=root/'physical.ps1';path.write_text(helper+"Assert-TrackedSource $env:CASE_GIT $env:CASE_SHA $env:CASE_ROOT\nSet-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
+                        env=dict(clean,CASE_GIT=str(git),CASE_SHA=hashlib.sha256(git.read_bytes()).hexdigest(),CASE_ROOT=str(repository),CASE_BUILD=str(marker))
+                        result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
+                        self.assertNotEqual(result.returncode,0,'hidden physical source reached BUILD')
+                        self.assertIn(b'physical tracked source bytes differ',result.stderr);self.assertFalse(marker.exists())
+
+    def test_collection_uses_a_fresh_job_and_exact_same_run_binary_transport(self):
+        import subprocess
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(path)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr);jobs=json.loads(parsed.stdout)['jobs']
+        self.assertEqual(set(jobs),{'build','collect'});build=jobs['build'];collect=jobs['collect']
+        self.assertEqual(collect['needs'],'build')
+        for job in (build,collect):
+            self.assertEqual(job['runs-on'],'windows-latest')
+            for name in ('WORKFLOW_SHA','COLLECTOR_SHA','PRIOR_REVIEW_SHA256'):
+                variable='WINDOWS_APPROVED_'+name;self.assertEqual(job['env'][variable],'${{ vars.'+variable+' }}')
+        self.assertTrue(any('cargo build' in step.get('run','') for step in build['steps']))
+        for step in collect['steps']:self.assertNotRegex(step.get('run',''),r'(?im)^\s*(?:cargo|rustup)\b')
+        self.assertNotIn('${{ needs.',self.workflow(),'build outputs became receiver authority')
+        upload=next(step for step in build['steps'] if step.get('uses','').startswith('actions/upload-artifact@'))
+        self.assertEqual(upload['uses'],'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9')
+        self.assertEqual(upload['with']['name'],'windows-lifecycle-admitted-binaries')
+        self.assertEqual(upload['with']['path'].splitlines(),['collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe','collector/tools/gates/target/release/semctx-gates.exe'])
+        receive=next(step for step in collect['steps'] if step.get('with',{}).get('name')==upload['with']['name'])
+        self.assertEqual(receive['uses'],'actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333')
+        self.assertEqual(receive['with'],{'name':'windows-lifecycle-admitted-binaries','path':'native-binaries'})
+        verify=next(step for step in collect['steps'] if step.get('name')=='Validate the exact binary transport tree')
+        launch=next(step for step in collect['steps'] if step.get('name')=='Collect once after authority and provenance checks')
+        self.assertLess(collect['steps'].index(receive),collect['steps'].index(verify));self.assertLess(collect['steps'].index(verify),collect['steps'].index(launch))
+        identity='Verify checked out identities before build'
+        self.assertEqual(next(s['run'] for s in build['steps'] if s.get('name')==identity),next(s['run'] for s in collect['steps'] if s.get('name')==identity))
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        for case in ('exact','foreign','linked'):
+            with self.subTest(artifact=case),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();files=root/'native-binaries';(files/'examples').mkdir(parents=True)
+                (files/'examples/windows_lifecycle_collector.exe').write_bytes(b'harmless fixture');(files/'semctx-gates.exe').write_bytes(b'harmless fixture')
+                if case=='foreign':(files/'extra.dll').write_bytes(b'foreign fixture')
+                if case=='linked':
+                    target=root/'outside';target.write_bytes(b'harmless fixture');(files/'semctx-gates.exe').unlink();(files/'semctx-gates.exe').symlink_to(target)
+                script=root/'artifact.ps1';script.write_text(verify['run'])
+                observed=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,capture_output=True,check=False)
+                self.assertEqual(observed.returncode==0,case=='exact',observed.stderr)
+                if case!='exact':self.assertIn(b'binary transport',observed.stderr)
 
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()

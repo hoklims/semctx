@@ -159,3 +159,42 @@ status and tree read validates that binding before and after Git; expected
 identity is never reread from mutable environment. Trusted PowerShell uses
 Invoke-ObservedGit with the same per-call before/after assertion, captures the
 exit code, and emits stdout only after successful postvalidation.
+
+The build and collection now use separate hosted Windows jobs. The build job
+checks protected source identities, physical tracked bytes and the exact prior
+review before Rustup/Cargo. It transfers only the collector and helper executables
+using the pinned upload action. The dependent collection job receives the fixed
+artifact name from this repository's current run, with no build-job outputs or
+environment used as approval. It independently checks out and verifies the
+approved sources and public prerequisites on its fresh runner, validates the
+exact two-file binary tree, and pins runtime bytes before any transferred binary
+executes. There is no Cargo or Rustup command in the collection job.
+
+This separation matters because GitHub's GITHUB_ENV changes affect subsequent
+steps in the same job, and CLR profiling environment variables can load a DLL
+before a PowerShell script begins. The inference is that a guard inside that
+script cannot establish its own startup environment after Cargo. The new job
+boundary prevents the build's GITHUB_ENV/GITHUB_PATH values from reaching the
+receiver. Its fixed OS shell also resets its process-local PSModulePath to
+PSHOME/Modules before using cmdlets. This remains a finite hosted-runner trust
+profile, not OS isolation against a hostile administrator or compiler.
+
+Git reads bind both --git-dir and --work-tree to the expected checkout and ignore
+replacement refs. HEAD/status alone cannot prove physical byte identity: local
+core.worktree can redirect status, while stat-cache settings can conceal an edit
+whose size and mtime were restored. Both PowerShell identity guards and Python
+pre/postflight therefore enumerate HEAD's tracked blobs and compare Git blob
+SHA-1 identities computed directly from regular physical file bytes, without
+Git filters. The current baseline has only mode100644 entries; unsupported modes,
+linked/reparse components and nonregular files refuse. The LF checkout contract
+is unchanged. These are sampled checks, not an atomic filesystem snapshot.
+
+Primary references:
+
+- [GitHub environment-file scope](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable).
+- [Microsoft CLR profiler startup variables](https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/profiling/clr-profilers-and-windows-store-apps).
+- [Pinned download action: current-run defaults](https://raw.githubusercontent.com/actions/download-artifact/9000827ccba6bdab643e8b6fd33ac0654aef8333/action.yml).
+
+No native Windows result, source admission, pin enrollment or R0 credit is created
+by these local source and fixture checks. WindowsPowerShell5, console cancellation
+and real artifact transport still require the admitted native job.
