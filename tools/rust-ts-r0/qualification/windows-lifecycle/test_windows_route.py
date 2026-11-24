@@ -203,6 +203,27 @@ class GitPayloadTests(unittest.TestCase):
 
 
 class StartupGitTests(unittest.TestCase):
+    def test_raw_cli_git_entry_rejects_dot_segments_before_normalization(self):
+        from types import SimpleNamespace
+        for segment in ('.','ordinary/..'):
+            with self.subTest(segment=segment),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();(root/'ordinary').mkdir()
+                git=root/'mingw64/bin/git.exe';git.parent.mkdir(parents=True);git.write_bytes(b'payload')
+                raw=str(root)+'/'+segment+'/mingw64/bin/git.exe'
+                review=root/'review.json';review.write_bytes(b'{}');argv=['collect_windows.py']
+                for name,value in [('product-root',root),('collector-root',root),('inputs',root),
+                    ('prior-review',review),('review-bundle',root),('executor',Path(sys.executable)),
+                    ('git',raw),('helper',Path(sys.executable)),('output',root/'absent')]:argv+=['--'+name,str(value)]
+                platform=SimpleNamespace(name='nt',environ=os.environ,fsync=os.fsync,devnull=os.devnull)
+                env={'WINDOWS_OBSERVED_GIT_PAYLOAD_PATH':str(git),
+                     'WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256':hashlib.sha256(b'payload').hexdigest()}
+                with (patch.object(sys,'argv',argv),patch.object(route,'os',platform),patch.dict(os.environ,env),
+                      patch.object(route,'git_value',return_value='') as calls,
+                      patch.object(route,'authority_matches',return_value=False),
+                      self.assertRaisesRegex(ValueError,'Git entry is not lexically canonical')):
+                    route.main()
+                calls.assert_not_called();self.assertFalse((root/'absent').exists())
+
     def test_whole_main_refuses_git_change_during_last_postflight_read(self):
         from types import SimpleNamespace
         import subprocess
@@ -298,13 +319,80 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_completed_startup_outputs_restore_git_and_protected_pins_before_capture(self):
+        import re,subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        ruby="require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))"
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',ruby,str(path)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr)
+        steps=json.loads(parsed.stdout)['jobs']['collect']['steps']
+        startup=next(step for step in steps if step.get('name','').startswith('Resolve and pin'))
+        consumers=[step for step in steps if step.get('name','').startswith(('Verify checked out','Collect once'))]
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();shim=root/'original/cmd/git.exe';git=root/'original/ucrt64/bin/git.exe'
+            shim.parent.mkdir(parents=True);git.parent.mkdir(parents=True)
+            shim.write_text('#!/bin/sh\nexit 99\n');shim.chmod(0o755);git.write_bytes(b'original payload')
+            replacement=root/'replacement/mingw64/bin/git.exe';replacement.parent.mkdir(parents=True);replacement.write_bytes(b'replacement payload')
+            output=root/'startup-output';environment_file=root/'job-env';script=root/'startup.ps1';script.write_text(startup['run'])
+            environment=dict(os.environ,PATH=str(shim.parent)+os.pathsep+os.environ['PATH'],
+                GITHUB_ENV=str(environment_file),GITHUB_OUTPUT=str(output))
+            result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],env=environment,capture_output=True,check=False)
+            self.assertEqual(result.returncode,0,result.stderr)
+            stored=output if output.exists() else environment_file
+            snapshot=dict(line.split('=',1) for line in stored.read_text().splitlines())
+            protected={'WINDOWS_APPROVED_WORKFLOW_SHA':'a'*40,'WINDOWS_APPROVED_COLLECTOR_SHA':'b'*40,
+                       'WINDOWS_APPROVED_PRIOR_REVIEW_SHA256':'c'*64}
+            tampered=dict(protected,WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=str(replacement),
+                          WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=hashlib.sha256(b'replacement payload').hexdigest())
+            for name in protected:tampered[name]='f'*len(protected[name])
+            for consumer in consumers:
+                with self.subTest(consumer=consumer['name']):
+                    effective=dict(tampered)
+                    # Model the documented runner precedence: explicit step env overrides
+                    # GITHUB_ENV from completed prior steps; outputs come from completed startup.
+                    for name,value in consumer.get('env',{}).items():
+                        expression=re.fullmatch(r'\$\{\{ steps\.([A-Za-z0-9_]+)\.outputs\.([A-Za-z0-9_]+) \}\}',value)
+                        if expression:
+                            self.assertEqual(expression[1],startup.get('id'));effective[name]=snapshot[expression[2]]
+                        else:
+                            variable=re.fullmatch(r'\$\{\{ vars\.([A-Za-z0-9_]+) \}\}',value)
+                            self.assertIsNotNone(variable);effective[name]=protected[variable[1]]
+                    # Both Git values were replaced BEFORE real Python capture, not afterwards.
+                    with patch.dict(os.environ,effective):bound=route.BoundGit.capture(Path(effective['WINDOWS_OBSERVED_GIT_PAYLOAD_PATH']))
+                    self.assertEqual(bound.path,git,'changed startup pair was accepted before capture')
+                    self.assertEqual(bound.sha256,hashlib.sha256(b'original payload').hexdigest())
+                    self.assertEqual({name:effective[name] for name in protected},protected)
+
+    def test_actual_powershell_rejects_raw_dot_segments_before_normalization(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        text=self.workflow();start=text.index('      - name: Resolve and pin host Git payload')
+        block=text[start:text.index('      - uses:',start)]
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
+        helper=script[:script.index('$entry = (Get-Command')]
+        for segment in ('.','ordinary/..'):
+            with self.subTest(segment=segment),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();(root/'ordinary').mkdir();git=root/'ucrt64/bin/git.exe'
+                git.parent.mkdir(parents=True);git.write_bytes(b'payload')
+                raw=str(root)+'/'+segment+'/ucrt64/bin/git.exe';marker=root/'ACCEPTED'
+                path=root/'resolve.ps1';path.write_text(helper+"$value=Resolve-GitPayload $env:RAW_ENTRY\nSet-Content -LiteralPath $env:CASE_MARKER -Value $value\n")
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],
+                    env=dict(os.environ,RAW_ENTRY=raw,CASE_MARKER=str(marker)),capture_output=True,check=False)
+                self.assertNotEqual(result.returncode,0,'noncanonical raw entry was normalized and accepted')
+                self.assertIn(b'Git entry is not lexically canonical',result.stderr);self.assertFalse(marker.exists())
+
     def test_actual_powershell_direct_payload_rejects_alternative_layout(self):
         import subprocess
         executable=shutil.which('pwsh')
         if not executable:self.skipTest('PowerShell unavailable')
         text=self.workflow();start=text.index('      - name: Resolve and pin host Git payload')
         block=text[start:text.index('      - uses:',start)]
-        script='\n'.join(line[10:] for line in block.splitlines()[3:])+'\n'
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
         for layout in ('mingw64','ucrt64'):
             for mode in ('ambiguous','dangling'):
                 with self.subTest(layout=layout,mode=mode),tempfile.TemporaryDirectory() as temporary:
@@ -316,7 +404,7 @@ class WorkflowTests(unittest.TestCase):
                     else:
                         alternative.symlink_to(root/'missing',target_is_directory=True)
                     path=root/'resolve.ps1';path.write_text(script);observed=root/'environment'
-                    env=dict(os.environ,PATH=str(direct.parent)+os.pathsep+os.environ['PATH'],GITHUB_ENV=str(observed))
+                    env=dict(os.environ,PATH=str(direct.parent)+os.pathsep+os.environ['PATH'],GITHUB_OUTPUT=str(observed))
                     result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
                     self.assertNotEqual(result.returncode,0,'direct payload bypassed installation checks')
                     diagnostic=b'absent or ambiguous' if mode=='ambiguous' else b'link/reparse'
@@ -364,7 +452,8 @@ class WorkflowTests(unittest.TestCase):
             self.skipTest('PowerShell unavailable; inline trusted pin guard not executed')
         text=self.workflow();start=text.index('      - name: Validate protected pin syntax')
         block=text[start:text.index('      - name: Resolve and pin host Git payload',start)]
-        script='\n'.join(line[10:] for line in block.splitlines()[3:])+'\n'
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
         names=['WINDOWS_APPROVED_WORKFLOW_SHA','WINDOWS_APPROVED_COLLECTOR_SHA','WINDOWS_APPROVED_PRIOR_REVIEW_SHA256']
         good=dict(zip(names,['a'*40,'b'*40,'c'*64],strict=True))
         with tempfile.TemporaryDirectory() as temporary:
@@ -391,14 +480,15 @@ class WorkflowTests(unittest.TestCase):
             self.skipTest('PowerShell unavailable')
         text=self.workflow();start=text.index('      - name: Resolve and pin host Git payload')
         block=text[start:text.index('      - uses:',start)]
-        script='\n'.join(line[10:] for line in block.splitlines()[3:])+'\n'
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
         for layout in ('mingw64','ucrt64'):
             with self.subTest(layout=layout),tempfile.TemporaryDirectory() as temporary:
                 root=Path(temporary).resolve();shim=root/'cmd/git.exe';payload=root/layout/'bin/git.exe'
                 shim.parent.mkdir();payload.parent.mkdir(parents=True)
                 shim.write_text('#!/bin/sh\nexit 99\n');shim.chmod(0o755);payload.write_bytes(b'payload bytes')
                 path=root/'resolver.ps1';path.write_text(script);observed=root/'environment'
-                env=dict(os.environ,PATH=str(shim.parent)+os.pathsep+os.environ['PATH'],GITHUB_ENV=str(observed))
+                env=dict(os.environ,PATH=str(shim.parent)+os.pathsep+os.environ['PATH'],GITHUB_OUTPUT=str(observed))
                 result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
                 self.assertEqual(result.returncode,0,result.stderr)
                 self.assertIn('WINDOWS_OBSERVED_GIT_PAYLOAD_PATH='+str(payload),observed.read_text())
@@ -419,7 +509,8 @@ class WorkflowTests(unittest.TestCase):
         if not executable:self.skipTest('PowerShell unavailable')
         text=self.workflow();start=text.index('      - name: Verify checked out identities')
         block=text[start:text.index('      - uses:',start)]
-        script='\n'.join(line[10:] for line in block.splitlines()[3:])+'\n'
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
         helper=script[:script.index('$git = $env:')]
         for mode in ('stable','before','during'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temporary:
@@ -454,7 +545,8 @@ class WorkflowTests(unittest.TestCase):
         if not executable:self.skipTest('PowerShell unavailable')
         text=self.workflow();start=text.index('      - name: Verify checked out identities')
         block=text[start:text.index('      - uses:',start)]
-        script='\n'.join(line[10:] for line in block.splitlines()[3:])+'\n'
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n'
         helper=script[:script.index('$git = $env:')]
         for mode in ('stable','before','during'):
             with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temporary:

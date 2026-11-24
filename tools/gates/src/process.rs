@@ -166,6 +166,32 @@ pub fn finish_reader<T>(reader: thread::JoinHandle<T>, stop: &AtomicBool) -> Res
     }
     reader.join().map_err(|_| "pipe reader panicked".into())
 }
+/// Finalize a capture within the shared deadline, without a fresh grace.
+/// Cancellation is sticky: a later EOF cannot make an interrupted capture complete.
+/// On refusal, the reader owns its pipe until it observes stop or the OS closes it.
+pub fn finish_reader_before<T>(
+    reader: thread::JoinHandle<T>,
+    stop: &AtomicBool,
+    deadline: Instant,
+) -> Result<T> {
+    loop {
+        if stop.load(Ordering::SeqCst) || Instant::now() >= deadline {
+            stop.store(true, Ordering::SeqCst);
+            return Err("pipe capture finalization deadline exceeded".into());
+        }
+        if reader.is_finished() {
+            let result = reader.join().map_err(|_| "pipe reader panicked".into());
+            if stop.load(Ordering::SeqCst) || Instant::now() >= deadline {
+                stop.store(true, Ordering::SeqCst);
+                return Err("pipe capture finalization deadline exceeded".into());
+            }
+            return result;
+        }
+        thread::sleep(
+            Duration::from_millis(5).min(deadline.saturating_duration_since(Instant::now())),
+        );
+    }
+}
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum OutputMode {
     Capture,

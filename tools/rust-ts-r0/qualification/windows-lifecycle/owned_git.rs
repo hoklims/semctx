@@ -178,6 +178,30 @@ fn command_status_before(
     status
 }
 
+fn finish_capture_before(
+    released: bool,
+    deadline: Instant,
+    stdout: thread::JoinHandle<io::Result<()>>,
+    stderr: thread::JoinHandle<io::Result<()>>,
+    stop: &AtomicBool,
+    mut query: impl FnMut() -> process::Result<bool>,
+) -> (bool, bool) {
+    let quiet = await_quiescence(released, deadline, &mut query);
+    let stdout_complete = matches!(
+        process::finish_reader_before(stdout, stop, deadline),
+        Ok(Ok(()))
+    );
+    let stderr_complete = matches!(
+        process::finish_reader_before(stderr, stop, deadline),
+        Ok(Ok(()))
+    );
+    let readers_complete = drain_complete(stdout_complete, stderr_complete, stop);
+    // A second kernel observation follows pipe draining; a prior zero count is
+    // only a momentary observation, not a promise about future OS scheduling.
+    let quiet = quiet && quiescence_before(released, deadline, query).unwrap_or(false);
+    (quiet, readers_complete)
+}
+
 fn run_owned(
     argv: &[String],
     cwd: &Path,
@@ -229,16 +253,14 @@ fn run_owned(
     };
     let reaped = child.cleanup_and_release_handle().is_ok();
     let quiescence_deadline = Instant::now() + Duration::from_secs(2);
-    let owned_tree_quiescent =
-        await_quiescence(reaped, quiescence_deadline, || child.tree_quiescent());
-    let stdout_complete = matches!(process::finish_reader(out_reader, &stop), Ok(Ok(())));
-    let stderr_complete = matches!(process::finish_reader(err_reader, &stop), Ok(Ok(())));
-    let readers_complete = drain_complete(stdout_complete, stderr_complete, &stop);
-    // A second kernel observation follows pipe draining; a prior zero count is
-    // only a momentary observation, not a promise about future OS scheduling.
-    let owned_tree_quiescent = owned_tree_quiescent
-        && quiescence_before(reaped, quiescence_deadline, || child.tree_quiescent())
-            .unwrap_or(false);
+    let (owned_tree_quiescent, readers_complete) = finish_capture_before(
+        reaped,
+        quiescence_deadline,
+        out_reader,
+        err_reader,
+        &stop,
+        || child.tree_quiescent(),
+    );
     let stdout = stdout
         .lock()
         .map_err(|_| "owned stdout reader panicked")?

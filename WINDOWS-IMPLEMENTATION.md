@@ -75,11 +75,23 @@ After both reader joins, the shared stop flag is sticky refusal: even Ok EOF
 following the capture cutoff cannot establish a complete capture.
 
 Trusted inline PowerShell resolves and hashes the payload before identity Git
-reads and Cargo. It rechecks after those reads and passes path/SHA via GITHUB_ENV
-as runtime observation, not a fourth authority. Python requires those original
+reads and Cargo. It rechecks after those reads and publishes path/SHA as completed
+startup step outputs via GITHUB_OUTPUT, as runtime observation, not a fourth
+authority. Pre-build and collection step environments explicitly restore those
+outputs and the three protected variable pins; Cargo writes to GITHUB_ENV cannot
+replace them before Python captures its binding. Python requires those original
 bytes/path before identity reads and collection; postflight retains them. Both
 resolvers inspect ancestors before counting even an absent candidate leaf, so a
 dangling alternate layout refuses instead of silently disappearing.
+Both resolvers reject raw dot and dot-dot path segments before normalization;
+the Python CLI retains the original Git argument until that check.
+
+GitHub documents completed step outputs and the precedence of step environments:
+https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
+https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
+https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+The regression executes the inline PowerShell and Python binding with modeled
+runner step-environment precedence; it is not a live GitHub or Windows execution.
 
 Startup Git payload resolution/pinning precedes checkout actions. Those actions
 may perform preparatory internal Git reads; their commit outputs grant nothing.

@@ -62,6 +62,7 @@ jobs:
             }
           }
       - name: Resolve and pin host Git payload before identity reads
+        id: startup_git
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -83,6 +84,7 @@ jobs:
             return $item.FullName
           }
           function Resolve-GitPayload([string]$Entry) {
+            if ($Entry -match '(?:^|[\\/])\.{1,2}(?:[\\/]|$)') { throw 'Git entry is not lexically canonical' }
             $entry = Get-SafeGitFile $Entry
             if ([IO.Path]::GetFileName($entry) -ine 'git.exe') { throw 'unknown Git executable' }
             $parent = Split-Path $entry
@@ -108,8 +110,8 @@ jobs:
           $payload = Resolve-GitPayload $entry
           if ($payload -match '[\r\n]') { throw 'invalid Git payload environment path' }
           $digest = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
-          Add-Content -LiteralPath $env:GITHUB_ENV -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=$payload"
-          Add-Content -LiteralPath $env:GITHUB_ENV -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=$digest"
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=$payload"
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=$digest"
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           ref: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
@@ -121,6 +123,12 @@ jobs:
           path: product
           persist-credentials: false
       - name: Verify checked out identities before build
+        env:
+          WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
+          WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256 }}
+          WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
+          WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+          WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -179,6 +187,12 @@ jobs:
       - name: Build admitted transport and helper
         run: cargo build --locked --release --manifest-path collector/tools/gates/Cargo.toml --example windows_lifecycle_collector --bin semctx-gates
       - name: Collect once after authority and provenance checks
+        env:
+          WINDOWS_OBSERVED_GIT_PAYLOAD_PATH: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_PATH }}
+          WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256: ${{ steps.startup_git.outputs.WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256 }}
+          WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
+          WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+          WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
         shell: pwsh
         run: |
           $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH

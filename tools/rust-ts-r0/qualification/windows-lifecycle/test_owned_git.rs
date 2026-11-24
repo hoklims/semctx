@@ -353,3 +353,118 @@ fn native_git_accepts_only_the_payload_layout_not_a_launcher() {
     }
     fs::remove_dir_all(root).unwrap();
 }
+
+#[test]
+fn near_exhausted_quiescence_deadline_also_bounds_pipe_drain() {
+    let stop = Arc::new(AtomicBool::new(false));
+    let reader_stop = Arc::clone(&stop);
+    let stdout = thread::spawn(move || {
+        while !reader_stop.load(Ordering::SeqCst) {
+            thread::sleep(Duration::from_millis(1));
+        }
+        Ok(())
+    });
+    let stderr = thread::spawn(|| Ok(()));
+    let started = Instant::now();
+    let deadline = started + Duration::from_millis(30);
+    let (quiet, complete) = finish_capture_before(true, deadline, stdout, stderr, &stop, || {
+        thread::sleep(Duration::from_millis(25));
+        Ok(true)
+    });
+    assert!(
+        started.elapsed() < Duration::from_millis(150),
+        "pipe drain restarted its grace period after quiescence consumed D2"
+    );
+    assert!(!quiet);
+    assert!(!complete, "late EOF supplied a false complete capture");
+    assert!(stop.load(Ordering::SeqCst));
+}
+
+#[test]
+fn expired_pipe_deadline_refuses_already_completed_readers() {
+    let stdout = thread::spawn(|| Ok(()));
+    let stderr = thread::spawn(|| Ok(()));
+    while !stdout.is_finished() || !stderr.is_finished() {
+        thread::yield_now();
+    }
+    let stop = AtomicBool::new(false);
+    let (quiet, complete) =
+        finish_capture_before(true, Instant::now(), stdout, stderr, &stop, || {
+            panic!("expired capture queried tree")
+        });
+    assert!(!quiet);
+    assert!(!complete, "expired D2 accepted already completed readers");
+    assert!(stop.load(Ordering::SeqCst));
+}
+
+#[test]
+fn cancelled_capture_never_accepts_later_eof() {
+    let stop = Arc::new(AtomicBool::new(false));
+    let reader_stop = Arc::clone(&stop);
+    let (done_tx, done_rx) = std::sync::mpsc::channel();
+    let reader = thread::spawn(move || {
+        while !reader_stop.load(Ordering::SeqCst) {
+            thread::yield_now();
+        }
+        done_tx.send(()).unwrap();
+        Ok::<(), io::Error>(())
+    });
+    let deadline = Instant::now() + Duration::from_millis(10);
+    let result = process::finish_reader_before(reader, &stop, deadline);
+    assert!(result.is_err(), "EOF after cutoff was accepted");
+    assert!(stop.load(Ordering::SeqCst));
+    done_rx.recv_timeout(Duration::from_secs(1)).unwrap();
+    let completed = thread::spawn(|| Ok::<(), io::Error>(()));
+    while !completed.is_finished() {
+        thread::yield_now();
+    }
+    assert!(
+        process::finish_reader_before(completed, &stop, Instant::now() + Duration::from_secs(1),)
+            .is_err(),
+        "prior cancellation was forgotten by the next pipe"
+    );
+}
+
+#[test]
+fn deadline_drain_preserves_completed_reader_result() {
+    let reader = thread::spawn(|| Ok::<_, io::Error>(b"exact bytes"));
+    let stop = AtomicBool::new(false);
+    assert_eq!(
+        process::finish_reader_before(reader, &stop, Instant::now() + Duration::from_secs(1))
+            .unwrap()
+            .unwrap(),
+        b"exact bytes",
+    );
+    assert!(!stop.load(Ordering::SeqCst));
+}
+
+#[test]
+fn second_pipe_reuses_the_remaining_quiescence_deadline() {
+    let stop = Arc::new(AtomicBool::new(false));
+    let reader_stop = Arc::clone(&stop);
+    let stdout = thread::spawn(|| Ok(()));
+    let stderr = thread::spawn(move || {
+        while !reader_stop.load(Ordering::SeqCst) {
+            thread::sleep(Duration::from_millis(1));
+        }
+        Ok(())
+    });
+    let started = Instant::now();
+    let (_, complete) = finish_capture_before(
+        true,
+        started + Duration::from_millis(30),
+        stdout,
+        stderr,
+        &stop,
+        || {
+            thread::sleep(Duration::from_millis(25));
+            Ok(true)
+        },
+    );
+    assert!(
+        started.elapsed() < Duration::from_millis(150),
+        "second pipe restarted its grace period after quiescence consumed D2"
+    );
+    assert!(!complete);
+    assert!(stop.load(Ordering::SeqCst));
+}

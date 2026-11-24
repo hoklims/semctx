@@ -55,8 +55,15 @@ def file_pin(path):
     return {'path':str(path),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
 
 
+def git_entry(path):
+    raw=str(path)
+    if any(part in ('.','..') for part in re.split(r'[\\/]',raw)):
+        raise ValueError('Git entry is not lexically canonical')
+    return Path(raw)
+
+
 def resolve_windows_git_payload(path):
-    path=path.absolute()
+    path=git_entry(path).absolute()
     def regular(candidate,allow_missing=False):
         items=(*reversed(candidate.parents),candidate)
         for index,item in enumerate(items):
@@ -93,6 +100,7 @@ def resolve_windows_git_payload(path):
 
 
 def resolve_git_payload(path):
+    path=git_entry(path)
     return resolve_windows_git_payload(path) if os.name=='nt' else path.resolve(strict=True)
 
 
@@ -154,7 +162,7 @@ class BoundGit:
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     for name in ('product-root','collector-root','inputs','prior-review','executor','git','helper','output'):
-        parser.add_argument('--'+name,type=Path,required=True)
+        parser.add_argument('--'+name,type=str if name=='git' else Path,required=True)
     parser.add_argument('--execute',action='store_true')
     parser.add_argument('--review-bundle',type=Path,required=True)
     args=parser.parse_args()
