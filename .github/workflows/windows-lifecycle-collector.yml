@@ -1,0 +1,197 @@
+name: Dedicated Windows lifecycle fixture collection
+on:
+  workflow_dispatch:
+    inputs:
+      product_sha:
+        type: string
+        description: Frozen producer (exact04b)
+        required: true
+        default: 04b83a5f394431e1dcca533889f6c02e32d02a0d
+      inputs_run_id:
+        type: string
+        description: Preparation artifact run ID
+        required: true
+      inputs_artifact_id:
+        type: string
+        description: Exact public preparation artifact ID
+        required: true
+      review_run_id:
+        type: string
+        description: Independent native review artifact run ID
+        required: true
+      review_artifact_id:
+        type: string
+        description: Exact public native review artifact ID
+        required: true
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: windows-lifecycle-observation
+  cancel-in-progress: false
+jobs:
+  collect:
+    # Protected pins are enrolled only after independent source admission.
+    if: >-
+      github.repository == 'hoklims/semctx' &&
+      github.repository_id == '1289209764' &&
+      inputs.product_sha == '04b83a5f394431e1dcca533889f6c02e32d02a0d' &&
+      vars.WINDOWS_APPROVED_WORKFLOW_SHA != '' &&
+      vars.WINDOWS_APPROVED_COLLECTOR_SHA != '' &&
+      vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 != '' &&
+      github.workflow_sha == vars.WINDOWS_APPROVED_WORKFLOW_SHA
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      RUSTUP_TOOLCHAIN: 1.95.0
+      WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
+      WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+      WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
+    steps:
+      - name: Validate protected pin syntax before checkout
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pins = @(
+            @($env:WINDOWS_APPROVED_WORKFLOW_SHA, 40),
+            @($env:WINDOWS_APPROVED_COLLECTOR_SHA, 40),
+            @($env:WINDOWS_APPROVED_PRIOR_REVIEW_SHA256, 64))
+          foreach ($pin in $pins) {
+            if ($pin[0] -cnotmatch ('\A[0-9a-f]{' + $pin[1] + '}\z') -or $pin[0] -cmatch '\A0+\z') {
+              throw 'protected pin syntax rejected before checkout/build'
+            }
+          }
+      - name: Resolve and pin host Git payload before identity reads
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Get-SafeGitFile([string]$Path, [bool]$AllowMissing = $false) {
+            $full = [IO.Path]::GetFullPath($Path)
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              try { $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop }
+              catch [System.Management.Automation.ItemNotFoundException] {
+                if ($AllowMissing) { return $null }; throw
+              }
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Git path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'Git ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo]) { throw 'Git payload is not a regular file' }
+            return $item.FullName
+          }
+          function Resolve-GitPayload([string]$Entry) {
+            $entry = Get-SafeGitFile $Entry
+            if ([IO.Path]::GetFileName($entry) -ine 'git.exe') { throw 'unknown Git executable' }
+            $parent = Split-Path $entry
+            $layout = Split-Path $parent
+            if ((Split-Path $parent -Leaf) -ieq 'bin' -and (Split-Path $layout -Leaf) -iin @('mingw64','ucrt64')) {
+              return $entry
+            }
+            if ((Split-Path $parent -Leaf) -ine 'cmd') { throw 'unknown Git launcher layout' }
+            $payloads = @()
+            foreach ($name in @('mingw64','ucrt64')) {
+              $payload = Get-SafeGitFile (Join-Path $layout "$name/bin/git.exe") $true
+              if ($null -ne $payload) { $payloads += $payload }
+            }
+            if ($payloads.Count -ne 1) { throw 'Git payload is absent or ambiguous' }
+            return $payloads[0]
+          }
+          $entry = (Get-Command git.exe -CommandType Application).Source
+          $payload = Resolve-GitPayload $entry
+          if ($payload -match '[\r\n]') { throw 'invalid Git payload environment path' }
+          $digest = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
+          Add-Content -LiteralPath $env:GITHUB_ENV -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=$payload"
+          Add-Content -LiteralPath $env:GITHUB_ENV -Value "WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=$digest"
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
+          path: collector
+          persist-credentials: false
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: 04b83a5f394431e1dcca533889f6c02e32d02a0d
+          path: product
+          persist-credentials: false
+      - name: Verify checked out identities before build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Assert-ObservedGit([string]$Path, [string]$Digest) {
+            $full = [IO.Path]::GetFullPath($Path)
+            if ($full -cne $Path) { throw 'prebuild Git path is not canonical' }
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'prebuild Git path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'prebuild Git ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'prebuild Git path is not a canonical regular file' }
+            if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest) { throw 'prebuild Git payload changed' }
+          }
+          function Invoke-ObservedGit([string]$Path, [string]$Digest, [string]$Root, [string[]]$GitArguments) {
+            Assert-ObservedGit $Path $Digest
+            $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
+            $code = $LASTEXITCODE
+            Assert-ObservedGit $Path $Digest
+            if ($code -ne 0) { throw 'observed Git identity read failed' }
+            return $output
+          }
+          $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
+          $pin = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256
+          Assert-ObservedGit $git $pin
+          $env:GIT_CONFIG_NOSYSTEM = '1'
+          $env:GIT_CONFIG_GLOBAL = 'NUL'
+          $env:GIT_OPTIONAL_LOCKS = '0'
+          $env:GIT_TERMINAL_PROMPT = '0'
+          foreach ($checkout in @(@('collector', $env:WINDOWS_APPROVED_COLLECTOR_SHA),
+                                   @('product', '04b83a5f394431e1dcca533889f6c02e32d02a0d'))) {
+            $head = Invoke-ObservedGit $git $pin $checkout[0] @('rev-parse','HEAD')
+            if ($head -cne $checkout[1]) { throw 'checkout HEAD rejected before build' }
+            $dirty = Invoke-ObservedGit $git $pin $checkout[0] @('status','--porcelain','--untracked-files=all')
+            if ($dirty) { throw 'dirty checkout rejected before build' }
+          }
+          Assert-ObservedGit $git $pin
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          run-id: ${{ inputs.inputs_run_id }}
+          artifact-ids: ${{ inputs.inputs_artifact_id }}
+          path: preparation
+          merge-multiple: true
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333
+        with:
+          run-id: ${{ inputs.review_run_id }}
+          artifact-ids: ${{ inputs.review_artifact_id }}
+          path: prior-native
+          merge-multiple: true
+          github-token: ${{ github.token }}
+      - name: Build admitted transport and helper
+        run: cargo build --locked --release --manifest-path collector/tools/gates/Cargo.toml --example windows_lifecycle_collector --bin semctx-gates
+      - name: Collect once after authority and provenance checks
+        shell: pwsh
+        run: |
+          $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
+          $output = Join-Path $env:RUNNER_TEMP "windows-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}"
+          $arguments = @("-I", "-B", "-c",
+            "import runpy,sys;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('collect_windows',run_name='__main__')",
+            "$pwd/collector/tools/rust-ts-r0/qualification/windows-lifecycle",
+            "--product-root", "$pwd/product", "--collector-root", "$pwd/collector",
+            "--inputs", "$pwd/preparation", "--prior-review", "$pwd/prior-native/REVIEW.json",
+            "--review-bundle", "$pwd/prior-native",
+            "--executor", "$pwd/collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe",
+            "--git", $git, "--helper", "$pwd/collector/tools/gates/target/release/semctx-gates.exe",
+            "--output", $output, "--execute")
+          & python @arguments
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Retain completed preparation evidence
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: windows-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/windows-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}
+          if-no-files-found: error

@@ -1,0 +1,3420 @@
+{
+  "kind": "WINDOWS_LIFECYCLE_SETUP_PLAN_DISABLED",
+  "source_head": "04b83a5f394431e1dcca533889f6c02e32d02a0d",
+  "execution_authorized": false,
+  "candidate_execution_authorized": false,
+  "native_execution_verified": false,
+  "native_queries_performed": 0,
+  "git_commands_executed": 0,
+  "qualification_credit": 0,
+  "r0_decision": null,
+  "groups": [
+    {
+      "invocation_key": "lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 1,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 15,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 16,
+          "parent": 15
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 27,
+          "parent": 15
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 30,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 32,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 34,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 36,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 38,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 40,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 42,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 44,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 46,
+          "parent": 29
+        },
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 61,
+          "parent": 29
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 29,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 48,
+          "parent": 29
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-01",
+          "sequence": 49,
+          "parent": 48
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-02",
+          "sequence": 63,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-02",
+          "sequence": 77,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-02",
+          "sequence": 92,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-02",
+          "sequence": 111,
+          "parent": 92
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-02",
+          "sequence": 138,
+          "parent": 92
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "package.json",
+          "path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/package.json",
+          "sha256": "8989b78468515b1a8077998e883c55d6f9b0252e15ee14c31df12dff36cffe95",
+          "bytes": 62
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 150,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 164,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 178,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 197,
+          "parent": 178
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 218,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 232,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 246,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 265,
+          "parent": 246
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 283,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 297,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 311,
+          "parent": null
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    },
+    {
+      "invocation_key": "lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd",
+      "operation_refs": [
+        {
+          "row_id": "scope-admission-03",
+          "sequence": 330,
+          "parent": 311
+        }
+      ],
+      "workspace": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace",
+      "files": [
+        {
+          "input_json_key": ".gitignore",
+          "path": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace/.gitignore",
+          "sha256": "13e18d8860a067b645ad02b8450407bb8b63c0c1fa5df9297e0a8dd997a64189",
+          "bytes": 9
+        },
+        {
+          "input_json_key": "src/consumer.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace/src/consumer.ts",
+          "sha256": "dff2e62dbf96f6776da882077ef4f0a9ad45ddd5dc3446370a25a1bf9fb804ea",
+          "bytes": 76
+        },
+        {
+          "input_json_key": "src/main.ts",
+          "path": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace/src/main.ts",
+          "sha256": "5843e36a3a258c364a9cd46eec49b31e589ae6c548c842565675a292a25d6fa5",
+          "bytes": 37
+        }
+      ],
+      "steps": [
+        {
+          "id": "materialize_initial_files"
+        },
+        {
+          "id": "git-setup-0",
+          "argv": [
+            "git",
+            "init",
+            "-q"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.autocrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-autocrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.autocrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-fixture-safecrlf-set",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "core.safecrlf",
+            "false"
+          ]
+        },
+        {
+          "id": "git-fixture-safecrlf-read",
+          "argv": [
+            "git",
+            "--git-dir",
+            "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\.git",
+            "config",
+            "--local",
+            "--type=bool",
+            "--get",
+            "core.safecrlf"
+          ],
+          "expected_stdout_stripped": "false"
+        },
+        {
+          "id": "git-setup-1",
+          "argv": [
+            "git",
+            "add",
+            "."
+          ]
+        },
+        {
+          "id": "git-setup-2",
+          "argv": [
+            "git",
+            "-c",
+            "user.name=T00Fixture",
+            "-c",
+            "user.email=t00@example.test",
+            "commit",
+            "-qm",
+            "initial"
+          ]
+        }
+      ]
+    }
+  ],
+  "group_count": 23,
+  "file_count": 70,
+  "file_bytes": 2868,
+  "path_budget_initial_files_only": {
+    "kind": "WINDOWS_LEXICAL_PATH_BUDGET",
+    "root": "D:\\r",
+    "limit_utf16_units_including_nul": 260,
+    "paths": [
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-6c5f7242432b072ab7d7153804217ebb3ee8d0b225439a338f0c031bc6cf7bab\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-9aac1d5df9436286a3b1cf2d2839c24798b05f8d3d56c30394c6c98a157f73b8\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4b04fc70a96176035c5606fe02ec59b97335ba2f137f23a071bdd8b82af0f5de\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-287797ca5adac4e85690813d37d918fd3f43600127d67b2d5d8eedacb5dd9982\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4ad488fe95fde89c105ec273826e9aacf8fc6b6c19d8b0768e792b9acd4aaca5\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-4319964cf7dd4a14ce9ead6cb3e60c1bd7be57f6699207628738fdf4dff3e97d\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-499888856330a7e708841e0aef63354826ec2705b5aa1b3f7e7a9c68b77574dd\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-1a33a446f110e60b5a6f637c56eeda0846b4d9f6c0d477df34f8e3f6796e44ad\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2eab223a080ce137bd266000dfc52cac272d170016909f1cd6986656f4091396\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/package.json",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\package.json",
+        "utf16_units_including_nul": 148,
+        "fits": true,
+        "margin_units": 112,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-a2216d99ed0263692d5b5119d9364da7122ab56c476b5859771478ce700d48a4\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-705e6ffde94da46f9822ee0008a9d7e7e59789f99c578d7ace7b529c9ef0551f\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5728e7a73ec91203174f6a45f6c837382e1a44b8bfb1225ae19fcdc3c0127ecb\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-ee4ba1d8fe573244fbae2abfbd23a3881e18bb2716f4b8fc50cda03a37f9dc10\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-84ceba7474bc4b7f4c04bc2037c535bcd15f5bfff7bd647de88f5251094fc42d\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-8bcdf60d44350ed47cae9b4165fbb5957829d28011606a7ecdfce4f8e17d0604\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2663a9f7904d738ce83069d4b92f2d2aa63a478d1ff692b8875f0c5d07beaf82\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-27f27e5cffbd51d492443be1010090a9e0053891212e8e60dc89920178533f32\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-cc7d2156bd24a358db30e373f0abcf7fd16f35da36eda0a117d68970cb8396d4\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-88fa7b1999abcd1d3f12e47492590d5e3d6942fe0b2bbf0736c44982822855fe\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-975f8c78bce76155645dcbd77a96eafd9852f4b96d8f284852b3ea77d78b4b84\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-5c4ca1683dd56a6d58ac80b06449b1687f2f4f9fe2c6caf74a51c1b19cfd665e\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace/.gitignore",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\.gitignore",
+        "utf16_units_including_nul": 146,
+        "fits": true,
+        "margin_units": 114,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace/src/consumer.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\src\\consumer.ts",
+        "utf16_units_including_nul": 151,
+        "fits": true,
+        "margin_units": 109,
+        "state": "FITS_BUDGET"
+      },
+      {
+        "relative_path": "supplement-evidence/public/invocations/lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd/input/workspace/src/main.ts",
+        "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-09910eb45312d06c347ef1b7cae0f2544b47102904a25d2047021a94d1868ebd\\input\\workspace\\src\\main.ts",
+        "utf16_units_including_nul": 147,
+        "fits": true,
+        "margin_units": 113,
+        "state": "FITS_BUDGET"
+      }
+    ],
+    "unsafe_paths": 0,
+    "over_budget_paths": 0,
+    "longest_path": {
+      "relative_path": "supplement-evidence/public/invocations/lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d/input/workspace/src/consumer.ts",
+      "absolute_path": "D:\\r\\supplement-evidence\\public\\invocations\\lifecycle-2e66902f6caf5e047ab0d521cbd3a501d8c9f2f10a341415415d2e8606d06b6d\\input\\workspace\\src\\consumer.ts",
+      "utf16_units_including_nul": 151,
+      "fits": true,
+      "margin_units": 109,
+      "state": "FITS_BUDGET"
+    },
+    "available_margin_units": 109,
+    "execution_authorized": false,
+    "native_execution_verified": false,
+    "limits": [
+      "Lexical calculation only; native filesystem and tool behavior require execution.",
+      "Shorter staging roots reduce lengths for all participating tools.",
+      "Git core.longpaths covers Git C-based commands; other programs require their own support."
+    ],
+    "source": "https://gitforwindows.org/git-cannot-create-a-file-or-directory-with-a-long-path.html"
+  },
+  "missing_native_observations": [
+    "The archived Windows failure transcripts and exact paths have not been recovered.",
+    "An authorized native Windows run must observe the drive, workspace and Git version.",
+    "Retain raw stdout, stderr and exit codes for Git init, local config set/readback, add and commit.",
+    "Collect generated Git paths on Windows before adjudicating any path-length failure."
+  ],
+  "input_bindings": {
+    "plan": {
+      "path": "/Users/hokli/semctx-r0-current04-20261117/campaign-v5-first-attempt/public-plan.json",
+      "sha256": "96ce9443c651ec2360d0112c4ff8c52502287787326fb82279706698e7a7a6fb"
+    },
+    "source_snapshot": {
+      "path": "/Users/hokli/semctx-r0-current04-20261117/campaign-v5-first-attempt/source-before.json",
+      "sha256": "65d8aafc04bce81ab09e9c7576fc25e765e270efc60824bc3731f88842ded2a5"
+    },
+    "lexical_tool": {
+      "path": "/Users/hokli/work/semctx-windows-path-preflight/path_preflight.py",
+      "sha256": "3786be26fa36197950d2bc46d00cf124842b021b40c844acae908d03b83f67b3"
+    }
+  }
+}

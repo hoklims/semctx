@@ -1,0 +1,45 @@
+{
+  "files": {
+    "preparation/preflight.json": {
+      "bytes": 128747,
+      "sha256": "9e3c2579c36494d27ff9d459214e17dc1e421e64d738aec3c98548142b5bf6c2"
+    },
+    "preparation/public-plan.json": {
+      "bytes": 14840102,
+      "sha256": "96ce9443c651ec2360d0112c4ff8c52502287787326fb82279706698e7a7a6fb"
+    },
+    "preparation/source-snapshot.json": {
+      "bytes": 728634,
+      "sha256": "65d8aafc04bce81ab09e9c7576fc25e765e270efc60824bc3731f88842ded2a5"
+    },
+    "prior-native/NATIVE-REVIEW-RECEIPT.json": {
+      "bytes": 1473,
+      "sha256": "f81ad6af1384f1af6a64d0886be66e0f482412d7f4e2c5310820f7e19d867dad"
+    },
+    "prior-native/REVIEW.json": {
+      "bytes": 6277,
+      "sha256": "f6b4d734694c2184d935efca6a008ba964d063be624f103ee741583917169f0d"
+    },
+    "prior-native/native-evidence.json": {
+      "bytes": 1600,
+      "sha256": "d82597bc05e88e3d029f0c13f24f1c2e08afea3b6e70eebeee907da441c0db10"
+    },
+    "prior-native/review-catalog.json": {
+      "bytes": 935772,
+      "sha256": "df050dedb29e4031531b971606240ce0b72919f2da9fd8f2b5450a01c5c43b31"
+    },
+    "prior-native/review.events.jsonl": {
+      "bytes": 2838,
+      "sha256": "63959285447ce23a22b7b672dccb4810b8345f4fbc634446d397105c4e3958c4"
+    },
+    "prior-native/review.prompt.exact": {
+      "bytes": 517183,
+      "sha256": "116e4810c7001a2bf0fe947b15ac634922bb227addddb58069c431c5ca3fbfe8"
+    },
+    "prior-native/review.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "schema": 1
+}

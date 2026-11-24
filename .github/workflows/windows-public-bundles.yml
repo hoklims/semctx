@@ -1,0 +1,73 @@
+name: Publish pinned public Windows input bundles
+on:
+  workflow_dispatch:
+    inputs:
+      source_sha:
+        description: Exact publisher commit independently admitted before dispatch
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: windows-public-bundles
+  cancel-in-progress: false
+jobs:
+  publish:
+    name: Publish exact public data bundles
+    if: github.repository == 'hoklims/semctx' && github.repository_id == '1289209764'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      SOURCE_SHA: ${{ inputs.source_sha }}
+    steps:
+      - name: Require exact dispatched source before checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ ! "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || [[ "$SOURCE_SHA" =~ ^0+$ ]]; then exit 2; fi
+          if [[ "$GITHUB_SHA" != "$SOURCE_SHA" || "$GITHUB_WORKFLOW_SHA" != "$SOURCE_SHA" ]]; then exit 2; fi
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.source_sha }}
+          persist-credentials: false
+      - name: Verify checkout identity and public byte allowlist
+        shell: bash
+        env:
+          GIT_CONFIG_GLOBAL: /dev/null
+          GIT_CONFIG_NOSYSTEM: '1'
+          GIT_OPTIONAL_LOCKS: '0'
+        run: |
+          set -euo pipefail
+          [[ "$(git --no-optional-locks -c core.fsmonitor=false rev-parse HEAD)" == "$SOURCE_SHA" ]]
+          dirty=$(git --no-optional-locks -c core.fsmonitor=false status --porcelain --untracked-files=all)
+          [[ -z "$dirty" ]]
+          python3 -I -B tools/windows-public-bundles/validate_bundles.py
+      - id: preparation
+        name: Publish exact public preparation files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: windows-public-preparation
+          path: tools/windows-public-bundles/preparation/
+          if-no-files-found: error
+          retention-days: 7
+      - id: prior_native
+        name: Publish exact prior native review files
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: windows-public-prior-native-review
+          path: tools/windows-public-bundles/prior-native/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Report consumer input IDs
+        shell: bash
+        env:
+          INPUTS_ID: ${{ steps.preparation.outputs.artifact-id }}
+          REVIEW_ID: ${{ steps.prior_native.outputs.artifact-id }}
+        run: |
+          {
+            printf 'Public data transport only; no admission or native collection.\n\n'
+            printf '| Input | Value |\n|---|---|\n'
+            printf '| inputs_run_id | %s |\n| inputs_artifact_id | %s |\n' "$GITHUB_RUN_ID" "$INPUTS_ID"
+            printf '| review_run_id | %s |\n| review_artifact_id | %s |\n' "$GITHUB_RUN_ID" "$REVIEW_ID"
+            printf '| source_sha | %s |\n' "$SOURCE_SHA"
+          } >> "$GITHUB_STEP_SUMMARY"
