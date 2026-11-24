@@ -595,38 +595,41 @@ class WorkflowTests(unittest.TestCase):
         path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
         parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(path)],capture_output=True,check=False)
         self.assertEqual(parsed.returncode,0,parsed.stderr)
-        steps=json.loads(parsed.stdout)['jobs']['collect']['steps']
-        guard=next((step for step in steps if step.get('name')=='Validate exact artifact input identities'),None)
-        self.assertIsNotNone(guard,'artifact selection has no exact numeric identity guard')
-        self.assertLess(steps.index(guard),next(index for index,step in enumerate(steps) if 'uses' in step))
-        names={'WINDOWS_INPUTS_RUN_ID':'inputs_run_id','WINDOWS_INPUTS_ARTIFACT_ID':'inputs_artifact_id',
-               'WINDOWS_REVIEW_RUN_ID':'review_run_id','WINDOWS_REVIEW_ARTIFACT_ID':'review_artifact_id'}
-        self.assertEqual(guard['env'],{name:'${{ inputs.'+value+' }}' for name,value in names.items()})
-        cases=[]
-        for name in names:
-            for value in ('1','9007199254740991','0','01','-1','+1','1,2','1\n2',' 1','1e3','١','9007199254740992','18446744073709551616',''):
-                cases.append({'env':dict.fromkeys(names,'1')|{name:value},'accepted':value in ('1','9007199254740991')})
-        with tempfile.TemporaryDirectory() as temporary:
-            root=Path(temporary);body=root/'guard.ps1';body.write_text(guard['run'])
-            matrix=root/'cases.json';matrix.write_text(json.dumps(cases));runner=root/'run.ps1'
-            runner.write_text("""$ErrorActionPreference='Stop'
-$body=[IO.File]::ReadAllText($env:GUARD_FILE)
-$cases=ConvertFrom-Json -AsHashtable ([IO.File]::ReadAllText($env:GUARD_CASES))
-$results=@(foreach ($case in $cases) {
-  foreach ($name in $case.env.Keys) { [Environment]::SetEnvironmentVariable($name,$case.env[$name],'Process') }
-  try { & ([ScriptBlock]::Create($body)); @{accepted=$true;diagnostic=''} }
-  catch { @{accepted=$false;diagnostic=$_.Exception.Message} }
-})
-ConvertTo-Json -Compress -Depth 5 -InputObject $results
-""")
-            result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(runner)],
-                env=dict(os.environ,GUARD_FILE=str(body),GUARD_CASES=str(matrix)),capture_output=True,check=False)
-            self.assertEqual(result.returncode,0,result.stderr)
-            observed=json.loads(result.stdout);self.assertEqual(len(observed),len(cases))
-            for case,row in zip(cases,observed,strict=True):
-                with self.subTest(values=case['env']):
-                    self.assertEqual(row['accepted'],case['accepted'],'artifact identity guard accepted an alias or refused an exact ID')
-                    if not case['accepted']:self.assertIn('artifact input identity rejected',row['diagnostic'])
+        jobs=json.loads(parsed.stdout)['jobs']
+        for job_name in ('build','collect'):
+            with self.subTest(job=job_name):
+                steps=jobs[job_name]['steps']
+                guard=next((step for step in steps if step.get('name')=='Validate exact artifact input identities'),None)
+                self.assertIsNotNone(guard,'artifact selection has no exact numeric identity guard')
+                self.assertLess(steps.index(guard),next(index for index,step in enumerate(steps) if 'uses' in step))
+                names={'WINDOWS_INPUTS_RUN_ID':'inputs_run_id','WINDOWS_INPUTS_ARTIFACT_ID':'inputs_artifact_id',
+                       'WINDOWS_REVIEW_RUN_ID':'review_run_id','WINDOWS_REVIEW_ARTIFACT_ID':'review_artifact_id'}
+                self.assertEqual(guard['env'],{name:'${{ inputs.'+value+' }}' for name,value in names.items()})
+                cases=[]
+                for name in names:
+                    for value in ('1','9007199254740991','0','01','-1','+1','1,2','1\n2',' 1','1e3','١','9007199254740992','18446744073709551616',''):
+                        cases.append({'env':dict.fromkeys(names,'1')|{name:value},'accepted':value in ('1','9007199254740991')})
+                with tempfile.TemporaryDirectory() as temporary:
+                    root=Path(temporary);body=root/'guard.ps1';body.write_text(guard['run'])
+                    matrix=root/'cases.json';matrix.write_text(json.dumps(cases));runner=root/'run.ps1'
+                    runner.write_text("""$ErrorActionPreference='Stop'
+        $body=[IO.File]::ReadAllText($env:GUARD_FILE)
+        $cases=ConvertFrom-Json -AsHashtable ([IO.File]::ReadAllText($env:GUARD_CASES))
+        $results=@(foreach ($case in $cases) {
+          foreach ($name in $case.env.Keys) { [Environment]::SetEnvironmentVariable($name,$case.env[$name],'Process') }
+          try { & ([ScriptBlock]::Create($body)); @{accepted=$true;diagnostic=''} }
+          catch { @{accepted=$false;diagnostic=$_.Exception.Message} }
+        })
+        ConvertTo-Json -Compress -Depth 5 -InputObject $results
+        """)
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(runner)],
+                        env=dict(os.environ,GUARD_FILE=str(body),GUARD_CASES=str(matrix)),capture_output=True,check=False)
+                    self.assertEqual(result.returncode,0,result.stderr)
+                    observed=json.loads(result.stdout);self.assertEqual(len(observed),len(cases))
+                    for case,row in zip(cases,observed,strict=True):
+                        with self.subTest(values=case['env']):
+                            self.assertEqual(row['accepted'],case['accepted'],'artifact identity guard accepted an alias or refused an exact ID')
+                            if not case['accepted']:self.assertIn('artifact input identity rejected',row['diagnostic'])
 
     def test_completed_startup_outputs_restore_git_and_protected_pins_before_capture(self):
         import re,subprocess
@@ -725,25 +728,32 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
         import subprocess
         executable=shutil.which('pwsh')
         if not executable:self.skipTest('PowerShell unavailable')
-        text=self.workflow();name='      - name: Validate prior review bytes before build'
-        script=''
-        if name in text:
-            start=text.index(name);block=text[start:text.index('      - name:',start+len(name))]
-            lines=block.splitlines();script='\n'.join(line[10:] for line in lines[lines.index('        run: |')+1:])+'\n'
-            self.assertLess(text.index('path: prior-native'),start)
-            self.assertLess(start,text.index('      - name: Provision admitted Rust toolchain'))
-            self.assertLess(start,text.index('      - name: Build admitted transport and helper'))
-            self.assertIn('WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}',block)
-        for valid in (False,True):
-            with self.subTest(valid=valid),tempfile.TemporaryDirectory() as temporary:
-                root=Path(temporary).resolve();review=root/'prior-native/REVIEW.json';review.parent.mkdir();review.write_bytes(b'public review fixture')
-                marker=root/'BUILD';path=root/'review.ps1';path.write_text(script+"Set-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
-                pin=hashlib.sha256(review.read_bytes()).hexdigest() if valid else 'a'*64
-                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,env=dict(os.environ,WINDOWS_APPROVED_PRIOR_REVIEW_SHA256=pin,CASE_BUILD=str(marker)),capture_output=True,check=False)
-                if valid:self.assertEqual(result.returncode,0,result.stderr);self.assertTrue(marker.exists())
-                else:
-                    self.assertNotEqual(result.returncode,0,'unapproved review reached BUILD')
-                    self.assertIn(b'prior review bytes differ before build',result.stderr);self.assertFalse(marker.exists())
+        bundle=os.environ.get('WINDOWS_PRIOR_NATIVE_TEST_BUNDLE')
+        if not bundle:self.skipTest('Actual public native review bundle not supplied')
+        workflow=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(workflow)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr);steps=json.loads(parsed.stdout)['jobs']['build']['steps']
+        verify=next(step for step in steps if step.get('name')=='Validate prior review bytes before build')
+        self.assertLess(steps.index(verify),next(i for i,step in enumerate(steps) if 'cargo build' in step.get('run','')))
+        self.assertLess(steps.index(verify),next(i for i,step in enumerate(steps) if 'rustup toolchain install' in step.get('run','')))
+        for tamper in ('stable','report','receipt','events','prompt','catalog','evidence'):
+            with self.subTest(tamper=tamper),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();prior=root/'prior-native';prior.mkdir();origin=Path(bundle)
+                for name in ('REVIEW.json','NATIVE-REVIEW-RECEIPT.json','review.events.jsonl','review.prompt.exact','review-catalog.json','review.stderr','native-evidence.json'):
+                    source=origin.parent/'verified-native/native-evidence.json' if name=='native-evidence.json' else (origin/name if (origin/name).is_file() else origin/'independent'/name)
+                    shutil.copy2(source,prior/name)
+                component=root/'collector/tools/rust-ts-r0/qualification/windows-lifecycle/prior_review.py';component.parent.mkdir(parents=True);shutil.copy2(Path(__file__).with_name('prior_review.py'),component)
+                pin=hashlib.sha256((prior/'REVIEW.json').read_bytes()).hexdigest()
+                names={'report':'REVIEW.json','receipt':'NATIVE-REVIEW-RECEIPT.json','events':'review.events.jsonl','prompt':'review.prompt.exact','catalog':'review-catalog.json','evidence':'native-evidence.json'}
+                if tamper!='stable':
+                    target=prior/names[tamper];target.write_bytes(target.read_bytes()+b' ')
+                marker=root/'BUILD';script=root/'verify.ps1';script.write_text(verify['run']+"\nSet-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
+                python=Path(sys.executable).resolve()
+                env=dict(os.environ,WINDOWS_APPROVED_PRIOR_REVIEW_SHA256=pin,WINDOWS_OBSERVED_PYTHON_PATH=str(python),WINDOWS_OBSERVED_PYTHON_SHA256=hashlib.sha256(python.read_bytes()).hexdigest(),WINDOWS_TRUSTED_RUNNER_TEMP=str(root),CASE_BUILD=str(marker))
+                child=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=env,capture_output=True,check=False)
+                self.assertEqual(child.returncode==0,tamper=='stable',child.stderr)
+                self.assertEqual(marker.exists(),tamper=='stable',child.stderr)
+                if tamper!='stable':self.assertIn(b'prior review',child.stderr)
 
     def test_trusted_git_identity_reads_ignore_inherited_repository_overrides(self):
         import subprocess

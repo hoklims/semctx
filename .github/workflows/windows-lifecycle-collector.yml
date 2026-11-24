@@ -258,9 +258,40 @@ jobs:
           path: prior-native
           merge-multiple: true
           github-token: ${{ github.token }}
+      - name: Pin host Python before build
+        id: startup_python
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Assert-ObservedFile([string]$Path, [string]$Digest, [bool]$RequirePin = $true) {
+            if ($RequirePin -and ($Digest -cnotmatch '\A[0-9a-f]{64}\z' -or $Digest -cmatch '\A0+\z')) { throw 'postbuild runtime pin is missing or invalid' }
+            $full = [IO.Path]::GetFullPath($Path)
+            if ($full -cne $Path) { throw 'postbuild runtime path is not canonical' }
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'postbuild runtime path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'postbuild runtime ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'postbuild runtime path is not a canonical regular file' }
+            if ($Digest -and ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest)) { throw 'postbuild runtime payload changed' }
+          }
+          $python = (Get-Command python -CommandType Application).Source
+          Assert-ObservedFile $python '' $false
+          if ($python.Contains([char]13) -or $python.Contains([char]10)) { throw 'invalid Python runtime output path' }
+          $digest = (Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant()
+          Assert-ObservedFile $python $digest
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_PYTHON_PATH=$python"
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_PYTHON_SHA256=$digest"
       - name: Validate prior review bytes before build
         env:
           WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
+          WINDOWS_OBSERVED_PYTHON_PATH: ${{ steps.startup_python.outputs.WINDOWS_OBSERVED_PYTHON_PATH }}
+          WINDOWS_OBSERVED_PYTHON_SHA256: ${{ steps.startup_python.outputs.WINDOWS_OBSERVED_PYTHON_SHA256 }}
+          WINDOWS_TRUSTED_RUNNER_TEMP: ${{ runner.temp }}
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
@@ -268,6 +299,24 @@ jobs:
           if ((Get-FileHash -LiteralPath $review -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:WINDOWS_APPROVED_PRIOR_REVIEW_SHA256) {
             throw 'prior review bytes differ before build'
           }
+          $component = Join-Path $pwd 'collector/tools/rust-ts-r0/qualification/windows-lifecycle/prior_review.py'
+          if ((Get-FileHash -LiteralPath $component -Algorithm SHA256).Hash.ToLowerInvariant() -cne 'b737fd27920dbdd65177a130d4d974c491cee4484b123f77d264fc208a87e175') { throw 'prior review parser bytes differ before build' }
+          $python = $env:WINDOWS_OBSERVED_PYTHON_PATH
+          if (!$python -or $env:WINDOWS_OBSERVED_PYTHON_SHA256 -cnotmatch '\A[0-9a-f]{64}\z' -or (Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:WINDOWS_OBSERVED_PYTHON_SHA256) { throw 'prior review interpreter observation differs before build' }
+          $cache = Join-Path $env:WINDOWS_TRUSTED_RUNNER_TEMP ('prior-review-cache-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $cache -ErrorAction Stop | Out-Null
+          $verify = @'
+          import importlib.util,json,sys
+          from pathlib import Path
+          component,report,folder=map(Path,sys.argv[1:])
+          spec=importlib.util.spec_from_file_location('approved_prior_review',component)
+          module=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(module)
+          result=module.verify_bundle(report.read_bytes(),folder,'04b83a5f394431e1dcca533889f6c02e32d02a0d')
+          print(json.dumps(result,sort_keys=True))
+          '@
+          & $python -I -S -B -X "pycache_prefix=$cache" -c $verify $component $review (Join-Path $pwd 'prior-native')
+          if ($LASTEXITCODE -ne 0) { throw 'full prior review prerequisite rejected before build' }
       - name: Provision admitted Rust toolchain
         shell: pwsh
         run: rustup toolchain install 1.95.0 --profile minimal

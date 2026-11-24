@@ -40,10 +40,25 @@ jobs:
           GIT_OPTIONAL_LOCKS: '0'
         run: |
           set -euo pipefail
-          [[ "$(git --no-optional-locks -c core.fsmonitor=false rev-parse HEAD)" == "$SOURCE_SHA" ]]
-          dirty=$(git --no-optional-locks -c core.fsmonitor=false status --porcelain --untracked-files=all)
+          [[ "$GITHUB_WORKSPACE" == "$(pwd -P)" ]]
+          git_cmd=(git --no-replace-objects --no-optional-locks -c core.fsmonitor=false
+            --git-dir="$GITHUB_WORKSPACE/.git" --work-tree="$GITHUB_WORKSPACE")
+          [[ "$("${git_cmd[@]}" rev-parse HEAD)" == "$SOURCE_SHA" ]]
+          dirty=$("${git_cmd[@]}" status --porcelain --untracked-files=all)
           [[ -z "$dirty" ]]
-          python3 -I -B tools/windows-public-bundles/validate_bundles.py --root tools/windows-public-bundles
+          for relative in tools/windows-public-bundles/validate_bundles.py tools/windows-public-bundles/manifest.json; do
+            path="$GITHUB_WORKSPACE"
+            IFS='/' read -r -a parts <<< "$relative"
+            for part in "${parts[@]}"; do
+              path="$path/$part"
+              if [[ -L "$path" ]]; then printf 'publisher authority bytes differ: linked path\n' >&2; exit 2; fi
+            done
+            if [[ ! -f "$path" ]]; then printf 'publisher authority bytes differ: nonregular path\n' >&2; exit 2; fi
+            expected=$("${git_cmd[@]}" rev-parse "$SOURCE_SHA:$relative")
+            actual=$("${git_cmd[@]}" hash-object --no-filters -- "$path")
+            if [[ "$actual" != "$expected" ]]; then printf 'publisher authority bytes differ from approved commit\n' >&2; exit 2; fi
+          done
+          python3 -I -S -B tools/windows-public-bundles/validate_bundles.py --root tools/windows-public-bundles
       - id: preparation
         name: Publish exact public preparation files
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

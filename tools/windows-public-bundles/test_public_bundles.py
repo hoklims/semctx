@@ -138,6 +138,40 @@ class Workflow(unittest.TestCase):
         self.assertIn('${{ steps.preparation.outputs.artifact-id }}', steps[-1]['env'].values())
         self.assertIn('${{ steps.prior_native.outputs.artifact-id }}', steps[-1]['env'].values())
 
+    def test_publisher_binds_authority_files_to_committed_physical_bytes(self):
+        script = self.workflow['jobs']['publish']['steps'][2]['run']
+        git = shutil.which('git')
+        for changed, flag in ((None, None), ('validate_bundles.py', '--assume-unchanged'),
+                              ('manifest.json', '--assume-unchanged'),
+                              ('validate_bundles.py', '--skip-worktree'), ('manifest.json', '--skip-worktree')):
+            with self.subTest(changed=changed, flag=flag), tempfile.TemporaryDirectory() as temporary:
+                root = Path(temporary).resolve(); folder = root / 'tools/windows-public-bundles'
+                folder.mkdir(parents=True)
+                checker = folder / 'validate_bundles.py'; checker.write_text("print('VALIDATOR_EXECUTED')\n")
+                (folder / 'manifest.json').write_text('{"schema":1}\n')
+                env = dict(os.environ, GIT_CONFIG_GLOBAL=os.devnull, GIT_CONFIG_NOSYSTEM='1',
+                           GITHUB_WORKSPACE=str(root))
+                for args in (['init', '-q'], ['add', '.'], ['-c', 'user.name=Public Fixture',
+                             '-c', 'user.email=public@example.invalid', 'commit', '-qm', 'public baseline']):
+                    child = subprocess.run([git, *args], cwd=root, env=env, capture_output=True, check=False)
+                    self.assertEqual(child.returncode, 0, child.stderr)
+                env['SOURCE_SHA'] = subprocess.check_output([git, 'rev-parse', 'HEAD'], cwd=root,
+                                                          env=env, text=True).strip()
+                if changed:
+                    relative = 'tools/windows-public-bundles/' + changed
+                    subprocess.run([git, 'update-index', flag, relative], cwd=root, env=env,
+                                   capture_output=True, check=True)
+                    target = folder / changed
+                    target.write_bytes(target.read_bytes() + b' # changed tracked authority bytes\n')
+                    self.assertEqual(subprocess.check_output([git, 'status', '--porcelain'], cwd=root, env=env), b'')
+                child = subprocess.run(['bash', '-c', script + '\nprintf PUBLISH_SENTINEL\n'],
+                                       cwd=root, env=env, capture_output=True, check=False)
+                self.assertEqual(child.returncode == 0, changed is None, child.stderr)
+                self.assertEqual(b'PUBLISH_SENTINEL' in child.stdout, changed is None, child.stderr)
+                if changed:
+                    self.assertIn(b'publisher authority bytes differ', child.stderr)
+                    self.assertNotIn(b'VALIDATOR_EXECUTED', child.stdout)
+
     def test_actual_bash_source_guard_rejects_other_or_malformed_identity(self):
         script = self.workflow['jobs']['publish']['steps'][0]['run']
         expected = 'a' * 40

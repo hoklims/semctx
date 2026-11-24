@@ -226,3 +226,18 @@ Int64 (nonnegative counts); schema must equal 1. File paths and SHA values requi
 JSON strings. Booleans, floating values and numeric strings are refused rather
 than coerced. These are finite observation checks, not atomic filesystem or
 hard real-time guarantees; native Windows remains a separate runtime obligation.
+
+V17 binds the physical publisher validator and manifest bytes to their raw Git
+blobs at the protected SOURCE_SHA before Python executes. Git replacement objects
+and content filters cannot redefine that comparison; symlink components and
+nonregular authority files refuse. The existing byte allowlist then verifies all
+public payloads against the commit-bound manifest.
+
+The Windows build job reuses the pinned prior_review.verify_bundle implementation
+before Rustup and Cargo. It verifies the exact receipt, reviewer report, events,
+prompt, catalog, stderr and public evidence bindings under isolated Python
+(-I -S -B with a fresh bytecode namespace), then immediately rejects a nonzero
+interpreter exit. No parser or approval authority is duplicated. Artifact ID tests
+exercise the unchanged numeric guard independently for build and collect; proofs
+inject one faulty job guard at a time. Native Windows remains a separate execution
+obligation. These finite observations make no atomic OS promise.
