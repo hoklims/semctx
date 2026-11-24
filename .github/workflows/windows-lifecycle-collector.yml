@@ -165,6 +165,13 @@ jobs:
             if ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest) { throw 'prebuild Git payload changed' }
           }
           function Invoke-ObservedGit([string]$Path, [string]$Digest, [string]$Root, [string[]]$GitArguments) {
+            Get-ChildItem Env: | Where-Object { $_.Name -like 'GIT_*' } | ForEach-Object {
+              Remove-Item -LiteralPath ('Env:' + $_.Name)
+            }
+            $env:GIT_CONFIG_NOSYSTEM = '1'
+            $env:GIT_CONFIG_GLOBAL = 'NUL'
+            $env:GIT_OPTIONAL_LOCKS = '0'
+            $env:GIT_TERMINAL_PROMPT = '0'
             Assert-ObservedGit $Path $Digest
             $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
             $code = $LASTEXITCODE
@@ -201,6 +208,16 @@ jobs:
           path: prior-native
           merge-multiple: true
           github-token: ${{ github.token }}
+      - name: Validate prior review bytes before build
+        env:
+          WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $review = Join-Path $pwd 'prior-native/REVIEW.json'
+          if ((Get-FileHash -LiteralPath $review -Algorithm SHA256).Hash.ToLowerInvariant() -cne $env:WINDOWS_APPROVED_PRIOR_REVIEW_SHA256) {
+            throw 'prior review bytes differ before build'
+          }
       - name: Pin host Python before build
         id: startup_python
         shell: pwsh
@@ -265,6 +282,13 @@ jobs:
             if ($Digest -and ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest)) { throw 'postbuild runtime payload changed' }
           }
           function Invoke-ObservedGit([string]$Path, [string]$Digest, [string]$Root, [string[]]$GitArguments) {
+            Get-ChildItem Env: | Where-Object { $_.Name -like 'GIT_*' } | ForEach-Object {
+              Remove-Item -LiteralPath ('Env:' + $_.Name)
+            }
+            $env:GIT_CONFIG_NOSYSTEM = '1'
+            $env:GIT_CONFIG_GLOBAL = 'NUL'
+            $env:GIT_OPTIONAL_LOCKS = '0'
+            $env:GIT_TERMINAL_PROMPT = '0'
             Assert-ObservedFile $Path $Digest
             $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
             $code = $LASTEXITCODE

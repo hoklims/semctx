@@ -665,6 +665,55 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
                     self.assertIn(diagnostic,result.stderr)
                     self.assertFalse(observed.exists())
 
+    def test_prior_review_bytes_are_checked_before_build(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        text=self.workflow();name='      - name: Validate prior review bytes before build'
+        script=''
+        if name in text:
+            start=text.index(name);block=text[start:text.index('      - name:',start+len(name))]
+            lines=block.splitlines();script='\n'.join(line[10:] for line in lines[lines.index('        run: |')+1:])+'\n'
+            self.assertLess(text.index('path: prior-native'),start)
+            self.assertLess(start,text.index('      - name: Provision admitted Rust toolchain'))
+            self.assertLess(start,text.index('      - name: Build admitted transport and helper'))
+            self.assertIn('WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}',block)
+        for valid in (False,True):
+            with self.subTest(valid=valid),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();review=root/'prior-native/REVIEW.json';review.parent.mkdir();review.write_bytes(b'public review fixture')
+                marker=root/'BUILD';path=root/'review.ps1';path.write_text(script+"Set-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
+                pin=hashlib.sha256(review.read_bytes()).hexdigest() if valid else 'a'*64
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,env=dict(os.environ,WINDOWS_APPROVED_PRIOR_REVIEW_SHA256=pin,CASE_BUILD=str(marker)),capture_output=True,check=False)
+                if valid:self.assertEqual(result.returncode,0,result.stderr);self.assertTrue(marker.exists())
+                else:
+                    self.assertNotEqual(result.returncode,0,'unapproved review reached BUILD')
+                    self.assertIn(b'prior review bytes differ before build',result.stderr);self.assertFalse(marker.exists())
+
+    def test_trusted_git_identity_reads_ignore_inherited_repository_overrides(self):
+        import subprocess
+        executable=shutil.which('pwsh');git=shutil.which('git')
+        if not executable or not git:self.skipTest('PowerShell/Git unavailable')
+        git=str(Path(git).resolve());text=self.workflow()
+        clean={key:value for key,value in os.environ.items() if not key.startswith('GIT_')}
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();actual=root/'actual';shadow=root/'shadow'
+            for path in (actual,shadow):
+                path.mkdir();subprocess.run([git,'init',str(path)],env=clean,capture_output=True,check=True)
+                (path/'tracked').write_text(path.name)
+                subprocess.run([git,'-C',str(path),'add','tracked'],env=clean,capture_output=True,check=True)
+                subprocess.run([git,'-C',str(path),'-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','fixture'],env=clean,capture_output=True,check=True)
+            expected=subprocess.check_output([git,'-C',str(actual),'rev-parse','HEAD'],env=clean).strip()
+            self.assertNotEqual(expected,subprocess.check_output([git,'-C',str(shadow),'rev-parse','HEAD'],env=clean).strip())
+            for label in ('Verify checked out identities before build','Collect once after authority and provenance checks'):
+                with self.subTest(step=label):
+                    start=text.index('      - name: '+label);block=text[start:];lines=block.splitlines();body=lines.index('        run: |')+1
+                    script='\n'.join(line[10:] for line in lines[body:]);helper=script[:script.index('$git = $env:')]
+                    path=root/'read.ps1';path.write_text(helper+"$value=Invoke-ObservedGit $env:CASE_GIT $env:CASE_SHA $env:CASE_ROOT @('rev-parse','HEAD')\nWrite-Output $value\n")
+                    env=dict(clean,CASE_GIT=git,CASE_SHA=hashlib.sha256(Path(git).read_bytes()).hexdigest(),CASE_ROOT=str(actual),GIT_DIR=str(shadow/'.git'),GIT_WORK_TREE=str(shadow),GIT_INDEX_FILE=str(shadow/'.git/index'))
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,env=env,capture_output=True,check=False)
+                    self.assertEqual(result.returncode,0,result.stderr)
+                    self.assertEqual(result.stdout.strip(),expected,'trusted Git read inherited the shadow repository')
+
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()
 
