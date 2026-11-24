@@ -161,6 +161,10 @@ class BoundGit:
     def read(self,root,*args):
         self.check()
         try:
+            index=git_value(self.path,root,'ls-files','-v','-z')
+            self.check()
+            if any(entry and (entry[0].islower() or entry[0]=='S') for entry in index.split('\0')):
+                raise ValueError('hidden Git index entries forbid source verification')
             return git_value(self.path,root,*args)
         finally:
             self.check()

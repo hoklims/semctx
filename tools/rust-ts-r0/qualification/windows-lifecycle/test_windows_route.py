@@ -245,7 +245,7 @@ class GitPayloadTests(unittest.TestCase):
                   patch.object(route,'authority_matches',return_value=False),
                   self.assertRaisesRegex(ValueError,'protected workflow')):
                 route.main()
-            self.assertEqual(calls.call_count,4)
+            self.assertEqual(calls.call_count,8)
             self.assertFalse((root/'absent').exists())
 
 
@@ -337,6 +337,7 @@ class StartupGitTests(unittest.TestCase):
                     executed.append(True);output.mkdir();return subprocess.CompletedProcess(args,0)
                 def identity(actual_git,directory,*args,git=git,tamper=tamper,executed=executed,collector=collector,tree_calls=tree_calls,product=product):
                     self.assertEqual(actual_git,git)
+                    if args[0]=='ls-files':return ''
                     if args[0]=='status':
                         if tamper=='postflight' and executed and directory==collector:git.write_bytes(b'changed during last read')
                         return ''
@@ -714,6 +715,50 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
                     self.assertEqual(result.returncode,0,result.stderr)
                     self.assertEqual(result.stdout.strip(),expected,'trusted Git read inherited the shadow repository')
 
+    def test_controller_launch_disables_global_site_initialization(self):
+        import re,subprocess,venv
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();environment=root/'venv'
+            venv.EnvBuilder(with_pip=False,symlinks=True).create(environment)
+            packages=environment/'lib'/('python'+str(sys.version_info.major)+'.'+str(sys.version_info.minor))/'site-packages'
+            self.assertTrue(packages.is_dir())
+            marker=root/'global-pth-executed'
+            (packages/'fixture.pth').write_text('import pathlib; pathlib.Path('+repr(str(marker))+').write_text("executed")\n')
+            text=self.workflow();prefix=text[text.index('$arguments = @('):].split('"-c"',1)[0]
+            flags=[value.replace('$cache',str(root/'cache')) for value in re.findall(r'"([^"]+)"',prefix)]
+            result=subprocess.run([str(environment/'bin/python'),*flags,'-c','print("SAFE")'],capture_output=True,check=False)
+            self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(result.stdout.strip(),b'SAFE')
+            self.assertFalse(marker.exists(),'global .pth executed before the pinned source loader')
+
+    def test_real_git_hidden_index_flags_refuse_identity(self):
+        import subprocess
+        executable=shutil.which('pwsh');git=shutil.which('git')
+        if not executable or not git:self.skipTest('PowerShell/Git unavailable')
+        git=Path(git).resolve();text=self.workflow()
+        clean={key:value for key,value in os.environ.items() if not key.startswith('GIT_')}
+        for flag in ('--assume-unchanged','--skip-worktree'):
+            with tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();repository=root/'repository';repository.mkdir()
+                def call(*args,repository=repository):return subprocess.run([str(git),'-C',str(repository),*args],env=clean,capture_output=True,check=True).stdout
+                call('init');tracked=repository/'controller.py';tracked.write_text('original source')
+                call('add','controller.py');call('-c','user.name=Fixture','-c','user.email=fixture@example.invalid','commit','-m','fixture')
+                bound=route.BoundGit(git,hashlib.sha256(git.read_bytes()).hexdigest())
+                self.assertEqual(bound.read(repository,'status','--porcelain'),'')
+                call('update-index',flag,'controller.py');tracked.write_text('hidden changed source')
+                self.assertEqual(call('status','--porcelain'),b'','fixture did not hide its mutation')
+                with self.subTest(flag=flag,boundary='Python'):
+                    with self.assertRaisesRegex(ValueError,'hidden Git index entries'):
+                        bound.read(repository,'status','--porcelain')
+                for step in ('Verify checked out identities before build','Collect once after authority and provenance checks'):
+                    with self.subTest(flag=flag,boundary=step):
+                        start=text.index('      - name: '+step);lines=text[start:].splitlines();body=lines.index('        run: |')+1
+                        script='\n'.join(line[10:] for line in lines[body:]);helper=script[:script.index('$git = $env:')]
+                        marker=root/'BUILD';path=root/'hidden.ps1';path.write_text(helper+"Invoke-ObservedGit $env:CASE_GIT $env:CASE_SHA $env:CASE_ROOT @('status','--porcelain')\nSet-Content -LiteralPath $env:CASE_BUILD -Value 'BUILD'\n")
+                        env=dict(clean,CASE_GIT=str(git),CASE_SHA=hashlib.sha256(git.read_bytes()).hexdigest(),CASE_ROOT=str(repository),CASE_BUILD=str(marker))
+                        result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],env=env,capture_output=True,check=False)
+                        self.assertNotEqual(result.returncode,0,'hidden source mutation reached BUILD')
+                        self.assertIn(b'hidden Git index entries',result.stderr);self.assertFalse(marker.exists())
+
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()
 
@@ -855,7 +900,7 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
             for mode in ('stable','before','during'):
                 with self.subTest(mode=mode),tempfile.TemporaryDirectory() as temporary:
                     root=Path(temporary).resolve();payload=root/'ucrt64/bin/git.exe';payload.parent.mkdir(parents=True)
-                    payload.write_text('#!/bin/sh\nrun() {\n printf "read-result\\n"\n : > "$CASE_CALLED"\n if [ "$CASE_CHANGE" = "1" ]; then /bin/cp "$CASE_REPLACEMENT" "$0"; fi\n}\nrun\n')
+                    payload.write_text('#!/bin/sh\ncase "$*" in *"ls-files -v -z"*) exit 0;; esac\nrun() {\n printf "read-result\\n"\n : > "$CASE_CALLED"\n if [ "$CASE_CHANGE" = "1" ]; then /bin/cp "$CASE_REPLACEMENT" "$0"; fi\n}\nrun\n')
                     payload.chmod(0o755);digest=hashlib.sha256(payload.read_bytes()).hexdigest()
                     replacement=root/'changed';replacement.write_bytes(b'changed payload')
                     if mode=='before':payload.write_bytes(replacement.read_bytes())

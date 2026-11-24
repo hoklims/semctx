@@ -173,6 +173,13 @@ jobs:
             $env:GIT_OPTIONAL_LOCKS = '0'
             $env:GIT_TERMINAL_PROMPT = '0'
             Assert-ObservedGit $Path $Digest
+            $indexEntries = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root ls-files -v -z
+            $indexCode = $LASTEXITCODE
+            Assert-ObservedGit $Path $Digest
+            if ($indexCode -ne 0) { throw 'observed Git index read failed' }
+            foreach ($entry in (($indexEntries -join "`n") -split "`0")) {
+              if ($entry -and ($entry[0].ToString() -cmatch '[a-zS]')) { throw 'hidden Git index entries forbid source verification' }
+            }
             $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
             $code = $LASTEXITCODE
             Assert-ObservedGit $Path $Digest
@@ -290,6 +297,13 @@ jobs:
             $env:GIT_OPTIONAL_LOCKS = '0'
             $env:GIT_TERMINAL_PROMPT = '0'
             Assert-ObservedFile $Path $Digest
+            $indexEntries = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root ls-files -v -z
+            $indexCode = $LASTEXITCODE
+            Assert-ObservedFile $Path $Digest
+            if ($indexCode -ne 0) { throw 'observed Git index read failed' }
+            foreach ($entry in (($indexEntries -join "`n") -split "`0")) {
+              if ($entry -and ($entry[0].ToString() -cmatch '[a-zS]')) { throw 'hidden Git index entries forbid source verification' }
+            }
             $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
             $code = $LASTEXITCODE
             Assert-ObservedFile $Path $Digest
@@ -313,7 +327,7 @@ jobs:
           Assert-ObservedFile $git $pin
           $controllerRoot = Join-Path $pwd 'collector/tools/rust-ts-r0/qualification/windows-lifecycle'
           $sources = @{
-            'collect_windows.py' = 'c99f88eccb1cf1d4e24db92e687d3704d1906032ac1fc22cb2d8aca4e3abc2ee'
+            'collect_windows.py' = 'd0835ab7306b50a6127565efd9a6a9afa4b64e281617d7ca5eaea681811fb0d9'
             'collector.py' = 'c9f640c8eff10c2bb0e594ceaf01f17f71e438af17d98548b6cea2480c0c2b55'
             'prior_review.py' = 'b737fd27920dbdd65177a130d4d974c491cee4484b123f77d264fc208a87e175'
           }
@@ -339,7 +353,7 @@ jobs:
           '@
           $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
           $output = Join-Path $env:WINDOWS_TRUSTED_RUNNER_TEMP "windows-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}"
-          $arguments = @("-I", "-B", "-X", "pycache_prefix=$cache", "-c", $bootstrap,
+          $arguments = @("-I", "-S", "-B", "-X", "pycache_prefix=$cache", "-c", $bootstrap,
             "$pwd/collector/tools/rust-ts-r0/qualification/windows-lifecycle",
             "--product-root", "$pwd/product", "--collector-root", "$pwd/collector",
             "--inputs", "$pwd/preparation", "--prior-review", "$pwd/prior-native/REVIEW.json",
