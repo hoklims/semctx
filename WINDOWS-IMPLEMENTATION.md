@@ -124,6 +124,36 @@ payload directory is added to global PATH. Postflight Git reads are bracketed
 by canonical no-reparse resolution and startup SHA checks, then all three
 executables are pinned again before successful provenance is written.
 
+Python is resolved and pinned before Rustup/Cargo in a completed trusted step.
+The collection step restores that path/SHA from step outputs, independently of
+Cargo's PATH or GITHUB_ENV changes. Before launching it, protected inline
+PowerShell rechecks both exact clean checkout identities with pinned Git,
+checks the three controller source files against their workflow-bound byte
+hashes, and checks regular canonical paths for Python and both built binaries.
+The source hashes are content observations within the protected workflow and
+collector approvals, not an additional approval authority.
+The pinned interpreter uses isolation, an exclusive fresh bytecode-cache root,
+explicit source-file companion loading and an explicit controller file path.
+Ignored packages or old bytecode therefore cannot substitute for the checked
+files. The host Python standard library, OS and runner remain trusted; these
+checks are samples, not a sandbox or an atomic filesystem/execution guarantee.
+The post-build guard uses the fixed hosted Windows OS shell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe, avoiding Cargo's
+GITHUB_PATH/runner PrependPath when the runner chooses a shell. Its explicit
+command reads the runner's extensionless script into a ScriptBlock; no host
+settings or execution policy are changed. The guard uses Framework-compatible
+APIs. This WindowsPowerShell5 hosted-runner profile still needs a native job;
+local PowerShell7-on-Mac parsing/guard tests do not prove that Windows runtime.
+Runner primary contracts:
+https://github.com/actions/runner/blob/main/src/Runner.Worker/Handlers/ScriptHandler.cs
+https://github.com/actions/runner/blob/main/src/Runner.Sdk/Util/WhichUtil.cs
+https://github.com/actions/runner/blob/main/src/Runner.Worker/Handlers/ScriptHandlerHelpers.cs
+
+The collector independently pins the exact public P15 native-review receipt
+bytes (SHA256 f81ad6af1384f1af6a64d0886be66e0f482412d7f4e2c5310820f7e19d867dad)
+before parsing them. Its protection applies even when independent artifact IDs
+are selected; receipt custody does not depend on the publisher's allowlist.
+
 BoundGit captures its frozen path/SHA once at controller startup. Every HEAD,
 status and tree read validates that binding before and after Git; expected
 identity is never reread from mutable environment. Trusted PowerShell uses

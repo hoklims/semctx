@@ -2,6 +2,7 @@
 import hashlib,json
 
 PLAN_TOOL=("functions.request_user_input",)
+RECEIPT_SHA256='f81ad6af1384f1af6a64d0886be66e0f482412d7f4e2c5310820f7e19d867dad'
 # Exact interpret_audit source reused from proof_resume.py SHA256 31c8a31c2682799a9cef0bc0b6fcfccca1b75dd4462669620f4a0c024509e87c
 def interpret_audit(events):
     phases = [event["type"] for event in events]
@@ -45,6 +46,9 @@ def verify_bundle(review_raw, folder, product):
         return raw
     digest=lambda value:hashlib.sha256(value).hexdigest()
     report=json.loads(review_raw)
+    receipt_raw=read('NATIVE-REVIEW-RECEIPT.json')
+    if digest(receipt_raw)!=RECEIPT_SHA256:
+        raise ValueError('native review receipt bytes differ')
     raw_events=read('review.events.jsonl')
     if (digest(raw_events)!=report['events_sha256']
             or digest(read('review.prompt.exact'))!=report['prompt_sha256']
@@ -54,7 +58,7 @@ def verify_bundle(review_raw, folder, product):
     thread,parsed=interpret_audit([json.loads(line) for line in raw_events.splitlines()])
     if thread!=report['review_thread_id'] or parsed!=report['review_report']:
         raise ValueError('saved review differs from actual reviewer events')
-    receipt=json.loads(read('NATIVE-REVIEW-RECEIPT.json'))
+    receipt=json.loads(receipt_raw)
     evidence=digest(read('native-evidence.json'))
     line=('NATIVE_PUBLIC38_ADEQUATE subject='+report['subject_digest']+' product='+product+
           ' evidence_sha256='+evidence)

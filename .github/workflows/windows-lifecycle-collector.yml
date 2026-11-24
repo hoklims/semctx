@@ -201,6 +201,34 @@ jobs:
           path: prior-native
           merge-multiple: true
           github-token: ${{ github.token }}
+      - name: Pin host Python before build
+        id: startup_python
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          function Assert-ObservedFile([string]$Path, [string]$Digest, [bool]$RequirePin = $true) {
+            if ($RequirePin -and ($Digest -cnotmatch '\A[0-9a-f]{64}\z' -or $Digest -cmatch '\A0+\z')) { throw 'postbuild runtime pin is missing or invalid' }
+            $full = [IO.Path]::GetFullPath($Path)
+            if ($full -cne $Path) { throw 'postbuild runtime path is not canonical' }
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'postbuild runtime path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'postbuild runtime ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'postbuild runtime path is not a canonical regular file' }
+            if ($Digest -and ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest)) { throw 'postbuild runtime payload changed' }
+          }
+          $python = (Get-Command python -CommandType Application).Source
+          Assert-ObservedFile $python '' $false
+          if ($python.Contains([char]13) -or $python.Contains([char]10)) { throw 'invalid Python runtime output path' }
+          $digest = (Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant()
+          Assert-ObservedFile $python $digest
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_PYTHON_PATH=$python"
+          Add-Content -LiteralPath $env:GITHUB_OUTPUT -Value "WINDOWS_OBSERVED_PYTHON_SHA256=$digest"
       - name: Provision admitted Rust toolchain
         shell: pwsh
         run: rustup toolchain install 1.95.0 --profile minimal
@@ -213,12 +241,81 @@ jobs:
           WINDOWS_APPROVED_WORKFLOW_SHA: ${{ vars.WINDOWS_APPROVED_WORKFLOW_SHA }}
           WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
           WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
-        shell: pwsh
+          WINDOWS_OBSERVED_PYTHON_PATH: ${{ steps.startup_python.outputs.WINDOWS_OBSERVED_PYTHON_PATH }}
+          WINDOWS_OBSERVED_PYTHON_SHA256: ${{ steps.startup_python.outputs.WINDOWS_OBSERVED_PYTHON_SHA256 }}
+          WINDOWS_TRUSTED_RUNNER_TEMP: ${{ runner.temp }}
+        shell: >-
+          C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -NoLogo -NoProfile -NonInteractive -Command ". ([scriptblock]::Create([IO.File]::ReadAllText('{0}')))"
         run: |
+          $ErrorActionPreference = 'Stop'
+          function Assert-ObservedFile([string]$Path, [string]$Digest, [bool]$RequirePin = $true) {
+            if ($RequirePin -and ($Digest -cnotmatch '\A[0-9a-f]{64}\z' -or $Digest -cmatch '\A0+\z')) { throw 'postbuild runtime pin is missing or invalid' }
+            $full = [IO.Path]::GetFullPath($Path)
+            if ($full -cne $Path) { throw 'postbuild runtime path is not canonical' }
+            $root = [IO.Path]::GetPathRoot($full)
+            $current = $root
+            $parts = @($full.Substring($root.Length) -split '[\\/]' | Where-Object { $_ })
+            for ($index = 0; $index -lt $parts.Count; $index++) {
+              $current = Join-Path $current $parts[$index]
+              $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+              if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'postbuild runtime path contains link/reparse point' }
+              if ($index -lt $parts.Count - 1 -and !$item.PSIsContainer) { throw 'postbuild runtime ancestor is not a directory' }
+            }
+            if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'postbuild runtime path is not a canonical regular file' }
+            if ($Digest -and ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest)) { throw 'postbuild runtime payload changed' }
+          }
+          function Invoke-ObservedGit([string]$Path, [string]$Digest, [string]$Root, [string[]]$GitArguments) {
+            Assert-ObservedFile $Path $Digest
+            $output = & $Path --no-optional-locks -c core.fsmonitor=false -C $Root @GitArguments
+            $code = $LASTEXITCODE
+            Assert-ObservedFile $Path $Digest
+            if ($code -ne 0) { throw 'observed Git identity read failed' }
+            return $output
+          }
           $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
-          $output = Join-Path $env:RUNNER_TEMP "windows-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}"
-          $arguments = @("-I", "-B", "-c",
-            "import runpy,sys;sys.path.insert(0,sys.argv.pop(1));runpy.run_module('collect_windows',run_name='__main__')",
+          $pin = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256
+          Assert-ObservedFile $git $pin
+          $env:GIT_CONFIG_NOSYSTEM = '1'
+          $env:GIT_CONFIG_GLOBAL = 'NUL'
+          $env:GIT_OPTIONAL_LOCKS = '0'
+          $env:GIT_TERMINAL_PROMPT = '0'
+          foreach ($checkout in @(@('collector', $env:WINDOWS_APPROVED_COLLECTOR_SHA),
+                                   @('product', '04b83a5f394431e1dcca533889f6c02e32d02a0d'))) {
+            $head = Invoke-ObservedGit $git $pin $checkout[0] @('rev-parse','HEAD')
+            if ($head -cne $checkout[1]) { throw 'checkout HEAD rejected postbuild' }
+            $dirty = Invoke-ObservedGit $git $pin $checkout[0] @('status','--porcelain','--untracked-files=all')
+            if ($dirty) { throw 'dirty checkout rejected postbuild' }
+          }
+          Assert-ObservedFile $git $pin
+          $controllerRoot = Join-Path $pwd 'collector/tools/rust-ts-r0/qualification/windows-lifecycle'
+          $sources = @{
+            'collect_windows.py' = 'c99f88eccb1cf1d4e24db92e687d3704d1906032ac1fc22cb2d8aca4e3abc2ee'
+            'collector.py' = 'c9f640c8eff10c2bb0e594ceaf01f17f71e438af17d98548b6cea2480c0c2b55'
+            'prior_review.py' = 'b737fd27920dbdd65177a130d4d974c491cee4484b123f77d264fc208a87e175'
+          }
+          foreach ($source in $sources.GetEnumerator()) {
+            Assert-ObservedFile (Join-Path $controllerRoot $source.Key) $source.Value
+          }
+          $python = $env:WINDOWS_OBSERVED_PYTHON_PATH
+          Assert-ObservedFile $python $env:WINDOWS_OBSERVED_PYTHON_SHA256
+          Assert-ObservedFile (Join-Path $pwd 'collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe') '' $false
+          Assert-ObservedFile (Join-Path $pwd 'collector/tools/gates/target/release/semctx-gates.exe') '' $false
+          $cache = Join-Path $env:WINDOWS_TRUSTED_RUNNER_TEMP ('windows-controller-cache-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $cache -ErrorAction Stop | Out-Null
+          $bootstrap = @'
+          import importlib.util,runpy,sys
+          from pathlib import Path
+          root=Path(sys.argv.pop(1))
+          for name in ('collector','prior_review'):
+              spec=importlib.util.spec_from_file_location(name,root/(name+'.py'))
+              module=importlib.util.module_from_spec(spec)
+              sys.modules[name]=module
+              spec.loader.exec_module(module)
+          runpy.run_path(str(root/'collect_windows.py'),run_name='__main__')
+          '@
+          $git = $env:WINDOWS_OBSERVED_GIT_PAYLOAD_PATH
+          $output = Join-Path $env:WINDOWS_TRUSTED_RUNNER_TEMP "windows-lifecycle-${{ github.run_id }}-${{ github.run_attempt }}"
+          $arguments = @("-I", "-B", "-X", "pycache_prefix=$cache", "-c", $bootstrap,
             "$pwd/collector/tools/rust-ts-r0/qualification/windows-lifecycle",
             "--product-root", "$pwd/product", "--collector-root", "$pwd/collector",
             "--inputs", "$pwd/preparation", "--prior-review", "$pwd/prior-native/REVIEW.json",
@@ -226,7 +323,7 @@ jobs:
             "--executor", "$pwd/collector/tools/gates/target/release/examples/windows_lifecycle_collector.exe",
             "--git", $git, "--helper", "$pwd/collector/tools/gates/target/release/semctx-gates.exe",
             "--output", $output, "--execute")
-          & python @arguments
+          & $python @arguments
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Retain completed preparation evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9

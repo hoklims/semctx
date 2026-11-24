@@ -112,6 +112,24 @@ class AuthorityTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError,'provenance bytes differ'):
                 route.verify_bundle(raw,root,route.SOURCE_HEAD)
 
+    def test_native_receipt_exact_bytes_are_required_independently(self):
+        supplied=os.environ.get('WINDOWS_PRIOR_NATIVE_TEST_BUNDLE')
+        if not supplied:self.skipTest('external public native-review integration bundle not supplied')
+        source=Path(supplied)
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            for name in ('REVIEW.json','review.events.jsonl','review.prompt.exact','review-catalog.json','review.stderr'):
+                shutil.copy2(source/'independent'/name,root/name)
+            shutil.copy2(source.parent/'verified-native/native-evidence.json',root/'native-evidence.json')
+            receipt=(source/'NATIVE-REVIEW-RECEIPT.json').read_bytes();path=root/'NATIVE-REVIEW-RECEIPT.json';path.write_bytes(receipt)
+            raw=(root/'REVIEW.json').read_bytes();route.verify_bundle(raw,root,route.SOURCE_HEAD)
+            changed=json.loads(receipt);changed['unchecked_extra']='changed receipt custody'
+            for altered in (receipt+b' ',json.dumps(changed).encode()):
+                with self.subTest(altered_sha=hashlib.sha256(altered).hexdigest()):
+                    path.write_bytes(altered)
+                    with self.assertRaisesRegex(ValueError,'native review receipt bytes differ'):
+                        route.verify_bundle(raw,root,route.SOURCE_HEAD)
+
 
 class GitPayloadTests(unittest.TestCase):
     def test_standard_bin_launcher_resolves_payload_without_execution(self):
@@ -383,6 +401,77 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_postbuild_guard_rejects_changes_before_pinned_python_launch(self):
+        import subprocess,shlex
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        workflow=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(workflow)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr);steps=json.loads(parsed.stdout)['jobs']['collect']['steps']
+        step=next(s for s in steps if s.get('name')=='Collect once after authority and provenance checks')
+        startup=next((s for s in steps if s.get('id')=='startup_python'),None)
+        if startup:
+            shell,args=step['shell'].split(' ',1)
+            self.assertEqual(shell,r'C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe')
+            self.assertIn('-NoProfile',args);self.assertNotIn('-ExecutionPolicy',args)
+        for case in ('source','python','missing-pin','path-only'):
+            with self.subTest(case=case),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();temp=root/'temp';temp.mkdir();module_root=root/'collector/tools/rust-ts-r0/qualification/windows-lifecycle';module_root.mkdir(parents=True)
+                for name in ('collect_windows.py','collector.py','prior_review.py'):shutil.copy2(Path(__file__).parent/name,module_root/name)
+                for name in ('examples/windows_lifecycle_collector.exe','semctx-gates.exe'):
+                    built=root/'collector/tools/gates/target/release'/name;built.parent.mkdir(parents=True,exist_ok=True);built.write_bytes(b'harmless built fixture')
+                original=root/'runtime/python';original.parent.mkdir();marker=root/'original-launched';shadow_marker=root/'shadow-launched';arguments=root/'arguments'
+                original.write_text('#!/bin/sh\nprintf "%s\\n" "$@" > "'+str(arguments)+'"\ntouch "'+str(marker)+'"\n');original.chmod(0o755)
+                shadow=root/'shadow/python';shadow.parent.mkdir();shadow.write_text('#!/bin/sh\ntouch "'+str(shadow_marker)+'"\n');shadow.chmod(0o755)
+                git=root/'git/mingw64/bin/git.exe';git.parent.mkdir(parents=True);git.write_text('#!/bin/sh\ncase "$*" in *"rev-parse HEAD"*) case "$*" in *collector*) printf "%s\\n" "$WINDOWS_APPROVED_COLLECTOR_SHA";; *) printf "%s\\n" "04b83a5f394431e1dcca533889f6c02e32d02a0d";; esac;; esac\n');git.chmod(0o755)
+                env=dict(os.environ,WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=str(git),WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=hashlib.sha256(git.read_bytes()).hexdigest(),WINDOWS_APPROVED_COLLECTOR_SHA='a'*40,WINDOWS_APPROVED_WORKFLOW_SHA='b'*40,WINDOWS_APPROVED_PRIOR_REVIEW_SHA256='c'*64,RUNNER_TEMP=str(temp),WINDOWS_TRUSTED_RUNNER_TEMP=str(temp))
+                if startup:
+                    path=root/'startup.ps1';path.write_text(startup['run']);output=root/'startup-output'
+                    observed=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,env=env|{'PATH':str(original.parent)+os.pathsep+os.environ['PATH'],'GITHUB_OUTPUT':str(output)},capture_output=True,check=False)
+                    self.assertEqual(observed.returncode,0,observed.stderr);env.update(line.split('=',1) for line in output.read_text().splitlines())
+                else:
+                    env.update(WINDOWS_OBSERVED_PYTHON_PATH=str(original),WINDOWS_OBSERVED_PYTHON_SHA256=hashlib.sha256(original.read_bytes()).hexdigest())
+                observed_python={key:env[key] for key in ('WINDOWS_OBSERVED_PYTHON_PATH','WINDOWS_OBSERVED_PYTHON_SHA256')}
+                if case=='missing-pin':observed_python['WINDOWS_OBSERVED_PYTHON_SHA256']=''
+                if case=='source':(module_root/'collect_windows.py').write_bytes((module_root/'collect_windows.py').read_bytes()+b'\n# altered by build\n')
+                if case=='python':original.write_text(original.read_text()+'# altered by build\n')
+                env['PATH']=str(shadow.parent)+os.pathsep+os.environ['PATH']
+                env.update(WINDOWS_OBSERVED_PYTHON_PATH=str(shadow),WINDOWS_OBSERVED_PYTHON_SHA256=hashlib.sha256(shadow.read_bytes()).hexdigest())
+                for key,value in observed_python.items():
+                    expression=step.get('env',{}).get(key)
+                    if expression is not None:
+                        self.assertEqual(expression,'${{ steps.startup_python.outputs.'+key+' }}')
+                        env[key]=value
+                path=root/('collect-without-extension' if startup else 'collect.ps1');path.write_text(step['run'].replace('${{ github.run_id }}','123').replace('${{ github.run_attempt }}','1'))
+                shell_args=[part.format(str(path)) for part in shlex.split(args)] if startup else ['-NoProfile','-NonInteractive','-File',str(path)]
+                result=subprocess.run([executable,*shell_args],cwd=root,env=env,capture_output=True,check=False)
+                if case=='path-only':
+                    self.assertEqual(result.returncode,0,result.stderr);self.assertTrue(marker.exists(),'post-build PATH replaced the pre-build interpreter')
+                    args=arguments.read_text().splitlines();self.assertIn('-I',args);self.assertIn('-B',args);self.assertIn('-X',args);self.assertTrue(any(a.startswith('pycache_prefix=') for a in args))
+                else:
+                    self.assertNotEqual(result.returncode,0,'post-build mutation reached interpreter resolution/loading')
+                    self.assertIn(b'postbuild',result.stderr);self.assertFalse(marker.exists())
+                self.assertFalse(shadow_marker.exists(),'post-build PATH interpreter executed')
+
+    def test_bootstrap_loads_only_explicit_sources_with_fresh_bytecode_cache(self):
+        import py_compile,subprocess,re,textwrap
+        text=self.workflow()
+        match=re.search(r"\$bootstrap = @'\n(.*?)\n[ ]*'@",text,re.S)
+        if match:program=textwrap.dedent(match[1])
+        else:program=re.search(r'"(import runpy,sys;[^\n]+run_module[^\n]+)"',text)[1]
+        for case in ('package','bytecode'):
+            with self.subTest(case=case),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();marker=root/'shadow-executed'
+                controller=root/'collect_windows.py';controller.write_text('from collector import TOKEN\nprint(TOKEN)\n');(root/'prior_review.py').write_text('')
+                companion=root/'collector.py';safe="TOKEN='SAFE'\n";bad="TOKEN='EVIL'\nopen("+repr(str(marker))+",'w').write('x')\n"
+                companion.write_text(bad);timestamp=companion.stat();py_compile.compile(str(companion),doraise=True)
+                companion.write_text(safe+'#'*(len(bad)-len(safe)-1)+'\n');os.utime(companion,ns=(timestamp.st_atime_ns,timestamp.st_mtime_ns))
+                if case=='package':
+                    package=root/'collector';package.mkdir();(package/'__init__.py').write_text(bad)
+                cache=root/'fresh';cache.mkdir();flags=['-X','pycache_prefix='+str(cache)] if '"pycache_prefix=$cache"' in text else []
+                result=subprocess.run([sys.executable,'-I','-B',*flags,'-c',program,str(root)],capture_output=True,check=False)
+                self.assertEqual(result.returncode,0,result.stderr);self.assertEqual(result.stdout.strip(),b'SAFE','checkout package/bytecode shadow executed before source approval');self.assertFalse(marker.exists())
+
     def test_actual_powershell_standard_bin_launcher_is_not_executed(self):
         import subprocess
         executable=shutil.which('pwsh')
@@ -417,6 +506,8 @@ class WorkflowTests(unittest.TestCase):
         index=provision[0];approval=next(i for i,step in enumerate(steps) if step.get('name')=='Verify checked out identities before build');build=next(i for i,step in enumerate(steps) if step.get('name')=='Build admitted transport and helper')
         guard=next(i for i,step in enumerate(steps) if step.get('name')=='Validate protected pin syntax before checkout')
         self.assertLess(guard,approval);self.assertLess(approval,index,'toolchain provisioning ran before source approval');self.assertLess(index,build,'Cargo reached before toolchain provisioning')
+        python_pin=next(i for i,step in enumerate(steps) if step.get('id')=='startup_python')
+        self.assertLess(approval,python_pin);self.assertLess(python_pin,index)
         self.assertEqual(steps[index]['run'].split(),['rustup','toolchain','install','1.95.0','--profile','minimal']);self.assertEqual(str(job['env']['RUSTUP_TOOLCHAIN']),'1.95.0')
 
     def test_actual_powershell_refuses_relative_and_redundant_git_spellings(self):
@@ -515,6 +606,7 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
                     # Model the documented runner precedence: explicit step env overrides
                     # GITHUB_ENV from completed prior steps; outputs come from completed startup.
                     for name,value in consumer.get('env',{}).items():
+                        if name not in (*protected,'WINDOWS_OBSERVED_GIT_PAYLOAD_PATH','WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256'):continue
                         expression=re.fullmatch(r'\$\{\{ steps\.([A-Za-z0-9_]+)\.outputs\.([A-Za-z0-9_]+) \}\}',value)
                         if expression:
                             self.assertEqual(expression[1],startup.get('id'));effective[name]=snapshot[expression[2]]
@@ -585,7 +677,7 @@ ConvertTo-Json -Compress -Depth 5 -InputObject $results
         build=text.index('run: cargo build')
         self.assertLess(syntax,first);self.assertLess(first,second)
         self.assertLess(second,identity);self.assertLess(identity,build)
-        block=text[identity:build]
+        block=text[identity:text.index('      - uses:',identity)]
         resolver=text.index('name: Resolve and pin host Git payload')
         self.assertLess(syntax,resolver);self.assertLess(resolver,first)
         self.assertIn('Get-Command git.exe -CommandType Application',text[resolver:identity])
