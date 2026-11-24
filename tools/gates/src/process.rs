@@ -412,9 +412,11 @@ impl Tree {
             JOBOBJECT_BASIC_ACCOUNTING_INFORMATION, JobObjectBasicAccountingInformation,
             QueryInformationJobObject,
         };
-        // SAFETY: the owned live job handle and initialized, correctly sized buffer
-        // remain valid throughout this read-only kernel accounting query.
+        // SAFETY: this accounting structure contains only integer counters,
+        // for which an all-zero representation is valid.
         let mut information: JOBOBJECT_BASIC_ACCOUNTING_INFORMATION = unsafe { std::mem::zeroed() };
+        // SAFETY: self.job is owned and live; this initialized, correctly sized
+        // output buffer remains writable throughout the kernel accounting query.
         let ok = unsafe {
             QueryInformationJobObject(
                 self.job,
