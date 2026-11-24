@@ -452,6 +452,12 @@ class WorkflowTests(unittest.TestCase):
                         env[key]=value
                 path=root/('collect-without-extension' if startup else 'collect.ps1');path.write_text(step['run'].replace('${{ github.run_id }}','123').replace('${{ github.run_attempt }}','1'))
                 shell_args=[part.format(str(path)) for part in shlex.split(args)] if startup else ['-NoProfile','-NonInteractive','-File',str(path)]
+                if case=='module-path-only':
+                    # Exercise the real autoload path with Utility not already resident.
+                    # This is isolated child-session setup, not a Windows runtime claim.
+                    env.update(CASE_POST_SCRIPT=str(path),CASE_HOSTILE_MODULES=str(root/'modules'))
+                    setup="Microsoft.PowerShell.Core\\Remove-Module Microsoft.PowerShell.Utility -Force -ErrorAction SilentlyContinue; $env:PSModulePath=$env:CASE_HOSTILE_MODULES; . ([scriptblock]::Create([IO.File]::ReadAllText($env:CASE_POST_SCRIPT)))"
+                    shell_args=['-NoProfile','-NonInteractive','-Command',setup]
                 result=subprocess.run([executable,*shell_args],cwd=root,env=env,capture_output=True,check=False)
                 self.assertFalse(module_marker.exists(),'hostile module autoload executed before the trusted postbuild guard')
                 if case in ('path-only','module-path-only'):
