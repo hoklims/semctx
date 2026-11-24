@@ -646,7 +646,26 @@ jobs:
             if ($relative -cnotin $expected -or ($entry.Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw 'foreign or linked binary transport entry' }
             if (($relative -ceq 'examples' -and !$entry.PSIsContainer) -or ($relative -cne 'examples' -and $entry -isnot [IO.FileInfo])) { throw 'nonregular binary transport entry' }
           }
-          $record = ConvertFrom-Json -InputObject ([IO.File]::ReadAllText((Join-Path $root 'BUILD-PROVENANCE.json')))
+          $manifestJson = [IO.File]::ReadAllText((Join-Path $root 'BUILD-PROVENANCE.json'))
+          function Assert-UniqueJsonKeys([System.Text.Json.JsonElement]$Element) {
+            if ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Object) {
+              $names = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+              foreach ($property in $Element.EnumerateObject()) {
+                if (!$names.Add($property.Name)) { throw 'binary build provenance has duplicate JSON keys' }
+                Assert-UniqueJsonKeys $property.Value
+              }
+            } elseif ($Element.ValueKind -eq [System.Text.Json.JsonValueKind]::Array) {
+              foreach ($item in $Element.EnumerateArray()) { Assert-UniqueJsonKeys $item }
+            }
+          }
+          $document = [System.Text.Json.JsonDocument]::Parse($manifestJson, [System.Text.Json.JsonDocumentOptions]::new())
+          try {
+            if ($document.RootElement.ValueKind -ne [System.Text.Json.JsonValueKind]::Object) { throw 'binary build provenance root must be one JSON object' }
+            Assert-UniqueJsonKeys $document.RootElement
+          } finally {
+            $document.Dispose()
+          }
+          $record = ConvertFrom-Json -InputObject $manifestJson
           $keys = @($record.PSObject.Properties.Name | Sort-Object)
           $wanted = @('schema','source_commit','source_tree','workflow_sha','run_id','run_attempt','files') | Sort-Object
           if (($keys -join ',') -cne ($wanted -join ',') -or ($record.schema -isnot [int] -and $record.schema -isnot [long]) -or $record.schema -ne 1) { throw 'binary build provenance schema differs' }

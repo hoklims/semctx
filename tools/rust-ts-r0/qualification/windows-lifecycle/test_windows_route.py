@@ -974,6 +974,38 @@ class WorkflowTests(unittest.TestCase):
                 self.assertNotEqual(result.returncode,0,'coerced manifest scalar reached execution')
                 self.assertIn(b'binary build provenance',result.stderr);self.assertNotIn(b'EXECUTE_SENTINEL',result.stdout)
 
+    def test_manifest_original_json_is_one_object_with_unique_keys(self):
+        import subprocess
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(path)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr)
+        jobs=json.loads(parsed.stdout)['jobs']
+        producer=next(step for step in jobs['build']['steps'] if step.get('name')=='Bind binaries to completed source observations')
+        verify=next(step for step in jobs['collect']['steps'] if step.get('name')=='Validate the exact binary transport tree')
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        for case in ('root-array','duplicate-root','duplicate-nested'):
+            with self.subTest(case=case),tempfile.TemporaryDirectory() as temporary:
+                root=Path(temporary).resolve();release=root/'collector/tools/gates/target/release';(release/'examples').mkdir(parents=True)
+                for file in ['examples/windows_lifecycle_collector.exe','semctx-gates.exe']:(release/file).write_bytes(b'x')
+                env=dict(os.environ,BUILD_SOURCE_COMMIT='b'*40,BUILD_SOURCE_TREE='c'*40,BUILD_WORKFLOW_SHA='a'*40,BUILD_RUN_ID='123',BUILD_RUN_ATTEMPT='1',GITHUB_OUTPUT=str(root/'step-output'))
+                script=root/'produce.ps1';script.write_text(producer['run'])
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=env,capture_output=True,check=False)
+                self.assertEqual(result.returncode,0,result.stderr);shutil.copytree(release,root/'native-binaries')
+                manifest=root/'native-binaries/BUILD-PROVENANCE.json'
+                original=json.dumps(json.loads(manifest.read_bytes()),separators=(',',':'))
+                if case=='root-array':altered='['+original+']'
+                elif case=='duplicate-root':altered='{"schema":0,'+original[1:]
+                else:
+                    self.assertIn('"bytes":1',original)
+                    altered=original.replace('"bytes":1','"bytes":0,"bytes":1',1)
+                manifest.write_bytes(altered.encode())
+                script=root/'verify.ps1';script.write_text(verify['run']+"\nWrite-Output 'EXECUTE_SENTINEL'\n")
+                result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],cwd=root,env=env,capture_output=True,check=False)
+                self.assertNotEqual(result.returncode,0,'malformed original manifest reached execution')
+                self.assertIn(b'binary build provenance',result.stderr)
+                self.assertNotIn(b'EXECUTE_SENTINEL',result.stdout)
+
     def workflow(self):
         return (Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml').read_text()
 
