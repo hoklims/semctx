@@ -508,7 +508,7 @@ class WorkflowTests(unittest.TestCase):
 
     def test_bootstrap_loads_only_explicit_sources_with_fresh_bytecode_cache(self):
         import py_compile,subprocess,re,textwrap
-        text=self.workflow()
+        text=self.workflow().split('      - name: Collect once after authority and provenance checks\n',1)[1].split('\n      - ',1)[0]
         match=re.search(r"\$bootstrap = @'\n(.*?)\n[ ]*'@",text,re.S)
         if match:program=textwrap.dedent(match[1])
         else:program=re.search(r'"(import runpy,sys;[^\n]+run_module[^\n]+)"',text)[1]
