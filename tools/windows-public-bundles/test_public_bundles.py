@@ -2,6 +2,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import tempfile
 import subprocess
 import sys
@@ -46,6 +47,47 @@ class Bundles(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'bundle file inventory differs'):
             validator.validate(self.root)
 
+    def test_hidden_entries_and_extra_directories_refuse(self):
+        for bundle in validator.FILES:
+            for name, directory in (('.hidden', False), ('unlisted-directory', True)):
+                with self.subTest(bundle=bundle, name=name):
+                    path = self.root / bundle / name
+                    if directory:
+                        path.mkdir()
+                    else:
+                        path.write_bytes(b'foreign')
+                    try:
+                        with self.assertRaisesRegex(ValueError, 'bundle file inventory differs'):
+                            validator.validate(self.root)
+                    finally:
+                        path.rmdir() if directory else path.unlink()
+
+    def test_root_and_ancestor_links_refuse(self):
+        direct = self.root.parent / 'linked-bundles'
+        direct.symlink_to(self.root, target_is_directory=True)
+        parent = self.root.parent / 'linked-parent'
+        parent.symlink_to(self.root.parent, target_is_directory=True)
+        for root in (direct, parent / self.root.name):
+            with self.subTest(root=str(root)):
+                with self.assertRaisesRegex(ValueError, 'linked or nonregular'):
+                    validator.validate(root)
+
+    def test_default_cli_root_keeps_literal_directory_links_visible(self):
+        shutil.copy2(ROOT / 'validate_bundles.py', self.root / 'validate_bundles.py')
+        direct = self.root.parent / 'linked-bundles'
+        direct.symlink_to(self.root, target_is_directory=True)
+        parent = self.root.parent / 'linked-parent'
+        parent.symlink_to(self.root.parent, target_is_directory=True)
+        for root, code in ((self.root, 0), (direct, 2), (parent / self.root.name, 2)):
+            with self.subTest(root=str(root)):
+                result = subprocess.run([sys.executable, '-I', '-B', str(root / 'validate_bundles.py')],
+                                        capture_output=True, check=False)
+                self.assertEqual(result.returncode, code, result.stderr)
+                if code:
+                    self.assertIn(b'PUBLIC_BUNDLES_REFUSED: linked or nonregular', result.stderr)
+                else:
+                    self.assertEqual(len(json.loads(result.stdout)['files']), 10)
+
     def test_linked_payload_refuses_even_with_identical_bytes(self):
         file = self.root / 'prior-native/REVIEW.json'
         replacement = self.root / 'same-review'
@@ -88,6 +130,10 @@ class Workflow(unittest.TestCase):
                          {'actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9'})
         self.assertEqual({step['with']['path'] for step in uploads},
                          {'tools/windows-public-bundles/preparation/', 'tools/windows-public-bundles/prior-native/'})
+        validation_argv = shlex.split(steps[2]['run'].splitlines()[-1])
+        self.assertEqual(validation_argv[-2:], ['--root', 'tools/windows-public-bundles'])
+        self.assertEqual({Path(step['with']['path']).parent.as_posix() for step in uploads},
+                         {validation_argv[-1]})
         self.assertTrue(all(steps.index(step) > 2 for step in uploads))
         self.assertIn('${{ steps.preparation.outputs.artifact-id }}', steps[-1]['env'].values())
         self.assertIn('${{ steps.prior_native.outputs.artifact-id }}', steps[-1]['env'].values())

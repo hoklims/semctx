@@ -101,6 +101,7 @@ jobs:
           }
           function Resolve-GitPayload([string]$Entry) {
             if ($Entry -match '(?:^|[\\/])\.{1,2}(?:[\\/]|$)') { throw 'Git entry is not lexically canonical' }
+            if (-not [IO.Path]::IsPathFullyQualified($Entry) -or [IO.Path]::GetFullPath($Entry) -cne $Entry -or $Entry -match '[\\/]$') { throw 'Git entry is not lexically canonical' }
             $entry = Get-SafeGitFile $Entry
             if ([IO.Path]::GetFileName($entry) -ine 'git.exe') { throw 'unknown Git executable' }
             $parent = Split-Path $entry

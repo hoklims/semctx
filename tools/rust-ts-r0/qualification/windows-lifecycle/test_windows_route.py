@@ -114,6 +114,18 @@ class AuthorityTests(unittest.TestCase):
 
 
 class GitPayloadTests(unittest.TestCase):
+    def test_physical_resolution_cannot_redirect_regular_entry(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve()
+            first=root/'first/mingw64/bin/git.exe';second=root/'second/mingw64/bin/git.exe'
+            for path in (first,second):path.parent.mkdir(parents=True);path.write_bytes(b'identical payload')
+            original=Path.resolve
+            def physical(path,strict=False):
+                return second if path==first else original(path,strict=strict)
+            self.assertEqual(route.resolve_windows_git_payload(first),first)
+            with patch.object(Path,'resolve',physical),self.assertRaisesRegex(ValueError,'not physically canonical'):
+                route.resolve_windows_git_payload(first)
+
     def test_direct_payload_checks_both_layouts_before_selecting(self):
         from types import SimpleNamespace
         for layout in ('mingw64','ucrt64'):
@@ -203,6 +215,41 @@ class GitPayloadTests(unittest.TestCase):
 
 
 class StartupGitTests(unittest.TestCase):
+    def test_raw_cli_relative_and_redundant_git_spellings_refuse(self):
+        import contextlib
+        from types import SimpleNamespace
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();git=root/'mingw64/bin/git.exe';git.parent.mkdir(parents=True);git.write_bytes(b'payload')
+            review=root/'review.json';review.write_bytes(b'{}')
+            for raw in ('mingw64/bin/git.exe',str(root)+'//mingw64/bin/git.exe',str(git)+'/'):
+                with self.subTest(raw=raw),contextlib.chdir(root):
+                    argv=['collect_windows.py']
+                    for name,value in [('product-root',root),('collector-root',root),('inputs',root),
+                        ('prior-review',review),('review-bundle',root),('executor',Path(sys.executable)),
+                        ('git',raw),('helper',Path(sys.executable)),('output',root/'absent')]:argv+=['--'+name,str(value)]
+                    platform=SimpleNamespace(name='nt',environ=os.environ,fsync=os.fsync,devnull=os.devnull)
+                    env={'WINDOWS_OBSERVED_GIT_PAYLOAD_PATH':str(git),
+                         'WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256':hashlib.sha256(b'payload').hexdigest()}
+                    with (patch.object(sys,'argv',argv),patch.object(route,'os',platform),patch.dict(os.environ,env),
+                          patch.object(route,'git_value',return_value='') as calls,
+                          patch.object(route,'authority_matches',return_value=False),
+                          self.assertRaisesRegex(ValueError,'Git entry is not lexically canonical')):
+                        route.main()
+                    calls.assert_not_called();self.assertFalse((root/'absent').exists())
+
+    def test_observed_original_git_alias_refuses_before_capture(self):
+        import contextlib
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();git=root/'ucrt64/bin/git.exe';git.parent.mkdir(parents=True);git.write_bytes(b'payload')
+            digest=hashlib.sha256(b'payload').hexdigest()
+            with contextlib.chdir(root):
+                with patch.dict(os.environ,WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=str(git),WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=digest):
+                    self.assertEqual(route.BoundGit.capture(str(git)).path,git)
+                for raw in ('ucrt64/bin/git.exe',str(root)+'//ucrt64/bin/git.exe',str(root)+'/./ucrt64/bin/git.exe'):
+                    with self.subTest(raw=raw),patch.dict(os.environ,WINDOWS_OBSERVED_GIT_PAYLOAD_PATH=raw,WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256=digest):
+                        with self.assertRaisesRegex(ValueError,'Git entry is not lexically canonical'):
+                            route.BoundGit.capture(str(git))
+
     def test_raw_cli_git_entry_rejects_dot_segments_before_normalization(self):
         from types import SimpleNamespace
         for segment in ('.','ordinary/..'):
@@ -319,6 +366,28 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_actual_powershell_refuses_relative_and_redundant_git_spellings(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        text=self.workflow();start=text.index('      - name: Resolve and pin host Git payload')
+        block=text[start:text.index('      - uses:',start)]
+        lines=block.splitlines();body=lines.index('        run: |')+1
+        script='\n'.join(line[10:] for line in lines[body:])+'\n';helper=script[:script.index('$entry = (Get-Command')]
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();git=root/'mingw64/bin/git.exe';git.parent.mkdir(parents=True);git.write_bytes(b'payload')
+            marker=root/'selected';path=root/'resolve.ps1';path.write_text(helper+"$value=Resolve-GitPayload $env:RAW_ENTRY\nSet-Content -LiteralPath $env:CASE_MARKER -Value $value\n")
+            def invoke(raw):
+                return subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(path)],cwd=root,
+                    env=dict(os.environ,RAW_ENTRY=raw,CASE_MARKER=str(marker)),capture_output=True,check=False)
+            valid=invoke(str(git));self.assertEqual(valid.returncode,0,valid.stderr);self.assertEqual(marker.read_text().strip(),str(git));marker.unlink()
+            for raw in ('mingw64/bin/git.exe',str(root)+'//mingw64/bin/git.exe',str(git)+'/'):
+                with self.subTest(raw=raw):
+                    result=invoke(raw)
+                    self.assertNotEqual(result.returncode,0,'relative or redundant Git entry was normalized and accepted')
+                    self.assertIn(b'Git entry is not lexically canonical',result.stderr)
+                    self.assertFalse(marker.exists())
+
     def test_actual_artifact_identity_guard_refuses_lists_and_numeric_aliases(self):
         import subprocess
         executable=shutil.which('pwsh')

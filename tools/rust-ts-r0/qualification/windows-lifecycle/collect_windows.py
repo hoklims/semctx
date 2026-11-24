@@ -59,11 +59,14 @@ def git_entry(path):
     raw=str(path)
     if any(part in ('.','..') for part in re.split(r'[\\/]',raw)):
         raise ValueError('Git entry is not lexically canonical')
-    return Path(raw)
+    parsed=Path(raw)
+    if not parsed.is_absolute() or str(parsed)!=raw or parsed.anchor=='//':
+        raise ValueError('Git entry is not lexically canonical')
+    return parsed
 
 
 def resolve_windows_git_payload(path):
-    path=git_entry(path).absolute()
+    path=git_entry(path)
     def regular(candidate,allow_missing=False):
         items=(*reversed(candidate.parents),candidate)
         for index,item in enumerate(items):
@@ -79,7 +82,10 @@ def resolve_windows_git_payload(path):
                 raise ValueError('Git runtime ancestor is not a directory')
         if not stat.S_ISREG(metadata.st_mode):
             raise ValueError('Git payload is not a regular file')
-        return candidate.resolve(strict=True)
+        physical=candidate.resolve(strict=True)
+        if physical!=candidate:
+            raise ValueError('Git runtime path is not physically canonical')
+        return physical
     path=regular(path)
     if path.name.lower() != 'git.exe':
         raise ValueError('unsupported Windows Git layout')
@@ -109,8 +115,9 @@ def verify_observed_git(git):
     digest=os.environ.get('WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256','')
     if os.name!='nt' and not path and not digest:
         return None
+    observed=git_entry(path)
     if (not path or not re.fullmatch('[0-9a-f]{64}',digest) or digest=='0'*64
-            or Path(path).absolute()!=git):
+            or observed!=git):
         raise ValueError('prebuild observed Git payload identity differs')
     actual=file_pin(resolve_windows_git_payload(git))
     if actual['sha256']!=digest:

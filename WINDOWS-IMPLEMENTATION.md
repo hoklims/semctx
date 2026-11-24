@@ -94,6 +94,13 @@ resolvers inspect ancestors before counting even an absent candidate leaf, so a
 dangling alternate layout refuses instead of silently disappearing.
 Both resolvers reject raw dot and dot-dot path segments before normalization;
 the Python CLI retains the original Git argument until that check.
+Entries must be fully qualified with canonical native spelling. Python also
+refuses a physical resolution that changes the validated pathname; the observed
+startup path is checked before any conversion can discard an alias.
+
+The public publisher passes the literal upload parent to its validator. Its
+default CLI parent retains the lexical path until ancestor checks have refused
+links; both upload directories must contain exactly their declared flat files.
 
 GitHub documents completed step outputs and the precedence of step environments:
 https://docs.github.com/en/actions/reference/workflows-and-actions/contexts

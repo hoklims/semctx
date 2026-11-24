@@ -74,7 +74,7 @@ def validate(root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--root', type=Path, default=Path(__file__).resolve().parent)
+    parser.add_argument('--root', type=Path, default=Path(__file__).absolute().parent)
     args = parser.parse_args()
     print(json.dumps({'files': validate(args.root), 'native_execution': False,
                       'source_admission_granted': False}, sort_keys=True))

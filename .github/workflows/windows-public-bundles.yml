@@ -41,7 +41,7 @@ jobs:
           [[ "$(git --no-optional-locks -c core.fsmonitor=false rev-parse HEAD)" == "$SOURCE_SHA" ]]
           dirty=$(git --no-optional-locks -c core.fsmonitor=false status --porcelain --untracked-files=all)
           [[ -z "$dirty" ]]
-          python3 -I -B tools/windows-public-bundles/validate_bundles.py
+          python3 -I -B tools/windows-public-bundles/validate_bundles.py --root tools/windows-public-bundles
       - id: preparation
         name: Publish exact public preparation files
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
