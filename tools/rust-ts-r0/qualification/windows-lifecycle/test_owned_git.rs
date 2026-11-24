@@ -447,7 +447,10 @@ fn second_pipe_reuses_the_remaining_quiescence_deadline() {
     while !stdout.is_finished() && Instant::now() < ready_deadline {
         thread::yield_now();
     }
-    assert!(stdout.is_finished(), "stdout fixture was not ready before D2");
+    assert!(
+        stdout.is_finished(),
+        "stdout fixture was not ready before D2"
+    );
     let stderr = thread::spawn(move || {
         while !reader_stop.load(Ordering::SeqCst) {
             thread::sleep(Duration::from_millis(1));
