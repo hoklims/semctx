@@ -202,6 +202,20 @@ fn finish_capture_before(
     (quiet, readers_complete)
 }
 
+fn snapshot_before(bytes: &Mutex<Vec<u8>>, deadline: Instant) -> Result<Vec<u8>, String> {
+    if Instant::now() >= deadline {
+        return Err("owned capture snapshot deadline exceeded".into());
+    }
+    let captured = bytes
+        .try_lock()
+        .map_err(|_| "owned capture snapshot unavailable")?
+        .clone();
+    if Instant::now() >= deadline {
+        return Err("owned capture snapshot deadline exceeded".into());
+    }
+    Ok(captured)
+}
+
 fn run_owned(
     argv: &[String],
     cwd: &Path,
@@ -261,16 +275,10 @@ fn run_owned(
         &stop,
         || child.tree_quiescent(),
     );
-    let stdout = stdout
-        .lock()
-        .map_err(|_| "owned stdout reader panicked")?
-        .clone();
-    let stderr = stderr
-        .lock()
-        .map_err(|_| "owned stderr reader panicked")?
-        .clone();
+    let stdout = snapshot_before(&stdout, quiescence_deadline)?;
+    let stderr = snapshot_before(&stderr, quiescence_deadline)?;
     let output_exceeded = over_limit();
-    Ok(Observed {
+    let observation = Observed {
         exit_code: code,
         stdout,
         stderr,
@@ -285,7 +293,11 @@ fn run_owned(
             && !process::cancellation_requested(),
         duration_ms: started.elapsed().as_millis(),
         owned_tree_quiescent,
-    })
+    };
+    if Instant::now() >= quiescence_deadline {
+        return Err("owned capture finalization deadline exceeded".into());
+    }
+    Ok(observation)
 }
 
 fn non_link(metadata: &fs::Metadata) -> bool {

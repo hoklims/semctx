@@ -468,3 +468,44 @@ fn second_pipe_reuses_the_remaining_quiescence_deadline() {
     assert!(!complete);
     assert!(stop.load(Ordering::SeqCst));
 }
+
+#[test]
+fn held_capture_mutex_is_refused_without_waiting() {
+    let bytes = Arc::new(Mutex::new(vec![0xff, 0, b'\n']));
+    let held = Arc::clone(&bytes);
+    let (ready_tx, ready_rx) = std::sync::mpsc::channel();
+    let holder = thread::spawn(move || {
+        let _guard = held.lock().unwrap();
+        ready_tx.send(()).unwrap();
+        thread::sleep(Duration::from_millis(500));
+    });
+    ready_rx.recv_timeout(Duration::from_secs(1)).unwrap();
+    let started = Instant::now();
+    let result = snapshot_before(&bytes, started + Duration::from_secs(1));
+    let elapsed = started.elapsed();
+    holder.join().unwrap();
+    assert!(
+        elapsed < Duration::from_millis(150),
+        "capture snapshot waited for an unfinished reader mutex"
+    );
+    assert!(result.is_err(), "unavailable capture was accepted");
+}
+
+#[test]
+fn expired_capture_snapshot_is_refused() {
+    let bytes = Mutex::new(vec![0xff, 0, b'\n']);
+    assert!(
+        snapshot_before(&bytes, Instant::now()).is_err(),
+        "expired capture snapshot was accepted"
+    );
+}
+
+#[test]
+fn healthy_capture_snapshot_preserves_exact_bytes() {
+    let expected = vec![0xff, 0, b'\r', b'\n', 0xfe];
+    let bytes = Mutex::new(expected.clone());
+    assert_eq!(
+        snapshot_before(&bytes, Instant::now() + Duration::from_secs(1)).unwrap(),
+        expected
+    );
+}

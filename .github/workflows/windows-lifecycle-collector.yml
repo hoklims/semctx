@@ -48,6 +48,22 @@ jobs:
       WINDOWS_APPROVED_COLLECTOR_SHA: ${{ vars.WINDOWS_APPROVED_COLLECTOR_SHA }}
       WINDOWS_APPROVED_PRIOR_REVIEW_SHA256: ${{ vars.WINDOWS_APPROVED_PRIOR_REVIEW_SHA256 }}
     steps:
+      - name: Validate exact artifact input identities
+        env:
+          WINDOWS_INPUTS_RUN_ID: ${{ inputs.inputs_run_id }}
+          WINDOWS_INPUTS_ARTIFACT_ID: ${{ inputs.inputs_artifact_id }}
+          WINDOWS_REVIEW_RUN_ID: ${{ inputs.review_run_id }}
+          WINDOWS_REVIEW_ARTIFACT_ID: ${{ inputs.review_artifact_id }}
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          foreach ($value in @($env:WINDOWS_INPUTS_RUN_ID, $env:WINDOWS_INPUTS_ARTIFACT_ID,
+                               $env:WINDOWS_REVIEW_RUN_ID, $env:WINDOWS_REVIEW_ARTIFACT_ID)) {
+            [UInt64]$id = 0
+            if ($value -cnotmatch '\A[1-9][0-9]*\z' -or -not [UInt64]::TryParse($value, [ref]$id) -or $id -gt 9007199254740991) {
+              throw 'artifact input identity rejected before checkout/download'
+            }
+          }
       - name: Validate protected pin syntax before checkout
         shell: pwsh
         run: |

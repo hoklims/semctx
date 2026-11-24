@@ -319,6 +319,46 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_actual_artifact_identity_guard_refuses_lists_and_numeric_aliases(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        path=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(path)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr)
+        steps=json.loads(parsed.stdout)['jobs']['collect']['steps']
+        guard=next((step for step in steps if step.get('name')=='Validate exact artifact input identities'),None)
+        self.assertIsNotNone(guard,'artifact selection has no exact numeric identity guard')
+        self.assertLess(steps.index(guard),next(index for index,step in enumerate(steps) if 'uses' in step))
+        names={'WINDOWS_INPUTS_RUN_ID':'inputs_run_id','WINDOWS_INPUTS_ARTIFACT_ID':'inputs_artifact_id',
+               'WINDOWS_REVIEW_RUN_ID':'review_run_id','WINDOWS_REVIEW_ARTIFACT_ID':'review_artifact_id'}
+        self.assertEqual(guard['env'],{name:'${{ inputs.'+value+' }}' for name,value in names.items()})
+        cases=[]
+        for name in names:
+            for value in ('1','9007199254740991','0','01','-1','+1','1,2','1\n2',' 1','1e3','١','9007199254740992','18446744073709551616',''):
+                cases.append({'env':dict.fromkeys(names,'1')|{name:value},'accepted':value in ('1','9007199254740991')})
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);body=root/'guard.ps1';body.write_text(guard['run'])
+            matrix=root/'cases.json';matrix.write_text(json.dumps(cases));runner=root/'run.ps1'
+            runner.write_text("""$ErrorActionPreference='Stop'
+$body=[IO.File]::ReadAllText($env:GUARD_FILE)
+$cases=ConvertFrom-Json -AsHashtable ([IO.File]::ReadAllText($env:GUARD_CASES))
+$results=@(foreach ($case in $cases) {
+  foreach ($name in $case.env.Keys) { [Environment]::SetEnvironmentVariable($name,$case.env[$name],'Process') }
+  try { & ([ScriptBlock]::Create($body)); @{accepted=$true;diagnostic=''} }
+  catch { @{accepted=$false;diagnostic=$_.Exception.Message} }
+})
+ConvertTo-Json -Compress -Depth 5 -InputObject $results
+""")
+            result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(runner)],
+                env=dict(os.environ,GUARD_FILE=str(body),GUARD_CASES=str(matrix)),capture_output=True,check=False)
+            self.assertEqual(result.returncode,0,result.stderr)
+            observed=json.loads(result.stdout);self.assertEqual(len(observed),len(cases))
+            for case,row in zip(cases,observed,strict=True):
+                with self.subTest(values=case['env']):
+                    self.assertEqual(row['accepted'],case['accepted'],'artifact identity guard accepted an alias or refused an exact ID')
+                    if not case['accepted']:self.assertIn('artifact input identity rejected',row['diagnostic'])
+
     def test_completed_startup_outputs_restore_git_and_protected_pins_before_capture(self):
         import re,subprocess
         executable=shutil.which('pwsh')

@@ -22,6 +22,13 @@ and earns no R0 credit. Artifact upload requires successful collection and
 postflight identities. The trusted runner/operator remains the authority boundary;
 the local process interface is not OS isolation against that owner.
 
+Before checkout or download, each run/artifact input must be one canonical
+positive decimal ID within JavaScript's exact integer range. Lists, numeric
+aliases and unsafe integers refuse. The pinned download action parses IDs as
+JavaScript numbers and supports comma-separated artifact lists; this guard keeps
+each download bound to exactly one input artifact.
+https://github.com/actions/download-artifact/blob/9000827ccba6bdab643e8b6fd33ac0654aef8333/src/download-artifact.ts
+
 Independent aggregate proof review and exact source admission are required before
 configuring the protected workflow/collector/review pins or dispatching collection.
 
@@ -40,6 +47,8 @@ observation; it does not prove that an administrator cannot assign a new process
 later. The trusted runner/controller must not reuse the job or initiate launches
 after sealing. Nested-job restrictions or unavailable QUERY/TERMINATE rights
 refuse execution. Native Windows behavior remains NOT_EXECUTED in local tests.
+Capture snapshots use nonblocking mutex acquisition within that same deadline;
+busy, poisoned or late snapshots refuse before a complete observation returns.
 
 Microsoft primary contracts:
 - https://learn.microsoft.com/en-us/windows/win32/api/jobapi2/nf-jobapi2-queryinformationjobobject
