@@ -418,6 +418,57 @@ class StartupGitTests(unittest.TestCase):
 
 
 class WorkflowTests(unittest.TestCase):
+    def test_actual_powershell_uses_first_application_for_git_and_python(self):
+        import subprocess
+        executable=shutil.which('pwsh')
+        if not executable:self.skipTest('PowerShell unavailable')
+        workflow=Path(__file__).resolve().parents[4]/'.github/workflows/windows-lifecycle-collector.yml'
+        parsed=subprocess.run(['ruby','-e',"require 'yaml';require 'json';puts JSON.generate(YAML.load_file(ARGV[0]))",str(workflow)],capture_output=True,check=False)
+        self.assertEqual(parsed.returncode,0,parsed.stderr)
+        jobs=json.loads(parsed.stdout)['jobs']
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary).resolve();launchers=[];markers=[];payloads=[];pythons=[]
+            for installation,wrapper,layout in [('first space','bin','ucrt64'),('second space','cmd','mingw64')]:
+                install=root/installation;launcher=install/wrapper/'git.exe';payload=install/layout/'bin/git.exe';marker=install/'launcher-executed'
+                launcher.parent.mkdir(parents=True);payload.parent.mkdir(parents=True)
+                launcher.write_text('#!/bin/sh\nprintf executed > "'+str(marker)+'"\nexit 99\n');launcher.chmod(0o755)
+                payload.write_bytes(('payload '+installation).encode());launchers.append(launcher);payloads.append(payload);markers.append(marker)
+                python=launcher.parent/'python';python_marker=install/'python-executed'
+                python.write_text('#!/bin/sh\nprintf executed > "'+str(python_marker)+'"\nexit 99\n');python.chmod(0o755)
+                pythons.append(python);markers.append(python_marker)
+            environment=dict(os.environ,PATH=os.pathsep.join(str(p.parent) for p in launchers))
+            empty=root/'empty-path';empty.mkdir()
+            probe=subprocess.run([executable,'-NoProfile','-NonInteractive','-Command','@(Get-Command git.exe -CommandType Application).Source | ConvertTo-Json -Compress'],env=environment,capture_output=True,check=False)
+            self.assertEqual(probe.returncode,0,probe.stderr)
+            self.assertEqual(json.loads(probe.stdout),[str(p) for p in launchers],'fixture must exercise two real ApplicationInfo results')
+            for job in ('build','collect'):
+                with self.subTest(job=job):
+                    startup=next(step for step in jobs[job]['steps'] if step.get('id')=='startup_git')
+                    script=root/(job+'.ps1');script.write_text(startup['run']);output=root/(job+'-output')
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],env=dict(environment,GITHUB_OUTPUT=str(output)),capture_output=True,check=False)
+                    self.assertEqual(result.returncode,0,'multiple real Git applications must preserve first PATH precedence: '+result.stderr.decode())
+                    observation=dict(line.split('=',1) for line in output.read_text().splitlines())
+                    self.assertEqual(observation['WINDOWS_OBSERVED_GIT_PAYLOAD_PATH'],str(payloads[0]))
+                    self.assertEqual(observation['WINDOWS_OBSERVED_GIT_PAYLOAD_SHA256'],hashlib.sha256(payloads[0].read_bytes()).hexdigest())
+                    empty=root/'empty-path';empty.mkdir(exist_ok=True);output.unlink()
+                    missing=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],env=dict(environment,PATH=str(empty),GITHUB_OUTPUT=str(output)),capture_output=True,check=False)
+                    self.assertNotEqual(missing.returncode,0);self.assertIn(b'Get-Command',missing.stderr);self.assertFalse(output.exists())
+            probe=subprocess.run([executable,'-NoProfile','-NonInteractive','-Command','@(Get-Command python -CommandType Application).Source | ConvertTo-Json -Compress'],env=environment,capture_output=True,check=False)
+            self.assertEqual(probe.returncode,0,probe.stderr);self.assertEqual(json.loads(probe.stdout),[str(p) for p in pythons])
+            for job in ('build','collect'):
+                with self.subTest(job=job,runtime='python'):
+                    startup=next(step for step in jobs[job]['steps'] if step.get('id')=='startup_python')
+                    script=root/(job+'-python.ps1');script.write_text(startup['run']);output=root/(job+'-python-output')
+                    result=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],env=dict(environment,GITHUB_OUTPUT=str(output)),capture_output=True,check=False)
+                    self.assertEqual(result.returncode,0,'multiple real Python applications must preserve first PATH precedence: '+result.stderr.decode())
+                    observation=dict(line.split('=',1) for line in output.read_text().splitlines())
+                    self.assertEqual(observation['WINDOWS_OBSERVED_PYTHON_PATH'],str(pythons[0]))
+                    self.assertEqual(observation['WINDOWS_OBSERVED_PYTHON_SHA256'],hashlib.sha256(pythons[0].read_bytes()).hexdigest())
+                    output.unlink()
+                    missing=subprocess.run([executable,'-NoProfile','-NonInteractive','-File',str(script)],env=dict(environment,PATH=str(empty),GITHUB_OUTPUT=str(output)),capture_output=True,check=False)
+                    self.assertNotEqual(missing.returncode,0);self.assertIn(b'Get-Command',missing.stderr);self.assertFalse(output.exists())
+            self.assertTrue(all(not marker.exists() for marker in markers),'discovery must never execute either launcher')
+
     def test_postbuild_guard_rejects_changes_before_pinned_python_launch(self):
         import subprocess,shlex
         executable=shutil.which('pwsh')
