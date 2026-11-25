@@ -1,0 +1,380 @@
+{
+  "scope": "FROZEN_PUBLIC_DEVELOPMENT_ONLY_NOT_R0_QUALIFICATION",
+  "frozen_at_utc": "2026-11-25T17:43:03.000545+00:00",
+  "baseline_commit": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "typescript_version": "5.9.3",
+  "baseline_source_sha256": "24df500bd622310e0522f7d2ea13082d484e58ece753b102027853622d4ed097",
+  "typescript_js_sha256": "3ae902c92cc44dace175c0e69e13a4b0899f6983c6121d76b9ab8dd5795e7675",
+  "input_freeze_sha256": "9ee6b356f61e8f125e71adfcc53fa1273c10f32cda26b58c47a309dce69956b1",
+  "oracle": "Exact original inspectModuleConfiguration, retainedWithoutSource and retainedWithSource; no native expectations",
+  "cases": [
+    {
+      "id": "PUBLIC-C1-SDK59-invalid-target",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"PUBLIC_R0_INVALID_TARGET\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-es5",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES5\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 1,
+      "typescript_target_name": "ES5",
+      "expected_native_target_flag": 1
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-es2025",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES2025\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-es3",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES3\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 0,
+      "typescript_target_name": "ES3",
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-es6",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES6\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 2,
+      "typescript_target_name": "ES2015",
+      "expected_native_target_flag": 2
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-es2024",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES2024\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 11,
+      "typescript_target_name": "ES2024",
+      "expected_native_target_flag": 11
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-esnext",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ESNext\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 99,
+      "typescript_target_name": "Latest",
+      "expected_native_target_flag": 99
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-case",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"eS2022\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 9,
+      "typescript_target_name": "ES2022",
+      "expected_native_target_flag": 9
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-es2026",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES2026\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-empty-string",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"\"},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-wrong-number",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":17},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-wrong-boolean",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-wrong-object",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":{}},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-wrong-array",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":[]},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-null",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":null},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-missing",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-inherited-new-target",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"],\"extends\":\"./base.json\"}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"ES2025\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-overridden-invalid-parent",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES2022\"},\"files\":[\"main.ts\"],\"extends\":\"./base.json\"}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"ES2025\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": true,
+      "typescript_target_value": 9,
+      "typescript_target_name": "ES2022",
+      "expected_native_target_flag": 9
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-valid-parent-null-child",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":null},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"ES2024\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-valid-parent-invalid-child",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true,\"target\":\"ES2025\"},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"ES2024\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "typescript_target_defined": false,
+      "typescript_target_value": null,
+      "typescript_target_name": null,
+      "expected_native_target_flag": 0
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-valid-parent-missing-child",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"ES2024\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [],
+      "expected_with_source_reasons": [],
+      "typescript_target_defined": true,
+      "typescript_target_value": 11,
+      "typescript_target_name": "ES2024",
+      "expected_native_target_flag": 11
+    }
+  ],
+  "previous_expected_sha256": "aa947b3d52f410b286c5a08ca94bf2702daeb72d130d30d62bbface2895edce0",
+  "additional_inputs_sha256": "5904708b9a4882d3055279478f31694b6a65cf9bed2785fada8dd14236b91337",
+  "effective_options_oracle": "Pinned TypeScript parseJsonConfigFileContent with exact baseline retainedCompilerSystem",
+  "native_target_projection_limit": "ts_goport uses flag0 both for NONE/unset and TS5.9 ES3. Numeric equality does not establish full ES3 compiler behavior; target_defined/value are retained separately."
+}

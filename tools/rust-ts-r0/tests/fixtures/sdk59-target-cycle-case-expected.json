@@ -1,0 +1,64 @@
+{
+  "typescript_version": "5.9.3",
+  "scope": "FROZEN_PUBLIC_MIXED_CASE_CYCLE_FORMATTING_WITH_EXPLICIT_REQUEST_HOST_PROFILE_NOT_R0",
+  "cases": [
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-case-parent-cycle",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./Base.json\",\"compilerOptions\":{\"target\":\"ES2022\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/Base.json": "{\"extends\":\"./Base.json\",\"compilerOptions\":{\"target\":\"ES2025\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:18000:Circularity detected while resolving configuration: /project -> /project/Base.json -> /project/Base.json"
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:18000:Circularity detected while resolving configuration: /project -> /project/Base.json -> /project/Base.json"
+      ],
+      "case_sensitive": false
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-case-root-cycle",
+      "files": {
+        "/Project/main.ts": "export const publicValue = 1;\n",
+        "/Project/tsconfig.json": "{\"extends\":\"./tsconfig.json\",\"compilerOptions\":{\"target\":\"ES2025\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/Project/main.ts",
+      "repository_root": "/Project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:18000:Circularity detected while resolving configuration: /Project -> /Project/tsconfig.json -> /Project/tsconfig.json"
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:18000:Circularity detected while resolving configuration: /Project -> /Project/tsconfig.json -> /Project/tsconfig.json"
+      ],
+      "case_sensitive": false
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-case-normalized-edge-cycle",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./Base.json\",\"compilerOptions\":{\"target\":\"ES2022\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/Base.json": "{\"extends\":\"./sub/../Base.json\",\"compilerOptions\":{\"target\":\"ES2025\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:18000:Circularity detected while resolving configuration: /project -> /project/Base.json -> /project/Base.json"
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:18000:Circularity detected while resolving configuration: /project -> /project/Base.json -> /project/Base.json"
+      ],
+      "case_sensitive": false
+    }
+  ]
+}
