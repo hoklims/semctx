@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "state": "PASS",
+  "subject": "sha256:ab24edb57620292039baec0e56f0122a37e64b44134271c07bc333879bde4011",
+  "product": "04b83a5f394431e1dcca533889f6c02e32d02a0d",
+  "evidence_sha256": "d82597bc05e88e3d029f0c13f24f1c2e08afea3b6e70eebeee907da441c0db10",
+  "first_line": "NATIVE_PUBLIC38_ADEQUATE subject=sha256:ab24edb57620292039baec0e56f0122a37e64b44134271c07bc333879bde4011 product=04b83a5f394431e1dcca533889f6c02e32d02a0d evidence_sha256=d82597bc05e88e3d029f0c13f24f1c2e08afea3b6e70eebeee907da441c0db10",
+  "provenance": {
+    "verified": true,
+    "capabilities": "read-only",
+    "events_sha256": "63959285447ce23a22b7b672dccb4810b8345f4fbc634446d397105c4e3958c4",
+    "prompt_sha256": "116e4810c7001a2bf0fe947b15ac634922bb227addddb58069c431c5ca3fbfe8",
+    "report": {
+      "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/native-review/independent/REVIEW.json",
+      "sha256": "f6b4d734694c2184d935efca6a008ba964d063be624f103ee741583917169f0d"
+    },
+    "events": {
+      "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/native-review/independent/review.events.jsonl",
+      "sha256": "63959285447ce23a22b7b672dccb4810b8345f4fbc634446d397105c4e3958c4"
+    },
+    "prompt": {
+      "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/native-review/independent/review.prompt.exact",
+      "sha256": "116e4810c7001a2bf0fe947b15ac634922bb227addddb58069c431c5ca3fbfe8"
+    }
+  },
+  "qualification_credit": 0
+}

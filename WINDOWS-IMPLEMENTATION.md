@@ -1,0 +1,243 @@
+# Dedicated Windows lifecycle collector candidate
+
+Baseline: fresh origin/main ec2d874a (PR432 retired automatic PR milestones).
+This isolated candidate preserves that change. No commit, push, dispatch or native
+Windows execution is authorized by this document.
+
+1. Keep the existing frozen04b product separate from the collector. Reuse the
+   locked three-input Python fixture loader and owned Rust Git transport.
+2. Add a manual-only workflow and a pure authority check using runner-owned
+   context plus three protected external pins. Empty pins refuse before writes.
+   Configuring those pins certifies prior independent admission; PR inputs and
+   the candidate cannot approve themselves.
+3. Wire the admitted route to a Windows Rust entrypoint:23 fixture workspaces,
+   70 public files,161 ordered Git commands plus version observations, fresh
+   D:\r, pinned Git/helper, exact raw outcomes and durable ordered receipts.
+4. Test denial and the prepared request route on Mac, portable owned-process
+   behavior, and cross-check Windows with the already installed toolchain.
+   Native Windows filesystem/process cleanup remains NOT_EXECUTED until CI.
+
+The collector only prepares Git fixtures; it launches no semctx candidate probe
+and earns no R0 credit. Artifact upload requires successful collection and
+postflight identities. The trusted runner/operator remains the authority boundary;
+the local process interface is not OS isolation against that owner.
+
+Before checkout or download, each run/artifact input must be one canonical
+positive decimal ID within JavaScript's exact integer range. Lists, numeric
+aliases and unsafe integers refuse. The pinned download action parses IDs as
+JavaScript numbers and supports comma-separated artifact lists; this guard keeps
+each download bound to exactly one input artifact.
+https://github.com/actions/download-artifact/blob/9000827ccba6bdab643e8b6fd33ac0654aef8333/src/download-artifact.ts
+
+Independent aggregate proof review and exact source admission are required before
+configuring the protected workflow/collector/review pins or dispatching collection.
+
+The prior-review pin names the original REVIEW.json bytes, never a DTO or a
+locally invented approval. Its bundle contains the actual events, exact prompt,
+catalog, stderr, native-evidence.json and NATIVE-REVIEW-RECEIPT.json. The copied
+trusted parser enforces the read-only capability inventory and matches its parsed
+review to the saved report and favorable product/evidence first line.
+
+Cleanup order is terminate owned tree → wait/reap helper → release Child handle → bounded kernel query
+→ bounded pipe drain → second kernel query → close the owned job → seal receipt.
+Only after all steps and checkout/executable postflight may the workflow upload.
+The two queries share a separate two-second quiescence deadline that also covers
+pipe draining; this deadline fails closed. A query is a momentary job-level
+observation; it does not prove that an administrator cannot assign a new process
+later. The trusted runner/controller must not reuse the job or initiate launches
+after sealing. Nested-job restrictions or unavailable QUERY/TERMINATE rights
+refuse execution. Native Windows behavior remains NOT_EXECUTED in local tests.
+Capture snapshots use nonblocking mutex acquisition within that same deadline;
+busy, poisoned or late snapshots refuse before a complete observation returns.
+
+Microsoft primary contracts:
+- https://learn.microsoft.com/en-us/windows/win32/api/jobapi2/nf-jobapi2-queryinformationjobobject
+- https://learn.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-jobobject_basic_accounting_information
+- https://learn.microsoft.com/en-us/windows/win32/procthread/job-objects
+
+The controller releases the reaped Child handle before both job queries, while
+retaining ownership of the Job handle. This removes its own process reference
+from ActiveProcesses accounting; native Windows validation remains required.
+
+The collector opts into checked termination and bounded try_wait before spawn/ACK.
+Its first cleanup fixes one absolute two-second deadline; failure and Drop reuse
+that deadline. Failed termination/reap never establishes a complete capture.
+The terminate/try_wait cleanup deadline and the quiescence/drain deadline are two
+distinct budgets, not one combined two-second limit. These checks provide no
+hard realtime guarantee for OS calls or scheduling. After refusal, finalization
+may still close the Windows Job with KILL_ON_JOB_CLOSE or send a best-effort Unix
+SIGKILL without waiting. Such finalization never establishes a timely successful
+reap, quiescence observation or complete capture. Legacy process callers retain
+their existing cleanup semantics; no final cleanup action is removed.
+Workflow pin syntax is checked by trusted inline PowerShell before checkout;
+host Git then checks both exact clean HEADs before any candidate Cargo build.
+After those identity checks, the workflow explicitly provisions the already
+declared Rust1.95.0 minimal toolchain before Cargo. This mirrors the existing CI
+prerequisite; setting RUSTUP_TOOLCHAIN alone does not install it on a runner.
+
+Git runtime provenance resolves the cmd/git.exe or top-level bin/git.exe wrapper without executing it to
+exactly one existing x64 payload: {mingw64,ucrt64}/bin/git.exe. Explicit payloads
+in either layout are accepted; missing, ambiguous, unknown or linked/reparse
+layouts refuse. Python identity reads and runtime pins, then Rust NativeGit,
+use that same payload. Host OS/DLLs remain trusted, not a hermetic closure.
+Primary Git for Windows sources:
+- https://gitforwindows.org/git-wrapper.html
+- https://github.com/git-for-windows/build-extra/blob/main/ReleaseNotes.md
+- https://github.com/actions/runner-images/blob/main/images/windows/scripts/build/Install-Git.ps1
+The official runner image puts Git/bin on PATH; historical successful Windows
+job44058909832/job133955742578 also logged that launcher. Local Python and real
+PowerShell fixtures exercise both payload layouts and a launcher sentinel that
+must never execute. This is macOS fixture evidence, not a native Windows run.
+After both reader joins, the shared stop flag is sticky refusal: even Ok EOF
+following the capture cutoff cannot establish a complete capture.
+
+Trusted inline PowerShell resolves and hashes the payload before identity Git
+reads and Cargo. It rechecks after those reads and publishes path/SHA as completed
+startup step outputs via GITHUB_OUTPUT, as runtime observation, not a fourth
+authority. Pre-build and collection step environments explicitly restore those
+outputs and the three protected variable pins; Cargo writes to GITHUB_ENV cannot
+replace them before Python captures its binding. Python requires those original
+bytes/path before identity reads and collection; postflight retains them. Both
+resolvers inspect ancestors before counting even an absent candidate leaf, so a
+dangling alternate layout refuses instead of silently disappearing.
+Both resolvers reject raw dot and dot-dot path segments before normalization;
+the Python CLI retains the original Git argument until that check.
+Entries must be fully qualified with canonical native spelling. Python also
+refuses a physical resolution that changes the validated pathname; the observed
+startup path is checked before any conversion can discard an alias.
+
+The public publisher passes the literal upload parent to its validator. Its
+default CLI parent retains the lexical path until ancestor checks have refused
+links; both upload directories must contain exactly their declared flat files.
+
+GitHub documents completed step outputs and the precedence of step environments:
+https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
+https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands
+https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax
+The regression executes the inline PowerShell and Python binding with modeled
+runner step-environment precedence; it is not a live GitHub or Windows execution.
+
+Startup Git payload resolution/pinning precedes checkout actions. Those actions
+may perform preparatory internal Git reads; their commit outputs grant nothing.
+Only the subsequent exact clean HEAD checks approve candidate identity. No
+payload directory is added to global PATH. Postflight Git reads are bracketed
+by canonical no-reparse resolution and startup SHA checks, then all three
+executables are pinned again before successful provenance is written.
+
+Python is resolved and pinned before Rustup/Cargo in a completed trusted step.
+The collection step restores that path/SHA from step outputs, independently of
+Cargo's PATH or GITHUB_ENV changes. Before launching it, protected inline
+PowerShell rechecks both exact clean checkout identities with pinned Git,
+checks the three controller source files against their workflow-bound byte
+hashes, and checks regular canonical paths for Python and both built binaries.
+The source hashes are content observations within the protected workflow and
+collector approvals, not an additional approval authority.
+The pinned interpreter uses isolation, an exclusive fresh bytecode-cache root,
+explicit source-file companion loading and an explicit controller file path.
+Ignored packages or old bytecode therefore cannot substitute for the checked
+files. The host Python standard library, OS and runner remain trusted; these
+checks are samples, not a sandbox or an atomic filesystem/execution guarantee.
+The post-build guard uses the fixed hosted Windows OS shell
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe, avoiding Cargo's
+GITHUB_PATH/runner PrependPath when the runner chooses a shell. Its explicit
+command reads the runner's extensionless script into a ScriptBlock; no host
+settings or execution policy are changed. The guard uses Framework-compatible
+APIs. This WindowsPowerShell5 hosted-runner profile still needs a native job;
+local PowerShell7-on-Mac parsing/guard tests do not prove that Windows runtime.
+Runner primary contracts:
+https://github.com/actions/runner/blob/main/src/Runner.Worker/Handlers/ScriptHandler.cs
+https://github.com/actions/runner/blob/main/src/Runner.Sdk/Util/WhichUtil.cs
+https://github.com/actions/runner/blob/main/src/Runner.Worker/Handlers/ScriptHandlerHelpers.cs
+
+The collector independently pins the exact public P15 native-review receipt
+bytes (SHA256 f81ad6af1384f1af6a64d0886be66e0f482412d7f4e2c5310820f7e19d867dad)
+before parsing them. Its protection applies even when independent artifact IDs
+are selected; receipt custody does not depend on the publisher's allowlist.
+
+BoundGit captures its frozen path/SHA once at controller startup. Every HEAD,
+status and tree read validates that binding before and after Git; expected
+identity is never reread from mutable environment. Trusted PowerShell uses
+Invoke-ObservedGit with the same per-call before/after assertion, captures the
+exit code, and emits stdout only after successful postvalidation.
+
+The build and collection now use separate hosted Windows jobs. The build job
+checks protected source identities, physical tracked bytes and the exact prior
+review before Rustup/Cargo. It transfers only the collector and helper executables
+using the pinned upload action. The dependent collection job receives the fixed
+artifact name from this repository's current run, with no build-job outputs or
+environment used as approval. It independently checks out and verifies the
+approved sources and public prerequisites on its fresh runner, validates the
+exact two-file binary tree, and pins runtime bytes before any transferred binary
+executes. There is no Cargo or Rustup command in the collection job.
+
+This separation matters because GitHub's GITHUB_ENV changes affect subsequent
+steps in the same job, and CLR profiling environment variables can load a DLL
+before a PowerShell script begins. The inference is that a guard inside that
+script cannot establish its own startup environment after Cargo. The new job
+boundary prevents the build's GITHUB_ENV/GITHUB_PATH values from reaching the
+receiver. Its fixed OS shell also resets its process-local PSModulePath to
+PSHOME/Modules before using cmdlets. This remains a finite hosted-runner trust
+profile, not OS isolation against a hostile administrator or compiler.
+
+Git reads bind both --git-dir and --work-tree to the expected checkout and ignore
+replacement refs. HEAD/status alone cannot prove physical byte identity: local
+core.worktree can redirect status, while stat-cache settings can conceal an edit
+whose size and mtime were restored. Both PowerShell identity guards and Python
+pre/postflight therefore enumerate HEAD's tracked blobs and compare Git blob
+SHA-1 identities computed directly from regular physical file bytes, without
+Git filters. The current baseline has only mode100644 entries; unsupported modes,
+linked/reparse components and nonregular files refuse. The LF checkout contract
+is unchanged. These are sampled checks, not an atomic filesystem snapshot.
+
+Primary references:
+
+- [GitHub environment-file scope](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#setting-an-environment-variable).
+- [Microsoft CLR profiler startup variables](https://learn.microsoft.com/en-us/dotnet/framework/unmanaged-api/profiling/clr-profilers-and-windows-store-apps).
+- [Pinned download action: current-run defaults](https://raw.githubusercontent.com/actions/download-artifact/9000827ccba6bdab643e8b6fd33ac0654aef8333/action.yml).
+
+No native Windows result, source admission, pin enrollment or R0 credit is created
+by these local source and fixture checks. WindowsPowerShell5, console cancellation
+and real artifact transport still require the admitted native job.
+
+
+V15 build transport binding: the build identity step completes before Cargo and records
+collector commit/tree through completed step outputs. A typed BUILD-PROVENANCE.json
+then binds those observations, workflow SHA, GitHub run ID/attempt, and the two
+regular executable byte hashes/sizes. The fresh receiver admits exactly those two
+executables plus that manifest (and their examples directory). Before execution it
+compares manifest source commit to the direct protected collector pin, tree to its
+own approved checkout observation, workflow/run/attempt to direct GitHub context,
+and hashes/sizes to actual downloaded bytes. Retrying only collection after a pin
+change or a new run attempt refuses the stale artifact. Manifest data is not a
+fourth authority; no hermetic or reproducible-build guarantee is claimed.
+
+V16 preserves each helper/executor path and SHA from the successful artifact
+verification step through completed step outputs. The launch step restores those
+four observations directly, checks the canonical artifact locations and hashes
+before Python, and passes those same paths. Python snapshots the expected records
+once before prerequisite reads, requires them for execution, checks canonical
+regular files and all ancestors, and compares actual bytes before request creation.
+Runtime/request records use the expected observations rather than adopting new
+hashes; final provenance includes verified_build_binaries equal to both runtime
+snapshots. Dry preflight does not require executable observations.
+
+Manifest schema and byte counts accept only JSON integers represented as Int32 or
+Int64 (nonnegative counts); schema must equal 1. File paths and SHA values require
+JSON strings. Booleans, floating values and numeric strings are refused rather
+than coerced. These are finite observation checks, not atomic filesystem or
+hard real-time guarantees; native Windows remains a separate runtime obligation.
+
+V17 binds the physical publisher validator and manifest bytes to their raw Git
+blobs at the protected SOURCE_SHA before Python executes. Git replacement objects
+and content filters cannot redefine that comparison; symlink components and
+nonregular authority files refuse. The existing byte allowlist then verifies all
+public payloads against the commit-bound manifest.
+
+The Windows build job reuses the pinned prior_review.verify_bundle implementation
+before Rustup and Cargo. It verifies the exact receipt, reviewer report, events,
+prompt, catalog, stderr and public evidence bindings under isolated Python
+(-I -S -B with a fresh bytecode namespace), then immediately rejects a nonzero
+interpreter exit. No parser or approval authority is duplicated. Artifact ID tests
+exercise the unchanged numeric guard independently for build and collect; proofs
+inject one faulty job guard at a time. Native Windows remains a separate execution
+obligation. These finite observations make no atomic OS promise.

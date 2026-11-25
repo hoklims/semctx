@@ -166,6 +166,32 @@ pub fn finish_reader<T>(reader: thread::JoinHandle<T>, stop: &AtomicBool) -> Res
     }
     reader.join().map_err(|_| "pipe reader panicked".into())
 }
+/// Finalize a capture within the shared deadline, without a fresh grace.
+/// Cancellation is sticky: a later EOF cannot make an interrupted capture complete.
+/// On refusal, the reader owns its pipe until it observes stop or the OS closes it.
+pub fn finish_reader_before<T>(
+    reader: thread::JoinHandle<T>,
+    stop: &AtomicBool,
+    deadline: Instant,
+) -> Result<T> {
+    loop {
+        if stop.load(Ordering::SeqCst) || Instant::now() >= deadline {
+            stop.store(true, Ordering::SeqCst);
+            return Err("pipe capture finalization deadline exceeded".into());
+        }
+        if reader.is_finished() {
+            let result = reader.join().map_err(|_| "pipe reader panicked".into());
+            if stop.load(Ordering::SeqCst) || Instant::now() >= deadline {
+                stop.store(true, Ordering::SeqCst);
+                return Err("pipe capture finalization deadline exceeded".into());
+            }
+            return result;
+        }
+        thread::sleep(
+            Duration::from_millis(5).min(deadline.saturating_duration_since(Instant::now())),
+        );
+    }
+}
 #[derive(Clone, Copy, PartialEq, Eq)]
 enum OutputMode {
     Capture,
@@ -292,7 +318,7 @@ struct Tree {
 }
 #[cfg(unix)]
 impl Tree {
-    fn attach(child: &Child) -> Result<Self> {
+    fn attach(child: &Child, _bounded_cleanup: bool) -> Result<Self> {
         Ok(Self {
             group: child.id() as i32,
         })
@@ -301,6 +327,31 @@ impl Tree {
         // SAFETY: POSIX kill accepts a negative process-group ID assigned by Command::process_group.
         unsafe {
             libc::kill(-self.group, libc::SIGKILL);
+        }
+    }
+    fn kill_checked(&self) -> Result<()> {
+        // SAFETY: the negative ID names this child's owned process group.
+        if unsafe { libc::kill(-self.group, libc::SIGKILL) } == 0 {
+            return Ok(());
+        }
+        let error = std::io::Error::last_os_error();
+        if error.raw_os_error() == Some(libc::ESRCH) {
+            Ok(())
+        } else {
+            Err(ProcessError::io("terminate owned process group", error))
+        }
+    }
+    fn quiescent(&self) -> Result<bool> {
+        // SAFETY: signal0 queries the owned POSIX process group without sending a signal.
+        let status = unsafe { libc::kill(-self.group, 0) };
+        if status == 0 {
+            return Ok(false);
+        }
+        let error = std::io::Error::last_os_error();
+        if error.raw_os_error() == Some(libc::ESRCH) {
+            Ok(true)
+        } else {
+            Err(ProcessError::io("query owned process group", error))
         }
     }
 }
@@ -314,10 +365,11 @@ impl Drop for Tree {
 #[cfg(windows)]
 struct Tree {
     job: windows_sys::Win32::Foundation::HANDLE,
+    terminate_on_drop: bool,
 }
 #[cfg(windows)]
 impl Tree {
-    fn attach(child: &Child) -> Result<Self> {
+    fn attach(child: &Child, bounded_cleanup: bool) -> Result<Self> {
         use std::os::windows::io::AsRawHandle;
         use windows_sys::Win32::{Foundation::CloseHandle, System::JobObjects::*};
         // SAFETY: Win32 receives live process/job handles and a correctly sized initialized job-info buffer.
@@ -343,7 +395,10 @@ impl Tree {
                 CloseHandle(job);
                 return Err(ProcessError::io("assign JobObject", error));
             }
-            Ok(Self { job })
+            Ok(Self {
+                job,
+                terminate_on_drop: !bounded_cleanup,
+            })
         }
     }
     fn kill(&self) {
@@ -352,27 +407,93 @@ impl Tree {
             windows_sys::Win32::System::JobObjects::TerminateJobObject(self.job, 124);
         }
     }
+    fn quiescent(&self) -> Result<bool> {
+        use windows_sys::Win32::System::JobObjects::{
+            JOBOBJECT_BASIC_ACCOUNTING_INFORMATION, JobObjectBasicAccountingInformation,
+            QueryInformationJobObject,
+        };
+        // SAFETY: this accounting structure contains only integer counters,
+        // for which an all-zero representation is valid.
+        let mut information: JOBOBJECT_BASIC_ACCOUNTING_INFORMATION = unsafe { std::mem::zeroed() };
+        // SAFETY: self.job is owned and live; this initialized, correctly sized
+        // output buffer remains writable throughout the kernel accounting query.
+        let ok = unsafe {
+            QueryInformationJobObject(
+                self.job,
+                JobObjectBasicAccountingInformation,
+                &mut information as *mut _ as _,
+                std::mem::size_of_val(&information) as u32,
+                std::ptr::null_mut(),
+            )
+        };
+        if ok == 0 {
+            Err(ProcessError::io(
+                "query owned job",
+                std::io::Error::last_os_error(),
+            ))
+        } else {
+            Ok(information.ActiveProcesses == 0)
+        }
+    }
+    fn kill_checked(&self) -> Result<()> {
+        // SAFETY: the uniquely owned job handle remains live throughout this call.
+        if unsafe { windows_sys::Win32::System::JobObjects::TerminateJobObject(self.job, 124) } == 0
+        {
+            Err(ProcessError::io(
+                "TerminateJobObject",
+                std::io::Error::last_os_error(),
+            ))
+        } else {
+            Ok(())
+        }
+    }
 }
 #[cfg(windows)]
 impl Drop for Tree {
     fn drop(&mut self) {
-        self.kill();
-        // SAFETY: Win32 CloseHandle releases the uniquely owned job handle once, after termination.
-        unsafe {
-            windows_sys::Win32::Foundation::CloseHandle(self.job);
-        }
+        finalize_job(
+            self.terminate_on_drop,
+            || self.kill(),
+            || {
+                // SAFETY: this uniquely owned job handle is closed exactly once. In bounded
+                // mode KILL_ON_JOB_CLOSE is best-effort cleanup, never a quiescence proof.
+                unsafe {
+                    windows_sys::Win32::Foundation::CloseHandle(self.job);
+                }
+            },
+        );
     }
 }
 
+#[cfg(any(windows, test))]
+fn finalize_job(terminate_on_drop: bool, terminate: impl FnOnce(), close: impl FnOnce()) {
+    if terminate_on_drop {
+        terminate();
+    }
+    close();
+}
+
 pub fn install_cancellation() {
+    let _ = install_cancellation_checked();
+}
+
+/// Register the process-local cancellation handler before dispatching owned work.
+pub fn install_cancellation_checked() -> Result<()> {
     #[cfg(unix)]
-    // SAFETY: libc::signal receives a static C-ABI handler that only stores an AtomicBool.
-    unsafe {
+    {
         extern "C" fn handler(_: i32) {
             CANCELLED.store(true, Ordering::SeqCst);
         }
-        libc::signal(libc::SIGINT, handler as *const () as libc::sighandler_t);
-        libc::signal(libc::SIGTERM, handler as *const () as libc::sighandler_t);
+        install_unix_cancellation(|signal| {
+            // SAFETY: signal receives a static C-ABI handler storing only an AtomicBool.
+            if unsafe { libc::signal(signal, handler as *const () as libc::sighandler_t) }
+                == libc::SIG_ERR
+            {
+                Err(std::io::Error::last_os_error())
+            } else {
+                Ok(())
+            }
+        })?;
     }
     #[cfg(windows)]
     // SAFETY: Win32 retains this static system-ABI callback; it only stores an AtomicBool.
@@ -385,7 +506,27 @@ pub fn install_cancellation() {
                 0
             }
         }
-        windows_sys::Win32::System::Console::SetConsoleCtrlHandler(Some(handler), 1);
+        if windows_sys::Win32::System::Console::SetConsoleCtrlHandler(Some(handler), 1) == 0 {
+            return Err(ProcessError::io(
+                "register cancellation handler",
+                std::io::Error::last_os_error(),
+            ));
+        }
+    }
+    Ok(())
+}
+
+#[cfg(unix)]
+fn install_unix_cancellation(mut install: impl FnMut(i32) -> std::io::Result<()>) -> Result<()> {
+    let mut first_error = None;
+    for signal in [libc::SIGINT, libc::SIGTERM] {
+        if let Err(error) = install(signal) {
+            first_error.get_or_insert(error);
+        }
+    }
+    match first_error {
+        Some(error) => Err(ProcessError::io("register cancellation handler", error)),
+        None => Ok(()),
     }
 }
 
@@ -457,40 +598,111 @@ fn finish_status(status: ExitStatus) -> Result<i32> {
 /// An acknowledged process with lifetime ownership. Call cleanup before joining pipe readers;
 /// a descendant may retain a pipe after the direct child exits. This is not a sandbox.
 pub struct OwnedChild {
-    child: Child,
+    child: Option<Child>,
+    id: u32,
     tree: Tree,
+    cleanup_budget: Option<Duration>,
+    cleanup_deadline: Option<Instant>,
 }
 
 impl OwnedChild {
+    /// Observe kernel-owned tree membership separately from requesting cleanup.
+    pub fn tree_quiescent(&self) -> Result<bool> {
+        self.tree.quiescent()
+    }
     pub fn id(&self) -> u32 {
-        self.child.id()
+        self.id
     }
     pub fn take_stdin(&mut self) -> Option<ChildStdin> {
-        self.child.stdin.take()
+        self.child.as_mut()?.stdin.take()
     }
     pub fn take_stdout(&mut self) -> Option<ChildStdout> {
-        self.child.stdout.take()
+        self.child.as_mut()?.stdout.take()
     }
     pub fn take_stderr(&mut self) -> Option<ChildStderr> {
-        self.child.stderr.take()
+        self.child.as_mut()?.stderr.take()
     }
     pub fn try_wait(&mut self) -> std::io::Result<Option<ExitStatus>> {
-        self.child.try_wait()
+        self.child.as_mut().ok_or_else(released_child)?.try_wait()
     }
     pub fn wait(&mut self) -> std::io::Result<ExitStatus> {
-        self.child.wait()
+        self.child.as_mut().ok_or_else(released_child)?.wait()
     }
     pub fn kill(&self) {
         self.tree.kill();
     }
     pub fn cleanup(&mut self) -> Result<()> {
+        if let Some(budget) = self.cleanup_budget {
+            let deadline = *self
+                .cleanup_deadline
+                .get_or_insert_with(|| Instant::now() + budget);
+            if let Some(child) = self.child.as_mut() {
+                bounded_terminate_and_reap(
+                    || self.tree.kill_checked(),
+                    || child.try_wait(),
+                    deadline,
+                )?;
+            }
+            return Ok(());
+        }
         self.kill();
-        self.child
-            .wait()
-            .map(|_| ())
-            .map_err(|e| ProcessError::io("reap owned process", e))
+        if let Some(child) = self.child.as_mut() {
+            child
+                .wait()
+                .map_err(|e| ProcessError::io("reap owned process", e))?;
+        }
+        Ok(())
+    }
+    /// Reap and release the process handle while retaining the tree for queries.
+    /// A failed wait retains the handle so cleanup can be retried.
+    pub fn cleanup_and_release_handle(&mut self) -> Result<()> {
+        self.cleanup()?;
+        drop(self.child.take());
+        Ok(())
     }
 }
+fn released_child() -> std::io::Error {
+    std::io::Error::other("owned child process handle released")
+}
+fn bounded_terminate_and_reap(
+    terminate: impl FnOnce() -> Result<()>,
+    mut try_wait: impl FnMut() -> std::io::Result<Option<ExitStatus>>,
+    deadline: Instant,
+) -> Result<()> {
+    if Instant::now() >= deadline {
+        return Err("owned process cleanup deadline exceeded".into());
+    }
+    terminate()?;
+    loop {
+        if Instant::now() >= deadline {
+            return Err("owned process cleanup deadline exceeded".into());
+        }
+        let status = try_wait().map_err(|error| ProcessError::io("poll owned process", error))?;
+        if Instant::now() >= deadline {
+            return Err("owned process cleanup deadline exceeded".into());
+        }
+        match status {
+            Some(_) => return Ok(()),
+            None => thread::sleep(
+                Duration::from_millis(5).min(deadline.saturating_duration_since(Instant::now())),
+            ),
+        }
+    }
+}
+fn cleanup_unassigned_helper(child: &mut Child, deadline: Instant) -> Result<()> {
+    let child = std::cell::RefCell::new(child);
+    bounded_terminate_and_reap(
+        || {
+            child
+                .borrow_mut()
+                .kill()
+                .map_err(|error| ProcessError::io("terminate unassigned helper", error))
+        },
+        || child.borrow_mut().try_wait(),
+        deadline,
+    )
+}
+
 impl Drop for OwnedChild {
     fn drop(&mut self) {
         let _ = self.cleanup();
@@ -509,6 +721,7 @@ pub fn spawn_owned(
         Environment::Inherited(env),
         helper_path,
         InputMode::Streaming,
+        None,
     )
 }
 
@@ -526,6 +739,28 @@ pub fn spawn_owned_with_env(
         Environment::Exact(exact_env),
         helper_path,
         InputMode::Streaming,
+        None,
+    )
+}
+
+/// Opt in before spawn/ACK to bounded cleanup, including every failure/drop path.
+pub fn spawn_owned_with_env_bounded(
+    argv: &[String],
+    root: &Path,
+    exact_env: &BTreeMap<String, String>,
+    helper_path: &Path,
+    cleanup_budget: Duration,
+) -> Result<OwnedChild> {
+    if cleanup_budget.is_zero() {
+        return Err("zero owned cleanup budget".into());
+    }
+    spawn_owned_mode(
+        argv,
+        root,
+        Environment::Exact(exact_env),
+        helper_path,
+        InputMode::Streaming,
+        Some(cleanup_budget),
     )
 }
 
@@ -535,6 +770,7 @@ fn spawn_owned_mode(
     environment: Environment<'_>,
     helper_path: &Path,
     input_mode: InputMode,
+    cleanup_budget: Option<Duration>,
 ) -> Result<OwnedChild> {
     if argv.is_empty() {
         return Err("empty owned command".into());
@@ -582,25 +818,38 @@ fn spawn_owned_mode(
     let mut child = command
         .spawn()
         .map_err(|e| ProcessError::io("spawn supervisor", e))?;
-    let tree = match Tree::attach(&child) {
+    let tree = match Tree::attach(&child, cleanup_budget.is_some()) {
         Ok(tree) => tree,
         Err(e) => {
-            let _ = child.kill();
-            let _ = child.wait();
+            if let Some(budget) = cleanup_budget {
+                let deadline = Instant::now() + budget;
+                let _ = cleanup_unassigned_helper(&mut child, deadline);
+            } else {
+                let _ = child.kill();
+                let _ = child.wait();
+            }
             return Err(e);
         }
     };
-    let mut owned = OwnedChild { child, tree };
+    let mut owned = OwnedChild {
+        id: child.id(),
+        child: Some(child),
+        tree,
+        cleanup_budget,
+        cleanup_deadline: None,
+    };
     // This is the only release point. On attach failure the helper is killed without an ACK.
     owned
         .child
+        .as_mut()
+        .ok_or("missing owned child")?
         .stdin
         .as_mut()
         .ok_or("missing supervisor stdin")?
         .write_all(b"!")
         .map_err(|e| ProcessError::io("supervisor acknowledgement", e))?;
     if input_mode == InputMode::Closed {
-        drop(owned.child.stdin.take());
+        drop(owned.take_stdin());
     }
     Ok(owned)
 }
@@ -676,8 +925,9 @@ fn run_mode(
         Environment::Inherited(None),
         executable,
         InputMode::Closed,
+        None,
     )?;
-    let child = &mut owned.child;
+    let child = owned.child.as_mut().ok_or("missing owned child")?;
     let tree = &owned.tree;
     let stop = Arc::new(AtomicBool::new(false));
     let (out, out_thread) = drain(
@@ -765,4 +1015,128 @@ fn run_mode(
         stdout_hash: format!("{:x}", out.hash.clone().finalize()),
         stderr_hash: format!("{:x}", err.hash.clone().finalize()),
     })
+}
+
+#[cfg(test)]
+mod bounded_cleanup_tests {
+    use super::*;
+    #[cfg(unix)]
+    #[test]
+    fn registration_attempts_both_signals_after_first_failure() {
+        let mut attempted = Vec::new();
+        let result = install_unix_cancellation(|signal| {
+            attempted.push(signal);
+            if signal == libc::SIGINT {
+                Err(std::io::Error::other("first registration refused"))
+            } else {
+                Ok(())
+            }
+        });
+        assert_eq!(attempted, [libc::SIGINT, libc::SIGTERM]);
+        assert!(
+            result.is_err(),
+            "registration failure must remain a refusal"
+        );
+    }
+    #[test]
+    fn termination_failure_is_refusal_without_polling() {
+        let started = Instant::now();
+        let result = bounded_terminate_and_reap(
+            || Err("termination unavailable".into()),
+            || panic!("failed termination must not become successful reap"),
+            started + Duration::from_millis(20),
+        );
+        assert!(result.is_err());
+        assert!(started.elapsed() < Duration::from_millis(100));
+    }
+    #[test]
+    fn unknown_reap_is_bounded_and_reuses_expired_deadline() {
+        let started = Instant::now();
+        let deadline = started + Duration::from_millis(20);
+        for _ in 0..2 {
+            let result = bounded_terminate_and_reap(|| Ok(()), || Ok(None), deadline);
+            assert!(result.is_err());
+        }
+        assert!(started.elapsed() < Duration::from_millis(100));
+    }
+    #[test]
+    fn failed_reap_is_never_success() {
+        let result = bounded_terminate_and_reap(
+            || Ok(()),
+            || Err(std::io::Error::other("reap unavailable")),
+            Instant::now() + Duration::from_millis(20),
+        );
+        assert!(result.is_err());
+    }
+    #[test]
+    fn expired_cleanup_does_not_call_termination_or_poll() {
+        let result = bounded_terminate_and_reap(
+            || panic!("expired cleanup called termination"),
+            || panic!("expired cleanup called poll"),
+            Instant::now(),
+        );
+        assert!(result.is_err());
+    }
+    #[test]
+    fn late_termination_does_not_call_poll() {
+        let deadline = Instant::now() + Duration::from_millis(5);
+        let result = bounded_terminate_and_reap(
+            || {
+                thread::sleep(Duration::from_millis(10));
+                Ok(())
+            },
+            || panic!("late termination reached poll"),
+            deadline,
+        );
+        assert!(result.is_err());
+    }
+    #[test]
+    fn late_successful_reap_is_refused() {
+        #[cfg(unix)]
+        use std::os::unix::process::ExitStatusExt;
+        #[cfg(windows)]
+        use std::os::windows::process::ExitStatusExt;
+        let deadline = Instant::now() + Duration::from_millis(5);
+        let result = bounded_terminate_and_reap(
+            || Ok(()),
+            || {
+                thread::sleep(Duration::from_millis(10));
+                Ok(Some(ExitStatus::from_raw(0)))
+            },
+            deadline,
+        );
+        assert!(
+            result.is_err(),
+            "late reap supplied false successful cleanup"
+        );
+    }
+    #[test]
+    fn bounded_job_drop_closes_without_another_termination() {
+        let actions = std::cell::RefCell::new(Vec::new());
+        finalize_job(
+            false,
+            || actions.borrow_mut().push("terminate"),
+            || actions.borrow_mut().push("close"),
+        );
+        assert_eq!(*actions.borrow(), ["close"]);
+        actions.borrow_mut().clear();
+        finalize_job(
+            true,
+            || actions.borrow_mut().push("terminate"),
+            || actions.borrow_mut().push("close"),
+        );
+        assert_eq!(*actions.borrow(), ["terminate", "close"]);
+    }
+    #[cfg(unix)]
+    #[test]
+    fn expired_attach_cleanup_does_not_kill_the_child() {
+        let mut child = Command::new("/bin/sleep").arg("10").spawn().unwrap();
+        let result = cleanup_unassigned_helper(&mut child, Instant::now());
+        thread::sleep(Duration::from_millis(10));
+        let alive = child.try_wait().unwrap().is_none();
+        let _ = child.kill();
+        child.wait().unwrap();
+        assert!(result.is_err());
+        assert!(alive, "expired attach cleanup dispatched kill");
+    }
 }

@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "lanes": {
+    "macos": {
+      "source": {
+        "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/verified-native/macos.source.json",
+        "sha256": "2281a2ffbf6ecc1a5ba62745cff7e7d9c23f18a76e77dc056d1ebe628eaad5a4",
+        "bytes": 2110
+      },
+      "result": {
+        "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/acquisition-macos/attempts/public38-native-once/result.json",
+        "sha256": "53507b71d8ae6ee6248936ed8ef32d6ceeb30d39bfe9a5d4bff629dc1c7cf1a5",
+        "bytes": 301
+      },
+      "readback": {
+        "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/verified-native/macos.readback.json",
+        "sha256": "8c8bc56bc9365be04c5730518dc714f2b9e265b42edc17dee44b6a28464af35a",
+        "bytes": 1379
+      }
+    },
+    "linux": {
+      "source": {
+        "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/verified-native/linux.source.json",
+        "sha256": "f9f2434ad079578ac70f253cc00b64581eb61cf54587c9a6eeb8938d5978c58d",
+        "bytes": 2097
+      },
+      "result": {
+        "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/acquisition-linux-public/attempts/public38-native-once/result.json",
+        "sha256": "e359303fc84679bb0db3baa158bac67689330f271f32e2868fbb0f21e4abc57a",
+        "bytes": 301
+      },
+      "readback": {
+        "path": "/Users/hokli/work/semctx-public38-native-refusal-proof/verified-native/linux.readback.json",
+        "sha256": "5762e325d62b52679227d50efe92aac1a037fc5736aec8cefea6cabb35f9c86d",
+        "bytes": 1359
+      }
+    }
+  }
+}
