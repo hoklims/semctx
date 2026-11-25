@@ -124,7 +124,7 @@ jobs:
             if ($direct -and $payloads[0] -ine $entry) { throw 'direct Git payload differs from unique installation payload' }
             return $payloads[0]
           }
-          $entry = (Get-Command git.exe -CommandType Application).Source
+          $entry = (Get-Command git.exe -CommandType Application | Select-Object -First 1).Source
           $payload = Resolve-GitPayload $entry
           if ($payload -match '[\r\n]') { throw 'invalid Git payload environment path' }
           $digest = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -279,7 +279,7 @@ jobs:
             if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'postbuild runtime path is not a canonical regular file' }
             if ($Digest -and ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest)) { throw 'postbuild runtime payload changed' }
           }
-          $python = (Get-Command python -CommandType Application).Source
+          $python = (Get-Command python -CommandType Application | Select-Object -First 1).Source
           Assert-ObservedFile $python '' $false
           if ($python.Contains([char]13) -or $python.Contains([char]10)) { throw 'invalid Python runtime output path' }
           $digest = (Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -448,7 +448,7 @@ jobs:
             if ($direct -and $payloads[0] -ine $entry) { throw 'direct Git payload differs from unique installation payload' }
             return $payloads[0]
           }
-          $entry = (Get-Command git.exe -CommandType Application).Source
+          $entry = (Get-Command git.exe -CommandType Application | Select-Object -First 1).Source
           $payload = Resolve-GitPayload $entry
           if ($payload -match '[\r\n]') { throw 'invalid Git payload environment path' }
           $digest = (Get-FileHash -LiteralPath $payload -Algorithm SHA256).Hash.ToLowerInvariant()
@@ -613,7 +613,7 @@ jobs:
             if ($item -isnot [IO.FileInfo] -or $item.FullName -cne $Path) { throw 'postbuild runtime path is not a canonical regular file' }
             if ($Digest -and ((Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant() -cne $Digest)) { throw 'postbuild runtime payload changed' }
           }
-          $python = (Get-Command python -CommandType Application).Source
+          $python = (Get-Command python -CommandType Application | Select-Object -First 1).Source
           Assert-ObservedFile $python '' $false
           if ($python.Contains([char]13) -or $python.Contains([char]10)) { throw 'invalid Python runtime output path' }
           $digest = (Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant()
