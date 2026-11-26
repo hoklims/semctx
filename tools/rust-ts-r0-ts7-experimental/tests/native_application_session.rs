@@ -60,10 +60,45 @@ impl Fixture {
         let binary = if replaceable {
             let producer = PathBuf::from(env!("CARGO_BIN_EXE_semctx-r0-ts7-experimental"));
             let directory = self.directory.join("producer-bin");
-            fs::create_dir(&directory).unwrap();
-            let binary = directory.join(producer.file_name().unwrap());
-            fs::copy(&producer, &binary).unwrap();
-            binary
+            let physical_directory = if cfg!(windows) {
+                self.directory.join("running-producer")
+            } else {
+                directory.clone()
+            };
+            fs::create_dir(&physical_directory).unwrap();
+            fs::copy(
+                &producer,
+                physical_directory.join(producer.file_name().unwrap()),
+            )
+            .unwrap();
+            #[cfg(windows)]
+            {
+                // Keep absolute fixture paths out of cmd's shell text.
+                let output = Command::new("cmd.exe")
+                    .args([
+                        "/d",
+                        "/v:off",
+                        "/c",
+                        "mklink",
+                        "/J",
+                        "producer-bin",
+                        "running-producer",
+                    ])
+                    .current_dir(&self.directory)
+                    .output()
+                    .unwrap();
+                assert!(
+                    output.status.success(),
+                    "producer directory junction creation failed: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                assert_eq!(
+                    directory.canonicalize().unwrap(),
+                    physical_directory.canonicalize().unwrap()
+                );
+            }
+            // Keep the logical launch path; mutation tests verify receipt revalidation.
+            directory.join(producer.file_name().unwrap())
         } else {
             PathBuf::from(env!("CARGO_BIN_EXE_semctx-r0-ts7-experimental"))
         };
@@ -176,29 +211,31 @@ fn graph(produced: &Value) -> Value {
 
 #[test]
 fn native_application_session_keeps_receipt_through_ownership_and_final() {
-    let fixture = Fixture::new("export function chosen() { return 7; }\n");
-    let mut session = fixture.start(false);
-    let produced = session.frame();
-    assert_eq!(produced["phase"], "produced");
-    assert_eq!(produced["disposition"], "analyzed");
-    assert!(produced.get("receipt").is_none());
-    let graph = graph(&produced);
-    assert!(
-        graph["nodes"]
-            .as_array()
-            .unwrap()
-            .iter()
-            .any(|node| node["name"] == "chosen")
-    );
-    session.send(&json!({"phase":"ownership","graph":graph,"files":fixture.request["files"]}));
-    let ownership = session.frame();
-    assert_eq!(ownership["phase"], "ownership");
-    assert_eq!(ownership["accepted"], true);
-    assert_eq!(ownership["subjects"][0]["path"], "src/main.ts");
-    assert_eq!(ownership["subjects"][0]["outcome"], "analyzed");
-    session.send(&json!({"phase":"final","graph":graph,"files":fixture.request["files"]}));
-    assert_eq!(session.frame(), json!({"phase":"final","accepted":true}));
-    assert!(session.finish(true).is_empty());
+    for replaceable in [false, true] {
+        let fixture = Fixture::new("export function chosen() { return 7; }\n");
+        let mut session = fixture.start(replaceable);
+        let produced = session.frame();
+        assert_eq!(produced["phase"], "produced");
+        assert_eq!(produced["disposition"], "analyzed");
+        assert!(produced.get("receipt").is_none());
+        let graph = graph(&produced);
+        assert!(
+            graph["nodes"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|node| node["name"] == "chosen")
+        );
+        session.send(&json!({"phase":"ownership","graph":graph,"files":fixture.request["files"]}));
+        let ownership = session.frame();
+        assert_eq!(ownership["phase"], "ownership");
+        assert_eq!(ownership["accepted"], true);
+        assert_eq!(ownership["subjects"][0]["path"], "src/main.ts");
+        assert_eq!(ownership["subjects"][0]["outcome"], "analyzed");
+        session.send(&json!({"phase":"final","graph":graph,"files":fixture.request["files"]}));
+        assert_eq!(session.frame(), json!({"phase":"final","accepted":true}));
+        assert!(session.finish(true).is_empty());
+    }
 }
 
 #[test]
@@ -248,7 +285,10 @@ fn native_application_session_refuses_mutations_before_either_receipt_revalidati
                     let original = fs::read(&session.binary).unwrap();
                     let directory = session.binary.parent().unwrap();
                     let running = fixture.directory.join("running-producer");
-                    // Move the containing directory while the producer remains alive.
+                    #[cfg(windows)]
+                    // Remove only the junction; the mapped image stays in its physical directory.
+                    fs::remove_dir(directory).unwrap();
+                    #[cfg(not(windows))]
                     fs::rename(directory, &running).unwrap();
                     fs::create_dir(directory).unwrap();
                     fs::write(&session.binary, b"changed native artifact").unwrap();
