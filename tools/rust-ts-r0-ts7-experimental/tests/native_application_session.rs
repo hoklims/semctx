@@ -58,8 +58,11 @@ impl Fixture {
 
     fn start(&self, replaceable: bool) -> Session {
         let binary = if replaceable {
-            let binary = self.directory.join("producer");
-            fs::copy(env!("CARGO_BIN_EXE_semctx-r0-ts7-experimental"), &binary).unwrap();
+            let producer = PathBuf::from(env!("CARGO_BIN_EXE_semctx-r0-ts7-experimental"));
+            let directory = self.directory.join("producer-bin");
+            fs::create_dir(&directory).unwrap();
+            let binary = directory.join(producer.file_name().unwrap());
+            fs::copy(&producer, &binary).unwrap();
             binary
         } else {
             PathBuf::from(env!("CARGO_BIN_EXE_semctx-r0-ts7-experimental"))
@@ -242,22 +245,43 @@ fn native_application_session_refuses_mutations_before_either_receipt_revalidati
                 "live" => fs::write(&fixture.source, "export const altered = 1;").unwrap(),
                 "missing" => fs::remove_file(&fixture.source).unwrap(),
                 "artifact" => {
-                    let replacement = fixture.directory.join("replacement");
-                    fs::write(&replacement, b"changed native artifact").unwrap();
-                    if cfg!(windows) {
-                        // Windows refuses to overwrite a running image but lets it move aside.
-                        fs::rename(&session.binary, fixture.directory.join("running")).unwrap();
-                    }
-                    fs::rename(replacement, &session.binary).unwrap();
+                    let original = fs::read(&session.binary).unwrap();
+                    let directory = session.binary.parent().unwrap();
+                    let running = fixture.directory.join("running-producer");
+                    // Move the containing directory while the producer remains alive.
+                    fs::rename(directory, &running).unwrap();
+                    fs::create_dir(directory).unwrap();
+                    fs::write(&session.binary, b"changed native artifact").unwrap();
+                    assert_eq!(
+                        fs::read(running.join(session.binary.file_name().unwrap())).unwrap(),
+                        original,
+                        "{phase}/{mutation}: running producer bytes must be preserved"
+                    );
+                    assert_ne!(
+                        fs::read(&session.binary).unwrap(),
+                        original,
+                        "{phase}/{mutation}: original binary path must contain changed bytes"
+                    );
+                    assert!(
+                        session.child.try_wait().unwrap().is_none(),
+                        "{phase}/{mutation}: producer must remain alive before revalidation"
+                    );
                 }
                 _ => unreachable!(),
             }
             session.send(&json!({"phase":phase,"graph":graph,"files":files}));
             let error = session.finish(false);
-            assert!(
-                error.contains("application session"),
-                "{phase}/{mutation}: {error}"
-            );
+            if mutation == "artifact" {
+                assert!(
+                    error.contains(&format!("{phase} receipt rejected: IdentityMismatch")),
+                    "{phase}/{mutation}: {error}"
+                );
+            } else {
+                assert!(
+                    error.contains("application session"),
+                    "{phase}/{mutation}: {error}"
+                );
+            }
         }
     }
 }
