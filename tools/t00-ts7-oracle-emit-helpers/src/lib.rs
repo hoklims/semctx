@@ -326,6 +326,8 @@ mod test_sdk;
 mod tests {
     use super::*;
 
+    static STAGED_LAUNCH: std::sync::Mutex<()> = std::sync::Mutex::new(());
+
     fn exactly_one_pass(stdout: &str, name: &str) -> bool {
         stdout.lines().any(|line| line == "running 1 test")
             && stdout
@@ -351,6 +353,8 @@ mod tests {
         let sdk = test_sdk::prepare_test_sdk(&directory, true);
         let current = std::env::current_exe().unwrap();
         let executable = sdk.join(current.file_name().unwrap());
+        // Do not let another staged child inherit a writable executable descriptor.
+        let launch_guard = STAGED_LAUNCH.lock().unwrap();
         std::fs::copy(current, &executable).unwrap();
         let stdout_path = directory.join("stdout");
         let stderr_path = directory.join("stderr");
@@ -363,6 +367,7 @@ mod tests {
             .stderr(std::fs::File::create(&stderr_path).unwrap())
             .spawn()
             .unwrap();
+        drop(launch_guard);
         let deadline = std::time::Instant::now() + std::time::Duration::from_secs(60);
         let (status, timed_out) = loop {
             if let Some(status) = child.try_wait().unwrap() {
