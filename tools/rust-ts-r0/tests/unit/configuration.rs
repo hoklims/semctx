@@ -1,6 +1,146 @@
 use super::*;
 
 #[test]
+fn sdk59_module_root_diagnostics_preserve_messages_and_none_refusal() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-module-root-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_module_diagnostics_preserve_exact_messages_and_order() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-module-diagnostic-expected.json"),
+        2,
+    );
+}
+
+#[test]
+fn sdk59_target_cycles_preserve_display_case_in_insensitive_filesystem() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-cycle-case-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_target_shape_errors_preserve_pre_option_order() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-shape-order-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_target_cycles_preserve_diagnostic_context_and_order() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-cycle-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_target_cycle_selected_neighbors_preserve_source_multiplicity_and_order() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-cycle-selected-neighbors-expected.json"),
+        2,
+    );
+}
+
+#[test]
+fn sdk59_target_configuration_matches_frozen_public_baseline() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-public-expected.json"),
+        21,
+    );
+}
+
+#[test]
+fn sdk59_target_diagnostics_preserve_inherited_multiplicity() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-multiplicity-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_target_diagnostics_preserve_source_order() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-diagnostic-order-expected.json"),
+        9,
+    );
+}
+
+#[test]
+fn sdk59_target_diagnostics_preserve_inherited_duplicate_properties() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-duplicate-key-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_target_diagnostics_preserve_order_with_other_options() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-mixed-diagnostic-expected.json"),
+        3,
+    );
+}
+
+#[test]
+fn sdk59_target_diagnostics_insert_newer_targets_in_native_option_order() {
+    assert_sdk59_target_fixture(
+        include_str!("../fixtures/sdk59-target-mixed-insertion-expected.json"),
+        3,
+    );
+}
+
+fn assert_sdk59_target_fixture(json: &str, expected_count: usize) {
+    let fixture: serde_json::Value = serde_json::from_str(json).unwrap();
+    assert_eq!(fixture["typescript_version"], "5.9.3");
+    let cases = fixture["cases"].as_array().unwrap();
+    assert_eq!(cases.len(), expected_count);
+    let mut mismatches = vec![];
+    for case in cases {
+        let files = case["files"]
+            .as_object()
+            .unwrap()
+            .iter()
+            .map(|(path, text)| (path.clone(), text.as_str().unwrap().to_owned()))
+            .collect();
+        let result = inspect(
+            Rc::new(CaptureFs::new(
+                files,
+                case["case_sensitive"].as_bool().unwrap_or(true),
+            )),
+            case["source_path"].as_str().unwrap(),
+            case["repository_root"].as_str().unwrap(),
+        )
+        .unwrap();
+        let expected: Vec<String> =
+            serde_json::from_value(case["expected_reasons"].clone()).unwrap();
+        if result.reasons != expected {
+            mismatches.push(format!(
+                "{}: expected {expected:?}, native {:?}",
+                case["id"].as_str().unwrap(),
+                result.reasons
+            ));
+        }
+        if let Some(expected_target) = case["expected_native_target_flag"].as_i64()
+            && i64::from(result.options.target.0) != expected_target
+        {
+            mismatches.push(format!(
+                "{}: expected target {expected_target}, native {:?}",
+                case["id"].as_str().unwrap(),
+                result.options.target
+            ));
+        }
+    }
+    assert!(mismatches.is_empty(), "{}", mismatches.join("\n"));
+}
+
+#[test]
 fn configuration_discovery_root_candidates_have_one_separator() {
     for (source, root, expected) in [
         (

@@ -1,0 +1,58 @@
+{
+  "scope": "FROZEN_PUBLIC_TARGET_MIXED_DIAGNOSTIC_ORDER_EXPECTATIONS_NOT_R0",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "typescript_version": "5.9.3",
+  "input_freeze_sha256": "0eed7b894d961ea39fa443ef69e107f32ac49de7e91c98bafc5e3004b9d9d93f",
+  "oracle_output_sha256": "869038bab963ccec964cb91c21fb9914aedc0ccb44667473a05d671d2812f58f",
+  "cases": [
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-target-before-boolean",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"target\":17,\"useDefineForClassFields\":\"BAD_BOOL\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ]
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-boolean-before-target",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"useDefineForClassFields\":\"BAD_BOOL\",\"target\":17,\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string."
+      ]
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-valid-target-bad-boolean",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"target\":\"ES2022\",\"useDefineForClassFields\":\"BAD_BOOL\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ]
+    }
+  ]
+}

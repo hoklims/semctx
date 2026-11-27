@@ -1,0 +1,61 @@
+{
+  "scope": "FROZEN_PUBLIC_TARGET_MIXED_INSERTION_EXPECTATIONS_NOT_R0",
+  "baseline": "3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b",
+  "typescript_version": "5.9.3",
+  "input_freeze_sha256": "3470b35f9ec0b6097a57a9042ac7c4c98f2e06024ccc677578a3c86c867f117d",
+  "oracle_output_sha256": "fffc721b74568a1e18e7f764996e6911039923842ccb715177bb83f4810db158",
+  "cases": [
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-new-target-before-boolean",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"target\":\"ES2025\",\"useDefineForClassFields\":\"BAD_BOOL\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ]
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-boolean-before-new-target",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"useDefineForClassFields\":\"BAD_BOOL\",\"target\":\"ES2025\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ]
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-mixed-parent-new-target-before-boolean",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"target\":\"ES2022\",\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"ES2025\",\"useDefineForClassFields\":\"BAD_BOOL\"}}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'useDefineForClassFields' requires a value of type boolean."
+      ]
+    }
+  ]
+}

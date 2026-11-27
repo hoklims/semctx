@@ -1,0 +1,51 @@
+{
+  "typescript_version": "5.9.3",
+  "scope": "FROZEN_PUBLIC_ROOT_MODULE_DIAGNOSTICS_NOT_R0",
+  "cases": [
+    {
+      "id": "PUBLIC-C1-SDK59-root-module-invalid",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"target\":\"ES2022\",\"module\":\"BadModule\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+      ]
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-root-module-wrong-type",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"target\":\"ES2022\",\"module\":false,\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'module' requires a value of type string."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'module' requires a value of type string."
+      ]
+    },
+    {
+      "id": "PUBLIC-C1-SDK59-root-module-none",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"compilerOptions\":{\"target\":\"ES2022\",\"module\":\"None\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n"
+      },
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None"
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_MODULE_UNSUPPORTED:None"
+      ]
+    }
+  ]
+}
