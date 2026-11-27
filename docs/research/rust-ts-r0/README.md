@@ -11,6 +11,17 @@ The approximate3–4day estimate remains planning context. C2 is abandoned for t
 pending. This record does not change the
 accepted language profiles or declare `READY_TS_NATIVE`.
 
+## Current public-work authorization
+
+The owner's [2026-11-27 solo-maintainer decision](../../contributing/solo-maintainer.md)
+authorizes continued public development, controls and bounded corrections without a new
+permission request for each tranche, command or PR. The agent records the scope and resource
+estimate in the existing plan. This supersedes the interpretation of section 2.4 as requiring
+a separate owner reply for every public development step. Explicit user limits and closed
+campaign counters remain binding; reserved access, qualification protocols and technical
+acceptance are unchanged. The dated permissions and exhausted envelopes below are historical
+records, not a requirement to request approval again for routine work covered by this decision.
+
 The [current source-bound native dossier](evidence/current-96fedbbe/README.md)
 contains the complete Mac and Linux raw captures and current 395-property /
 51-support assessments, preserving scoped raw differences. The public regression
