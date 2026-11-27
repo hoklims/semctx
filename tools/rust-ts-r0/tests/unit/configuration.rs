@@ -68,7 +68,7 @@ fn sdk59_target_diagnostics_preserve_inherited_multiplicity() {
 fn sdk59_target_diagnostics_preserve_source_order() {
     assert_sdk59_target_fixture(
         include_str!("../fixtures/sdk59-target-diagnostic-order-expected.json"),
-        3,
+        9,
     );
 }
 

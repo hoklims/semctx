@@ -59,6 +59,127 @@
         "SOURCE_CONFIGURATION_INVALID:5024:Compiler option 'target' requires a value of type string.",
         "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
       ]
+    },
+    {
+      "id": "C1-json-order-duplicate-targets-around-malformed-module",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"BAD\",\"module\":'BAD',\"target\":\"WORSE\"}}\n"
+      },
+      "case_sensitive": false,
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ]
+    },
+    {
+      "id": "C1-json-order-invalid-target-then-malformed-module",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"BAD\",\"module\":'BAD'}}\n"
+      },
+      "case_sensitive": false,
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+      ]
+    },
+    {
+      "id": "C1-json-order-invalid-target-then-unquoted-module-key",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"BAD\",module:\"BAD\"}}\n"
+      },
+      "case_sensitive": false,
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'.",
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--module' option must be: 'none', 'commonjs', 'amd', 'system', 'umd', 'es6', 'es2015', 'es2020', 'es2022', 'esnext', 'node16', 'node18', 'node20', 'nodenext', 'preserve'."
+      ]
+    },
+    {
+      "id": "C1-json-order-single-quoted-bad-value",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":'BAD'}}\n"
+      },
+      "case_sensitive": false,
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ]
+    },
+    {
+      "id": "C1-json-order-unquoted-target-key",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{target:\"BAD\"}}\n"
+      },
+      "case_sensitive": false,
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:1327:String literal with double quotes expected.",
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ]
+    },
+    {
+      "id": "C1-json-order-valid-json-bad-target",
+      "files": {
+        "/project/main.ts": "export const publicValue = 1;\n",
+        "/project/tsconfig.json": "{\"extends\":\"./base.json\",\"compilerOptions\":{\"module\":\"ESNext\",\"moduleResolution\":\"Bundler\",\"skipLibCheck\":true,\"noEmit\":true},\"files\":[\"main.ts\"]}\n",
+        "/project/base.json": "{\"compilerOptions\":{\"target\":\"BAD\"}}\n"
+      },
+      "case_sensitive": false,
+      "source_path": "/project/main.ts",
+      "repository_root": "/project",
+      "expected_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ],
+      "expected_with_source_reasons": [
+        "SOURCE_CONFIGURATION_INVALID:6046:Argument for '--target' option must be: 'es5', 'es6', 'es2015', 'es2016', 'es2017', 'es2018', 'es2019', 'es2020', 'es2021', 'es2022', 'es2023', 'es2024', 'esnext'."
+      ]
     }
-  ]
+  ],
+  "inherited_json_quoting_oracle_sha256": "c8c91e54ea2fe99bdcdd7bdfc229f7cb9ef1e92c0563319c4b3b28e85b2ab00d"
 }

@@ -106,7 +106,8 @@ fn inherited_target_reasons(source: core::Node) -> Option<Vec<(i32, String)>> {
                 _ => Some(SDK59_TARGET_TYPE),
             };
             if let Some(reason) = reason {
-                reasons.push((property.loc().pos(), reason.to_owned()));
+                // JSON key/value quoting errors precede validation of this value.
+                reasons.push((value.loc().end(), reason.to_owned()));
             }
         }
     }
@@ -273,6 +274,49 @@ struct TargetDiagnosticSource {
     reasons: Vec<(i32, String)>,
 }
 
+impl ConfigurationLineage {
+    fn recover_quoted_config(
+        &self,
+        parsed: &mut tsoptions::ExtendedConfigCacheEntry,
+        file_name: &str,
+        resolution_stack: &[ts_goport::frontend::tspath::Path],
+        host: &dyn tsoptions::ParseConfigHost,
+    ) {
+        // The engine stops before conversion for JSON quoting errors. SDK 5.9
+        // still validates those recovered properties and follows their extends.
+        if parsed.extended_config.is_some()
+            || parsed.errors.is_empty()
+            || parsed.errors.iter().any(|error| error.code() != 1327)
+        {
+            return;
+        }
+        let Some(source) = parsed.extended_result.as_deref() else {
+            return;
+        };
+        let mut source = source.clone();
+        let (config, mut errors) = tsoptions::parse_config(
+            None,
+            Some(&mut source),
+            host,
+            &ts_goport::frontend::tspath::get_directory_path(file_name),
+            &ts_goport::frontend::tspath::get_base_file_name(file_name),
+            resolution_stack,
+            Some(self),
+        );
+        // Conversion reports each property's JSON errors before option errors;
+        // inherited diagnostics follow all of this source's own diagnostics.
+        let own_count = errors
+            .iter()
+            .position(|error| error.file() != source.source_file)
+            .unwrap_or(errors.len());
+        parsed.errors.extend(errors.drain(..own_count));
+        parsed.errors.sort_by_key(core::Diagnostic::pos);
+        parsed.errors.extend(errors);
+        parsed.extended_config = Some(Rc::new(config));
+        parsed.extended_result = Some(Rc::new(source));
+    }
+}
+
 fn diagnostic_source_ordinal(
     sources: &[Option<TargetDiagnosticSource>],
     file: core::Node,
@@ -316,6 +360,7 @@ impl tsoptions::ExtendedConfigCache for ConfigurationLineage {
             host,
             Some(self),
         );
+        self.recover_quoted_config(&mut parsed, file_name, resolution_stack, host);
         let display_stack = self.display_stack.borrow().clone();
         self.display_stack.borrow_mut().pop();
         // The engine bypasses this cache for the closing edge of a cycle.
