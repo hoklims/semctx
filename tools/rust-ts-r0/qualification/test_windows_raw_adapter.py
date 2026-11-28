@@ -6,9 +6,11 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 import tarfile
 import unittest
+import unicodedata
 from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
@@ -16,6 +18,98 @@ SPEC = importlib.util.spec_from_file_location('windows_adapter', HERE / 'adapt_w
 a = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(a)
 REPO = HERE.parents[2]
+
+
+class LocalWriteBoundary(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+
+    def test_real_case_alias_refused_before_cache_creation(self):
+        source = self.root / 'producer'
+        source.mkdir()
+        sentinel = source / 'untouched.txt'
+        sentinel.write_bytes(b'original input')
+        alias = self.root / 'PRODUCER'
+        available = alias.exists()
+        same = available and os.path.samefile(source, alias)
+        print(json.dumps({'boundary': 'case-alias', 'alias_exists': available, 'samefile': same}), flush=True)
+        if available:
+            self.assertTrue(same)
+        cache = alias / 'new-cache'
+        with self.assertRaisesRegex(ValueError, 'overlaps'):
+            a.disjoint_writes([cache], [source])
+            cache.mkdir(parents=True)
+        self.assertFalse((source / 'new-cache').exists())
+        self.assertEqual(sentinel.read_bytes(), b'original input')
+
+    def test_unicode_alias_and_future_parent_prefixes_refused(self):
+        source = self.root / unicodedata.normalize('NFC', 'Cafe\u0301')
+        source.mkdir()
+        alias = self.root / unicodedata.normalize('NFD', source.name)
+        if alias.exists():
+            self.assertTrue(os.path.samefile(source, alias))
+        for writes, inputs in (([alias / 'cache'], [source]),
+                               ([self.root / 'CAFÉ'], [source / 'input.json']),
+                               ([source / 'Future'], [alias / 'future/result.json']),
+                               ([source / 'Future', alias / 'future/result.json'], []),
+                               ([self.root / 'Future-Café', self.root / 'future-Cafe\u0301/result.json'], []),
+                               ([self.root / 'Result.', self.root / 'result /child'], [])):
+            with self.subTest(writes=writes), self.assertRaisesRegex(ValueError, 'overlaps'):
+                a.disjoint_writes(writes, inputs)
+        self.assertEqual(list(source.iterdir()), [])
+
+    def test_existing_identity_alias_parents_and_nonoverlap_unicode(self):
+        source = self.root / 'producer'
+        source.mkdir()
+        alias = self.root / 'PRODUCER'
+        if alias.exists():
+            self.assertTrue(os.path.samefile(source, alias))
+        with self.assertRaisesRegex(ValueError, 'overlaps'):
+            a.disjoint_writes([source / 'Future', alias / 'future/result.json'], [])
+        allowed = [self.root / 'résumé-cache', self.root / '日本語-result.json']
+        self.assertEqual(a.disjoint_writes(allowed, [source, self.root / 'données']), allowed)
+        self.assertTrue(all(not path.exists() for path in allowed))
+
+    def test_existing_ancestor_identity_and_prospective_tail_recorded(self):
+        parent = self.root / 'producer'
+        parent.mkdir()
+        info = parent.lstat()
+        identity = (info.st_dev, info.st_ino)
+        self.assertIn((identity, ('future', 'result.json')),
+                      a.local_write_locations(parent / 'Future/result.json'))
+        alias = self.root / 'PRODUCER'
+        alias_available = alias.exists() and os.path.samefile(parent, alias)
+        print(json.dumps({'boundary': 'existing-parent-identity', 'real_alias_available': alias_available}), flush=True)
+        if alias_available:
+            self.assertIn((identity, ('future', 'result.json')),
+                          a.local_write_locations(alias / 'Future/result.json'))
+        # The identity join also covers differently spelled existing parents;
+        # the folded prospective tails still decide ancestor overlap.
+        self.assertTrue(a.local_write_overlap([(identity, ('future',))],
+                                             [(identity, ('future', 'result.json'))]))
+        self.assertFalse(a.local_write_overlap([(identity, ('future-a',))],
+                                              [(identity, ('future-b',))]))
+        self.assertFalse(a.local_write_overlap([(identity, ('future',))],
+                                              [((info.st_dev, info.st_ino + 1), ('future', 'result.json'))]))
+
+    def test_adapter_cli_refuses_alias_before_output_write(self):
+        source = self.root / 'producer'
+        source.mkdir()
+        export = self.root / 'export'
+        export.mkdir()
+        inventory = self.root / 'inventory.json'
+        inventory.write_bytes(b'{}')
+        output = self.root / 'PRODUCER/new-output'
+        result = subprocess.run([sys.executable, '-B', str(HERE / 'adapt_windows_raw.py'),
+            '--export-root', str(export), '--inventory', str(inventory), '--inventory-sha256', a.digest(b'{}'),
+            '--source-repo', str(source), '--caller-repo', str(source), '--caller-head', '1' * 40,
+            '--output', str(output)], capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertIn('overlaps', result.stderr)
+        self.assertEqual(inventory.read_bytes(), b'{}')
+        self.assertEqual(list(source.iterdir()), [])
 
 
 class SyntheticTransport(unittest.TestCase):

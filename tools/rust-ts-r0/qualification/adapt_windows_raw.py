@@ -16,6 +16,7 @@ from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import stat
 import subprocess
+import unicodedata
 
 SOURCE = '3309e011184893b41b97491622fd31880982cab6'
 PROTOCOL = 'c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303'
@@ -111,12 +112,43 @@ def namespace(names):
                 node[None] = True
 
 
+def local_write_component(component):
+    """Conservative alias key for local writes only; captured native paths stay exact."""
+    key = unicodedata.normalize('NFD', component).casefold().rstrip(' .')
+    require(bool(key), 'unsafe local write component')
+    return key
+
+
+def local_write_locations(path):
+    """Existing nofollow identities plus prospective tails, without resolving links."""
+    locations = []
+    for ancestor in (path, *path.parents):
+        try:
+            info = ancestor.lstat()
+        except (FileNotFoundError, NotADirectoryError):
+            continue
+        require(not stat.S_ISLNK(info.st_mode) and not getattr(info, 'st_file_attributes', 0) & 0x400,
+                'link/reparse path refused')
+        require(not stat.S_ISREG(info.st_mode) or info.st_nlink == 1, 'hardlink path refused')
+        tail = tuple(local_write_component(part) for part in path.relative_to(ancestor).parts)
+        locations.append(((info.st_dev, info.st_ino), tail))
+    require(bool(locations), 'local write path has no identifiable ancestor')
+    return locations
+
+
+def local_write_overlap(left, right):
+    return any(left_id == right_id and
+               (left_tail[:len(right_tail)] == right_tail or right_tail[:len(left_tail)] == left_tail)
+               for left_id, left_tail in left for right_id, right_tail in right)
+
+
 def disjoint_writes(writes, inputs):
     writes = [safe_path(path) for path in writes]
     inputs = [safe_path(path) for path in inputs]
+    locations = {path: local_write_locations(path) for path in writes + inputs}
     for index, path in enumerate(writes):
         for other in inputs + writes[:index]:
-            require(not path.is_relative_to(other) and not other.is_relative_to(path),
+            require(not local_write_overlap(locations[path], locations[other]),
                     'cache/output overlaps protected input or each other')
     return writes
 
@@ -211,9 +243,8 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
     export_root, inventory = safe_path(export_root), regular(inventory)
     source_repo, caller_repo, output = map(safe_path, (source_repo, caller_repo, output))
     require(_expected or not output.exists(), 'output collision')
-    for root in (export_root, source_repo, caller_repo):
-        require(not output.is_relative_to(root) and not root.is_relative_to(output), 'output overlaps protected input root')
-    require(not inventory.is_relative_to(export_root) and not inventory.is_relative_to(output), 'inventory must be external')
+    disjoint_writes((output,), (export_root, inventory, source_repo, caller_repo))
+    disjoint_writes((inventory,), (export_root,))
     raw_inventory = inventory.read_bytes()
     require(digest(raw_inventory) == inventory_sha256, 'inventory pin differs')
     spec = document(raw_inventory)
