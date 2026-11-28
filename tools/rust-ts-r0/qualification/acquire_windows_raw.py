@@ -386,7 +386,7 @@ def complete_raw(output, review_sha):
         require(type(report.get(name)) is int and report[name] == 2, 'exact two as-expression queries required')
     require(report.get('caller_invocations_attempted') == ['legacy', 'retained'], 'exact two as-expression queries required')
     contexts = report.get('contexts', [])
-    require(type(report.get('attempts')) is int and report['attempts'] == 1 and isinstance(contexts, list)
+    require(type(report.get('attempts')) is int and report['attempts'] == 1 and isinstance(contexts, list) and len(contexts) == 2
             and [item.get('context') for item in contexts if isinstance(item, dict)] == ['legacy', 'retained'], 'as-expression attempts/contexts differ')
     return {'counts': COUNTS, 'counts_scope': 'top-level original/supplement collections and two frozen additional queries; not total internal native subprocess count', 'collector_summary_sha256': sha(output / 'acquisition-summary.json')}
 

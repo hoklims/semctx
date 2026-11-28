@@ -308,6 +308,13 @@ class WindowsAcquisitionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'exact two'):
             m.complete_raw(output, review)
         additional_data['caller_invocations_attempted'] = ['legacy', 'retained']
+        additional_data['contexts'].append(None)
+        m.save(additional, additional_data)
+        summary['additional_as_expression_witness']['sha256'] = m.sha(additional)
+        m.save(output / 'acquisition-summary.json', summary)
+        with self.assertRaisesRegex(ValueError, 'attempts/contexts'):
+            m.complete_raw(output, review)
+        additional_data['contexts'].pop()
         m.save(additional, additional_data)
         summary['additional_as_expression_witness']['sha256'] = m.sha(additional)
         summary['reports'].pop(next(iter(m.RAW_REPORTS)))
