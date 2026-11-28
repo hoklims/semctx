@@ -255,10 +255,13 @@ def check_dispatch_history(context, fetch_page=None):
         runs = value['workflow_runs']
         for run in runs:
             require(isinstance(run, dict) and type(run.get('id')) is int and run['id'] > 0, 'unknown Actions run identity')
+            require(isinstance(run.get('display_title'), str) and bool(run['display_title'].strip())
+                    and isinstance(run.get('head_sha'), str) and re.fullmatch(r'[0-9a-fA-F]{40}', run['head_sha']) is not None,
+                    'unknown Actions run metadata')
             require(run['id'] not in seen, 'unstable Actions history pagination')
             seen.add(run['id'])
             if str(run['id']) != context['run_id']:
-                require(not (run.get('display_title') == 'Windows RAW ' + context['campaign'] and run.get('head_sha') == context['tooling']), 'campaign was already dispatched')
+                require(run.get('display_title') != 'Windows RAW ' + context['campaign'], 'campaign was already dispatched')
         if len(runs) < 100:
             require(int(context['run_id']) in seen, 'current dispatch absent from Actions history')
             return {'pages': page, 'runs_inspected': len(seen), 'current_run_id': context['run_id']}
@@ -482,7 +485,7 @@ def archive_raw(control, output, archive, limit=MAX_ARCHIVE):
         lexical_links.extend(links)
         input_errors.extend(errors)
         for path, name, captured in discovered:
-            if path.name != 'result.json':
+            if path != control / 'result.json':
                 files.append((path, name, captured))
     link_raw = json.dumps({'schema_version': 1, 'representation': 'lexical_links', 'targets_read': False,
                           'native_links_in_zip': False, 'links': lexical_links}, sort_keys=True, indent=2).encode()

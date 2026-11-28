@@ -92,6 +92,7 @@ def run(repo, out, label, argv, env, timeout=900, required=True):
     require(not (out/(label+'.receipt.json')).exists(), 'command retry refused: '+label)
     started = time.monotonic()
     timed_out = False
+    error = None
     with (out/(label+'.stdout')).open('wb') as stdout, (out/(label+'.stderr')).open('wb') as stderr:
         process = subprocess.Popen(argv, cwd=repo, env=env, stdout=stdout, stderr=stderr,
                                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0)
@@ -99,13 +100,27 @@ def run(repo, out, label, argv, env, timeout=900, required=True):
             code = process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            # Only this invocation's owned process tree may be terminated.
-            subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], check=False,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            process.wait(timeout=30)
             code = 124
+            # Only this invocation's owned process tree may be terminated.
+            try:
+                cleanup = subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], check=False,
+                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+                (out/(label+'.taskkill.stdout')).write_bytes(cleanup.stdout)
+                (out/(label+'.taskkill.stderr')).write_bytes(cleanup.stderr)
+                if cleanup.returncode != 0:
+                    error = 'taskkill exit code: '+str(cleanup.returncode)
+                process.wait(timeout=30)
+            except (OSError, subprocess.SubprocessError) as failure:
+                error = str(failure)
+                try:
+                    if process.poll() is None:
+                        process.kill()
+                    process.wait(timeout=30)
+                except (OSError, subprocess.SubprocessError) as cleanup_failure:
+                    error += '; final cleanup: '+str(cleanup_failure)
     result = {'argv': argv, 'exit_code': code, 'timed_out': timed_out,
-              'elapsed_seconds': round(time.monotonic()-started, 3), 'attempt': 1}
+              'elapsed_seconds': round(time.monotonic()-started, 3), 'attempt': 1,
+              'error': error, 'cleanup_scope': 'owned PID tree on timeout; no universal quiescence assertion'}
     save(out/(label+'.receipt.json'), result)
     require(not required or code == 0, 'command failed: '+label)
     return result

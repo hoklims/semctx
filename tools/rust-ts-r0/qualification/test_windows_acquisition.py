@@ -173,6 +173,24 @@ class WindowsAcquisitionTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'unstable Actions history'):
             m.check_dispatch_history(self.context, lambda page: {'workflow_runs': repeated})
 
+    def test_history_rejects_same_campaign_under_different_tooling(self):
+        current = {'id': 123, 'head_sha': self.context['tooling'], 'display_title': 'Windows RAW source-proof'}
+        prior = {**current, 'id': 124, 'head_sha': '9' * 40}
+        with self.assertRaisesRegex(ValueError, 'already dispatched'):
+            m.check_dispatch_history(self.context, lambda page: {'workflow_runs': [current, prior]})
+
+    def test_history_refuses_unknown_item_title_or_head(self):
+        current = {'id': 123, 'head_sha': self.context['tooling'], 'display_title': 'Windows RAW source-proof'}
+        for field, values in [('display_title', [None, '', ' ', 1, False, []]), ('head_sha', [None, '', 'a'*39, 'z'*40, 123, []])]:
+            for value in values:
+                prior = {**current, 'id': 124, 'display_title': 'other', field: value}
+                with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, 'unknown Actions run metadata'):
+                    m.check_dispatch_history(self.context, lambda page: {'workflow_runs': [current, prior]})
+            prior = {**current, 'id': 124, 'display_title': 'other'}
+            del prior[field]
+            with self.subTest(missing=field), self.assertRaisesRegex(ValueError, 'unknown Actions run metadata'):
+                m.check_dispatch_history(self.context, lambda page: {'workflow_runs': [current, prior]})
+
     def test_collector_environment_excludes_all_actions_secrets(self):
         value = m.collector_environment({'PATH': '/tools', 'SystemRoot': 'C:/Windows', 'GITHUB_TOKEN': 'secret',
             'GH_TOKEN': 'secret', 'ACTIONS_RUNTIME_TOKEN': 'secret', 'UNRELATED_SECRET': 'secret'})
@@ -330,6 +348,23 @@ class WindowsAcquisitionTest(unittest.TestCase):
         with zipfile.ZipFile(result['path']) as archive:
             self.assertEqual(archive.read('control/small.log'), b'complete log')
             self.assertIn('ARCHIVE-INCOMPLETE.json', archive.namelist())
+
+    def test_archive_keeps_raw_and_nested_result_json_exact_bytes(self):
+        control, output = self.root/'result-control', self.root/'result-raw'
+        expected = {'raw/result.json': b'original raw result', 'raw/nested/result.json': b'nested raw result',
+                    'control/nested/result.json': b'nested control result'}
+        for name, data in expected.items():
+            path = (output if name.startswith('raw/') else control)/name.split('/', 1)[1]
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+        (control/'result.json').write_bytes(b'final receipt excluded')
+        result = m.archive_raw(control, output, self.root/'results.zip')
+        self.assertTrue(result['complete'])
+        with zipfile.ZipFile(result['path']) as archive:
+            self.assertNotIn('control/result.json', archive.namelist())
+            for name, data in expected.items():
+                self.assertIn(name, archive.namelist())
+                self.assertEqual(m.digest(archive.read(name)), m.digest(data))
 
     def test_archive_records_lexical_links_without_reading_or_traversing_targets(self):
         control, output, outside = [self.root/name for name in ['link-control', 'link-raw', 'forbidden-target']]

@@ -15,6 +15,51 @@ import run_windows_milestone as m
 
 
 class WindowsMilestoneGuards(unittest.TestCase):
+    def test_collector_timeout_receipt_survives_cleanup_failures(self):
+        real_popen = subprocess.Popen
+        for required in [False, True]:
+            for failure in ['taskkill', 'wait', 'nonzero', 'ok']:
+                with self.subTest(required=required, failure=failure), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    processes = []
+                    def start(*args, **kwargs):
+                        process = real_popen(*args, **kwargs)
+                        processes.append(process)
+                        real_wait = process.wait
+                        def wait(timeout=None):
+                            if failure == 'wait' and timeout == 30:
+                                raise subprocess.TimeoutExpired(process.args, timeout)
+                            return real_wait(timeout=timeout)
+                        process.wait = wait
+                        return process
+                    def cleanup(*args, **kwargs):
+                        self.assertEqual(kwargs.get('timeout'), 30, 'owned cleanup must have a deadline')
+                        process = processes[0]
+                        process.kill()
+                        if failure == 'taskkill':
+                            raise OSError('controlled taskkill cleanup failure')
+                        return subprocess.CompletedProcess(args[0], 1 if failure == 'nonzero' else 0, b'', b'')
+                    try:
+                        with patch.object(m.subprocess, 'Popen', side_effect=start), patch.object(m.subprocess, 'run', side_effect=cleanup):
+                            argv = [sys.executable, '-I', '-B', '-c', 'import time; print("owned stub", flush=True); time.sleep(30)']
+                            if required:
+                                with self.assertRaisesRegex(ValueError, 'command failed'):
+                                    m.run(root, root, 'timeout', argv, os.environ.copy(), timeout=.2, required=True)
+                            else:
+                                self.assertEqual(m.run(root, root, 'timeout', argv, os.environ.copy(), timeout=.2, required=False)['exit_code'], 124)
+                        receipt = root/'timeout.receipt.json'
+                        self.assertTrue(receipt.exists(), 'timeout cleanup error must retain receipt')
+                        record = json.loads(receipt.read_text())
+                        self.assertEqual(record['exit_code'], 124)
+                        self.assertTrue(record['timed_out'])
+                        self.assertEqual(bool(record['error']), failure != 'ok')
+                        self.assertIn(b'owned stub', (root/'timeout.stdout').read_bytes())
+                    finally:
+                        for process in processes:
+                            if process.poll() is None:
+                                process.kill()
+                            real_popen.wait(process, timeout=5)
+
     def valid_args(self):
         return Namespace(execute_native_campaigns=True, root_authority=m.AUTHORITY,
                          expected_head='a'*40, prerequisite_proof_sha256='b'*64)
