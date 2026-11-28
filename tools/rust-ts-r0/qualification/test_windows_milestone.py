@@ -1,6 +1,11 @@
 import copy
+import ast
+import inspect
+import json
 import os
 import tempfile
+import subprocess
+import sys
 import unittest
 from argparse import Namespace
 from pathlib import Path
@@ -128,6 +133,44 @@ class WindowsMilestoneGuards(unittest.TestCase):
         diagnostic['disposition_scope']['sequence'] = 2
         with self.assertRaisesRegex(ValueError, 'foreign scope'):
             m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+
+    def test_descendant_python_commands_use_isolated_verified_script_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            repo, runtime, out = root/'producer', root/'verified-runtime-copy', root/'out'
+            runtime.mkdir()
+            qualification = repo/'tools/rust-ts-r0/qualification'
+            qualification.mkdir(parents=True)
+            for path in [qualification/'prepare_recipes.py', *[runtime/name for name in ['prepare_registry.py', 'public_bridge.py', 'write_verifier_fixture_fields.py']]]:
+                path.write_text('# verified source-proof helper\n')
+            tree = ast.parse(inspect.getsource(m.execute_acquisition))
+            selected = {call.args[2].value: call.args[3] for call in ast.walk(tree)
+                        if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == 'run'
+                        and len(call.args) >= 4 and isinstance(call.args[2], ast.Constant)
+                        and call.args[2].value in ['recipes', 'registry', 'public-plan', 'fixture-fragment']}
+            self.assertEqual(set(selected), {'recipes', 'registry', 'public-plan', 'fixture-fragment'})
+            environment = {'repo': repo, 'runtime': runtime, 'out': out, 'frozen': root/'frozen',
+                           'supplement_out': out/'supplement', 'case_sensitive': False, 'node': 'node.exe'}
+            for label, expression in selected.items():
+                with self.subTest(label=label):
+                    argv = eval(compile(ast.Expression(expression), '<actual collector command>', 'eval'), vars(m), environment)
+                    self.assertEqual(argv[:4], [sys.executable, '-I', '-S', '-B'], 'descendant interpreter lacks isolated startup flags')
+                    self.assertEqual(argv[4], '-c')
+
+    def test_descendant_bootstrap_executes_sibling_import_without_site_or_pythonpath(self):
+        self.assertTrue(hasattr(m, 'python_script'), 'collector descendant bootstrap is missing')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            runtime, foreign = root/'verified-runtime-copy', root/'foreign'
+            runtime.mkdir(); foreign.mkdir()
+            (runtime/'sibling.py').write_text('VALUE="verified sibling"\n')
+            (foreign/'sibling.py').write_text('raise RuntimeError("foreign import")\n')
+            script = runtime/'helper.py'
+            script.write_text('import json,sys,sibling;print(json.dumps({"value":sibling.VALUE,"isolated":sys.flags.isolated,"no_site":sys.flags.no_site,"no_bytecode":sys.dont_write_bytecode}))\n')
+            env = dict(os.environ, PYTHONPATH=str(foreign))
+            result = subprocess.run(m.python_script(script, []), env=env, cwd=foreign, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout), {'value': 'verified sibling', 'isolated': 1, 'no_site': 1, 'no_bytecode': True})
 
 
 if __name__ == '__main__':

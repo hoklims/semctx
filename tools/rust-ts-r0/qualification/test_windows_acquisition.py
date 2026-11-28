@@ -219,6 +219,57 @@ class WindowsAcquisitionTest(unittest.TestCase):
         self.assertTrue(result['collector']['timed_out'])
         self.assertTrue(Path(result['archive']['path']).is_file())
 
+    def test_timeout_status_survives_cleanup_wait_failure_with_real_owned_process(self):
+        original_popen = subprocess.Popen
+        for failure in ['timeout', 'error']:
+            with self.subTest(cleanup=failure):
+                directory = self.root / failure
+                directory.mkdir()
+                marker = directory / 'descendant.pid'
+                code = 'import pathlib,subprocess,sys,time;p=subprocess.Popen([sys.executable,"-c","import time;time.sleep(60)"]);pathlib.Path(sys.argv[1]).write_text(str(p.pid));time.sleep(60)'
+                owned = []
+                def spawn(*args, **kwargs):
+                    process = original_popen(*args, **kwargs)
+                    if args[0][0] == sys.executable and str(args[0][-1]) == str(marker):
+                        owned.append(process)
+                        wait = process.wait
+                        calls = [0]
+                        def fail_cleanup_wait(timeout=None):
+                            calls[0] += 1
+                            if calls[0] == 2:
+                                if failure == 'timeout':
+                                    raise subprocess.TimeoutExpired(process.args, timeout)
+                                raise OSError('simulated cleanup wait failure')
+                            return wait(timeout=timeout)
+                        process.wait = fail_cleanup_wait
+                    return process
+                try:
+                    with mock.patch.object(m.subprocess, 'Popen', side_effect=spawn):
+                        result = m.run_process([sys.executable, '-I', '-S', '-B', '-c', code, str(marker)], self.root,
+                                              m.collector_environment({k: v for k, v in os.environ.items() if k not in ['GIT_CONFIG_GLOBAL', 'GOPORT_BUILD_VERSION', 'CARGO_TARGET_DIR', 'RUSTC_WRAPPER', 'NODE_OPTIONS', 'NODE_PATH']}),
+                                              directory, 'cleanup-failure', 1)
+                    self.assertTrue(marker.is_file(), 'owned descendant did not become ready')
+                    self.assertTrue(result['timed_out'])
+                    self.assertEqual(result['exit_code'], 124, 'cleanup failure replaced original timeout status')
+                    self.assertTrue(result['error'], 'cleanup error must remain visible')
+                    pid = marker.read_text()
+                    if os.name == 'nt':
+                        listing = subprocess.check_output(['tasklist', '/FI', 'PID eq ' + pid, '/FO', 'CSV', '/NH']).decode()
+                        self.assertFalse(any(len(row) > 1 and row[1] == pid for row in csv.reader(io.StringIO(listing))), 'owned descendant survived fixture')
+                    else:
+                        listing = subprocess.run(['/bin/ps', '-p', pid, '-o', 'stat='], capture_output=True, text=True, check=False)
+                        self.assertFalse(any(line.strip() and not line.strip().startswith('Z') for line in listing.stdout.splitlines()), 'owned descendant survived fixture')
+                finally:
+                    for process in owned:
+                        if os.name == 'nt':
+                            subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False)
+                        else:
+                            try:
+                                os.killpg(process.pid, 9)
+                            except ProcessLookupError:
+                                pass
+                        process.wait(timeout=10)
+
     def test_postflight_drift_cannot_report_success(self):
         self.acquisition_patches()
         with mock.patch.object(m, 'complete_raw', return_value={'counts': m.COUNTS}), \

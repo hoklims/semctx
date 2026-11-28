@@ -31,11 +31,23 @@ SDK_SHA = 'f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5'
 RREL = Path('tools/rust-ts-r0/qualification/supplement')
 ORIGINAL = 'qualification_replay_requires_explicit_optimized_freeze'
 SUPPLEMENT = 'supplement_replay_requires_bound_root_authority'
+PYTHON_BOOTSTRAP = '''import pathlib,runpy,sys
+directory=pathlib.Path(sys.argv[1]);script=pathlib.Path(sys.argv[2])
+assert script.parent==directory and script.is_file()
+sys.path.insert(0,str(directory));sys.argv=sys.argv[2:]
+runpy.run_path(str(script),run_name="__main__")'''
 
 
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def python_script(script, arguments):
+    script = Path(script).resolve(strict=True)
+    require(script.is_file(), 'verified Python helper script absent')
+    return [sys.executable, '-I', '-S', '-B', '-c', PYTHON_BOOTSTRAP,
+            str(script.parent), str(script), *arguments]
 
 
 def sha(path):
@@ -271,8 +283,8 @@ def execute_acquisition(args, repo, out, before):
     builds.bind_artifact('qualification_observer', 'observer-build', Path(observers[0]))
     builds.run( 'standalone-restore', ['cargo', 'build', '--locked', '--offline', '--release', '--bin', 'semctx-r0-probe', '--manifest-path', 'tools/rust-ts-r0/Cargo.toml'], execute_build)
     builds.bind_artifact('artifact', 'standalone-restore', repo/'tools/rust-ts-r0/target/release/semctx-r0-probe.exe')
-    run(repo, out, 'recipes', [sys.executable, str(repo/'tools/rust-ts-r0/qualification/prepare_recipes.py'), '--output', str(out/'recipes')], env)
-    run(repo, out, 'registry', [sys.executable, str(runtime/'prepare_registry.py'), '--frozen', str(frozen), '--public-registry', str(runtime/'public-registry.draft.json'), '--output', str(out/'registry-draft')], env)
+    run(repo, out, 'recipes', python_script(repo/'tools/rust-ts-r0/qualification/prepare_recipes.py', ['--output', str(out/'recipes')]), env)
+    run(repo, out, 'registry', python_script(runtime/'prepare_registry.py', ['--frozen', str(frozen), '--public-registry', str(runtime/'public-registry.draft.json'), '--output', str(out/'registry-draft')]), env)
     registry = load(out/'registry-draft/registry.json')
     require(registry['counts']['sources'] == 67 and registry['counts']['public_vectors'] == 25 and len(registry['rows']) == 92, 'supplement denominator differs')
     probe = out/'case-probe'
@@ -281,7 +293,7 @@ def execute_acquisition(args, repo, out, before):
     probe.unlink()
     save(out/'case-probe.json', {'case_sensitive': case_sensitive})
     supplement_out = out/'supplement-evidence'
-    run(repo, out, 'public-plan', [sys.executable, str(runtime/'public_bridge.py'), 'plan', '--frozen', str(frozen), '--module-dir', str(runtime), '--ownership-module-dir', str(runtime), '--lifecycle-module-dir', str(runtime), '--output', str(out/'public-plan.json'), '--execution-root', str(supplement_out/'public'), '--sdk-directory', '/sdk/lib', '--case-sensitive', str(case_sensitive).lower()], env)
+    run(repo, out, 'public-plan', python_script(runtime/'public_bridge.py', ['plan', '--frozen', str(frozen), '--module-dir', str(runtime), '--ownership-module-dir', str(runtime), '--lifecycle-module-dir', str(runtime), '--output', str(out/'public-plan.json'), '--execution-root', str(supplement_out/'public'), '--sdk-directory', '/sdk/lib', '--case-sensitive', str(case_sensitive).lower()]), env)
     sys.path.insert(0, str(runtime))
     from source_scope_addenda import prepare_addenda
     addenda = prepare_addenda(cases)
@@ -302,7 +314,7 @@ def execute_acquisition(args, repo, out, before):
     fixture.update(build_environment_path=build_binding['path'], build_environment_sha256=build_binding['sha256'])
     for name, path in {'sdk': out/'sdk-input.json', 'recipes': out/'recipes/replay-recipes.json', 'legacy_identity_inputs': out/'legacy-identity-inputs.json'}.items():
         fixture[name+'_path'], fixture[name+'_sha256'] = str(path), sha(path)
-    run(repo, out, 'fixture-fragment', [sys.executable, str(runtime/'write_verifier_fixture_fields.py'), '--runtime', str(runtime), '--python', str(Path(sys.executable).resolve()), '--node', node, '--plan', str(out/'public-plan.json'), '--output', str(out/'fragment.disabled.json')], env)
+    run(repo, out, 'fixture-fragment', python_script(runtime/'write_verifier_fixture_fields.py', ['--runtime', str(runtime), '--python', str(Path(sys.executable).resolve()), '--node', node, '--plan', str(out/'public-plan.json'), '--output', str(out/'fragment.disabled.json')]), env)
     fixture.update(load(out/'fragment.disabled.json'))
     fixture['public_consumer_artifact_sha256'] = fixture['qualification_observer_sha256']
     fixture.update(token_execution_enabled=False, token_family_path=str(out/'token-family.disabled.json'),

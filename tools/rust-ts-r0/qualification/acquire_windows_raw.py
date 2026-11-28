@@ -308,6 +308,7 @@ def run_process(argv, cwd, env, directory, label, timeout):
                 code = process.wait(timeout=timeout)
             except subprocess.TimeoutExpired:
                 timed_out = True
+                code = 124
                 if os.name == 'nt':
                     cleanup = subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
                     (directory / (label + '.taskkill.stdout')).write_bytes(cleanup.stdout)
@@ -318,12 +319,14 @@ def run_process(argv, cwd, env, directory, label, timeout):
                     except ProcessLookupError:
                         pass
                 process.wait(timeout=30)
-                code = 124
         except (OSError, subprocess.SubprocessError) as failure:
             error = str(failure)
             if process is not None and process.poll() is None:
-                process.kill()
-                process.wait(timeout=30)
+                try:
+                    process.kill()
+                    process.wait(timeout=30)
+                except (OSError, subprocess.SubprocessError) as cleanup_failure:
+                    error += '; final cleanup: ' + str(cleanup_failure)
     record = {'argv': argv, 'exit_code': code, 'timed_out': timed_out, 'attempt': 1,
               'elapsed_seconds': time.monotonic() - start, 'pid': process.pid if process else None,
               'process_started': process is not None, 'error': error,
