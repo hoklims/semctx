@@ -127,8 +127,17 @@ class FrozenSourceContract(unittest.TestCase):
         rows = copy.deepcopy(self.baseline)
         p.tokens.assessment_rows({'rows': rows}, rows)
         self.assertEqual(len(p.selected(rows)), 13)
-        self.assertIn((236, 0), p.COORDINATES)
+        # This preregistered scope is independent of the reader's selection table.
+        self.assertEqual(p.COORDINATES, ((0, 1), (1, 1), (229, 0), (233, 1), (233, 2),
+                                        (236, 0), (236, 1), (236, 2), (237, 1), (237, 2)))
         self.assertEqual(set(p.SUPPORTS), {'IDENTITY::I-relocation', 'IDENTITY::I-request-separation', 'IDENTITY::complete-baseline-specimen'})
+        selected_rows = p.selected(rows)
+        for mutation in ('duplicate', 'missing'):
+            changed = copy.deepcopy(selected_rows)
+            if mutation == 'duplicate': changed.append(copy.deepcopy(changed[0]))
+            else: changed.pop(0)
+            with self.subTest(selection=mutation), self.assertRaises(ValueError):
+                p.selected(changed)
         for mutation in ('duplicate', 'missing', 'foreign-support', 'boolean'):
             with self.subTest(mutation=mutation):
                 changed = copy.deepcopy(rows)
@@ -225,12 +234,13 @@ class PublicAssessmentContract(unittest.TestCase):
 
     def test_foreign_identity_candidate_protocol_refused_before_run(self):
         original = copy.deepcopy(self.c4)
-        for field in ('identity', 'candidate', 'protocol'):
+        for field in ('identity', 'candidate', 'protocol', 'kind'):
             with self.subTest(field=field):
                 self.c4 = copy.deepcopy(original)
                 if field == 'identity': self.c4['host_bindings']['windows']['references']['synthetic']['sha256'] = 'foreign'
                 if field == 'candidate': self.c4['candidate_head'] = '0' * 40
                 if field == 'protocol': self.c4['evaluation_protocol_ref']['sha256'] = '0' * 64
+                if field == 'kind': self.c4['kind'] = 'FOREIGN_ASSESSMENT_KIND'
                 with self.assertRaisesRegex(ValueError, 'C4 '):
                     p.evaluate_public(self.a, self.context, self.c4, {}, {})
                 self.assertEqual(self.calls, [])
