@@ -417,12 +417,19 @@ class SyntheticTransport(unittest.TestCase):
 
     def test_complete_synthetic_adapter_custody_reader_cli(self):
         import sys
-        public = Path(os.environ.get('SEMCTX_PUBLIC_MAC_EVIDENCE', '/Users/hokli/work/semctx-r0-macos-wave-20261128'))
-        protocol_raw = (public / 'evaluation-protocol.json').read_bytes()
+        import gzip
+        import run_windows_milestone as milestone
+        compressed = (HERE / 'windows-token-fields-test-protocol.json.gz').read_bytes()
+        self.assertEqual(a.digest(compressed), 'b13db48ed19fcf97fa951f63b12b0945c0340257e0539c4fcf6fbfc25a507cbe')
+        protocol_raw = gzip.decompress(compressed)
         self.assertEqual(a.digest(protocol_raw), a.PROTOCOL)
         protocol = self.root / 'protocol.json'
         protocol.write_bytes(protocol_raw)
-        sdk_raw = (public / 'prepared/sdk-input.json').read_bytes()
+        restored = self.root / 'public-inputs'
+        restored.mkdir()
+        restored_receipt = milestone.restore_public_inputs(REPO, restored)
+        self.assertEqual(restored_receipt['sdk_sha256'], self.old_sdk)
+        sdk_raw = (restored / 'sdk-input.json').read_bytes()
         a.SDK = self.old_sdk
         self.assertEqual(a.digest(sdk_raw), a.SDK)
         (self.raw / 'sdk-input.json').write_bytes(sdk_raw)
