@@ -9,6 +9,13 @@ on:
       - tools/rust-ts-r0/qualification/test_windows_acquisition.py
       - tools/rust-ts-r0/qualification/run_windows_milestone.py
       - tools/rust-ts-r0/qualification/test_windows_milestone.py
+      - tools/rust-ts-r0/qualification/adapt_windows_raw.py
+      - tools/rust-ts-r0/qualification/windows_token_fields.py
+      - tools/rust-ts-r0/qualification/test_windows_raw_adapter.py
+      - tools/rust-ts-r0/qualification/test_windows_token_fields.py
+      - tools/rust-ts-r0/qualification/windows-token-fields-test-protocol.json.gz
+      - tools/rust-ts-r0/qualification/windows_public_fields.py
+      - tools/rust-ts-r0/qualification/test_windows_public_fields.py
   workflow_dispatch:
     inputs:
       input_commit:
@@ -39,12 +46,13 @@ jobs:
   verify:
     name: Windows acquisition guards
     runs-on: windows-2025
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           path: tooling
+          fetch-depth: 0
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13.16'
