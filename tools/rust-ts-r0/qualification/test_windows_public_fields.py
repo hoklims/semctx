@@ -156,6 +156,7 @@ class FrozenSourceContract(unittest.TestCase):
     def test_independent_normative_delta_table_pin(self):
         # Normative contract: exactly5 path-only variants,2 byte-identical
         # forwarding callers;9 literal substitutions authorized before outcomes.
+        # Two frame callbacks receive their collection for separator-identity uniqueness.
         self.assertEqual(set(p.REPLACEMENTS), {
             ('qualified_carriers', 'load_public_lifecycle'),
             ('remaining_carriers', 'public_verify'),
@@ -167,7 +168,7 @@ class FrozenSourceContract(unittest.TestCase):
         contract = [{'module': module, 'function': name, 'replacements': changes}
                     for (module, name), changes in sorted(p.REPLACEMENTS.items())]
         encoded = json.dumps(contract, sort_keys=True, ensure_ascii=False, separators=(',', ':')).encode()
-        self.assertEqual(p.sha(encoded), '18cba4d9adcde1ed21983a9cb747d21d5a63411add3b32515d6152910e691b72')
+        self.assertEqual(p.sha(encoded), 'e95a12af66bb1097e19f21c430ceb868b12e9fd7de52e834cc2857ea916f6795')
         self.assertEqual(sum(bool(changes) for changes in p.REPLACEMENTS.values()), 5)
         self.assertEqual(sum(len(changes) for changes in p.REPLACEMENTS.values()), 9)
 
@@ -218,6 +219,21 @@ class FrozenSourceContract(unittest.TestCase):
                                 capture_output=True, text=True, timeout=45)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertIn('ACTUAL_FROZEN_RUN_COMPLETED_TWICE_WITH_CURRENT_API', result.stdout)
+
+
+class CompiledReceiptCollections(unittest.TestCase):
+    def check_carrier(self, carrier):
+        result = subprocess.run([sys.executable, '-B', str(Path(__file__).resolve()),
+                                 '--receipt-alias-child', carrier], capture_output=True, text=True, timeout=45)
+        print(result.stdout, end='')
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertIn('COMPILED_RECEIPT_COLLECTION_UNIQUENESS_VERIFIED', result.stdout)
+
+    def test_lifecycle_rejects_separator_aliases_before_frame_overwrite(self):
+        self.check_carrier('lifecycle')
+
+    def test_public_verify_rejects_separator_aliases_before_frame_overwrite(self):
+        self.check_carrier('public')
 
 
 class PublicRegistrationContract(unittest.TestCase):
@@ -468,8 +484,128 @@ def configuration_regression():
         print('ACTUAL_FROZEN_RUN_COMPLETED_TWICE_WITH_CURRENT_API')
 
 
+def receipt_alias_regression(carrier):
+    """Actual compiled frozen loops; only data reads stop at a declared later GAP."""
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory).resolve()
+        protocol = root / 'protocol.json'
+        protocol.write_bytes(gzip.decompress((HERE / 'windows-token-fields-test-protocol.json.gz').read_bytes()))
+        a, initial, _, _ = p.tokens.prepare(REPO, protocol, p.tokens.PROTOCOL, root / 'cache')
+        native = 'C:/synthetic/windows-raw/campaign'
+        host_root = root / 'transport/view'
+        key = 'lifecycle-synthetic-unqualified'
+        folder = host_root / 'evidence/public/invocations' / key / 'input'
+        out = host_root / 'evidence/public/outcomes' / key
+        folder.mkdir(parents=True)
+        out.mkdir(parents=True)
+        row, operation = {'id': 'synthetic'}, {'invocation_key': key, 'lifecycle_selector': True}
+        prepared = {'public_flow_kind': 'index-store', 'source_capture_stream_sha256': 'synthetic'}
+        if carrier == 'public':
+            a.projector(p.tokens.SOURCE)
+            import full_admission_adapter
+            vector = json.loads((REPO / 'docs/research/rust-ts-r0/cases/supplement-v2/public-vectors/scope-admission-02.json').read_bytes())
+            row = {'id': vector['id']}
+            sequence = next(o['sequence'] for o in vector['operations'] if o['baselineFunction'] == 'runVerify')
+            operation['sequence'] = sequence
+            prepared = full_admission_adapter.prepare_full_admission(
+                REPO / 'docs/research/rust-ts-r0/cases/supplement-v2', row['id'], sequence,
+                native + '/supplement-evidence/public/invocations/' + key + '/input', 'C:/synthetic/sdk', True)
+            prepared['source_capture_stream_sha256'] = 'synthetic'
+            for request in prepared['requests']:
+                request['id'] = 'supplement-' + key
+        host = {'root': host_root, 'source_head': p.tokens.SOURCE,
+                'fixture': {'artifact_sha256': 'a' * 64, 'public_consumer_artifact_sha256': 'b' * 64,
+                            'artifact_path': 'C:\\synthetic\\probe.exe'},
+                'sdk': {'synthetic_unqualified': True},
+                'plan': {'invocations': [{'key': key, 'prepared': prepared}]}}
+        observed = {'global_admission_inferred': False}
+        if carrier == 'public':
+            observed.update(consumer_kind='t00-public-working-tree-admission-v1',
+                            source_baseline='3e94997fcbefa72ad4d49b2cad180ee79b7c0a9b',
+                            consumer_artifact_sha256='b' * 64, repository_root=prepared['repository_root'],
+                            portable_projection={})
+        import qualified_carriers as q
+        binding = {'producer_artifact_id': 'sha256:' + 'a' * 64, 'sdk_input_id': q.digest(host['sdk']),
+                   'capture_stream_sha256': 'synthetic', 'source_recipe_id': q.digest(prepared),
+                   'consumer_artifact_sha256': 'b' * 64}
+        context = {'manifest': {'hosts': {'windows': {'raw_root': str(host_root)}}},
+                   'native_raw_root': native, 'documents': {'inventory': {'native_raw_root': native}},
+                   'verified_files': {}}
+        paths = p.OwnedPaths(context)
+        reads = []
+        gap = 'SYNTHETIC_AFTER_COMPLETE_RECEIPT_COLLECTION'
+        def read(path):
+            path = Path(path)
+            reads.append(path)
+            if path.name == 'analysis-request.json' or (path.name == 'ordinary-index-request.json'
+                    and sum(x.name == path.name for x in reads) > 1):
+                raise ValueError(gap)
+            return json.loads(path.read_bytes())
+        api = types.SimpleNamespace(**{**initial.__dict__, 'read': read})
+        modules, functions, _ = p.prepare_variants(a, api, paths)
+        q = modules['qualified_carriers']
+        outcome = {'kind': 'success', 'exit_code': 0, 'stdout': '{}', 'stderr': '',
+                   'stdout_bytes': 2, 'stderr_bytes': 0, 'stdout_hash': q.sha(b'{}'), 'stderr_hash': q.sha(b'')}
+        frame = {'argv': ['git'], 'cwd': prepared.get('repository_root', 'C:/synthetic/repository'),
+                 'outcome': outcome}
+        def write(path, value):
+            path.write_text(json.dumps(value))
+            context['verified_files'][path.relative_to(host_root.parent).as_posix()] = {
+                'sha256': p.sha(path.read_bytes()), 'bytes': path.stat().st_size}
+        for name in ('one-process.json', 'two-process.json'):
+            write(folder / name, frame)
+        write(folder / 'ordinary-index-request.json', {'case_sensitive': True})
+        write(folder / 'public-lifecycle-observations.json', observed)
+        write(folder / 'working-tree-rust-projection.json', {})
+        write(folder / 'working-tree-actual-evidence.json', {
+            'sdk_descriptor': host['sdk'], 'probe_artifact_sha256': 'a' * 64,
+            'collector_provenance': {'consumer_artifact_sha256': 'b' * 64}})
+        write(out / 'consumer-result.json', {'observed': observed, 'global_admission_inferred': False,
+                                            'invocation_group_id': key.removeprefix('lifecycle-')})
+        entry = functions[('qualified_carriers', 'load_public_lifecycle') if carrier == 'lifecycle'
+                          else ('remaining_carriers', 'public_verify')]
+        def spelling(name, style):
+            value = paths.native(folder / name)
+            if style == 1:
+                return value.replace('/', '\\')
+            if style == 2:
+                return value.replace('/public/', '\\public/')
+            return value
+        def invoke(names, duplicate):
+            receipts = [{'path': spelling(name, style), 'native_c1': False,
+                         'frame_id': q.digest(frame), 'process_outcome_id': q.digest(outcome)}
+                        for name, style in names]
+            assert len({r['path'] for r in receipts}) == len(receipts)
+            binding['actual_process_receipts'] = receipts
+            write(out / 'bridge-evidence.json', {'lifecycle_observed': observed, 'binding': binding})
+            reads.clear()
+            try:
+                entry(host, row, operation)
+            except ValueError as error:
+                message = str(error)
+            else:
+                raise AssertionError('Synthetic fixture must stop at uniqueness refusal or its declared later GAP')
+            frame_reads = [x.name for x in reads if x.name in ('one-process.json', 'two-process.json')]
+            print(json.dumps({'carrier': carrier, 'raw_paths': [r['path'] for r in receipts],
+                              'frame_reads': frame_reads, 'diagnostic': message}), flush=True)
+            if duplicate:
+                assert 'duplicate normalized receipt frame' in message, message
+                assert frame_reads == [], 'duplicate collection must be refused before frame reads/overwrite'
+            else:
+                assert message == gap, message
+                assert frame_reads == ['one-process.json', 'two-process.json'], frame_reads
+        for _iteration in range(2):
+            for style in range(3):
+                invoke([('one-process.json', style), ('two-process.json', (style + 1) % 3)], False)
+            for left, right in ((0, 1), (0, 2), (1, 2)):
+                invoke([('one-process.json', left), ('one-process.json', right)], True)
+        print('COMPILED_RECEIPT_COLLECTION_UNIQUENESS_VERIFIED')
+
+
 if __name__ == '__main__':
-    if '--configuration-child' in sys.argv:
+    if '--receipt-alias-child' in sys.argv:
+        receipt_alias_regression(sys.argv[-1])
+    elif '--configuration-child' in sys.argv:
         configuration_regression()
     else:
         unittest.main()

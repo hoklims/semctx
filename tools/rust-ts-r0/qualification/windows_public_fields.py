@@ -83,7 +83,10 @@ class OwnedPaths:
                                  'equal': result})
         return result
 
-    def frame(self, host, folder, captured):
+    def frame(self, host, folder, captured, receipts=None):
+        if receipts is not None:
+            identities = [normalized(receipt['path']) for receipt in receipts]
+            require(len(set(identities)) == len(identities), 'duplicate normalized receipt frame')
         require(custody.safe_path(host['root']) == self.root, 'foreign host transport root')
         spelling = normalized(captured)
         basename = spelling.rsplit('/', 1)[-1]
@@ -103,9 +106,9 @@ class OwnedPaths:
 # rewriting, source edits, assertion removal, data rewriting or suffix fallback.
 REPLACEMENTS = {
     ('qualified_carriers', 'load_public_lifecycle'): [
-        ("folder/receipt['path'].rsplit('/',1)[-1]", "owned_frame(host,folder,receipt['path'])")],
+        ("folder/receipt['path'].rsplit('/',1)[-1]", "owned_frame(host,folder,receipt['path'],receipts)")],
     ('remaining_carriers', 'public_verify'): [
-        ("folder/receipt['path'].rsplit('/',1)[-1]", "owned_frame(host,folder,receipt['path'])"),
+        ("folder/receipt['path'].rsplit('/',1)[-1]", "owned_frame(host,folder,receipt['path'],receipts)"),
         ("observed['repository_root']==prepared['repository_root']", "owned_equal(observed['repository_root'],prepared['repository_root'])")],
     ('remaining_carriers', 'native_process_binding'): [
         ("frame['argv']==expected", "owned_argv(frame['argv'],expected,1+int(mode is not None))"),
