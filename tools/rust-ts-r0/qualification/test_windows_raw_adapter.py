@@ -696,7 +696,7 @@ class SyntheticTransport(unittest.TestCase):
                 self.verify(cache=cache, output=output)
 
 
-    def reader_cli_fixture(self, include_public=False):
+    def reader_cli_fixture(self, include_public=False, inventory_native_root=None):
         import gzip
         import run_windows_milestone as milestone
         compressed = (HERE / 'windows-token-fields-test-protocol.json.gz').read_bytes()
@@ -718,6 +718,8 @@ class SyntheticTransport(unittest.TestCase):
         self.save('fixture.enabled.json', fixture)
         self.save('original-evidence/freeze-manifest.json', fixture)
         self.repin()
+        if inventory_native_root is not None:
+            self.mutate_inventory('native_raw_root', inventory_native_root)
         raw_before = a.tree(self.export)
         manifest = self.run_adapter()
         self.registration_fixture(include_public=include_public)
@@ -781,6 +783,37 @@ class SyntheticTransport(unittest.TestCase):
         self.assertEqual(foreign['gap'], 'C4 host binding differs')
         self.assertEqual(a.tree(self.export), raw_before)
 
+
+    def assert_full_reader_native_root_spelling(self, spelling):
+        args, raw_before, _, _ = self.reader_cli_fixture(inventory_native_root=spelling)
+        transport_before = a.tree(self.output)
+        context = self.verify()
+        command = [sys.executable, '-B', str(self.wrepo / a.READBACK_FILES['verifier_sha256']), *args]
+        result = subprocess.run(command, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        output = self.root / 'result.json'
+        self.assertTrue(output.is_file(), result.stderr)
+        answer = json.loads(output.read_bytes())
+        print(json.dumps({'native_root_spelling': spelling, 'context_native_root': context['native_raw_root'],
+                          'reader_gap': answer.get('gap'), 'reader_verdict': answer.get('verdict')}), flush=True)
+        self.assertEqual(answer['gap'], "'execution_enabled'",
+                         'valid separator variant must pass inventory identity and reach the later synthetic GAP')
+        self.assertEqual(context['native_raw_root'], spelling, 'verified context must retain captured root bytes')
+        self.assertEqual(context['documents']['inventory']['native_raw_root'], spelling)
+        self.assertEqual(answer['verdict'], 'WINDOWS_TOKEN_FIELDS_GAP')
+        self.assertFalse(answer['qualified'])
+        self.assertEqual(answer['qualification_credit'], 0)
+        self.assertIsNone(answer['R0_decision'])
+        self.assertEqual(answer['request_path_comparison']['raw'],
+                         self.captured('supplement-evidence/token-guards/request.json'))
+        self.assertEqual(a.tree(self.export), raw_before)
+        self.assertEqual(a.tree(self.output), transport_before)
+
+    def test_full_token_reader_preserves_forward_native_root_spelling(self):
+        self.assert_full_reader_native_root_spelling(self.native.replace('\\', '/'))
+
+    def test_full_token_reader_preserves_mixed_native_root_spelling(self):
+        self.assert_full_reader_native_root_spelling(self.native.replace('\\windows-raw\\', '/windows-raw\\', 1))
 
     def test_full_reader_clis_protect_actual_executing_checkout(self):
         args, raw_before, _, _ = self.reader_cli_fixture(include_public=True)

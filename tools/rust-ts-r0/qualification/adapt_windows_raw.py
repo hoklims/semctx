@@ -597,7 +597,7 @@ def verify_transport(*, manifest, ledger, inventory, registration, export_root,
     for name, raw in expected['files'].items():
         require(regular(transport / member(name)).read_bytes() == raw, 'consumed transport bytes differ: ' + name)
     # Publish only validated context, with every referenced pin covered by the projection.
-    return {'documents': documents, 'manifest': expected['manifest'], 'native_raw_root': str(native_root),
+    return {'documents': documents, 'manifest': expected['manifest'], 'native_raw_root': spec['native_raw_root'],
             'protected_roots': roots, 'verified_files': wanted, 'origins': expected['ledger']['origins'],
             'source_head': SOURCE, 'caller_head': reg['caller_head'], 'readback_head': reg['readback_head']}
 
