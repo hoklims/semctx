@@ -147,9 +147,16 @@ def evaluate(a, api, carriers, manifest, native_raw_root, c4, registration, inve
           'C4 assessment qualification boundary differs')
     check(c4['evaluation_protocol_ref']['sha256'] == PROTOCOL and len(c4['rows']) == 446,
           'C4 assessment protocol/denominator differs')
+    properties = [r for r in c4['rows'] if r.get('kind') == 'property']
+    check(len(properties) == 395, 'C4 property denominator differs')
+    for row in properties:
+        coordinate = row.get('coordinate')
+        check(isinstance(coordinate, dict) and set(coordinate) == {'obligation_index', 'property_index'}
+              and all(type(coordinate[k]) is int and coordinate[k] > 0 for k in coordinate),
+              'C4 property coordinate types differ')
     selected = []
     for coordinate in COORDINATES:
-        rows = [r for r in c4['rows'] if (r['coordinate']['obligation_index'], r['coordinate']['property_index']) == coordinate]
+        rows = [r for r in properties if (r['coordinate']['obligation_index'], r['coordinate']['property_index']) == coordinate]
         check(len(rows) == 1 and 'windows' in rows[0]['hosts'], 'C4 token coordinate/host absent or duplicate')
         selected.append(rows[0])
     core = {'source_head', 'protocol_sha256', 'sdk_sha256', 'verifier_sha256', 'coordinates',
@@ -179,6 +186,9 @@ def evaluate(a, api, carriers, manifest, native_raw_root, c4, registration, inve
           'absolute owned native campaign root required')
     host_manifest = manifest['hosts']['windows']
     docs, identity = a.final_join.validate_host_epoch(host_manifest, SOURCE, 'windows')
+    # load_host() uses this same unchanged validator result as its identity.
+    # Join the complete campaign identity, including every receipt/file reference.
+    check(c4.get('host_bindings', {}).get('windows') == identity, 'C4 host binding differs')
     fixture = docs['supplement.fixture']
     check(fixture['sdk_sha256'] == SDK, 'canonical SDK differs')
     for field, basename in [('token_family_path', 'token-family.enabled.json'), ('build_environment_path', 'build_environment.json')]:
