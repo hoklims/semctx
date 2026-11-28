@@ -87,6 +87,11 @@ class WindowsAcquisitionTest(unittest.TestCase):
         self.assertEqual(result['envelope']['counts'], {'original': 1, 'supplement': 1, 'as_expression': 2})
         self.assertFalse(self.review['qualified'])
 
+    def test_external_manifest_enrollment_cannot_be_replaced_by_self_consistent_bundle(self):
+        self.seal()
+        self.context['manifest'] = 'f' * 64
+        self.no_collector('enrolled input manifest differs')
+
     def test_wrong_source_protocol_review_or_tooling_cannot_invoke_collector(self):
         original = copy.deepcopy(self.envelope)
         for field, value in [('source_head', '3' * 40), ('protocol_sha256', '3' * 64), ('sdk_sha256', '3' * 64), ('tooling_head', '3' * 40)]:
@@ -185,11 +190,11 @@ class WindowsAcquisitionTest(unittest.TestCase):
             for value in values:
                 prior = {**current, 'id': 124, 'display_title': 'other', field: value}
                 with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, 'unknown Actions run metadata'):
-                    m.check_dispatch_history(self.context, lambda page: {'workflow_runs': [current, prior]})
+                    m.check_dispatch_history(self.context, lambda page, prior=prior: {'workflow_runs': [current, prior]})
             prior = {**current, 'id': 124, 'display_title': 'other'}
             del prior[field]
             with self.subTest(missing=field), self.assertRaisesRegex(ValueError, 'unknown Actions run metadata'):
-                m.check_dispatch_history(self.context, lambda page: {'workflow_runs': [current, prior]})
+                m.check_dispatch_history(self.context, lambda page, prior=prior: {'workflow_runs': [current, prior]})
 
     def test_collector_environment_excludes_all_actions_secrets(self):
         value = m.collector_environment({'PATH': '/tools', 'SystemRoot': 'C:/Windows', 'GITHUB_TOKEN': 'secret',
@@ -247,7 +252,7 @@ class WindowsAcquisitionTest(unittest.TestCase):
                 marker = directory / 'descendant.pid'
                 code = 'import pathlib,subprocess,sys,time;p=subprocess.Popen([sys.executable,"-c","import time;time.sleep(60)"]);pathlib.Path(sys.argv[1]).write_text(str(p.pid));time.sleep(60)'
                 owned = []
-                def spawn(*args, **kwargs):
+                def spawn(*args, marker=marker, owned=owned, failure=failure, **kwargs):
                     process = original_popen(*args, **kwargs)
                     if args[0][0] == sys.executable and str(args[0][-1]) == str(marker):
                         owned.append(process)
@@ -288,6 +293,39 @@ class WindowsAcquisitionTest(unittest.TestCase):
                             except ProcessLookupError:
                                 pass
                         process.wait(timeout=10)
+
+    def test_timeout_receipt_records_nonzero_taskkill_with_real_owned_process(self):
+        real_popen = subprocess.Popen
+        owned = []
+        def start(*args, **kwargs):
+            process = real_popen(*args, **kwargs)
+            owned.append(process)
+            return process
+        def cleanup(*args, **kwargs):
+            self.assertEqual(args[0], ['taskkill', '/PID', str(owned[0].pid), '/T', '/F'])
+            self.assertEqual(kwargs.get('timeout'), 30)
+            owned[0].kill()
+            return subprocess.CompletedProcess(args[0], 9, b'controlled cleanup stdout', b'controlled cleanup stderr')
+        try:
+            with mock.patch.object(m, 'os', SimpleNamespace(name='nt')), \
+                 mock.patch.object(m.subprocess, 'CREATE_NEW_PROCESS_GROUP', 0, create=True), \
+                 mock.patch.object(m.subprocess, 'Popen', side_effect=start), \
+                 mock.patch.object(m.subprocess, 'run', side_effect=cleanup):
+                result = m.run_process([sys.executable, '-I', '-S', '-B', '-c',
+                    'import time; print("owned stub", flush=True); time.sleep(30)'], self.root,
+                    os.environ.copy(), self.root, 'nonzero-cleanup', 1)
+            self.assertEqual(result['exit_code'], 124)
+            self.assertTrue(result['timed_out'])
+            self.assertEqual(result['error'], 'taskkill exit code: 9')
+            self.assertEqual(json.loads((self.root/'nonzero-cleanup.receipt.json').read_text()), result)
+            self.assertIn(b'owned stub', (self.root/'nonzero-cleanup.stdout').read_bytes())
+            self.assertEqual((self.root/'nonzero-cleanup.taskkill.stdout').read_bytes(), b'controlled cleanup stdout')
+            self.assertEqual((self.root/'nonzero-cleanup.taskkill.stderr').read_bytes(), b'controlled cleanup stderr')
+        finally:
+            for process in owned:
+                if process.poll() is None:
+                    process.kill()
+                real_popen.wait(process, timeout=5)
 
     def test_postflight_drift_cannot_report_success(self):
         self.acquisition_patches()
@@ -417,7 +455,7 @@ class WindowsAcquisitionTest(unittest.TestCase):
         for index, (surface, phase, key, changed) in enumerate(faults):
             with self.subTest(surface=surface, phase=phase, field=key):
                 calls = {'path': 0, 'handle': 0}
-                def observed(kind):
+                def observed(kind, calls=calls, surface=surface, phase=phase, key=key, changed=changed):
                     calls[kind] += 1
                     result = dict(baseline)
                     if kind == 'handle':
@@ -638,6 +676,32 @@ class WindowsAcquisitionTest(unittest.TestCase):
 
 
 class GitSnapshotTest(unittest.TestCase):
+    def test_tracked_bytes_must_match_actual_git_blob(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            def git(*args):
+                return subprocess.check_output(['git', *args], cwd=root)
+            git('init', '-q')
+            git('config', 'user.email', 'source-proof@example.invalid')
+            git('config', 'user.name', 'Source proof fixture')
+            git('config', 'core.autocrlf', 'false')
+            path = root/'file.txt'
+            path.write_bytes(b'public fixture\n')
+            git('add', 'file.txt')
+            git('commit', '-qm', 'synthetic source-proof fixture, never a candidate')
+            head = git('rev-parse', 'HEAD').decode().strip()
+            self.assertFalse(git('status', '--porcelain=v1', '--untracked-files=all').strip())
+            read_bytes = Path.read_bytes
+            reads = []
+            def changed_bytes(candidate):
+                if candidate == path:
+                    reads.append(candidate)
+                    return b'foreign bytes returned after clean status\n'
+                return read_bytes(candidate)
+            with mock.patch.object(Path, 'read_bytes', changed_bytes), self.assertRaisesRegex(ValueError, 'tracked Git blob differs'):
+                m.snapshot(root, head)
+            self.assertEqual(reads, [path], 'fixture must reach the tracked-byte comparison')
+
     def test_actual_git_blob_and_hidden_index_flags_are_checked(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory).resolve()

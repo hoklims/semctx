@@ -316,6 +316,8 @@ def run_process(argv, cwd, env, directory, label, timeout):
                     cleanup = subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
                     (directory / (label + '.taskkill.stdout')).write_bytes(cleanup.stdout)
                     (directory / (label + '.taskkill.stderr')).write_bytes(cleanup.stderr)
+                    if cleanup.returncode != 0:
+                        error = 'taskkill exit code: ' + str(cleanup.returncode)
                 else:
                     try:
                         os.killpg(process.pid, signal.SIGKILL)

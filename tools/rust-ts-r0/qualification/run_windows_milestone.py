@@ -187,12 +187,13 @@ def supplement_counts(report, additional_sources=(), diagnostic_assessment=None)
     configuration = next((row for row in public if row['id'] == 'workspace-boundaries-01'), {})
     expected = configuration.get('required_outputs', [])
     required = [item for item in configuration.get('observations', []) if item.get('required_consumer_output') is True]
-    direct_required_match = (isinstance(expected, list) and bool(expected)
-                            and all(type(sequence) is int for sequence in expected)
-                            and len(set(expected)) == len(expected) == len(required)
-                            and all(type(item.get('sequence')) is int and item.get('parent') is None for item in required)
-                            and {item.get('sequence') for item in required} == set(expected)
-                            and all(item.get('status') == 'MATCH' for item in required))
+    required_complete = (isinstance(expected, list) and bool(expected)
+                         and all(type(sequence) is int for sequence in expected)
+                         and len(set(expected)) == len(expected) == len(required)
+                         and all(type(item.get('sequence')) is int and item.get('parent') is None for item in required)
+                         and {item.get('sequence') for item in required} == set(expected))
+    require(not configuration or required_complete, 'configuration required observations incomplete')
+    direct_required_match = required_complete and all(item.get('status') == 'MATCH' for item in required)
     if diagnostic_assessment is not None and not direct_required_match:
         require(diagnostic_assessment['state'] == 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED'
                 and diagnostic_assessment['message_disposition'] == 'additional_message_version_difference',

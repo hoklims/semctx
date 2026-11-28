@@ -22,7 +22,7 @@ class WindowsMilestoneGuards(unittest.TestCase):
                 with self.subTest(required=required, failure=failure), tempfile.TemporaryDirectory() as temporary:
                     root = Path(temporary)
                     processes = []
-                    def start(*args, **kwargs):
+                    def start(*args, processes=processes, failure=failure, **kwargs):
                         process = real_popen(*args, **kwargs)
                         processes.append(process)
                         real_wait = process.wait
@@ -32,7 +32,7 @@ class WindowsMilestoneGuards(unittest.TestCase):
                             return real_wait(timeout=timeout)
                         process.wait = wait
                         return process
-                    def cleanup(*args, **kwargs):
+                    def cleanup(*args, processes=processes, failure=failure, **kwargs):
                         self.assertEqual(kwargs.get('timeout'), 30, 'owned cleanup must have a deadline')
                         process = processes[0]
                         process.kill()
@@ -162,7 +162,7 @@ class WindowsMilestoneGuards(unittest.TestCase):
             m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
         carrier = self.message_carrier()
         carrier['public']['rows'][0]['required_outputs'].append(2)
-        with self.assertRaisesRegex(ValueError, 'diagnostic property remains unknown'):
+        with self.assertRaisesRegex(ValueError, 'required observations incomplete'):
             m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
 
     def test_required_message_mismatch_keeps_existing_named_scoped_disposition(self):
@@ -177,6 +177,17 @@ class WindowsMilestoneGuards(unittest.TestCase):
         self.assertEqual(counts['additional_message_representations'], 1)
         diagnostic['disposition_scope']['sequence'] = 2
         with self.assertRaisesRegex(ValueError, 'foreign scope'):
+            m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+
+    def test_valid_message_disposition_cannot_hide_missing_required_observation(self):
+        carrier = self.message_carrier('MISMATCH')
+        carrier['public']['rows'][0]['required_outputs'].append(2)
+        diagnostic = {'state': 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED',
+                      'message_disposition': 'additional_message_version_difference',
+                      'disposition_scope': {'id': 'workspace-boundaries-01', 'sequence': 1,
+                          'only_difference': 'module option choices within diagnostic message',
+                          'whole_public_match_claimed': False, 'qualification_credit': 0}}
+        with self.assertRaisesRegex(ValueError, 'required observations incomplete'):
             m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
 
     def test_descendant_python_commands_use_isolated_verified_script_directory(self):
