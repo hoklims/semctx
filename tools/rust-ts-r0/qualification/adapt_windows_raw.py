@@ -154,9 +154,9 @@ def disjoint_writes(writes, inputs):
     return writes
 
 
-def executing_sources():
+def executing_sources(source_file=None):
     """Protect this actual source file and its discovered checkout, not caller input."""
-    executing = regular(__file__)
+    executing = regular(__file__ if source_file is None else source_file)
     # Git location overrides must not redefine ownership of the executing file.
     environment = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
     try:
@@ -170,6 +170,12 @@ def executing_sources():
     checkout = safe_path(root)
     require(executing.is_relative_to(checkout), 'executing source outside discovered Git checkout')
     return executing, checkout
+
+
+def protect_shipped_writes(writes, inputs, source_files=()):
+    """Protect the finite shipped-module closure at its actual local owners."""
+    owners = [path for source in (__file__, *source_files) for path in executing_sources(source)]
+    return disjoint_writes(writes, (*inputs, *owners))
 
 
 def captured_spelling(value):
@@ -271,7 +277,7 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
     export_root, inventory = safe_path(export_root), regular(inventory)
     source_repo, caller_repo, output = map(safe_path, (source_repo, caller_repo, output))
     require(_expected or not output.exists(), 'output collision')
-    disjoint_writes((output,), (export_root, inventory, source_repo, caller_repo, *executing_sources()))
+    protect_shipped_writes((output,), (export_root, inventory, source_repo, caller_repo))
     disjoint_writes((inventory,), (export_root,))
     raw_inventory = inventory.read_bytes()
     require(digest(raw_inventory) == inventory_sha256, 'inventory pin differs')
@@ -574,7 +580,7 @@ def verify_transport(*, manifest, ledger, inventory, registration, export_root,
     roots = [safe_path(path) for path in (export_root, source_repo, caller_repo, readback_repo, transport)]
     roots += [safe_path(ref['path']) for ref in (manifest, ledger, inventory, registration)]
     writes = [path for path in (cache, output) if path is not None]
-    disjoint_writes(writes, roots)
+    protect_shipped_writes(writes, roots)
     for field, relative in READBACK_FILES.items():
         actual = regular(safe_path(readback_repo) / relative).read_bytes()
         require(digest(actual) == reg[field] and actual == git_bytes(readback_repo, reg['readback_head'], relative),

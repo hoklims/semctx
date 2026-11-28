@@ -4,6 +4,7 @@ import copy
 import gzip
 import json
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -11,9 +12,71 @@ import types
 import unittest
 
 import windows_public_fields as p
+from test_windows_raw_adapter import (actual_reader_command, assert_reader_refuses_before_prepare,
+                                     frozen_reader_fixture, synthetic_code_checkout)
 
 HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[2]
+
+
+class ActualPublicReaderOwners(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        self.registered, self.executing, self.protocol, self.args = frozen_reader_fixture(self.root)
+
+    def external_control(self, helper=None, helper_adapter=None):
+        cache, output = self.root / 'external-cache', self.root / 'external-result.json'
+        command = actual_reader_command('windows_public_fields.py', self.executing,
+            self.args + ['--cache', str(cache), '--output', str(output)], helper, helper_adapter)
+        result = subprocess.run(command, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(json.loads(output.read_bytes())['kind'], 'SUPPLEMENTARY_WINDOWS_PUBLIC_FIELDS')
+        shutil.rmtree(cache)
+        output.unlink()
+
+    def test_freeze_cli_protects_actual_public_reader_before_any_preparation(self):
+        self.external_control()
+        for cache, output in ((self.executing / 'new-cache', self.root / 'result.json'),
+                              (self.root / 'new-cache', self.executing / 'new-output.json')):
+            with self.subTest(cache=cache, output=output):
+                command = actual_reader_command('windows_public_fields.py', self.executing,
+                    self.args + ['--cache', str(cache), '--output', str(output)])
+                assert_reader_refuses_before_prepare(self, command, cache, output, [self.executing])
+
+    def test_separately_loaded_token_and_adapter_owners_are_protected(self):
+        helper = synthetic_code_checkout(self.root / 'actual-token-helper-H')
+        helper_adapter = synthetic_code_checkout(self.root / 'actual-token-adapter-K')
+        self.external_control(helper, helper_adapter)
+        for owner in (helper, helper_adapter):
+            for cache, output in ((owner / 'new-cache', self.root / 'result.json'),
+                                  (self.root / 'new-cache', owner / 'new-output.json')):
+                with self.subTest(owner=owner, cache=cache):
+                    command = actual_reader_command('windows_public_fields.py', self.executing,
+                        self.args + ['--cache', str(cache), '--output', str(output)], helper, helper_adapter)
+                    assert_reader_refuses_before_prepare(self, command, cache, output,
+                                                         [self.executing, helper, helper_adapter])
+
+    def test_separately_loaded_adapter_bytes_match_registered_W_before_preparation(self):
+        helper = synthetic_code_checkout(self.root / 'actual-token-helper-H')
+        helper_adapter = synthetic_code_checkout(self.root / 'actual-token-adapter-K')
+        source = helper_adapter / p.custody.READBACK_FILES['adapter_sha256']
+        source.write_bytes(source.read_bytes() + b'\n# unregistered helper bytes\n')
+        cache, output = self.root / 'external-cache', self.root / 'external-result.json'
+        command = actual_reader_command('windows_public_fields.py', self.executing,
+            self.args + ['--cache', str(cache), '--output', str(output)], helper, helper_adapter)
+        result = subprocess.run(command, capture_output=True, text=True, timeout=60)
+        try:
+            self.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertIn('token/helper adapter differs from W source', result.stderr)
+            self.assertFalse(cache.exists())
+            self.assertFalse(output.exists())
+        finally:
+            if cache.exists():
+                shutil.rmtree(cache)
+            if output.exists():
+                output.unlink()
 
 
 class OwnedPathsContract(unittest.TestCase):

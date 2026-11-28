@@ -1,8 +1,14 @@
 """Synthetic, unqualified negatives for the supplementary token reader; no queries."""
 import importlib.util
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
 import unittest
 
+from test_windows_raw_adapter import (actual_reader_command, assert_reader_refuses_before_prepare,
+                                     frozen_reader_fixture, synthetic_code_checkout)
 SPEC = importlib.util.spec_from_file_location('windows_token_fields', Path(__file__).with_name('windows_token_fields.py'))
 
 
@@ -19,6 +25,69 @@ class PathContract(unittest.TestCase):
                       expected.lower(), expected + '/extra', expected.replace('raw', 'raw/../raw')]:
             with self.subTest(wrong=wrong):
                 self.assertFalse(module.same_request_path(wrong, expected))
+
+
+class ActualTokenReaderOwners(unittest.TestCase):
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name).resolve()
+        self.registered, self.executing, self.protocol, self.args = frozen_reader_fixture(self.root)
+
+    def test_freeze_cli_protects_actual_executing_owner_before_any_preparation(self):
+        cache, output = self.root / 'external-cache', self.root / 'external-result.json'
+        command = actual_reader_command('windows_token_fields.py', self.executing,
+                                        self.args + ['--cache', str(cache), '--output', str(output)])
+        result = subprocess.run(command, capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(output.is_file(), result.stderr)
+        shutil.rmtree(cache)
+        output.unlink()
+        for cache, output in ((self.executing / 'new-cache', self.root / 'result.json'),
+                              (self.root / 'new-cache', self.executing / 'new-output.json')):
+            with self.subTest(cache=cache, output=output):
+                command = actual_reader_command('windows_token_fields.py', self.executing,
+                    self.args + ['--cache', str(cache), '--output', str(output)])
+                assert_reader_refuses_before_prepare(self, command, cache, output, [self.executing])
+
+    def test_direct_prepare_protects_its_actual_source_owner(self):
+        launcher = ("import sys;from pathlib import Path;sys.path.insert(0,sys.argv[1]);"
+                    "import windows_token_fields as v;"
+                    "v.prepare(Path(sys.argv[2]),Path(sys.argv[3]),v.PROTOCOL,Path(sys.argv[4]));"
+                    "print('DIRECT_PREPARE_COMPLETED')")
+        prefix = [sys.executable, '-B', '-c', launcher,
+                  str(self.executing / 'tools/rust-ts-r0/qualification'),
+                  str(Path(__file__).resolve().parents[3]), str(self.protocol)]
+        allowed = self.root / 'external-direct-cache'
+        positive = subprocess.run([*prefix, str(allowed)], capture_output=True, text=True, timeout=60)
+        self.assertEqual(positive.returncode, 0, positive.stderr)
+        self.assertIn('DIRECT_PREPARE_COMPLETED', positive.stdout)
+        shutil.rmtree(allowed)
+        cache = self.executing / 'direct-cache'
+        assert_reader_refuses_before_prepare(self, [*prefix, str(cache)], cache,
+                                             self.root / 'unused-output.json', [self.executing])
+
+    def test_direct_prepare_protects_separately_loaded_adapter_owner(self):
+        helper = synthetic_code_checkout(self.root / 'actual-adapter-K')
+        launcher = (
+            "import importlib.util,sys;from pathlib import Path;"
+            "s=importlib.util.spec_from_file_location('adapt_windows_raw',sys.argv[1]);"
+            "m=importlib.util.module_from_spec(s);sys.modules[s.name]=m;s.loader.exec_module(m);"
+            "sys.path.insert(0,sys.argv[2]);import windows_token_fields as v;"
+            "v.prepare(Path(sys.argv[3]),Path(sys.argv[4]),v.PROTOCOL,Path(sys.argv[5]));"
+            "print('DIRECT_SPLIT_PREPARE_COMPLETED')")
+        prefix = [sys.executable, '-B', '-c', launcher,
+                  str(helper / 'tools/rust-ts-r0/qualification/adapt_windows_raw.py'),
+                  str(self.executing / 'tools/rust-ts-r0/qualification'),
+                  str(Path(__file__).resolve().parents[3]), str(self.protocol)]
+        allowed = self.root / 'external-split-cache'
+        positive = subprocess.run([*prefix, str(allowed)], capture_output=True, text=True, timeout=60)
+        self.assertEqual(positive.returncode, 0, positive.stderr)
+        self.assertIn('DIRECT_SPLIT_PREPARE_COMPLETED', positive.stdout)
+        shutil.rmtree(allowed)
+        cache = helper / 'direct-cache'
+        assert_reader_refuses_before_prepare(self, [*prefix, str(cache)], cache,
+                                             self.root / 'unused-output.json', [helper])
 
 
 class SyntheticTokenContract(unittest.TestCase):

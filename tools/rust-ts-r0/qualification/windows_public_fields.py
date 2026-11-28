@@ -274,7 +274,8 @@ def main(argv=None):
     args = parser.parse_args(argv)
     repo, readback_repo, protocol, cache, output = map(custody.safe_path,
         (args.repo, args.readback_repo, args.protocol, args.cache, args.output))
-    custody.disjoint_writes((cache, output), (repo, readback_repo, protocol))
+    custody.protect_shipped_writes((cache, output), (repo, readback_repo, protocol),
+                                   (__file__, tokens.__file__, tokens.custody.__file__))
     require(not output.exists(), 'fresh public output required')
     require(custody.regular(readback_repo / PUBLIC_FILE).read_bytes() == custody.regular(__file__).read_bytes(),
             'executing public reader differs from W source')
@@ -282,6 +283,8 @@ def main(argv=None):
             == custody.regular(custody.__file__).read_bytes(), 'executing adapter differs from W source')
     require(custody.regular(readback_repo / custody.READBACK_FILES['verifier_sha256']).read_bytes()
             == custody.regular(tokens.__file__).read_bytes(), 'executing token/helper reader differs from W source')
+    require(custody.regular(readback_repo / custody.READBACK_FILES['adapter_sha256']).read_bytes()
+            == custody.regular(tokens.custody.__file__).read_bytes(), 'token/helper adapter differs from W source')
     context = None
     references = {}
     if not args.freeze_only:
@@ -339,6 +342,8 @@ def main(argv=None):
                       public_registration=public_registration(context, readback_repo))
         require(custody.verify_transport(**custody_args) == context, 'public custody changed during read')
         tokens.pinned(args.c4_assessment, args.c4_assessment_sha256)
+    custody.protect_shipped_writes((cache, output), (repo, readback_repo, protocol),
+                                   (__file__, tokens.__file__, tokens.custody.__file__))
     with output.open('x', encoding='utf-8') as stream:
         stream.write(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
     return 0 if args.freeze_only or result.get('verdict') == 'WINDOWS_PUBLIC_FIELDS_MATCH' else 1

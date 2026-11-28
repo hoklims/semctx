@@ -90,6 +90,7 @@ def pinned(path, expected):
 
 def prepare(repo, protocol, protocol_sha256, cache):
     """Pre-outcome dependency/source audit. Reads no acquisition outcomes."""
+    custody.protect_shipped_writes((cache,), (repo, protocol), (__file__,))
     check(protocol_sha256 == PROTOCOL and sha(protocol.read_bytes()) == PROTOCOL, 'C4 protocol differs')
     raw = protocol.read_bytes()
     scope = custody.document(gzip.decompress(raw) if raw[:2] == b'\x1f\x8b' else raw)
@@ -268,7 +269,7 @@ def main(argv=None):
     check(not args.output.exists(), 'fresh output required')
     repo, cache, output, readback_repo, protocol = map(custody.safe_path,
         (args.repo, args.cache, args.output, args.readback_repo, args.protocol))
-    custody.disjoint_writes((cache, output), (repo, readback_repo, protocol))
+    custody.protect_shipped_writes((cache, output), (repo, readback_repo, protocol), (__file__,))
     check(custody.regular(readback_repo / 'tools/rust-ts-r0/qualification/windows_token_fields.py').read_bytes()
           == custody.regular(__file__).read_bytes(), 'executing verifier differs from W source')
     references = {name: {'path': str(getattr(args, name)), 'sha256': getattr(args, name + '_sha256')}
@@ -303,6 +304,7 @@ def main(argv=None):
                       qualified=False, qualification_credit=0, R0_decision=None)
         check(custody.verify_transport(**custody_args) == context, 'verified custody changed during read')
         pinned(args.c4_assessment, args.c4_assessment_sha256)
+    custody.protect_shipped_writes((cache, output), (repo, readback_repo, protocol), (__file__,))
     with output.open('x', encoding='utf-8') as stream:
         stream.write(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
     return 0 if result.get('verdict', '').endswith('MATCH') or args.freeze_only else 1

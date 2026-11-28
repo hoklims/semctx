@@ -19,6 +19,80 @@ SPEC = importlib.util.spec_from_file_location('windows_adapter', HERE / 'adapt_w
 a = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(a)
 REPO = HERE.parents[2]
+PUBLIC_READER = 'tools/rust-ts-r0/qualification/windows_public_fields.py'
+
+
+def synthetic_code_checkout(destination):
+    """Exact shipped bytes in a distinct temporary Git checkout, never admission."""
+    destination.mkdir()
+    subprocess.run(['git', 'init', '-q', str(destination)], check=True)
+    for relative in (*a.READBACK_FILES.values(), PUBLIC_READER):
+        target = destination / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((REPO / relative).read_bytes())
+    subprocess.run(['git', '-C', str(destination), 'add', '.'], check=True)
+    hooks = destination / '.git/empty-hooks'
+    hooks.mkdir()
+    subprocess.run(['git', '-C', str(destination), '-c', 'user.name=Synthetic',
+                    '-c', 'user.email=synthetic@example.invalid', '-c', 'commit.gpgsign=false',
+                    '-c', 'core.hooksPath=' + str(hooks), 'commit', '-qm', 'Synthetic shipped source fixture'], check=True)
+    return destination
+
+
+def frozen_reader_fixture(root):
+    import gzip
+    registered = synthetic_code_checkout(root / 'registered-W')
+    executing = synthetic_code_checkout(root / 'executing-E')
+    protocol = root / 'protocol.json'
+    protocol.write_bytes(gzip.decompress((HERE / 'windows-token-fields-test-protocol.json.gz').read_bytes()))
+    if a.digest(protocol.read_bytes()) != a.PROTOCOL:
+        raise AssertionError('canonical protocol fixture differs')
+    args = ['--repo', str(REPO), '--readback-repo', str(registered), '--protocol', str(protocol),
+            '--protocol-sha256', a.PROTOCOL, '--freeze-only']
+    return registered, executing, protocol, args
+
+
+def actual_reader_command(reader, executing, args, helper=None, helper_adapter=None):
+    """Actual CLI, optionally with independently loaded, byte-identical helper modules."""
+    script = executing / 'tools/rust-ts-r0/qualification' / reader
+    if helper is None:
+        return [sys.executable, '-B', str(script), *args]
+    loader = (
+        "import importlib.util,runpy,sys;from pathlib import Path;"
+        "e,h,k=map(Path,sys.argv[1:4]);args=sys.argv[4:];"
+        "prefix=Path('tools/rust-ts-r0/qualification');"
+        "exec(\"def load(name,path):\\n s=importlib.util.spec_from_file_location(name,path);m=importlib.util.module_from_spec(s);sys.modules[name]=m;s.loader.exec_module(m);return m\");"
+        "load('adapt_windows_raw',k/prefix/'adapt_windows_raw.py');"
+        "load('windows_token_fields',h/prefix/'windows_token_fields.py');"
+        "load('adapt_windows_raw',e/prefix/'adapt_windows_raw.py');"
+        "sys.path.insert(0,str(e/prefix));sys.argv=[str(e/prefix/'windows_public_fields.py'),*args];"
+        "runpy.run_path(sys.argv[0],run_name='__main__')")
+    return [sys.executable, '-B', '-c', loader, str(executing), str(helper), str(helper_adapter or helper), *args]
+
+
+def assert_reader_refuses_before_prepare(test, command, cache, output, owners):
+    before = {str(owner): a.tree(owner) for owner in owners}
+    result = subprocess.run(command, capture_output=True, text=True, timeout=60)
+    report = None
+    if output.is_file():
+        report = json.loads(output.read_bytes())
+    print(json.dumps({'reader_boundary': 'actual-cli', 'exit_code': result.returncode,
+                      'cache_created': cache.exists(), 'output_created': output.exists(),
+                      'output_kind': report.get('kind') if report else None,
+                      'output_verdict': report.get('verdict') if report else None}), flush=True)
+    try:
+        test.assertNotEqual(result.returncode, 0, result.stdout + result.stderr)
+        test.assertIn('overlaps', result.stderr)
+        test.assertFalse(cache.exists(), 'reader preparation wrote a cache before ownership refusal')
+        test.assertFalse(output.exists(), 'reader published output inside a shipped source owner')
+        for owner in owners:
+            test.assertEqual(a.tree(owner), before[str(owner)])
+    finally:
+        if cache.exists():
+            shutil.rmtree(cache)
+        if output.exists():
+            output.unlink()
+    return result
 
 
 class LocalWriteBoundary(unittest.TestCase):
@@ -553,12 +627,13 @@ class SyntheticTransport(unittest.TestCase):
             with self.subTest(names=names), self.assertRaisesRegex(ValueError, 'namespace'):
                 a.namespace(names)
 
-    def registration_fixture(self):
+    def registration_fixture(self, include_public=False):
         """Temporary synthetic W Git authority, never a production admission."""
         self.wrepo = self.root / 'synthetic-W'
         self.wrepo.mkdir()
         subprocess.run(['git', 'init', '-q', str(self.wrepo)], check=True)
-        for relative in a.READBACK_FILES.values():
+        relatives = list(a.READBACK_FILES.values()) + ([PUBLIC_READER] if include_public else [])
+        for relative in relatives:
             target = self.wrepo / relative
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes((REPO / relative).read_bytes())
@@ -570,6 +645,12 @@ class SyntheticTransport(unittest.TestCase):
                'caller_head': self.caller_head, 'coordinates': [[232, 1], [234, 1], [238, 1]],
                'expected_request_relative': 'supplement-evidence/token-guards/request.json', 'output_relative': 'windows-raw/campaign',
                **{field: a.digest((self.wrepo / relative).read_bytes()) for field, relative in a.READBACK_FILES.items()}}
+        if include_public:
+            import windows_public_fields as public
+            reg['public_bindings'] = {
+                'public_reader_sha256': a.digest((self.wrepo / PUBLIC_READER).read_bytes()),
+                'public_coordinates': json.dumps([list(c) for c in public.COORDINATES], separators=(',', ':')),
+                'public_support_ids': json.dumps(list(public.SUPPORTS), separators=(',', ':'))}
         self.regpath = self.root / 'registration.json'
         self.regpath.write_text(json.dumps(reg))
         return reg
@@ -615,8 +696,7 @@ class SyntheticTransport(unittest.TestCase):
                 self.verify(cache=cache, output=output)
 
 
-    def test_complete_synthetic_adapter_custody_reader_cli(self):
-        import sys
+    def reader_cli_fixture(self, include_public=False):
         import gzip
         import run_windows_milestone as milestone
         compressed = (HERE / 'windows-token-fields-test-protocol.json.gz').read_bytes()
@@ -640,7 +720,7 @@ class SyntheticTransport(unittest.TestCase):
         self.repin()
         raw_before = a.tree(self.export)
         manifest = self.run_adapter()
-        self.registration_fixture()
+        self.registration_fixture(include_public=include_public)
         context = self.verify()
         self.assertEqual(context['manifest'], manifest)
         # Only Git-object resolution uses this pointer; authored Git33 bytes stay unchanged.
@@ -669,6 +749,10 @@ class SyntheticTransport(unittest.TestCase):
         for name, path in [('manifest', self.output / 'manifest.json'), ('ledger', self.output / 'transport-ledger.json'),
                            ('registration', self.regpath), ('inventory', self.inventory), ('c4-assessment', c4path)]:
             args += ['--' + name, str(path), '--' + name + '-sha256', a.digest(path.read_bytes())]
+        return args, raw_before, c4, c4path
+
+    def test_complete_synthetic_adapter_custody_reader_cli(self):
+        args, raw_before, c4, c4path = self.reader_cli_fixture()
         command = [sys.executable, '-B', str(self.wrepo / a.READBACK_FILES['verifier_sha256']), *args]
         result = subprocess.run(command, capture_output=True, text=True)
         self.assertEqual(result.returncode, 1, result.stderr)
@@ -682,6 +766,7 @@ class SyntheticTransport(unittest.TestCase):
         self.assertEqual(answer['freeze']['verifier_sha256'], a.digest((self.wrepo / a.READBACK_FILES['verifier_sha256']).read_bytes()))
         self.assertEqual(len(answer['freeze']['source_joins']), 139)
         self.assertEqual(a.tree(self.export), raw_before)
+
         self.assertEqual(answer['request_path_comparison']['raw'], self.captured('supplement-evidence/token-guards/request.json'))
         # A different C4 campaign must never be joined by source/protocol alone.
         c4['host_bindings']['windows']['references']['supplement.fixture']['sha256'] = 'foreign'
@@ -695,6 +780,60 @@ class SyntheticTransport(unittest.TestCase):
         foreign = json.loads((self.root / 'foreign-result.json').read_bytes())
         self.assertEqual(foreign['gap'], 'C4 host binding differs')
         self.assertEqual(a.tree(self.export), raw_before)
+
+
+    def test_full_reader_clis_protect_actual_executing_checkout(self):
+        args, raw_before, _, _ = self.reader_cli_fixture(include_public=True)
+        executing = synthetic_code_checkout(self.root / 'actual-executing-E')
+        for reader, kind in (('windows_token_fields.py', 'SUPPLEMENTARY_WINDOWS_TOKEN_FIELDS'),
+                             ('windows_public_fields.py', 'SUPPLEMENTARY_WINDOWS_PUBLIC_FIELDS')):
+            cache, output = self.root / 'external-full-cache', self.root / 'external-full-result.json'
+            current = list(args)
+            current[current.index('--cache') + 1] = str(cache)
+            current[current.index('--output') + 1] = str(output)
+            result = subprocess.run(actual_reader_command(reader, executing, current), capture_output=True,
+                                    text=True, timeout=60)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertTrue(output.is_file(), result.stderr)
+            answer = json.loads(output.read_bytes())
+            self.assertEqual(answer['kind'], kind)
+            self.assertTrue(answer['verdict'].endswith('_GAP'))
+            self.assertFalse(answer['qualified'])
+            self.assertEqual(answer['qualification_credit'], 0)
+            self.assertIsNone(answer['R0_decision'])
+            shutil.rmtree(cache)
+            output.unlink()
+            for cache, output in ((executing / 'full-cache', self.root / 'full-result.json'),
+                                  (self.root / 'full-cache', executing / 'full-result.json')):
+                with self.subTest(reader=reader, cache=cache, output=output):
+                    current = list(args)
+                    current[current.index('--cache') + 1] = str(cache)
+                    current[current.index('--output') + 1] = str(output)
+                    assert_reader_refuses_before_prepare(self, actual_reader_command(reader, executing, current),
+                                                         cache, output, [executing])
+            self.assertEqual(a.tree(self.export), raw_before)
+
+    def test_verify_transport_protects_its_actual_helper_checkout(self):
+        self.reader_cli_fixture()
+        executing = synthetic_code_checkout(self.root / 'actual-adapter-E')
+        def pin(path):
+            return {'path': str(path), 'sha256': a.digest(path.read_bytes())}
+        arguments = dict(manifest=pin(self.output / 'manifest.json'), ledger=pin(self.output / 'transport-ledger.json'),
+                         inventory=pin(self.inventory), registration=pin(self.regpath), export_root=str(self.export),
+                         source_repo=str(self.source), caller_repo=str(REPO), readback_repo=str(self.wrepo))
+        launcher = ("import json,sys;sys.path.insert(0,sys.argv[1]);import adapt_windows_raw as a;"
+                    "a.verify_transport(**json.loads(sys.argv[2]));print('ACTUAL_TRANSPORT_VERIFIED')")
+        def command(cache, output):
+            return [sys.executable, '-B', '-c', launcher, str(executing / 'tools/rust-ts-r0/qualification'),
+                    json.dumps(dict(arguments, cache=str(cache), output=str(output)))]
+        cache, output = self.root / 'external-cache', self.root / 'external-result.json'
+        positive = subprocess.run(command(cache, output), capture_output=True, text=True, timeout=60)
+        self.assertEqual(positive.returncode, 0, positive.stderr)
+        self.assertIn('ACTUAL_TRANSPORT_VERIFIED', positive.stdout)
+        for cache, output in ((executing / 'new-cache', self.root / 'result.json'),
+                              (self.root / 'new-cache', executing / 'new-output.json')):
+            with self.subTest(cache=cache):
+                assert_reader_refuses_before_prepare(self, command(cache, output), cache, output, [executing])
 
 
     def test_verified_input_links_hardlinks_extra_files_refused(self):
