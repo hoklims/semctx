@@ -81,6 +81,54 @@ class WindowsMilestoneGuards(unittest.TestCase):
         with self.assertRaises(ValueError):
             m.supplement_counts(carrier, [{'id': '0', 'disposition': 'additional_noncontract'}])
 
+    def message_carrier(self, status='MATCH'):
+        target = {'id': 'workspace-boundaries-01', 'state': 'CONSUMER_OUTPUTS_MATCH' if status == 'MATCH' else 'CONSUMER_OUTPUT_MISMATCH',
+                  'required_outputs': [1], 'observations': [{'sequence': 1, 'parent': None,
+                      'required_consumer_output': True, 'status': status}]}
+        return {'rows': [{'id': str(i), 'state': 'MAPPED_OBSERVATIONS_MATCH_NO_QUALIFICATION_CREDIT'} for i in range(67)],
+                'digest_pairs': [{'id': str(i), 'pass': True} for i in range(5)],
+                'addenda': [{'id': str(i), 'result': {'pass': True}} for i in range(8)],
+                'public': {'rows': [target, *[{'id': str(i), 'state': 'CONSUMER_OUTPUTS_MATCH'} for i in range(24)]]}}
+
+    def test_direct_required_match_does_not_need_unused_unknown_message_disposition(self):
+        carrier = self.message_carrier()
+        diagnostic = {'state': 'UNKNOWN', 'reason': 'source-bound helper has no disposition for this candidate'}
+        before = copy.deepcopy(diagnostic)
+        try:
+            counts = m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+        except ValueError as error:
+            self.fail('direct required MATCH blocked by unused diagnostic: ' + str(error))
+        self.assertFalse(any(counts.values()))
+        self.assertEqual(diagnostic, before)
+
+    def test_required_unknown_or_mismatch_still_requires_exact_message_disposition(self):
+        for status in ['UNKNOWN', 'MISMATCH']:
+            carrier = self.message_carrier(status)
+            with self.subTest(status=status), self.assertRaisesRegex(ValueError, 'diagnostic property remains unknown'):
+                m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
+        carrier = self.message_carrier('MISMATCH')
+        carrier['public']['rows'][0]['state'] = 'CONSUMER_OUTPUTS_MATCH'
+        with self.assertRaisesRegex(ValueError, 'diagnostic property remains unknown'):
+            m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
+        carrier = self.message_carrier()
+        carrier['public']['rows'][0]['required_outputs'].append(2)
+        with self.assertRaisesRegex(ValueError, 'diagnostic property remains unknown'):
+            m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
+
+    def test_required_message_mismatch_keeps_existing_named_scoped_disposition(self):
+        carrier = self.message_carrier('MISMATCH')
+        diagnostic = {'state': 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED',
+                      'message_disposition': 'additional_message_version_difference',
+                      'disposition_scope': {'id': 'workspace-boundaries-01', 'sequence': 1,
+                          'only_difference': 'module option choices within diagnostic message',
+                          'whole_public_match_claimed': False, 'qualification_credit': 0}}
+        counts = m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+        self.assertEqual(counts['public_nonpass'], 0)
+        self.assertEqual(counts['additional_message_representations'], 1)
+        diagnostic['disposition_scope']['sequence'] = 2
+        with self.assertRaisesRegex(ValueError, 'foreign scope'):
+            m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -1,0 +1,149 @@
+name: Windows R0 raw acquisition
+run-name: Windows RAW ${{ inputs.campaign_id || github.run_id }}
+
+on:
+  pull_request:
+    paths:
+      - .github/workflows/windows-r0-acquisition.yml
+      - tools/rust-ts-r0/qualification/acquire_windows_raw.py
+      - tools/rust-ts-r0/qualification/test_windows_acquisition.py
+      - tools/rust-ts-r0/qualification/run_windows_milestone.py
+      - tools/rust-ts-r0/qualification/test_windows_milestone.py
+  workflow_dispatch:
+    inputs:
+      input_commit:
+        description: Exact public-input commit, independently bound by the enrolled manifest
+        required: true
+        type: string
+      campaign_id:
+        description: Root-reserved campaign ID, one original plus one supplement plus two frozen additional queries
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-r0-raw-${{ inputs.campaign_id || github.run_id }}
+  cancel-in-progress: false
+
+env:
+  GIT_CONFIG_COUNT: '2'
+  GIT_CONFIG_KEY_0: core.autocrlf
+  GIT_CONFIG_VALUE_0: 'false'
+  GIT_CONFIG_KEY_1: core.eol
+  GIT_CONFIG_VALUE_1: lf
+  PYTHONDONTWRITEBYTECODE: '1'
+
+jobs:
+  verify:
+    name: Windows acquisition guards
+    runs-on: windows-2025
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          path: tooling
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13.16'
+      - name: Exercise source guards and native owned-tree timeout fixture
+        shell: pwsh
+        run: |
+          python -I -B -m unittest discover -s tooling/tools/rust-ts-r0/qualification -p 'test_windows_*.py' -v
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+  acquire:
+    name: Acquire unadapted Windows raw evidence
+    if: github.event_name == 'workflow_dispatch'
+    needs: verify
+    runs-on: windows-2025
+    timeout-minutes: 85
+    permissions:
+      contents: read
+      actions: read
+    env:
+      INPUT_COMMIT: ${{ inputs.input_commit }}
+      CAMPAIGN_ID: ${{ inputs.campaign_id }}
+      WINDOWS_R0_TOOLING_SHA: ${{ vars.WINDOWS_R0_TOOLING_SHA }}
+      WINDOWS_R0_INPUT_MANIFEST_SHA256: ${{ vars.WINDOWS_R0_INPUT_MANIFEST_SHA256 }}
+      WINDOWS_R0_WORKFLOW_SHA: ${{ github.workflow_sha }}
+      WINDOWS_R0_REPOSITORY_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - name: Refuse unregistered or malformed dispatch before checking out tooling
+        shell: pwsh
+        run: |
+          if ($env:WINDOWS_R0_TOOLING_SHA -cnotmatch '^[0-9a-f]{40}$' -or $env:WINDOWS_R0_TOOLING_SHA -eq ('0' * 40)) { throw 'Exact enrolled tooling SHA required' }
+          if ($env:WINDOWS_R0_WORKFLOW_SHA -cne $env:WINDOWS_R0_TOOLING_SHA) { throw 'Workflow/tooling enrollment differs' }
+          if ($env:WINDOWS_R0_INPUT_MANIFEST_SHA256 -cnotmatch '^[0-9a-f]{64}$' -or $env:WINDOWS_R0_INPUT_MANIFEST_SHA256 -eq ('0' * 64)) { throw 'Enrolled input manifest required' }
+          if ($env:INPUT_COMMIT -cnotmatch '^[0-9a-f]{40}$' -or $env:INPUT_COMMIT -eq ('0' * 40)) { throw 'Exact public-input commit required' }
+          if ($env:CAMPAIGN_ID -cnotmatch '^[a-z][a-z0-9-]{0,63}$') { throw 'Campaign ID must be data' }
+          if ($env:GITHUB_REPOSITORY_ID -ne '1289209764' -or $env:GITHUB_REPOSITORY -cne 'hoklims/semctx') { throw 'Repository identity differs' }
+          if ($env:WINDOWS_R0_REPOSITORY_PRIVATE -cne 'false' -or $env:GITHUB_RUN_ATTEMPT -ne '1') { throw 'Public first-attempt route required' }
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ vars.WINDOWS_R0_TOOLING_SHA }}
+          persist-credentials: false
+          path: tooling
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: 3309e011184893b41b97491622fd31880982cab6
+          persist-credentials: false
+          path: producer
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.input_commit }}
+          persist-credentials: false
+          path: public-inputs
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.13.16'
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24.22.0'
+      - name: Validate the external envelope, actual Git bytes and source protocol
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $node = (Get-Command node.exe).Source
+          python -I -S -B tooling/tools/rust-ts-r0/qualification/acquire_windows_raw.py --tooling tooling --producer producer --inputs public-inputs --workspace $env:GITHUB_WORKSPACE --input-commit $env:INPUT_COMMIT --campaign-id $env:CAMPAIGN_ID --node $node --preflight-only
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Provision only locked native dependencies before offline collection
+        shell: pwsh
+        run: |
+          rustup toolchain install 1.95.0 --profile minimal
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:RUSTUP_TOOLCHAIN = '1.95.0'
+          cargo fetch --locked --manifest-path producer/tools/gates/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo fetch --locked --manifest-path producer/tools/rust-ts-r0/Cargo.toml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Invoke one tooling-bound collector against the unchanged producer
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          $node = (Get-Command node.exe).Source
+          python -I -S -B tooling/tools/rust-ts-r0/qualification/acquire_windows_raw.py --tooling tooling --producer producer --inputs public-inputs --workspace $env:GITHUB_WORKSPACE --input-commit $env:INPUT_COMMIT --campaign-id $env:CAMPAIGN_ID --node $node
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Preserve an explicit unknown outcome if execution never reached its receipt
+        if: always()
+        shell: pwsh
+        run: |
+          $receipts = Get-ChildItem -Path windows-control -Filter result.json -Recurse -ErrorAction SilentlyContinue
+          if (-not $receipts -and -not (Test-Path windows-acquisition-error.json)) {
+            @{state='WORKFLOW_INCOMPLETE'; qualified=$false; qualification_credit=0; collector_invocations=$null} | ConvertTo-Json | Set-Content -Encoding utf8 windows-acquisition-error.json
+          }
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: windows-r0-raw-${{ github.run_id }}
+          path: |
+            windows-control/**/result.json
+            windows-artifacts/*.zip
+            windows-acquisition-error.json
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
