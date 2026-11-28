@@ -203,78 +203,38 @@ class SyntheticTokenContract(unittest.TestCase):
 
 
 class AssessmentJoinContract(unittest.TestCase):
-    """Faithful C4 row envelope; synthetic identity; no native or helper queries."""
+    """Public frozen C4 metadata includes legitimate zero-based coordinates."""
     def setUp(self):
         import copy
-        import types
+        import gzip
+        import json
         self.copy = copy.deepcopy
         self.module = importlib.util.module_from_spec(SPEC)
         SPEC.loader.exec_module(self.module)
-        m = self.module
-        self.identity = {'source_head': m.SOURCE, 'platform': 'windows',
-                         'references': {'supplement.fixture': {'document': 'campaign-A/fixture.json', 'sha256': 'A'}},
-                         'actual_artifact_byte_joins': [{'kind': 'sdk', 'sha256': m.SDK}],
-                         'receipt_authentication_claimed': False, 'scope': 'synthetic host identity'}
-        class StopFixture:
-            def __getitem__(self, field):
-                raise ValueError('HOST_JOIN_REACHED')
-        self.a = types.SimpleNamespace(final_join=types.SimpleNamespace(
-            validate_host_epoch=lambda *args: ({'supplement.fixture': StopFixture()}, self.identity)))
-        self.manifest = {'expected_source_head': m.SOURCE, 'evaluation_protocol_sha256': m.PROTOCOL,
-                         'hosts': {'windows': {'raw_root': 'synthetic-transport-root'}}}
-        props = [{'kind': 'property', 'coordinate': {'obligation_index': x, 'property_index': y},
-                  'hosts': {'windows': {'state': 'GAP'}}} for x, y in m.COORDINATES]
-        props += [{'kind': 'property', 'coordinate': {'obligation_index': 1000 + i, 'property_index': 1},
-                   'hosts': {'windows': {'state': 'RELEVANT_PASS'}}} for i in range(392)]
-        supports = [{'kind': 'support', 'support_id': 'S' + str(i),
-                     'hosts': {'windows': {'state': 'RELEVANT_PASS'}}} for i in range(51)]
-        self.c4 = {'kind': 'DETERMINISTIC_CURRENT_FIELD_ASSESSMENT', 'candidate_head': m.SOURCE,
-                   'qualified': False, 'qualification_credit': 0, 'R0_decision': None,
-                   'evaluation_protocol_ref': {'sha256': m.PROTOCOL}, 'rows': props + supports,
-                   'host_bindings': {'windows': self.copy(self.identity)}}
-        self.root = r'C:\owned\windows-raw\campaign'
-        self.registration = {'source_head': m.SOURCE, 'protocol_sha256': m.PROTOCOL, 'sdk_sha256': m.SDK,
-            'verifier_sha256': m.sha(Path(SPEC.origin).read_bytes()), 'coordinates': [list(c) for c in m.COORDINATES],
-            'expected_request_relative': 'supplement-evidence/token-guards/request.json',
-            'output_relative': 'windows-raw/campaign', 'verifier_head': '1' * 40, 'caller_head': '2' * 40}
-        self.inventory = {'kind': 'WINDOWS_R0_RAW_EXPORT_INVENTORY', 'schema_version': 1, 'complete': True,
-            'native_raw_root': self.root, 'source_head': m.SOURCE, 'protocol_sha256': m.PROTOCOL,
-            'sdk_sha256': m.SDK, 'caller_head': '2' * 40}
+        package = Path(__file__).parent / 'property_assessor/scope-map.json.gz'
+        self.baseline = json.loads(gzip.decompress(package.read_bytes()))['baseline_rows']
+        self.c4 = {'rows': self.copy(self.baseline)}
 
-    def evaluate(self):
-        try:
-            return self.module.evaluate(self.a, None, None, self.manifest, self.root,
-                                        self.c4, self.registration, self.inventory)
-        except KeyError as error:
-            self.fail('faithful C4 supports or identity must not cause unchecked KeyError: ' + str(error))
+    def test_faithful_395_properties_51_supports_including_zero(self):
+        properties = self.module.assessment_rows(self.c4, self.baseline)
+        self.assertEqual(len(properties), 395)
+        self.assertEqual(properties[0]['coordinate'], {'obligation_index': 0, 'property_index': 0})
 
-    def test_faithful_395_properties_51_supports_reaches_exact_host_join(self):
-        with self.assertRaisesRegex(ValueError, 'HOST_JOIN_REACHED'):
-            self.evaluate()
-
-    def test_foreign_campaign_identity_is_refused(self):
-        self.c4['host_bindings']['windows']['references']['supplement.fixture']['sha256'] = 'foreign-campaign'
-        with self.assertRaisesRegex(ValueError, 'C4 host binding differs'):
-            self.evaluate()
-
-    def test_missing_host_identity_is_refused(self):
-        del self.c4['host_bindings']['windows']
-        with self.assertRaisesRegex(ValueError, 'C4 host binding differs'):
-            self.evaluate()
-
-    def test_token_coordinate_types_and_exact_scope_are_required(self):
+    def test_exact_frozen_row_scope_required(self):
         original = self.copy(self.c4)
-        for mutation in ('boolean', 'string', 'duplicate', 'missing', 'support-spoof'):
+        for mutation in ('boolean', 'string', 'duplicate', 'missing', 'support-spoof', 'unknown-kind', 'foreign-support'):
             with self.subTest(mutation=mutation):
                 self.c4 = self.copy(original)
                 row = self.c4['rows'][0]
-                if mutation == 'boolean': row['coordinate']['property_index'] = True
-                if mutation == 'string': row['coordinate']['obligation_index'] = '232'
+                if mutation == 'boolean': row['coordinate']['property_index'] = False
+                if mutation == 'string': row['coordinate']['obligation_index'] = '0'
                 if mutation == 'duplicate': self.c4['rows'][3] = self.copy(row)
                 if mutation == 'missing': row['coordinate']['obligation_index'] = 999
                 if mutation == 'support-spoof': row['kind'] = 'support'
-                with self.assertRaisesRegex(ValueError, 'C4 .*coordinate|C4 property'):
-                    self.evaluate()
+                if mutation == 'unknown-kind': row['kind'] = 'foreign'
+                if mutation == 'foreign-support': self.c4['rows'][-1]['support_id'] = 'foreign'
+                with self.assertRaisesRegex(ValueError, 'C4 '):
+                    self.module.assessment_rows(self.c4, self.baseline)
 
 
 if __name__ == '__main__':

@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import tarfile
 import unittest
+from unittest.mock import patch
 
 HERE = Path(__file__).resolve().parent
 SPEC = importlib.util.spec_from_file_location('windows_adapter', HERE / 'adapt_windows_raw.py')
@@ -41,7 +42,7 @@ class SyntheticTransport(unittest.TestCase):
         self.export = self.root / 'export'
         self.raw = self.export / 'raw'
         self.source = self.source_tree
-        self.native = 'C:\\synthetic-only\\raw'
+        self.native = 'C:\\synthetic-only\\windows-raw\\campaign'
         self.caller_head = subprocess.check_output(['git', '-C', str(REPO), 'rev-parse', 'HEAD']).decode().strip()
         self.caller_bytes = a.git_bytes(REPO, self.caller_head, a.CALLER)
         self.output = self.root / 'transport'
@@ -78,7 +79,7 @@ class SyntheticTransport(unittest.TestCase):
         self.save('additional/report.json', {'source_head': a.SOURCE, 'platform': 'windows', 'postflight_ok': True,
                   'attempts': 1, 'expected_candidate_phases': 2, 'candidate_phases_completed': 2, 'candidate_outcomes_recorded': 2,
                   'caller_invocations_attempted': ['legacy', 'retained'], 'contexts': [{'context': 'legacy'}, {'context': 'retained'}]})
-        self.save('sdk-input.json', {'synthetic_fixture': True})
+        self.save('sdk-input.json', {'synthetic_fixture': True, 'version': '5.9.3'})
         (self.raw / 'upstream-compiler-core.rs').write_bytes(b'synthetic compiler source only')
         # Synthetic SDK bytes require an explicit test-only SDK pin; production SDK remains fixed.
         self.sdk = a.digest((self.raw / 'sdk-input.json').read_bytes())
@@ -112,6 +113,9 @@ class SyntheticTransport(unittest.TestCase):
         fixture['build_environment_sha256'] = self.ref('build_environment.json')['sha256']
         self.save('fixture.enabled.json', fixture)
         self.save('original-evidence/freeze-manifest.json', fixture)
+        self.save('supplement-evidence/token-guards/process-invocation.json', {
+            'argv': [fixture['artifact_path'], self.captured('supplement-evidence/token-guards/request.json'), fixture['sdk_path']],
+            'cwd': self.captured('supplement-evidence/token-guards/workspace'), 'native_queries': 1})
         report = self.load('original-evidence/report.json')
         report.update({key + '_sha256': fixture[key + '_sha256'] for key in ('artifact', 'helper')})
         self.save('original-evidence/report.json', report)
@@ -154,7 +158,10 @@ class SyntheticTransport(unittest.TestCase):
 
     def test_byte_identical_transport_and_rename_only_sidecars(self):
         before = a.tree(self.export)
-        manifest = self.run_adapter()
+        with patch.object(a.subprocess, 'check_output', wraps=subprocess.check_output) as calls:
+            manifest = self.run_adapter()
+        self.assertTrue(calls.call_args_list)
+        self.assertTrue(all(call.args[0][0] == 'git' for call in calls.call_args_list))
         self.assertEqual(a.tree(self.export), before)
         self.assertEqual(set(manifest['hosts']), {'windows'})
         self.assertIs(manifest['qualified'], False)
@@ -169,9 +176,33 @@ class SyntheticTransport(unittest.TestCase):
                          (self.raw / 'supplement-evidence/token-guards/request.json').read_bytes())
         self.assertEqual((self.output / 'view/public-plan.json').read_bytes(), (self.raw / 'public-plan.json').read_bytes())
         ledger = json.loads((self.output / 'transport-ledger.json').read_bytes())
-        self.assertEqual(ledger['native_replays'], 0)
         self.assertEqual(len(ledger['derivations']), 5)
+        for entry in ledger['derivations']:
+            raw = json.loads(Path(entry['raw_path']).read_bytes())
+            actual = json.loads(Path(entry['derived_path']).read_bytes())
+            aliases = ({'source_head': 'head'} if Path(entry['raw_path']).name.startswith('source-')
+                       else {'exit_code': 'exitCode', 'timed_out': 'timedOut'})
+            wanted = copy.deepcopy(raw)
+            for old, new in aliases.items():
+                wanted[new] = wanted.pop(old)
+            self.assertEqual(actual, wanted)
+            self.assertEqual(entry['operation'], {'rename': aliases})
+            self.assertEqual(entry['raw_sha256'], a.digest(Path(entry['raw_path']).read_bytes()))
+            self.assertEqual(entry['derived_sha256'], a.digest(Path(entry['derived_path']).read_bytes()))
+            self.assertEqual(entry['raw_keyset'], sorted(raw))
+            self.assertEqual(entry['derived_keyset'], sorted(actual))
+        expected_destinations = {}
+        for name, ref in before.items():
+            dest = self.output / 'view' / name[4:] if name.startswith('raw/') else self.output / name
+            expected_destinations[str(dest)] = (str(self.export / name), name, ref)
+            if name.startswith('raw/supplement-evidence/'):
+                dest = self.output / 'view/evidence' / name.removeprefix('raw/supplement-evidence/')
+                expected_destinations[str(dest)] = (str(self.export / name), name, ref)
+        self.assertEqual({entry['path'] for entry in ledger['origins']}, set(expected_destinations))
         for entry in ledger['origins']:
+            origin, name, ref = expected_destinations[entry['path']]
+            self.assertEqual(entry, {'origin': origin, 'member': name, 'path': entry['path'], **ref})
+            self.assertEqual(Path(entry['path']).read_bytes(), Path(origin).read_bytes())
             self.assertEqual(a.digest(Path(entry['path']).read_bytes()), entry['sha256'])
             self.assertNotEqual(Path(entry['origin']).stat().st_ino, Path(entry['path']).stat().st_ino)
 
@@ -311,6 +342,188 @@ class SyntheticTransport(unittest.TestCase):
         changed.write_bytes(b'changed local source')
         with self.assertRaisesRegex(ValueError, 'source snapshot'):
             self.run_adapter()
+
+
+    def test_windows_namespace_component_collisions_and_names(self):
+        for name in ('raw/CON', 'raw/nul.txt', 'raw/COM1.json', 'raw/trailing.', 'raw/trailing ', 'raw/bad\x01', 'raw/a?b'):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'unsafe'):
+                a.member(name)
+        self.assertEqual(str(a.member('raw/élève/日本語.json')), 'raw/élève/日本語.json')
+        for names in (['raw/Foo/a', 'raw/foo/b'], ['raw/a', 'raw/a/b']):
+            with self.subTest(names=names), self.assertRaisesRegex(ValueError, 'namespace'):
+                a.namespace(names)
+
+    def registration_fixture(self):
+        """Temporary synthetic W Git authority, never a production admission."""
+        self.wrepo = self.root / 'synthetic-W'
+        self.wrepo.mkdir()
+        subprocess.run(['git', 'init', '-q', str(self.wrepo)], check=True)
+        for relative in a.READBACK_FILES.values():
+            target = self.wrepo / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((REPO / relative).read_bytes())
+        subprocess.run(['git', '-C', str(self.wrepo), 'add', '.'], check=True)
+        subprocess.run(['git', '-C', str(self.wrepo), '-c', 'user.name=Synthetic', '-c', 'user.email=synthetic@example.invalid',
+                        '-c', 'commit.gpgsign=false', 'commit', '-qm', 'Synthetic unqualified test only'], check=True)
+        head = subprocess.check_output(['git', '-C', str(self.wrepo), 'rev-parse', 'HEAD']).decode().strip()
+        reg = {'readback_head': head, 'source_head': a.SOURCE, 'protocol_sha256': a.PROTOCOL, 'sdk_sha256': a.SDK,
+               'caller_head': self.caller_head, 'coordinates': [[232, 1], [234, 1], [238, 1]],
+               'expected_request_relative': 'supplement-evidence/token-guards/request.json', 'output_relative': 'windows-raw/campaign',
+               **{field: a.digest((self.wrepo / relative).read_bytes()) for field, relative in a.READBACK_FILES.items()}}
+        self.regpath = self.root / 'registration.json'
+        self.regpath.write_text(json.dumps(reg))
+        return reg
+
+    def verify(self, **overrides):
+        def pin(path): return {'path': str(path), 'sha256': a.digest(path.read_bytes())}
+        args = dict(manifest=pin(self.output / 'manifest.json'), ledger=pin(self.output / 'transport-ledger.json'),
+                    inventory=pin(self.inventory), registration=pin(self.regpath), export_root=self.export,
+                    source_repo=self.source, caller_repo=REPO, readback_repo=self.wrepo,
+                    cache=self.root / 'cache', output=self.root / 'result.json')
+        args.update(overrides)
+        return a.verify_transport(**args)
+
+    def test_verified_custody_rejects_changed_view_sidecar_and_ledger(self):
+        self.run_adapter()
+        self.registration_fixture()
+        self.assertEqual(self.verify()['manifest']['hosts']['windows']['raw_root'], str(self.output / 'view'))
+        paths = [self.output / 'view/evidence/token-guards/request.json',
+                 self.output / 'derived/helper-build.receipt.json', self.output / 'transport-ledger.json']
+        for path in paths:
+            with self.subTest(path=path):
+                original = path.read_bytes()
+                value = json.loads(original)
+                value['nonrenamed_value'] = 'tampered'
+                path.write_text(json.dumps(value))
+                with self.assertRaisesRegex(ValueError, 'transport'):
+                    self.verify()
+                path.write_bytes(original)
+
+    def test_verified_custody_rejects_T_W_binding_and_cache_overlap(self):
+        self.run_adapter()
+        reg = self.registration_fixture()
+        for field in ('caller_head', 'adapter_sha256', 'verifier_sha256', 'readback_head'):
+            with self.subTest(field=field):
+                faulty = dict(reg, **{field: '0' * len(reg[field])})
+                self.regpath.write_text(json.dumps(faulty))
+                with self.assertRaises((ValueError, subprocess.CalledProcessError)):
+                    self.verify()
+        self.regpath.write_text(json.dumps(reg))
+        for cache, output in ((self.output / 'view/cache', self.root / 'result.json'),
+                              (self.root / 'cache', self.root / 'cache/result.json')):
+            with self.subTest(cache=cache), self.assertRaisesRegex(ValueError, 'overlaps'):
+                self.verify(cache=cache, output=output)
+
+
+    def test_complete_synthetic_adapter_custody_reader_cli(self):
+        import sys
+        public = Path(os.environ.get('SEMCTX_PUBLIC_MAC_EVIDENCE', '/Users/hokli/work/semctx-r0-macos-wave-20261128'))
+        protocol_raw = (public / 'evaluation-protocol.json').read_bytes()
+        self.assertEqual(a.digest(protocol_raw), a.PROTOCOL)
+        protocol = self.root / 'protocol.json'
+        protocol.write_bytes(protocol_raw)
+        sdk_raw = (public / 'prepared/sdk-input.json').read_bytes()
+        a.SDK = self.old_sdk
+        self.assertEqual(a.digest(sdk_raw), a.SDK)
+        (self.raw / 'sdk-input.json').write_bytes(sdk_raw)
+        fixture = self.load('fixture.enabled.json')
+        fixture['sdk_sha256'] = a.SDK
+        self.save('fixture.enabled.json', fixture)
+        self.save('original-evidence/freeze-manifest.json', fixture)
+        self.repin()
+        raw_before = a.tree(self.export)
+        manifest = self.run_adapter()
+        self.registration_fixture()
+        context = self.verify()
+        self.assertEqual(context['manifest'], manifest)
+        # Only Git-object resolution uses this pointer; authored Git33 bytes stay unchanged.
+        gitdir = subprocess.check_output(['git', '-C', str(REPO), 'rev-parse', '--absolute-git-dir']).decode().strip()
+        gitfile = self.source / '.git'
+        gitfile.write_text('gitdir: ' + gitdir + '\n')
+        self.addCleanup(gitfile.unlink)
+        spec = importlib.util.spec_from_file_location('synthetic_final_join', HERE / 'property_assessor/final_join.py')
+        join = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(join)
+        _, identity = join.validate_host_epoch(manifest['hosts']['windows'], a.SOURCE, 'windows')
+        baseline = json.loads(protocol_raw)['baseline_rows']
+        rows = []
+        for original in baseline:
+            row = {key: copy.deepcopy(original[key]) for key in ('kind', 'coordinate', 'support_id') if key in original}
+            row['hosts'] = {'windows': {'state': 'GAP', 'gap': 'SYNTHETIC_NO_NATIVE_OBSERVATIONS'}}
+            rows.append(row)
+        c4 = {'kind': 'DETERMINISTIC_CURRENT_FIELD_ASSESSMENT', 'candidate_head': a.SOURCE,
+              'rows': rows, 'host_bindings': {'windows': identity}, 'qualified': False,
+              'qualification_credit': 0, 'R0_decision': None, 'evaluation_protocol_ref': {'sha256': a.PROTOCOL}}
+        c4path = self.root / 'c4.json'
+        c4path.write_text(json.dumps(c4))
+        args = ['--repo', str(self.source), '--readback-repo', str(self.wrepo), '--caller-repo', str(REPO),
+                '--export-root', str(self.export), '--protocol', str(protocol), '--protocol-sha256', a.PROTOCOL,
+                '--cache', str(self.root / 'cache'), '--output', str(self.root / 'result.json')]
+        for name, path in [('manifest', self.output / 'manifest.json'), ('ledger', self.output / 'transport-ledger.json'),
+                           ('registration', self.regpath), ('inventory', self.inventory), ('c4-assessment', c4path)]:
+            args += ['--' + name, str(path), '--' + name + '-sha256', a.digest(path.read_bytes())]
+        command = [sys.executable, '-B', str(self.wrepo / a.READBACK_FILES['verifier_sha256']), *args]
+        result = subprocess.run(command, capture_output=True, text=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertTrue((self.root / 'result.json').is_file(), result.stderr)
+        answer = json.loads((self.root / 'result.json').read_bytes())
+        self.assertEqual(answer['verdict'], 'WINDOWS_TOKEN_FIELDS_GAP')
+        self.assertEqual(answer['gap'], "'execution_enabled'")
+        self.assertFalse(answer['qualified'])
+        self.assertEqual(answer['qualification_credit'], 0)
+        self.assertIsNone(answer['R0_decision'])
+        self.assertEqual(answer['freeze']['verifier_sha256'], a.digest((self.wrepo / a.READBACK_FILES['verifier_sha256']).read_bytes()))
+        self.assertEqual(len(answer['freeze']['source_joins']), 139)
+        self.assertEqual(a.tree(self.export), raw_before)
+        self.assertEqual(answer['request_path_comparison']['raw'], self.captured('supplement-evidence/token-guards/request.json'))
+        # A different C4 campaign must never be joined by source/protocol alone.
+        c4['host_bindings']['windows']['references']['supplement.fixture']['sha256'] = 'foreign'
+        c4path.write_text(json.dumps(c4))
+        bad_command = list(command)
+        bad_command[bad_command.index('--c4-assessment-sha256') + 1] = a.digest(c4path.read_bytes())
+        bad_command[bad_command.index('--cache') + 1] = str(self.root / 'foreign-cache')
+        bad_command[bad_command.index('--output') + 1] = str(self.root / 'foreign-result.json')
+        bad = subprocess.run(bad_command, capture_output=True, text=True)
+        self.assertEqual(bad.returncode, 1, bad.stderr)
+        foreign = json.loads((self.root / 'foreign-result.json').read_bytes())
+        self.assertEqual(foreign['gap'], 'C4 host binding differs')
+        self.assertEqual(a.tree(self.export), raw_before)
+
+
+    def test_verified_input_links_hardlinks_extra_files_refused(self):
+        self.run_adapter()
+        self.registration_fixture()
+        target = self.output / 'view/evidence/token-guards/request.json'
+        original = target.read_bytes()
+        external = self.root / 'external.json'
+        external.write_bytes(original)
+        target.unlink()
+        os.symlink(external, target)
+        with self.assertRaisesRegex(ValueError, 'link'):
+            self.verify()
+        target.unlink()
+        os.link(external, target)
+        with self.assertRaisesRegex(ValueError, 'hardlink'):
+            self.verify()
+        target.unlink()
+        target.write_bytes(original)
+        extra = self.output / 'view/extra.json'
+        extra.write_text('{}')
+        with self.assertRaisesRegex(ValueError, 'file set'):
+            self.verify()
+
+
+    def test_lexical_link_view_alias_component_collision_refused(self):
+        link = {'archive_path': 'raw/evidence/TOKEN-GUARDS/foreign',
+                'native_path': self.captured('evidence/TOKEN-GUARDS/foreign'), 'target': 'C:\\captured\\fixture',
+                'link_type': 'junction', 'capture_stable': True,
+                'stat': {key: 0 for key in ('mode', 'device', 'inode', 'size', 'mtime_ns', 'ctime_ns', 'file_attributes', 'reparse_tag')}}
+        (self.export / 'ARCHIVE-LINKS.json').write_text(json.dumps({'schema_version': 1,
+            'representation': 'lexical_links', 'targets_read': False, 'native_links_in_zip': False, 'links': [link]}))
+        self.repin()
+        with self.assertRaisesRegex(ValueError, 'namespace'):
+            self.run_adapter()
+        self.assertFalse(self.output.exists())
 
 
 if __name__ == '__main__':

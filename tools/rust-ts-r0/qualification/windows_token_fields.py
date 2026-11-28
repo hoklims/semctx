@@ -16,7 +16,7 @@ import json
 from pathlib import Path, PureWindowsPath
 import subprocess
 import sys
-import types
+import adapt_windows_raw as custody
 
 SOURCE = '3309e011184893b41b97491622fd31880982cab6'
 PROTOCOL = 'c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303'
@@ -83,16 +83,16 @@ def git_source(repo, path):
 
 
 def pinned(path, expected):
-    raw = Path(path).read_bytes()
+    raw = custody.regular(path).read_bytes()
     check(sha(raw) == expected, 'pinned input differs: ' + str(path))
-    return json.loads(raw)
+    return custody.document(raw)
 
 
 def prepare(repo, protocol, protocol_sha256, cache):
     """Pre-outcome dependency/source audit. Reads no acquisition outcomes."""
     check(protocol_sha256 == PROTOCOL and sha(protocol.read_bytes()) == PROTOCOL, 'C4 protocol differs')
     raw = protocol.read_bytes()
-    scope = json.loads(gzip.decompress(raw) if raw[:2] == b'\x1f\x8b' else raw)
+    scope = custody.document(gzip.decompress(raw) if raw[:2] == b'\x1f\x8b' else raw)
     check(len(scope['verifier_git_sources']) == 139, 'C4 source denominator differs')
     joins = {}
     for name, expected in scope['verifier_git_sources'].items():
@@ -137,34 +137,58 @@ def prepare(repo, protocol, protocol_sha256, cache):
     return a, api, carriers, metadata
 
 
-def evaluate(a, api, carriers, manifest, native_raw_root, c4, registration, inventory):
+def assessment_rows(c4, baseline):
+    properties, coordinates, supports = [], [], []
+    for row in c4['rows']:
+        check(isinstance(row, dict), 'C4 row object required')
+        if row.get('kind') == 'property':
+            coordinate = row.get('coordinate')
+            check(isinstance(coordinate, dict) and set(coordinate) == {'obligation_index', 'property_index'}
+                  and all(type(coordinate[k]) is int and coordinate[k] >= 0 for k in coordinate),
+                  'C4 property coordinate types differ')
+            properties.append(row)
+            coordinates.append((coordinate['obligation_index'], coordinate['property_index']))
+        elif row.get('kind') == 'support':
+            check(isinstance(row.get('support_id'), str), 'C4 support identity absent')
+            supports.append(row['support_id'])
+        else:
+            raise ValueError('C4 unknown row kind')
+    expected_coordinates = [(r['coordinate']['obligation_index'], r['coordinate']['property_index'])
+                            for r in baseline if r['kind'] == 'property']
+    expected_supports = [r['support_id'] for r in baseline if r['kind'] == 'support']
+    check(len(coordinates) == len(set(coordinates)) == 395 and set(coordinates) == set(expected_coordinates),
+          'C4 property coordinates differ from frozen baseline')
+    check(len(supports) == len(set(supports)) == 51 and set(supports) == set(expected_supports),
+          'C4 support identities differ from frozen baseline')
+    return properties
+
+
+def _evaluate(a, api, carriers, context, c4):
+    manifest = context['manifest']
+    native_raw_root = context['native_raw_root']
+    registration = context['documents']['registration']
+    inventory = context['documents']['inventory']
     check(manifest['expected_source_head'] == SOURCE and manifest['evaluation_protocol_sha256'] == PROTOCOL,
           'manifest source/protocol differs')
     check(set(manifest['hosts']) == {'windows'}, 'exact Windows host required')
     check(c4['kind'] == 'DETERMINISTIC_CURRENT_FIELD_ASSESSMENT' and c4['candidate_head'] == SOURCE,
           'C4 assessment kind/source differs')
-    check(c4['qualified'] is False and c4['qualification_credit'] == 0 and c4['R0_decision'] is None,
+    check(c4['qualified'] is False and type(c4['qualification_credit']) is int and c4['qualification_credit'] == 0 and c4['R0_decision'] is None,
           'C4 assessment qualification boundary differs')
     check(c4['evaluation_protocol_ref']['sha256'] == PROTOCOL and len(c4['rows']) == 446,
           'C4 assessment protocol/denominator differs')
-    properties = [r for r in c4['rows'] if r.get('kind') == 'property']
-    check(len(properties) == 395, 'C4 property denominator differs')
-    for row in properties:
-        coordinate = row.get('coordinate')
-        check(isinstance(coordinate, dict) and set(coordinate) == {'obligation_index', 'property_index'}
-              and all(type(coordinate[k]) is int and coordinate[k] > 0 for k in coordinate),
-              'C4 property coordinate types differ')
+    properties = assessment_rows(c4, a.scope_protocol()['baseline_rows'])
     selected = []
     for coordinate in COORDINATES:
         rows = [r for r in properties if (r['coordinate']['obligation_index'], r['coordinate']['property_index']) == coordinate]
         check(len(rows) == 1 and 'windows' in rows[0]['hosts'], 'C4 token coordinate/host absent or duplicate')
         selected.append(rows[0])
     core = {'source_head', 'protocol_sha256', 'sdk_sha256', 'verifier_sha256', 'coordinates',
-            'expected_request_relative', 'output_relative', 'verifier_head', 'caller_head'}
+            'expected_request_relative', 'output_relative', 'readback_head', 'adapter_sha256', 'caller_head'}
     check(core <= set(registration) <= core | {'public_bindings'}, 'registration fields differ')
     check(all(isinstance(registration[k], str) and registration[k] for k in core - {'coordinates'}),
           'registration string fields required')
-    for field in ('verifier_head', 'caller_head'):
+    for field in ('readback_head', 'caller_head'):
         check(len(registration[field]) == 40 and all(c in '0123456789abcdef' for c in registration[field]),
               'registration Git epoch invalid')
     check(isinstance(registration.get('public_bindings', {}), dict)
@@ -231,38 +255,54 @@ def evaluate(a, api, carriers, manifest, native_raw_root, c4, registration, inve
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('repo', 'protocol', 'output', 'cache'):
+    for name in ('repo', 'protocol', 'output', 'cache', 'readback-repo'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--protocol-sha256', required=True)
     parser.add_argument('--freeze-only', action='store_true')
-    for name in ('manifest', 'c4-assessment', 'registration', 'inventory'):
+    for name in ('manifest', 'c4-assessment', 'registration', 'inventory', 'ledger'):
         parser.add_argument('--' + name, type=Path)
         parser.add_argument('--' + name + '-sha256')
-    parser.add_argument('--native-raw-root')
+    for name in ('export-root', 'caller-repo'):
+        parser.add_argument('--' + name, type=Path)
     args = parser.parse_args(argv)
     check(not args.output.exists(), 'fresh output required')
-    repo, cache, output = args.repo.resolve(), args.cache.resolve(), args.output.resolve()
-    protected = [repo, Path(__file__).resolve().parents[3], args.protocol.resolve().parent]
-    for path in (cache, output):
-        check(all(not path.is_relative_to(root) for root in protected), 'cache/output inside protected source')
-    a, api, carriers, metadata = prepare(repo, args.protocol.resolve(), args.protocol_sha256, cache)
-    result = metadata
+    repo, cache, output, readback_repo, protocol = map(custody.safe_path,
+        (args.repo, args.cache, args.output, args.readback_repo, args.protocol))
+    custody.disjoint_writes((cache, output), (repo, readback_repo, protocol))
+    check(custody.regular(readback_repo / 'tools/rust-ts-r0/qualification/windows_token_fields.py').read_bytes()
+          == custody.regular(__file__).read_bytes(), 'executing verifier differs from W source')
+    references = {name: {'path': str(getattr(args, name)), 'sha256': getattr(args, name + '_sha256')}
+                  for name in ('manifest', 'inventory', 'registration', 'ledger')}
+    protocol = custody.regular(protocol)
+    check(custody.regular(custody.__file__).read_bytes() == custody.regular(readback_repo / 'tools/rust-ts-r0/qualification/adapt_windows_raw.py').read_bytes(),
+          'executing adapter differs from W source')
+    context = None
     if not args.freeze_only:
-        check(all((args.manifest, args.manifest_sha256, args.c4_assessment, args.c4_assessment_sha256,
-                   args.registration, args.registration_sha256, args.inventory, args.inventory_sha256, args.native_raw_root)), 'explicit pinned run inputs required')
-        documents = {name: pinned(getattr(args, name), getattr(args, name + '_sha256'))
-                     for name in ('manifest', 'c4_assessment', 'registration', 'inventory')}
+        check(all((args.export_root, args.caller_repo, args.c4_assessment, args.c4_assessment_sha256))
+              and all(getattr(args, name) and getattr(args, name + '_sha256') for name in references),
+              'explicit pinned custody inputs required')
+        custody.disjoint_writes((cache, output), (args.c4_assessment,))
+        custody_args = dict(**references, export_root=args.export_root, source_repo=repo,
+                            caller_repo=args.caller_repo, readback_repo=readback_repo, cache=cache, output=output)
+        context = custody.verify_transport(**custody_args)
+        c4 = pinned(args.c4_assessment, args.c4_assessment_sha256)
+    a, api, carriers, metadata = prepare(repo, protocol, args.protocol_sha256, cache)
+    metadata.update(readback_head=subprocess.check_output(['git', '-C', str(readback_repo), 'rev-parse', 'HEAD']).decode().strip(),
+                    adapter_sha256=sha(custody.regular(readback_repo / 'tools/rust-ts-r0/qualification/adapt_windows_raw.py').read_bytes()),
+                    readback_status=subprocess.check_output(['git', '-C', str(readback_repo), 'status', '--porcelain']).decode())
+    result = metadata
+    if context is not None:
         try:
-            result = evaluate(a, api, carriers, documents['manifest'], args.native_raw_root,
-                              documents['c4_assessment'], documents['registration'], documents['inventory'])
+            result = _evaluate(a, api, carriers, context, c4)
         except (AssertionError, ValueError, TypeError, KeyError, IndexError, OSError, StopIteration) as error:
             result = {'verdict': 'WINDOWS_TOKEN_FIELDS_GAP', 'gap': str(error)}
         result.update(kind='SUPPLEMENTARY_WINDOWS_TOKEN_FIELDS', freeze=metadata,
-                      input_sha256={name: getattr(args, name + '_sha256') for name in documents},
-                      registration=documents['registration'], native_queries=0,
+                      input_sha256={name: reference['sha256'] for name, reference in references.items()},
+                      c4_assessment_sha256=args.c4_assessment_sha256,
+                      registration=context['documents']['registration'], native_queries=0,
                       qualified=False, qualification_credit=0, R0_decision=None)
-        for name in documents:
-            pinned(getattr(args, name), getattr(args, name + '_sha256'))
+        check(custody.verify_transport(**custody_args) == context, 'verified custody changed during read')
+        pinned(args.c4_assessment, args.c4_assessment_sha256)
     with output.open('x', encoding='utf-8') as stream:
         stream.write(json.dumps(result, indent=2, ensure_ascii=False) + '\n')
     return 0 if result.get('verdict', '').endswith('MATCH') or args.freeze_only else 1

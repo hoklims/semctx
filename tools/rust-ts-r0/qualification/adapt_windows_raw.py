@@ -68,6 +68,7 @@ def safe_path(path):
             info = part.lstat()
             require(not stat.S_ISLNK(info.st_mode) and not getattr(info, 'st_file_attributes', 0) & 0x400,
                     'link/reparse path refused')
+            require(not stat.S_ISREG(info.st_mode) or info.st_nlink == 1, 'hardlink path refused')
     return path
 
 
@@ -82,8 +83,42 @@ def member(name):
     require(isinstance(name, str) and name and '\\' not in name and ':' not in name,
             'unsafe export member')
     parts = name.split('/')
-    require(all(part not in ('', '.', '..') for part in parts), 'unsafe export member')
+    require(all(part not in ('', '.', '..') and not part.endswith(('.', ' '))
+                and not any(ord(c) < 32 or c in '<>"|?*' for c in part)
+                and not re.fullmatch(r'(?:CON|PRN|AUX|NUL|CONIN\$|CONOUT\$|CLOCK\$|COM[1-9¹²³]|LPT[1-9¹²³])(?:\..*)?', part, re.I)
+                for part in parts), 'unsafe export member')
     return PurePosixPath(name)
+
+
+def namespace(names):
+    """Conservative portable Windows components; lexical names, no resolution."""
+    root = {}
+    for name in names:
+        parts = member(name).parts
+        node = root
+        for index, part in enumerate(parts):
+            require(None not in node, 'Windows namespace file/directory collision')
+            folded = part.casefold()
+            if folded in node:
+                spelling, child = node[folded]
+                require(spelling == part, 'Windows namespace component collision')
+            else:
+                child = {}
+                node[folded] = (part, child)
+            node = child
+            if index == len(parts) - 1:
+                require(not node, 'Windows namespace duplicate or file/directory collision')
+                node[None] = True
+
+
+def disjoint_writes(writes, inputs):
+    writes = [safe_path(path) for path in writes]
+    inputs = [safe_path(path) for path in inputs]
+    for index, path in enumerate(writes):
+        for other in inputs + writes[:index]:
+            require(not path.is_relative_to(other) and not other.is_relative_to(path),
+                    'cache/output overlaps protected input or each other')
+    return writes
 
 
 def tree(root):
@@ -98,6 +133,7 @@ def tree(root):
         name = path.relative_to(root).as_posix()
         member(name)
         result[name] = {'sha256': digest(raw), 'bytes': len(raw)}
+    namespace(result)
     return result
 
 
@@ -170,11 +206,11 @@ def trusted_source_tree(repo):
     return {name: hashes[blob] for name, blob in names.items()}
 
 
-def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo, caller_head, output):
+def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo, caller_head, output, _expected=False):
     """Validate first; write only a fresh independent transport output."""
     export_root, inventory = safe_path(export_root), regular(inventory)
     source_repo, caller_repo, output = map(safe_path, (source_repo, caller_repo, output))
-    require(not output.exists(), 'output collision')
+    require(_expected or not output.exists(), 'output collision')
     for root in (export_root, source_repo, caller_repo):
         require(not output.is_relative_to(root) and not root.is_relative_to(output), 'output overlaps protected input root')
     require(not inventory.is_relative_to(export_root) and not inventory.is_relative_to(output), 'inventory must be external')
@@ -201,11 +237,13 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
                 'invalid file hash/size')
         folded.add(name.casefold())
         expected[name] = {k: row[k] for k in ('sha256', 'bytes')}
+    namespace(expected)
     before = tree(export_root)
     require(before == expected, 'export inventory hash/size/file set differs')
     for name in before:
         if name.endswith('.json'):
             json_value(regular(export_root / name).read_bytes())
+    lexical_names = []
     if 'ARCHIVE-LINKS.json' in before:
         links = document((export_root / 'ARCHIVE-LINKS.json').read_bytes())
         require(exact_int(links.get('schema_version'), 1) and links.get('representation') == 'lexical_links'
@@ -224,6 +262,8 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
                     and isinstance(link.get('native_path'), str) and isinstance(link.get('target'), str)
                     and isinstance(link.get('stat'), dict), 'foreign/duplicate lexical link metadata')
             seen_links.add(name.casefold())
+        lexical_names = [link['archive_path'] for link in links['links']]
+        namespace(list(before) + lexical_names)
     native_root = PureWindowsPath(spec['native_raw_root'])
     require(native_root.is_absolute() and '..' not in native_root.parts, 'absolute captured Windows raw root required')
     raw = export_root / 'raw'
@@ -347,14 +387,17 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
     require(tree(export_root) == before, 'raw export changed during validation')
     view = output / 'view'
     ledger, origins = [], []
-    output.mkdir(parents=True, exist_ok=False)
+    emitted = {}
+
+    def emit(destination, data):
+        name = destination.relative_to(output).as_posix()
+        require(name not in emitted, 'duplicate projected transport path')
+        emitted[name] = data
 
     def copy_file(name, destination):
         raw_bytes = regular(export_root / name).read_bytes()
         require(digest(raw_bytes) == before[name]['sha256'], 'raw export changed during copy')
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        with destination.open('xb') as stream:
-            stream.write(raw_bytes)
+        emit(destination, raw_bytes)
         origins.append({'origin': str(export_root / name), 'member': name, 'path': str(destination), **before[name]})
 
     for name in sorted(before):
@@ -370,8 +413,7 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
         derived = renamed(value, aliases)
         raw_bytes = (json.dumps(derived, sort_keys=True, indent=2) + '\n').encode()
         destination = output / 'derived' / name
-        destination.parent.mkdir(parents=True, exist_ok=True)
-        destination.write_bytes(raw_bytes)
+        emit(destination, raw_bytes)
         ledger.append({'raw_path': str(raw / name), 'raw_sha256': before['raw/' + name]['sha256'],
                        'operation': {'rename': aliases}, 'derived_path': str(destination),
                        'derived_sha256': digest(raw_bytes), 'raw_keyset': sorted(value), 'derived_keyset': sorted(derived)})
@@ -393,7 +435,7 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
     def check_pins(value):
         if isinstance(value, dict):
             if set(value) == {'path', 'sha256'}:
-                require(digest(regular(value['path']).read_bytes()) == value['sha256'], 'manifest file pin differs')
+                require(digest(emitted[Path(value['path']).relative_to(output).as_posix()]) == value['sha256'], 'manifest file pin differs')
             else:
                 for item in value.values():
                     check_pins(item)
@@ -412,8 +454,88 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
                 'raw_before': before, 'raw_after': tree(export_root),
                 'lexical_link_targets_captured_or_restored': False}
     for name, value in [('transport-ledger.json', metadata), ('manifest.json', manifest)]:
-        (output / name).write_text(json.dumps(value, sort_keys=True, indent=2) + '\n', encoding='utf-8')
-    return manifest
+        emit(output / name, (json.dumps(value, sort_keys=True, indent=2) + '\n').encode())
+    projected_links = []
+    for name in lexical_names:
+        projected_links.append('view/' + name.removeprefix('raw/') if name.startswith('raw/') else name)
+        if name.startswith('raw/supplement-evidence/'):
+            projected_links.append('view/evidence/' + name.removeprefix('raw/supplement-evidence/'))
+    namespace(list(emitted) + projected_links)
+    if not _expected:
+        output.mkdir(parents=True, exist_ok=False)
+        for name, data in emitted.items():
+            destination = output / member(name)
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            with destination.open('xb') as stream:
+                stream.write(data)
+    return {'manifest': manifest, 'ledger': metadata, 'files': emitted} if _expected else manifest
+
+
+READBACK_FILES = {'adapter_sha256': 'tools/rust-ts-r0/qualification/adapt_windows_raw.py',
+                  'verifier_sha256': 'tools/rust-ts-r0/qualification/windows_token_fields.py'}
+
+
+def pinned_file(reference):
+    require(isinstance(reference, dict) and set(reference) == {'path', 'sha256'}, 'explicit file pin required')
+    require(isinstance(reference['sha256'], str) and re.fullmatch('[0-9a-f]{64}', reference['sha256']), 'invalid file pin')
+    path = regular(reference['path'])
+    raw = path.read_bytes()
+    require(digest(raw) == reference['sha256'], 'pinned input differs: ' + str(path))
+    return document(raw)
+
+
+def verify_transport(*, manifest, ledger, inventory, registration, export_root,
+                     source_repo, caller_repo, readback_repo, cache=None, output=None):
+    """Recompute custody from fixed transport rules; no cache or output writes.
+
+    The journal is compared with independently reconstructed paths and bytes,
+    never used to decide which files are authoritative.
+    """
+    documents = {name: pinned_file(ref) for name, ref in (
+        ('manifest', manifest), ('ledger', ledger), ('inventory', inventory), ('registration', registration))}
+    reg, spec = documents['registration'], documents['inventory']
+    core = {'readback_head', 'adapter_sha256', 'verifier_sha256', 'caller_head', 'source_head',
+            'protocol_sha256', 'sdk_sha256', 'coordinates', 'expected_request_relative', 'output_relative'}
+    require(core <= set(reg) <= core | {'public_bindings'}, 'registration fields differ')
+    require(all(isinstance(reg[key], str) and reg[key] for key in core - {'coordinates'}), 'registration string fields required')
+    require(isinstance(reg.get('public_bindings', {}), dict) and all(isinstance(k, str) and isinstance(v, str)
+            for k, v in reg.get('public_bindings', {}).items()), 'registration public bindings differ')
+    require((reg['source_head'], reg['protocol_sha256'], reg['sdk_sha256']) == (SOURCE, PROTOCOL, SDK),
+            'registration fixed source/protocol/SDK differs')
+    require(reg['coordinates'] == [[232, 1], [234, 1], [238, 1]]
+            and all(type(v) is int for row in reg['coordinates'] for v in row), 'registered token scope differs')
+    require(reg['expected_request_relative'] == 'supplement-evidence/token-guards/request.json', 'registered request differs')
+    parts = member(reg['output_relative']).parts
+    require(len(parts) == 2 and parts[0] == 'windows-raw', 'registered campaign output differs')
+    native_root = PureWindowsPath(spec['native_raw_root'])
+    require(native_root.is_absolute() and '..' not in native_root.parts and tuple(native_root.parts[-2:]) == parts,
+            'captured campaign native root differs')
+    transport = safe_path(manifest['path']).parent
+    require(safe_path(ledger['path']) == transport / 'transport-ledger.json'
+            and safe_path(manifest['path']) == transport / 'manifest.json', 'transport manifest/ledger location differs')
+    roots = [safe_path(path) for path in (export_root, source_repo, caller_repo, readback_repo, transport)]
+    roots += [safe_path(ref['path']) for ref in (manifest, ledger, inventory, registration)]
+    writes = [path for path in (cache, output) if path is not None]
+    disjoint_writes(writes, roots)
+    for field, relative in READBACK_FILES.items():
+        actual = regular(safe_path(readback_repo) / relative).read_bytes()
+        require(digest(actual) == reg[field] and actual == git_bytes(readback_repo, reg['readback_head'], relative),
+                'registered W readback code differs: ' + relative)
+    require(spec['caller_head'] == reg['caller_head'], 'registered T caller differs')
+    # Existing full Git33/source/caller/artifact/stream validation is reused verbatim.
+    expected = adapt(export_root=export_root, inventory=inventory['path'], inventory_sha256=inventory['sha256'],
+                     source_repo=source_repo, caller_repo=caller_repo, caller_head=reg['caller_head'],
+                     output=transport, _expected=True)
+    require(documents['manifest'] == expected['manifest'], 'transport manifest differs from fixed reconstruction')
+    require(documents['ledger'] == expected['ledger'], 'transport ledger differs from fixed reconstruction')
+    wanted = {name: {'sha256': digest(raw), 'bytes': len(raw)} for name, raw in expected['files'].items()}
+    require(tree(transport) == wanted, 'consumed transport file set/bytes differ from export inventory')
+    for name, raw in expected['files'].items():
+        require(regular(transport / member(name)).read_bytes() == raw, 'consumed transport bytes differ: ' + name)
+    # Publish only validated context, with every referenced pin covered by the projection.
+    return {'documents': documents, 'manifest': expected['manifest'], 'native_raw_root': str(native_root),
+            'protected_roots': roots, 'verified_files': wanted, 'origins': expected['ledger']['origins'],
+            'source_head': SOURCE, 'caller_head': reg['caller_head'], 'readback_head': reg['readback_head']}
 
 
 def main(argv=None):
