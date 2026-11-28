@@ -12,6 +12,7 @@ this transport does not execute Windows validate_frozen_document on another OS.
 import argparse
 import hashlib
 import json
+import os
 from pathlib import Path, PurePosixPath, PureWindowsPath
 import re
 import stat
@@ -153,6 +154,33 @@ def disjoint_writes(writes, inputs):
     return writes
 
 
+def executing_sources():
+    """Protect this actual source file and its discovered checkout, not caller input."""
+    executing = regular(__file__)
+    # Git location overrides must not redefine ownership of the executing file.
+    environment = {key: value for key, value in os.environ.items() if not key.startswith('GIT_')}
+    try:
+        root = subprocess.check_output(['git', '-C', str(executing.parent), 'rev-parse', '--show-toplevel'],
+                                       env=environment, stderr=subprocess.PIPE).decode('utf-8').rstrip('\r\n')
+    except subprocess.CalledProcessError:
+        require(not any((parent / '.git').exists() or (parent / '.git').is_symlink()
+                        for parent in executing.parents), 'cannot determine executing Git checkout')
+        # A genuinely standalone relocated script still protects its source directory.
+        return executing, executing.parent
+    checkout = safe_path(root)
+    require(executing.is_relative_to(checkout), 'executing source outside discovered Git checkout')
+    return executing, checkout
+
+
+def captured_spelling(value):
+    """Validate literal native spelling before any structural Windows conversion."""
+    require(isinstance(value, str), 'captured Windows path required')
+    spelling = value.replace('\\', '/')
+    components = spelling[2:].split('/') if spelling.startswith('//') else spelling.split('/')
+    require(all(part not in ('', '.', '..') for part in components), 'captured path spelling is not literal')
+    return spelling
+
+
 def tree(root):
     root = safe_path(root)
     require(root.is_dir(), 'export root missing')
@@ -243,7 +271,7 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
     export_root, inventory = safe_path(export_root), regular(inventory)
     source_repo, caller_repo, output = map(safe_path, (source_repo, caller_repo, output))
     require(_expected or not output.exists(), 'output collision')
-    disjoint_writes((output,), (export_root, inventory, source_repo, caller_repo))
+    disjoint_writes((output,), (export_root, inventory, source_repo, caller_repo, *executing_sources()))
     disjoint_writes((inventory,), (export_root,))
     raw_inventory = inventory.read_bytes()
     require(digest(raw_inventory) == inventory_sha256, 'inventory pin differs')
@@ -295,7 +323,8 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
             seen_links.add(name.casefold())
         lexical_names = [link['archive_path'] for link in links['links']]
         namespace(list(before) + lexical_names)
-    native_root = PureWindowsPath(spec['native_raw_root'])
+    native_root_spelling = captured_spelling(spec['native_raw_root'])
+    native_root = PureWindowsPath(native_root_spelling)
     require(native_root.is_absolute() and '..' not in native_root.parts, 'absolute captured Windows raw root required')
     raw = export_root / 'raw'
 
@@ -303,13 +332,11 @@ def adapt(*, export_root, inventory, inventory_sha256, source_repo, caller_repo,
         return document(regular(raw / member(name)).read_bytes())
 
     def native_member(path):
-        require(isinstance(path, str), 'captured Windows path required')
-        captured = PureWindowsPath(path)
+        spelling = captured_spelling(path)
+        require(spelling.startswith(native_root_spelling + '/'), 'captured path spelling outside raw export root')
+        name = spelling[len(native_root_spelling) + 1:]
+        captured = PureWindowsPath(spelling)
         require(captured.is_absolute() and '..' not in captured.parts, 'foreign captured path')
-        try:
-            name = captured.relative_to(native_root).as_posix()
-        except ValueError as error:
-            raise ValueError('captured path outside raw export') from error
         member(name)
         require('raw/' + name in before, 'captured raw member missing: ' + name)
         return name
@@ -538,7 +565,7 @@ def verify_transport(*, manifest, ledger, inventory, registration, export_root,
     require(reg['expected_request_relative'] == 'supplement-evidence/token-guards/request.json', 'registered request differs')
     parts = member(reg['output_relative']).parts
     require(len(parts) == 2 and parts[0] == 'windows-raw', 'registered campaign output differs')
-    native_root = PureWindowsPath(spec['native_raw_root'])
+    native_root = PureWindowsPath(captured_spelling(spec['native_raw_root']))
     require(native_root.is_absolute() and '..' not in native_root.parts and tuple(native_root.parts[-2:]) == parts,
             'captured campaign native root differs')
     transport = safe_path(manifest['path']).parent

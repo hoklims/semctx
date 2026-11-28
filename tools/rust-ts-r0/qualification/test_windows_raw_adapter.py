@@ -5,6 +5,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -306,6 +307,111 @@ class SyntheticTransport(unittest.TestCase):
         with self.assertRaises(OSError):
             self.run_adapter()
         self.assertFalse(self.output.exists())
+
+    def test_native_references_reject_nonliteral_prefix_and_structure(self):
+        original = self.load('fixture.enabled.json')
+        captured = original['artifact_path']
+        mutations = [captured.replace('C:', 'c:', 1),
+                     captured.replace('synthetic-only', 'SYNTHETIC-ONLY', 1),
+                     captured.replace('\\frozen-binaries', '\\.\\frozen-binaries', 1),
+                     captured.replace('\\frozen-binaries', '\\\\frozen-binaries', 1)]
+        for changed in mutations:
+            with self.subTest(changed=changed):
+                fixture = dict(original, artifact_path=changed)
+                self.save('fixture.enabled.json', fixture)
+                self.save('original-evidence/freeze-manifest.json', fixture)
+                self.repin()
+                try:
+                    with self.assertRaisesRegex(ValueError, 'captured.*spelling'):
+                        self.run_adapter()
+                finally:
+                    if self.output.exists():
+                        shutil.rmtree(self.output)
+
+    def test_native_root_rejects_dot_repeated_and_case_prefix(self):
+        for root in (self.native + '\\.', self.native.replace('\\windows-raw', '\\\\windows-raw', 1),
+                     self.native.replace('C:', 'c:', 1)):
+            with self.subTest(root=root):
+                self.repin()
+                self.mutate_inventory('native_raw_root', root)
+                try:
+                    with self.assertRaisesRegex(ValueError, 'captured.*spelling'):
+                        self.run_adapter()
+                finally:
+                    if self.output.exists():
+                        shutil.rmtree(self.output)
+
+    def test_literal_mixed_separators_are_preserved(self):
+        fixture = self.load('fixture.enabled.json')
+        mixed = fixture['artifact_path'].replace('\\windows-raw\\', '/windows-raw\\', 1)
+        fixture['artifact_path'] = mixed
+        self.save('fixture.enabled.json', fixture)
+        self.save('original-evidence/freeze-manifest.json', fixture)
+        self.repin()
+        self.mutate_inventory('native_raw_root', self.native.replace('\\windows-raw\\', '/windows-raw\\', 1))
+        manifest = self.run_adapter()
+        actual = json.loads(Path(manifest['hosts']['windows']['supplement']['fixture']['path']).read_bytes())
+        self.assertEqual(actual['artifact_path'], mixed)
+        self.assertEqual((self.output / 'view/fixture.enabled.json').read_bytes(), (self.raw / 'fixture.enabled.json').read_bytes())
+
+    def test_native_root_spelling_rejected_with_consistent_references(self):
+        original = self.native
+        for root in (original + '\\.', original.replace('\\windows-raw', '\\\\windows-raw', 1)):
+            with self.subTest(root=root):
+                shutil.rmtree(self.export)
+                self.native = root
+                self.build_fixture()
+                self.repin()
+                try:
+                    with self.assertRaisesRegex(ValueError, 'captured.*spelling'):
+                        self.run_adapter()
+                finally:
+                    if self.output.exists():
+                        shutil.rmtree(self.output)
+
+    def test_adapter_cli_protects_its_actual_executing_checkout(self):
+        import run_windows_milestone as milestone
+        restored = self.root / 'public-sdk'
+        restored.mkdir()
+        milestone.restore_public_inputs(REPO, restored)
+        a.SDK = self.old_sdk
+        (self.raw / 'sdk-input.json').write_bytes((restored / 'sdk-input.json').read_bytes())
+        fixture = self.load('fixture.enabled.json')
+        fixture['sdk_sha256'] = a.SDK
+        self.save('fixture.enabled.json', fixture)
+        self.save('original-evidence/freeze-manifest.json', fixture)
+        self.repin()
+        executing_repo = self.root / 'readback'
+        script = executing_repo / 'tools/rust-ts-r0/qualification/adapt_windows_raw.py'
+        script.parent.mkdir(parents=True)
+        script.write_bytes((HERE / 'adapt_windows_raw.py').read_bytes())
+        subprocess.run(['git', 'init', '-q', str(executing_repo)], check=True)
+        caller = self.root / 'separate-caller'
+        caller.mkdir()
+        gitdir = subprocess.check_output(['git', '-C', str(REPO), 'rev-parse', '--absolute-git-dir']).decode().strip()
+        (caller / '.git').write_text('gitdir: ' + gitdir + '\n')
+        standalone = self.root / 'standalone-adapter.py'
+        standalone.write_bytes(script.read_bytes())
+        misleading_git = dict(os.environ, GIT_DIR=gitdir, GIT_WORK_TREE=str(caller))
+        for executable, owner, environment in ((script, executing_repo, None),
+                                                (script, executing_repo, misleading_git),
+                                                (standalone, self.root, None)):
+            with self.subTest(executable=executable, misleading_git=environment is not None):
+                output = owner / 'fresh-output'
+                before = a.tree(owner)
+                command = [sys.executable, '-B', str(executable), '--export-root', str(self.export),
+                           '--inventory', str(self.inventory), '--inventory-sha256', self.inventory_sha,
+                           '--source-repo', str(self.source), '--caller-repo', str(caller),
+                           '--caller-head', self.caller_head, '--output', str(output)]
+                result = subprocess.run(command, capture_output=True, text=True, env=environment)
+                try:
+                    self.assertEqual(result.returncode, 1, result.stderr)
+                    self.assertIn('overlaps', result.stderr)
+                    self.assertFalse(output.exists())
+                    self.assertEqual(a.tree(owner), before)
+                finally:
+                    if output.exists():
+                        shutil.rmtree(output)
 
     def test_changed_raw_hash_rejected(self):
         (self.raw / 'helper-build.stdout').write_bytes(b'changed')
