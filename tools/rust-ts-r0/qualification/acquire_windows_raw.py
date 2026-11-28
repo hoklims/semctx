@@ -414,6 +414,17 @@ def archive_stat(value):
             'reparse_tag': getattr(value, 'st_reparse_tag', 0)}
 
 
+def archive_handle_identity(value):
+    result = archive_stat(value)
+    if sys.platform == 'win32':
+        # CPython 3.13 Windows lstat uses birthtime for ctime and synthesizes
+        # execute bits from the path extension; fstat uses ChangeTime and does
+        # neither. Keep full comparisons within each surface below.
+        result.pop('ctime_ns')
+        result['mode'] &= ~0o111
+    return result
+
+
 def archive_tree(root, prefix):
     files, links, errors, pending = [], [], [], [(root, root.lstat())]
     while pending:
@@ -460,8 +471,11 @@ def archive_file(bundle, path, name, expected):
     with os.fdopen(os.open(path, flags), 'rb') as source:
         no_links(path.parent)
         opened = os.fstat(source.fileno())
-        require(archive_stat(opened) == archive_stat(expected) and opened.st_nlink == 1
-                and archive_stat(path.lstat()) == archive_stat(expected), 'archive file exchanged before read')
+        observed = path.lstat()
+        require(archive_handle_identity(opened) == archive_handle_identity(expected)
+                and stat.S_ISREG(opened.st_mode) and opened.st_nlink == 1 and observed.st_nlink == 1
+                and archive_stat(observed) == archive_stat(expected),
+                f'archive file exchanged before read: handle={archive_stat(opened)!r}, path={archive_stat(observed)!r}, expected={archive_stat(expected)!r}')
         info = zipfile.ZipInfo(name)
         info.external_attr = (stat.S_IFREG | stat.S_IMODE(expected.st_mode)) << 16
         info.compress_type = bundle.compression
@@ -469,8 +483,10 @@ def archive_file(bundle, path, name, expected):
             for chunk in iter(lambda: source.read(1024 * 1024), b''):
                 target.write(chunk)
         no_links(path.parent)
-        require(archive_stat(os.fstat(source.fileno())) == archive_stat(expected)
-                and archive_stat(path.lstat()) == archive_stat(expected), 'archive file changed during read')
+        finished, observed = os.fstat(source.fileno()), path.lstat()
+        require(archive_stat(finished) == archive_stat(opened) and finished.st_nlink == 1
+                and archive_stat(observed) == archive_stat(expected) and observed.st_nlink == 1,
+                f'archive file changed during read: handle={archive_stat(finished)!r}, opened={archive_stat(opened)!r}, path={archive_stat(observed)!r}, expected={archive_stat(expected)!r}')
 
 
 def archive_raw(control, output, archive, limit=MAX_ARCHIVE):
@@ -504,7 +520,8 @@ def archive_raw(control, output, archive, limit=MAX_ARCHIVE):
         return {'complete': not input_errors, 'input_errors': input_errors, 'path': str(archive), 'sha256': sha(archive),
                 'bytes': archive.stat().st_size, 'files': len(files), 'lexical_links': len(lexical_links),
                 'link_representation': 'metadata_only_no_target_read', 'link_metadata_sha256': digest(link_raw)}
-    except (OSError, ValueError, zipfile.BadZipFile):
+    except (OSError, ValueError, zipfile.BadZipFile) as error:
+        read_error = str(error)
         archive.unlink(missing_ok=True)
         # Preserve complete small logs/metadata, never silently truncate a file.
         included = 0
@@ -520,7 +537,8 @@ def archive_raw(control, output, archive, limit=MAX_ARCHIVE):
             bundle.writestr('ARCHIVE-INCOMPLETE.json', json.dumps({'complete': False, 'omitted_files': len(files) - included, 'rejected_paths': len(input_errors), 'reason': 'Compressed cap or file read failed; full raw remains on runner; no complete acquisition claim'}))
         return {'complete': False, 'path': str(archive), 'sha256': sha(archive), 'bytes': archive.stat().st_size,
                 'included_files': included, 'omitted_files': len(files) - included, 'lexical_links': len(lexical_links),
-                'link_representation': 'metadata_only_no_target_read', 'link_metadata_sha256': digest(link_raw)}
+                'link_representation': 'metadata_only_no_target_read', 'link_metadata_sha256': digest(link_raw),
+                'read_error': read_error, 'input_errors': input_errors}
 
 
 def acquire(args, context, plan, *, process_runner=run_process):

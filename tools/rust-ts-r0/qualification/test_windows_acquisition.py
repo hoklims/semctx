@@ -226,7 +226,7 @@ class WindowsAcquisitionTest(unittest.TestCase):
         self.assertEqual(result['collector_invocations'], 1)
         self.assertEqual(result['collector']['exit_code'], 23)
         self.assertFalse(result['qualified'])
-        self.assertEqual(result['state'], 'ACQUISITION_FAILED')
+        self.assertEqual(result['state'], 'ACQUISITION_FAILED', result)
         with zipfile.ZipFile(result['archive']['path']) as archive:
             self.assertEqual(archive.read('control/collector.stdout'), b'fixture stdout\n')
             self.assertEqual(archive.read('control/collector.stderr'), b'fixture stderr\n')
@@ -295,7 +295,7 @@ class WindowsAcquisitionTest(unittest.TestCase):
              mock.patch.object(m, 'postflight', side_effect=ValueError('tracked Git blob differs')):
             code, result = m.acquire(self.args, self.context, self.plan(), process_runner=self.stub(0))
         self.assertEqual(code, 1)
-        self.assertEqual(result['state'], 'ACQUISITION_FAILED_POSTFLIGHT')
+        self.assertEqual(result['state'], 'ACQUISITION_FAILED_POSTFLIGHT', result)
         self.assertEqual(result['collector']['exit_code'], 0)
 
     def test_postflight_compares_all_three_actual_snapshot_results(self):
@@ -359,12 +359,81 @@ class WindowsAcquisitionTest(unittest.TestCase):
             path.write_bytes(data)
         (control/'result.json').write_bytes(b'final receipt excluded')
         result = m.archive_raw(control, output, self.root/'results.zip')
-        self.assertTrue(result['complete'])
+        self.assertTrue(result['complete'], result)
         with zipfile.ZipFile(result['path']) as archive:
             self.assertNotIn('control/result.json', archive.namelist())
             for name, data in expected.items():
                 self.assertIn(name, archive.namelist())
                 self.assertEqual(m.digest(archive.read(name)), m.digest(data))
+
+    def test_archive_windows_handle_and_path_stat_surfaces_keep_exact_bytes(self):
+        control, output = self.root/'stat-control', self.root/'stat-raw'
+        control.mkdir(); output.mkdir()
+        path = output/'result.cmd'
+        raw = b'complete raw bytes\x00\xff\r\n'
+        path.write_bytes(raw)
+        original_lstat, original_fstat = Path.lstat, os.fstat
+        def path_stat(candidate, *args, **kwargs):
+            value = original_lstat(candidate, *args, **kwargs)
+            if candidate == path:
+                fields = {name: getattr(value, name) for name in ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink']}
+                fields.update(st_mode=value.st_mode | 0o111, st_ctime_ns=100,
+                              st_file_attributes=getattr(value, 'st_file_attributes', 0), st_reparse_tag=0)
+                return SimpleNamespace(**fields)
+            return value
+        def handle_stat(fd):
+            value = original_fstat(fd)
+            fields = {name: getattr(value, name) for name in ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink']}
+            fields.update(st_mode=value.st_mode & ~0o111, st_ctime_ns=200,
+                          st_file_attributes=getattr(value, 'st_file_attributes', 0), st_reparse_tag=0)
+            return SimpleNamespace(**fields)
+        # CPython 3.13.16: path ctime is birthtime and .cmd adds execute bits;
+        # fstat ctime is ChangeTime and permissions come only from attributes.
+        with mock.patch.object(m.sys, 'platform', 'win32'), mock.patch.object(Path, 'lstat', path_stat), mock.patch.object(m.os, 'fstat', side_effect=handle_stat):
+            result = m.archive_raw(control, output, self.root/'stat.zip')
+        self.assertTrue(result['complete'], result)
+        with zipfile.ZipFile(result['path']) as archive:
+            self.assertEqual(archive.read('raw/result.cmd'), raw)
+
+    def test_archive_stat_surface_normalization_still_rejects_identity_and_stability_faults(self):
+        path = self.root/'fault.cmd'
+        path.write_bytes(b'complete public fixture')
+        original_lstat, original_fstat = Path.lstat, os.fstat
+        def fields(value):
+            return {name: getattr(value, name, 0) for name in ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink', 'st_file_attributes', 'st_reparse_tag']}
+        baseline = fields(original_lstat(path))
+        baseline.update(st_mode=baseline['st_mode'] | 0o111, st_ctime_ns=100)
+        expected = SimpleNamespace(**baseline)
+        faults = [('handle', 1, key, baseline[key] + 1) for key in ['st_dev', 'st_ino', 'st_size', 'st_mtime_ns']]
+        faults += [('handle', 1, 'st_mode', stat.S_IFIFO | 0o666),
+                   ('handle', 1, 'st_mode', stat.S_IFREG | 0o444),
+                   ('handle', 1, 'st_file_attributes', baseline['st_file_attributes'] | 0x400),
+                   ('handle', 1, 'st_nlink', 2), ('handle', 2, 'st_nlink', 2),
+                   ('handle', 2, 'st_ctime_ns', 201),
+                   ('path', 2, 'st_ctime_ns', 101), ('path', 3, 'st_ctime_ns', 101),
+                   ('path', 3, 'st_mode', baseline['st_mode'] & ~0o111),
+                   ('path', 3, 'st_file_attributes', baseline['st_file_attributes'] ^ 0x20),
+                   ('path', 3, 'st_nlink', 2)]
+        for index, (surface, phase, key, changed) in enumerate(faults):
+            with self.subTest(surface=surface, phase=phase, field=key):
+                calls = {'path': 0, 'handle': 0}
+                def observed(kind):
+                    calls[kind] += 1
+                    result = dict(baseline)
+                    if kind == 'handle':
+                        result.update(st_mode=result['st_mode'] & ~0o111, st_ctime_ns=200)
+                    if kind == surface and calls[kind] >= phase:
+                        result[key] = changed
+                    return SimpleNamespace(**result)
+                def path_stat(candidate, *args, **kwargs):
+                    return observed('path') if candidate == path else original_lstat(candidate, *args, **kwargs)
+                def handle_stat(fd):
+                    original_fstat(fd)
+                    return observed('handle')
+                with zipfile.ZipFile(self.root/f'fault-{index}.zip', 'w') as archive:
+                    with mock.patch.object(m.sys, 'platform', 'win32'), mock.patch.object(Path, 'lstat', path_stat), mock.patch.object(m.os, 'fstat', side_effect=handle_stat):
+                        with self.assertRaisesRegex(ValueError, 'archive file (exchanged before|changed during) read'):
+                            m.archive_file(archive, path, 'raw/fault.cmd', expected)
 
     def test_archive_records_lexical_links_without_reading_or_traversing_targets(self):
         control, output, outside = [self.root/name for name in ['link-control', 'link-raw', 'forbidden-target']]
