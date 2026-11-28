@@ -1,0 +1,24 @@
+{
+  "campaign_id": "c4-win3309-20261128",
+  "counts": {
+    "as_expression": 2,
+    "original": 1,
+    "supplement": 1
+  },
+  "execution_authorized": true,
+  "kind": "WINDOWS_R0_EXECUTION_ENVELOPE",
+  "new_spend_authorized": false,
+  "output_relative": "windows-raw/c4-win3309-20261128",
+  "platform": "windows",
+  "prior_native_review_sha256": "f1ba681a4fd6b392e4011afc11dc00958c0a1491ae43ca013743d3419df8c636",
+  "protocol_sha256": "c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303",
+  "reserved_cases_authorized": false,
+  "retries": 0,
+  "root_authority": "owner-reviewed-macos-linux-authorizes-windows-observation",
+  "run_attempt": 1,
+  "schema_version": 1,
+  "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+  "source_head": "3309e011184893b41b97491622fd31880982cab6",
+  "timeout_seconds": 3600,
+  "tooling_head": "61215fa10370fe6bac21ade895f00b885ecb0375"
+}

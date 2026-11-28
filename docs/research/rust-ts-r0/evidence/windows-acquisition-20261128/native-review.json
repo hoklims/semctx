@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "kind": "OWNER_REVIEWED_NATIVE_PREREQUISITES",
+  "source_head": "3309e011184893b41b97491622fd31880982cab6",
+  "protocol_sha256": "c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303",
+  "authority": "owner-root",
+  "decision": "AUTHORIZE_WINDOWS_RAW_ACQUISITION",
+  "hosts": {
+    "macos": {
+      "source_head": "3309e011184893b41b97491622fd31880982cab6",
+      "protocol_sha256": "c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303",
+      "evidence_sha256": "1dbe4a4b516a544e3b925df85d4968168fe75353bd589f841dd1e182687b41fd",
+      "reviewed": true
+    },
+    "linux": {
+      "source_head": "3309e011184893b41b97491622fd31880982cab6",
+      "protocol_sha256": "c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303",
+      "evidence_sha256": "80f298830eb180881ab572bee5c325269efa70ccf0d250d162985d32c34f8d6c",
+      "reviewed": true
+    }
+  },
+  "qualified": false,
+  "qualification_credit": 0
+}

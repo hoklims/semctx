@@ -1,0 +1,35 @@
+{
+  "readback_head": "95d59a5d60a8d91048d5b937b6f25c6fba71d9b0",
+  "adapter_sha256": "ce00c97e35a0dbacea0bb97040dced1b3d14ad465cd50c09ad770a1fdaa34860",
+  "verifier_sha256": "5703b81317c92b8f27594a6eb6ea47d227c983360bcf7b4ec3474e89dd884c7e",
+  "caller_head": "61215fa10370fe6bac21ade895f00b885ecb0375",
+  "source_head": "3309e011184893b41b97491622fd31880982cab6",
+  "protocol_sha256": "c4e8cc4c2431c0250cefd4ee61e846c4c0eebcd188198e6bab7d11d5beb18303",
+  "sdk_sha256": "f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5",
+  "coordinates": [
+    [
+      232,
+      1
+    ],
+    [
+      234,
+      1
+    ],
+    [
+      238,
+      1
+    ]
+  ],
+  "expected_request_relative": "supplement-evidence/token-guards/request.json",
+  "output_relative": "windows-raw/c4-win3309-20261128",
+  "public_bindings": {
+    "public_reader_sha256": "daed5c0d5e02e747a627a6b2e4f49e9818d4ce2eeb09f294ebdc952ca65c8a91",
+    "public_coordinates": "[[0,1],[1,1],[229,0],[233,1],[233,2],[236,0],[236,1],[236,2],[237,1],[237,2]]",
+    "public_support_ids": "[\"IDENTITY::I-relocation\",\"IDENTITY::I-request-separation\",\"IDENTITY::complete-baseline-specimen\"]",
+    "source_admission_sha256": "64d2bc1977bd6651484ce1f5b2f0f2f3f8738f77af7168c11bdd213521216466",
+    "token_prequery_freeze_sha256": "de4749e4b7f91f0ec3fb15a68911efcc980faf6d06f6fc61a125e78d03c82166",
+    "public_prequery_freeze_sha256": "acfc12c1b7bcf4d1b544f596541431c6b6a65939f40fb8d79d70de31db4d6ad1",
+    "registered_utc": "2026-11-28T20:30:27.207712+00:00",
+    "qualification_boundary": "qualified=false;qualification_credit=0;R0_decision=null"
+  }
+}

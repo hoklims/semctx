@@ -1,0 +1,12 @@
+{
+  "campaign_id": "c4-win3309-20261128",
+  "files": {
+    "native-review.json": "f1ba681a4fd6b392e4011afc11dc00958c0a1491ae43ca013743d3419df8c636",
+    "protocol.json.gz": "b13db48ed19fcf97fa951f63b12b0945c0340257e0539c4fcf6fbfc25a507cbe",
+    "windows-envelope.json": "75d758baa12cdbe92114e622142a174b50cbb5ba6950b7e266f9c50db20b35bc"
+  },
+  "kind": "WINDOWS_R0_PUBLIC_INPUT_BUNDLE",
+  "schema_version": 1,
+  "source_head": "3309e011184893b41b97491622fd31880982cab6",
+  "tooling_head": "61215fa10370fe6bac21ade895f00b885ecb0375"
+}
