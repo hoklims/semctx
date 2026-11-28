@@ -1,5 +1,6 @@
 """Source-proof fixtures only; no native C1/SDK acquisition executes."""
 import copy
+import builtins
 import contextlib
 import csv
 import gzip
@@ -329,6 +330,140 @@ class WindowsAcquisitionTest(unittest.TestCase):
         with zipfile.ZipFile(result['path']) as archive:
             self.assertEqual(archive.read('control/small.log'), b'complete log')
             self.assertIn('ARCHIVE-INCOMPLETE.json', archive.namelist())
+
+    def test_archive_records_lexical_links_without_reading_or_traversing_targets(self):
+        control, output, outside = [self.root/name for name in ['link-control', 'link-raw', 'forbidden-target']]
+        for path in [control, output, outside]:
+            path.mkdir()
+        (outside/'secret').write_bytes(b'TARGET MUST NEVER BE READ')
+        (output/'ordinary.log').write_bytes(b'owned raw bytes')
+        links = {output/'file-link': outside/'secret', output/'directory-link': outside, output/'dangling-link': outside/'absent'}
+        for path, target in links.items():
+            path.symlink_to(target, target_is_directory=path.name == 'directory-link')
+        original_open, original_path_open, original_iterdir, original_os_open = builtins.open, Path.open, Path.iterdir, os.open
+        def guarded_open(file, *args, **kwargs):
+            if not isinstance(file, int):
+                path = Path(file)
+                self.assertFalse(path in links or path == outside or outside in path.parents, 'archive attempted to read a link target')
+            return original_open(file, *args, **kwargs)
+        def guarded_os_open(path, *args, **kwargs):
+            self.assertFalse(Path(path) in links or Path(path) == outside or outside in Path(path).parents, 'archive opened a link target')
+            return original_os_open(path, *args, **kwargs)
+        def guarded_path_open(path, *args, **kwargs):
+            self.assertFalse(path in links or path == outside or outside in path.parents, 'archive attempted to read a link target')
+            return original_path_open(path, *args, **kwargs)
+        def guarded_iterdir(path):
+            self.assertFalse(path in links or path == outside or outside in path.parents, 'archive traversed a directory-link target')
+            return original_iterdir(path)
+        with mock.patch('builtins.open', side_effect=guarded_open), mock.patch.object(Path, 'open', guarded_path_open), mock.patch.object(Path, 'iterdir', guarded_iterdir), mock.patch.object(m.os, 'open', side_effect=guarded_os_open):
+            result = m.archive_raw(control, output, self.root/'links.zip')
+        self.assertTrue(result['complete'], 'known fixture links must be represented lexically')
+        self.assertEqual(result['lexical_links'], 3)
+        with zipfile.ZipFile(result['path']) as archive:
+            self.assertIn('ARCHIVE-LINKS.json', archive.namelist())
+            metadata = json.loads(archive.read('ARCHIVE-LINKS.json'))
+            self.assertEqual(metadata['representation'], 'lexical_links')
+            self.assertFalse(metadata['targets_read'])
+            self.assertFalse(metadata['native_links_in_zip'])
+            self.assertEqual({row['archive_path']: row['target'] for row in metadata['links']},
+                             {'raw/'+p.name: os.readlink(p) for p in links})
+            self.assertTrue(all(row['capture_stable'] for row in metadata['links']))
+            self.assertFalse(any('raw/'+p.name in archive.namelist() for p in links))
+            self.assertEqual(archive.read('raw/ordinary.log'), b'owned raw bytes')
+        self.assertEqual(len(m.regular_tree(output)[1]), 3, 'strict input/source walker was loosened')
+        review = self.folder/'native-review.json'
+        review.unlink(); review.symlink_to(outside/'secret')
+        with self.assertRaisesRegex(ValueError, 'link/reparse'):
+            m.validate_bundle(self.folder, self.context)
+
+    def test_archive_link_exchange_is_incomplete_not_target_data(self):
+        control, output = self.root/'exchange-control', self.root/'exchange-raw'
+        control.mkdir(); output.mkdir()
+        link = output/'changed-link'
+        link.symlink_to('initial-missing-target')
+        original = os.readlink
+        exchanged = []
+        def exchange(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if Path(path) == link and not exchanged:
+                exchanged.append(True); link.unlink(); link.symlink_to('different-missing-target')
+            return value
+        with mock.patch.object(m.os, 'readlink', side_effect=exchange):
+            result = m.archive_raw(control, output, self.root/'exchange.zip')
+        self.assertFalse(result['complete'])
+        self.assertTrue(result['input_errors'])
+
+    def test_archive_fallback_keeps_lexical_link_metadata(self):
+        control, output = self.root/'fallback-control', self.root/'fallback-raw'
+        control.mkdir(); output.mkdir()
+        (output/'large.raw').write_bytes(os.urandom(32000))
+        (output/'dangling').symlink_to('missing-target')
+        result = m.archive_raw(control, output, self.root/'fallback-links.zip', limit=4096)
+        self.assertFalse(result['complete'])
+        self.assertLessEqual(result['bytes'], 4096)
+        with zipfile.ZipFile(result['path']) as archive:
+            self.assertIn('ARCHIVE-LINKS.json', archive.namelist())
+            self.assertEqual(json.loads(archive.read('ARCHIVE-LINKS.json'))['links'][0]['target'], 'missing-target')
+
+    def test_archive_hardlinks_remain_incomplete(self):
+        control, output = self.root/'hard-control', self.root/'hard-raw'
+        control.mkdir(); output.mkdir()
+        (output/'one').write_text('public fixture')
+        os.link(output/'one', output/'two')
+        result = m.archive_raw(control, output, self.root/'hardlinks.zip')
+        self.assertFalse(result['complete'])
+        self.assertEqual(len(result['input_errors']), 2)
+
+    def test_archive_hardlinked_symlink_metadata_remains_incomplete(self):
+        control, output = self.root/'hybrid-control', self.root/'hybrid-raw'
+        control.mkdir(); output.mkdir()
+        link = output/'link'
+        link.symlink_to('missing-target')
+        original = Path.lstat
+        def linked_stat(path, *args, **kwargs):
+            value = original(path, *args, **kwargs)
+            if path == link:
+                fields = ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns']
+                return SimpleNamespace(**{key: getattr(value, key) for key in fields}, st_nlink=2,
+                                       st_file_attributes=getattr(value, 'st_file_attributes', 0),
+                                       st_reparse_tag=getattr(value, 'st_reparse_tag', 0))
+            return value
+        with mock.patch.object(Path, 'lstat', linked_stat):
+            result = m.archive_raw(control, output, self.root/'hybrid.zip')
+        self.assertFalse(result['complete'], 'hardlinked symlink metadata accepted')
+        self.assertEqual(len(result['input_errors']), 1)
+
+    def test_archive_unknown_reparse_is_incomplete_without_target_read(self):
+        control, output = self.root/'reparse-control', self.root/'reparse-raw'
+        control.mkdir(); output.mkdir()
+        path = output/'unknown'
+        path.write_bytes(b'opaque')
+        original = Path.lstat
+        def unknown_reparse(candidate):
+            value = original(candidate)
+            if candidate == path:
+                fields = {name: getattr(value, name) for name in ['st_mode', 'st_dev', 'st_ino', 'st_size', 'st_mtime_ns', 'st_ctime_ns', 'st_nlink']}
+                return SimpleNamespace(**fields, st_file_attributes=0x400, st_reparse_tag=0x80000042)
+            return value
+        with mock.patch.object(Path, 'lstat', unknown_reparse), mock.patch.object(m.os, 'readlink', side_effect=AssertionError('unknown target must not be read')):
+            result = m.archive_raw(control, output, self.root/'unknown-reparse.zip')
+        self.assertFalse(result['complete'])
+        self.assertIn('unknown archive reparse', result['input_errors'][0]['error'])
+
+    @unittest.skipUnless(os.name == 'nt', 'Native Windows junction metadata is exercised by workflow verification')
+    def test_windows_junction_is_lexical_metadata_not_traversed(self):
+        control, output, target = self.root/'junction-control', self.root/'junction-raw', self.root/'junction-target'
+        for path in [control, output, target]:path.mkdir()
+        junction = output/'junction'
+        made = subprocess.run(['cmd', '/c', 'mklink', '/J', str(junction), str(target)], capture_output=True)
+        self.assertEqual(made.returncode, 0, made.stderr)
+        result = m.archive_raw(control, output, self.root/'junction.zip')
+        self.assertTrue(result['complete'])
+        with zipfile.ZipFile(result['path']) as archive:
+            row = json.loads(archive.read('ARCHIVE-LINKS.json'))['links'][0]
+            self.assertEqual(row['link_type'], 'junction')
+            self.assertEqual(row['target'], os.readlink(junction))
+            self.assertEqual(row['stat']['reparse_tag'], 0xA0000003)
 
     def test_raw_completeness_requires_all_reports_and_exact_two_additional_queries(self):
         output = self.root / 'raw-fixture'

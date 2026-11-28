@@ -404,37 +404,120 @@ class CappedFile(io.FileIO):
         return super().write(value)
 
 
+def archive_stat(value):
+    return {'mode': value.st_mode, 'device': value.st_dev, 'inode': value.st_ino,
+            'size': value.st_size, 'mtime_ns': value.st_mtime_ns, 'ctime_ns': value.st_ctime_ns,
+            'file_attributes': getattr(value, 'st_file_attributes', 0),
+            'reparse_tag': getattr(value, 'st_reparse_tag', 0)}
+
+
+def archive_tree(root, prefix):
+    files, links, errors, pending = [], [], [], [(root, root.lstat())]
+    while pending:
+        directory, expected = pending.pop()
+        try:
+            no_links(directory)
+            require(archive_stat(directory.lstat()) == archive_stat(expected), 'archive directory changed')
+            children = sorted(directory.iterdir())
+            require(archive_stat(directory.lstat()) == archive_stat(expected), 'archive directory changed')
+        except (OSError, ValueError) as error:
+            errors.append({'path': str(directory), 'error': str(error)})
+            continue
+        for path in children:
+            try:
+                before = path.lstat()
+                attributes = getattr(before, 'st_file_attributes', 0)
+                tag = getattr(before, 'st_reparse_tag', 0)
+                reparse = bool(attributes & 0x400)
+                require(not reparse or tag in {0xA000000C, 0xA0000003}, 'unknown archive reparse point')
+                name = prefix + '/' + path.relative_to(root).as_posix()
+                if stat.S_ISLNK(before.st_mode) or reparse:
+                    require(before.st_nlink == 1, 'archive hardlinked lexical link refused')
+                    target = os.readlink(path)
+                    require(archive_stat(path.lstat()) == archive_stat(before) and os.readlink(path) == target,
+                            'archive lexical link changed during capture')
+                    links.append({'archive_path': name, 'native_path': str(path), 'target': target,
+                                  'link_type': 'junction' if reparse and tag == 0xA0000003 else 'symlink',
+                                  'capture_stable': True, 'stat': archive_stat(before)})
+                elif stat.S_ISDIR(before.st_mode):
+                    pending.append((path, before))
+                else:
+                    require(stat.S_ISREG(before.st_mode) and before.st_nlink == 1, 'archive hardlink/special file refused')
+                    files.append((path, name, before))
+            except (OSError, ValueError) as error:
+                errors.append({'path': str(path), 'error': str(error)})
+    return files, links, errors
+
+
+def archive_file(bundle, path, name, expected):
+    no_links(path.parent)
+    before = path.lstat()
+    require(archive_stat(before) == archive_stat(expected) and before.st_nlink == 1, 'archive file changed before open')
+    flags = os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NOFOLLOW', 0)
+    with os.fdopen(os.open(path, flags), 'rb') as source:
+        no_links(path.parent)
+        opened = os.fstat(source.fileno())
+        require(archive_stat(opened) == archive_stat(expected) and opened.st_nlink == 1
+                and archive_stat(path.lstat()) == archive_stat(expected), 'archive file exchanged before read')
+        info = zipfile.ZipInfo(name)
+        info.external_attr = (stat.S_IFREG | stat.S_IMODE(expected.st_mode)) << 16
+        info.compress_type = bundle.compression
+        with bundle.open(info, 'w') as target:
+            for chunk in iter(lambda: source.read(1024 * 1024), b''):
+                target.write(chunk)
+        no_links(path.parent)
+        require(archive_stat(os.fstat(source.fileno())) == archive_stat(expected)
+                and archive_stat(path.lstat()) == archive_stat(expected), 'archive file changed during read')
+
+
 def archive_raw(control, output, archive, limit=MAX_ARCHIVE):
     no_links(archive.parent)
     archive.parent.mkdir(parents=True, exist_ok=True)
     require(not archive.exists(), 'archive retry refused')
-    files, input_errors = [], []
+    files, lexical_links, input_errors = [], [], []
     for root, prefix in [(control, 'control'), (output, 'raw')]:
         if not root.exists():
             continue
-        discovered, errors = regular_tree(root)
+        discovered, links, errors = archive_tree(root, prefix)
+        lexical_links.extend(links)
         input_errors.extend(errors)
-        for path in discovered:
+        for path, name, captured in discovered:
             if path.name != 'result.json':
-                files.append((path, prefix + '/' + path.relative_to(root).as_posix()))
+                files.append((path, name, captured))
+    link_raw = json.dumps({'schema_version': 1, 'representation': 'lexical_links', 'targets_read': False,
+                          'native_links_in_zip': False, 'links': lexical_links}, sort_keys=True, indent=2).encode()
+    def write_links(bundle):
+        info = zipfile.ZipInfo('ARCHIVE-LINKS.json')
+        info.external_attr = (stat.S_IFREG | 0o600) << 16
+        info.compress_type = bundle.compression
+        bundle.writestr(info, link_raw)
     try:
         with CappedFile(archive, limit) as bounded, zipfile.ZipFile(bounded, 'w', zipfile.ZIP_DEFLATED, compresslevel=6) as bundle:
-            for path, name in files:
-                bundle.write(path, name)
+            write_links(bundle)
+            for path, name, captured in files:
+                archive_file(bundle, path, name, captured)
             if input_errors:
                 bundle.writestr('ARCHIVE-INPUT-ERRORS.json', json.dumps({'complete': False, 'errors': input_errors}))
-        return {'complete': not input_errors, 'input_errors': input_errors, 'path': str(archive), 'sha256': sha(archive), 'bytes': archive.stat().st_size, 'files': len(files)}
+        return {'complete': not input_errors, 'input_errors': input_errors, 'path': str(archive), 'sha256': sha(archive),
+                'bytes': archive.stat().st_size, 'files': len(files), 'lexical_links': len(lexical_links),
+                'link_representation': 'metadata_only_no_target_read', 'link_metadata_sha256': digest(link_raw)}
     except (OSError, ValueError, zipfile.BadZipFile):
         archive.unlink(missing_ok=True)
         # Preserve complete small logs/metadata, never silently truncate a file.
         included = 0
         with CappedFile(archive, limit) as bounded, zipfile.ZipFile(bounded, 'w', zipfile.ZIP_STORED) as bundle:
-            for path, name in sorted(files, key=lambda pair: (not pair[1].startswith('control/'), pair[1]))[:1000]:
-                if path.stat().st_size + bounded.tell() + 2 * len(name.encode()) + 1024 < limit - 1024 and path.stat().st_size <= 8 * 1024 * 1024:
-                    bundle.write(path, name)
-                    included += 1
+            write_links(bundle)
+            for path, name, captured in sorted(files, key=lambda pair: (not pair[1].startswith('control/'), pair[1]))[:1000]:
+                if captured.st_size + bounded.tell() + 2 * len(name.encode()) + 1024 < limit - 1024 and captured.st_size <= 8 * 1024 * 1024:
+                    try:
+                        archive_file(bundle, path, name, captured)
+                        included += 1
+                    except (OSError, ValueError) as error:
+                        input_errors.append({'path': str(path), 'error': str(error)})
             bundle.writestr('ARCHIVE-INCOMPLETE.json', json.dumps({'complete': False, 'omitted_files': len(files) - included, 'rejected_paths': len(input_errors), 'reason': 'Compressed cap or file read failed; full raw remains on runner; no complete acquisition claim'}))
-        return {'complete': False, 'path': str(archive), 'sha256': sha(archive), 'bytes': archive.stat().st_size, 'included_files': included, 'omitted_files': len(files) - included}
+        return {'complete': False, 'path': str(archive), 'sha256': sha(archive), 'bytes': archive.stat().st_size,
+                'included_files': included, 'omitted_files': len(files) - included, 'lexical_links': len(lexical_links),
+                'link_representation': 'metadata_only_no_target_read', 'link_metadata_sha256': digest(link_raw)}
 
 
 def acquire(args, context, plan, *, process_runner=run_process):
