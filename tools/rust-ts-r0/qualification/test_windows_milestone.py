@@ -165,6 +165,14 @@ class WindowsMilestoneGuards(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'required observations incomplete'):
             m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
 
+    def test_required_nonmatch_cannot_be_hidden_by_match_state_without_diagnostic_assessment(self):
+        self.assertFalse(any(m.supplement_counts(self.message_carrier(), diagnostic_assessment=None).values()))
+        for status in ['MISMATCH', 'UNKNOWN']:
+            carrier = self.message_carrier(status)
+            carrier['public']['rows'][0]['state'] = 'CONSUMER_OUTPUTS_MATCH'
+            with self.subTest(status=status), self.assertRaisesRegex(ValueError, 'configuration diagnostic assessment required'):
+                m.supplement_counts(carrier, diagnostic_assessment=None)
+
     def test_required_message_mismatch_keeps_existing_named_scoped_disposition(self):
         carrier = self.message_carrier('MISMATCH')
         diagnostic = {'state': 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED',

@@ -587,7 +587,13 @@ def acquire(args, context, plan, *, process_runner=run_process):
             result['postflight_error'] = str(error)
             if code == 0:
                 code = 1
-        save(control / 'acquisition-state.json', result)
+        try:
+            save(control / 'acquisition-state.json', result)
+        except OSError as error:
+            result['state'] = 'ACQUISITION_FAILED_RECEIPT_WRITE'
+            result.setdefault('receipt_write_errors', []).append({'path': str(control / 'acquisition-state.json'), 'error': str(error)})
+            if code == 0:
+                code = 1
         try:
             result['archive'] = archive_raw(control, output, workspace / 'windows-artifacts' / (context['campaign'] + '.zip'))
             if not result['archive']['complete']:
@@ -600,7 +606,14 @@ def acquire(args, context, plan, *, process_runner=run_process):
             if code == 0:
                 code = 1
         result['exit_code'] = code
-        save(control / 'result.json', result)
+        try:
+            save(control / 'result.json', result)
+        except OSError as error:
+            result['state'] = 'ACQUISITION_FAILED_RECEIPT_WRITE'
+            result.setdefault('receipt_write_errors', []).append({'path': str(control / 'result.json'), 'error': str(error)})
+            if code == 0:
+                code = 1
+            result['exit_code'] = code
     return code, result
 
 

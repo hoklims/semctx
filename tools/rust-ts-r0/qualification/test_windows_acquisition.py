@@ -243,6 +243,54 @@ class WindowsAcquisitionTest(unittest.TestCase):
         self.assertTrue(result['collector']['timed_out'])
         self.assertTrue(Path(result['archive']['path']).is_file())
 
+    def test_final_receipt_write_errors_preserve_observed_collector_status_and_stdout_result(self):
+        self.acquisition_patches()
+        real_acquire, real_save = m.acquire, m.save
+        for filename in ['acquisition-state.json', 'result.json']:
+            for status in [23, 124, 0]:
+                with self.subTest(filename=filename, collector_status=status):
+                    workspace = self.root/(filename+'-'+str(status))
+                    workspace.mkdir()
+                    plan = self.plan()
+                    plan['workspace'] = workspace
+                    control = workspace/'windows-control'/self.context['campaign']
+                    def fail_receipt(path, value, filename=filename, control=control):
+                        if path == control/filename:
+                            raise OSError('controlled final receipt write failure: '+filename)
+                        return real_save(path, value)
+                    def acquire(args, context, checked_plan, status=status):
+                        return real_acquire(args, context, checked_plan, process_runner=self.stub(status, timeout=status == 124))
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    argv = [item for name in ['tooling', 'producer', 'inputs', 'node']
+                            for item in ['--'+name, str(getattr(self.args, name))]]
+                    argv += ['--workspace', str(workspace), '--input-commit', self.args.input_commit,
+                             '--campaign-id', self.args.campaign_id]
+                    with mock.patch.object(m, 'run_context', return_value=self.context), \
+                         mock.patch.object(m, 'validate_all', return_value=plan), \
+                         mock.patch.object(m, 'complete_raw', return_value={'counts': m.COUNTS}), \
+                         mock.patch.object(m, 'save', side_effect=fail_receipt), \
+                         mock.patch.object(m, 'acquire', side_effect=acquire), \
+                         contextlib.redirect_stdout(stdout), contextlib.redirect_stderr(stderr):
+                        code = m.main(argv)
+                    expected = status if status else 1
+                    self.assertEqual(code, expected, 'receipt I/O failure replaced observed collector status')
+                    self.assertTrue(stdout.getvalue(), 'final result must remain available on stdout after receipt write failure')
+                    result = json.loads(stdout.getvalue())
+                    self.assertEqual(stderr.getvalue(), '')
+                    self.assertEqual(result['exit_code'], expected)
+                    self.assertEqual(result['collector']['exit_code'], status)
+                    self.assertEqual(result['collector']['timed_out'], status == 124)
+                    self.assertEqual(result['state'], 'ACQUISITION_FAILED_RECEIPT_WRITE')
+                    self.assertEqual(result['receipt_write_errors'], [{'path': str(control/filename),
+                        'error': 'controlled final receipt write failure: '+filename}])
+                    self.assertEqual((control/'collector.stdout').read_bytes(), b'fixture stdout\n')
+                    self.assertEqual((control/'collector.stderr').read_bytes(), b'fixture stderr\n')
+                    self.assertEqual(result['collector']['stdout_sha256'], m.sha(control/'collector.stdout'))
+                    self.assertEqual(result['collector']['stderr_sha256'], m.sha(control/'collector.stderr'))
+                    self.assertFalse((control/filename).exists())
+                    if filename != 'result.json':
+                        self.assertEqual(json.loads((control/'result.json').read_text()), result)
+
     def test_timeout_status_survives_cleanup_wait_failure_with_real_owned_process(self):
         original_popen = subprocess.Popen
         for failure in ['timeout', 'error']:
