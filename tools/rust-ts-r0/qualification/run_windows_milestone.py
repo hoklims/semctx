@@ -31,11 +31,23 @@ SDK_SHA = 'f57257876a383d13839a94adefb42b3d40bad2e93489a0f1a5ab29f045f139e5'
 RREL = Path('tools/rust-ts-r0/qualification/supplement')
 ORIGINAL = 'qualification_replay_requires_explicit_optimized_freeze'
 SUPPLEMENT = 'supplement_replay_requires_bound_root_authority'
+PYTHON_BOOTSTRAP = '''import pathlib,runpy,sys
+directory=pathlib.Path(sys.argv[1]);script=pathlib.Path(sys.argv[2])
+assert script.parent==directory and script.is_file()
+sys.path.insert(0,str(directory));sys.argv=sys.argv[2:]
+runpy.run_path(str(script),run_name="__main__")'''
 
 
 def require(condition, message):
     if not condition:
         raise ValueError(message)
+
+
+def python_script(script, arguments):
+    script = Path(script).resolve(strict=True)
+    require(script.is_file(), 'verified Python helper script absent')
+    return [sys.executable, '-I', '-S', '-B', '-c', PYTHON_BOOTSTRAP,
+            str(script.parent), str(script), *arguments]
 
 
 def sha(path):
@@ -80,6 +92,7 @@ def run(repo, out, label, argv, env, timeout=900, required=True):
     require(not (out/(label+'.receipt.json')).exists(), 'command retry refused: '+label)
     started = time.monotonic()
     timed_out = False
+    error = None
     with (out/(label+'.stdout')).open('wb') as stdout, (out/(label+'.stderr')).open('wb') as stderr:
         process = subprocess.Popen(argv, cwd=repo, env=env, stdout=stdout, stderr=stderr,
                                    creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0)
@@ -87,13 +100,27 @@ def run(repo, out, label, argv, env, timeout=900, required=True):
             code = process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
-            # Only this invocation's owned process tree may be terminated.
-            subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], check=False,
-                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            process.wait(timeout=30)
             code = 124
+            # Only this invocation's owned process tree may be terminated.
+            try:
+                cleanup = subprocess.run(['taskkill', '/PID', str(process.pid), '/T', '/F'], check=False,
+                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=30)
+                (out/(label+'.taskkill.stdout')).write_bytes(cleanup.stdout)
+                (out/(label+'.taskkill.stderr')).write_bytes(cleanup.stderr)
+                if cleanup.returncode != 0:
+                    error = 'taskkill exit code: '+str(cleanup.returncode)
+                process.wait(timeout=30)
+            except (OSError, subprocess.SubprocessError) as failure:
+                error = str(failure)
+                try:
+                    if process.poll() is None:
+                        process.kill()
+                    process.wait(timeout=30)
+                except (OSError, subprocess.SubprocessError) as cleanup_failure:
+                    error += '; final cleanup: '+str(cleanup_failure)
     result = {'argv': argv, 'exit_code': code, 'timed_out': timed_out,
-              'elapsed_seconds': round(time.monotonic()-started, 3), 'attempt': 1}
+              'elapsed_seconds': round(time.monotonic()-started, 3), 'attempt': 1,
+              'error': error, 'cleanup_scope': 'owned PID tree on timeout; no universal quiescence assertion'}
     save(out/(label+'.receipt.json'), result)
     require(not required or code == 0, 'command failed: '+label)
     return result
@@ -157,7 +184,19 @@ def supplement_counts(report, additional_sources=(), diagnostic_assessment=None)
     source_raw = [row for row in sources if row.get('state') != 'MAPPED_OBSERVATIONS_MATCH_NO_QUALIFICATION_CREDIT']
     public_raw = [row for row in public if row.get('state') != 'CONSUMER_OUTPUTS_MATCH']
     disposed_public = set()
-    if diagnostic_assessment is not None:
+    configuration = next((row for row in public if row['id'] == 'workspace-boundaries-01'), {})
+    expected = configuration.get('required_outputs', [])
+    required = [item for item in configuration.get('observations', []) if item.get('required_consumer_output') is True]
+    required_complete = (isinstance(expected, list) and bool(expected)
+                         and all(type(sequence) is int for sequence in expected)
+                         and len(set(expected)) == len(expected) == len(required)
+                         and all(type(item.get('sequence')) is int and item.get('parent') is None for item in required)
+                         and {item.get('sequence') for item in required} == set(expected))
+    require(not configuration or required_complete, 'configuration required observations incomplete')
+    direct_required_match = required_complete and all(item.get('status') == 'MATCH' for item in required)
+    require(not configuration or direct_required_match or diagnostic_assessment is not None,
+            'configuration diagnostic assessment required for nonmatching observations')
+    if diagnostic_assessment is not None and not direct_required_match:
         require(diagnostic_assessment['state'] == 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED'
                 and diagnostic_assessment['message_disposition'] == 'additional_message_version_difference',
                 'configuration diagnostic property remains unknown')
@@ -262,8 +301,8 @@ def execute_acquisition(args, repo, out, before):
     builds.bind_artifact('qualification_observer', 'observer-build', Path(observers[0]))
     builds.run( 'standalone-restore', ['cargo', 'build', '--locked', '--offline', '--release', '--bin', 'semctx-r0-probe', '--manifest-path', 'tools/rust-ts-r0/Cargo.toml'], execute_build)
     builds.bind_artifact('artifact', 'standalone-restore', repo/'tools/rust-ts-r0/target/release/semctx-r0-probe.exe')
-    run(repo, out, 'recipes', [sys.executable, str(repo/'tools/rust-ts-r0/qualification/prepare_recipes.py'), '--output', str(out/'recipes')], env)
-    run(repo, out, 'registry', [sys.executable, str(runtime/'prepare_registry.py'), '--frozen', str(frozen), '--public-registry', str(runtime/'public-registry.draft.json'), '--output', str(out/'registry-draft')], env)
+    run(repo, out, 'recipes', python_script(repo/'tools/rust-ts-r0/qualification/prepare_recipes.py', ['--output', str(out/'recipes')]), env)
+    run(repo, out, 'registry', python_script(runtime/'prepare_registry.py', ['--frozen', str(frozen), '--public-registry', str(runtime/'public-registry.draft.json'), '--output', str(out/'registry-draft')]), env)
     registry = load(out/'registry-draft/registry.json')
     require(registry['counts']['sources'] == 67 and registry['counts']['public_vectors'] == 25 and len(registry['rows']) == 92, 'supplement denominator differs')
     probe = out/'case-probe'
@@ -272,7 +311,7 @@ def execute_acquisition(args, repo, out, before):
     probe.unlink()
     save(out/'case-probe.json', {'case_sensitive': case_sensitive})
     supplement_out = out/'supplement-evidence'
-    run(repo, out, 'public-plan', [sys.executable, str(runtime/'public_bridge.py'), 'plan', '--frozen', str(frozen), '--module-dir', str(runtime), '--ownership-module-dir', str(runtime), '--lifecycle-module-dir', str(runtime), '--output', str(out/'public-plan.json'), '--execution-root', str(supplement_out/'public'), '--sdk-directory', '/sdk/lib', '--case-sensitive', str(case_sensitive).lower()], env)
+    run(repo, out, 'public-plan', python_script(runtime/'public_bridge.py', ['plan', '--frozen', str(frozen), '--module-dir', str(runtime), '--ownership-module-dir', str(runtime), '--lifecycle-module-dir', str(runtime), '--output', str(out/'public-plan.json'), '--execution-root', str(supplement_out/'public'), '--sdk-directory', '/sdk/lib', '--case-sensitive', str(case_sensitive).lower()]), env)
     sys.path.insert(0, str(runtime))
     from source_scope_addenda import prepare_addenda
     addenda = prepare_addenda(cases)
@@ -293,7 +332,7 @@ def execute_acquisition(args, repo, out, before):
     fixture.update(build_environment_path=build_binding['path'], build_environment_sha256=build_binding['sha256'])
     for name, path in {'sdk': out/'sdk-input.json', 'recipes': out/'recipes/replay-recipes.json', 'legacy_identity_inputs': out/'legacy-identity-inputs.json'}.items():
         fixture[name+'_path'], fixture[name+'_sha256'] = str(path), sha(path)
-    run(repo, out, 'fixture-fragment', [sys.executable, str(runtime/'write_verifier_fixture_fields.py'), '--runtime', str(runtime), '--python', str(Path(sys.executable).resolve()), '--node', node, '--plan', str(out/'public-plan.json'), '--output', str(out/'fragment.disabled.json')], env)
+    run(repo, out, 'fixture-fragment', python_script(runtime/'write_verifier_fixture_fields.py', ['--runtime', str(runtime), '--python', str(Path(sys.executable).resolve()), '--node', node, '--plan', str(out/'public-plan.json'), '--output', str(out/'fragment.disabled.json')]), env)
     fixture.update(load(out/'fragment.disabled.json'))
     fixture['public_consumer_artifact_sha256'] = fixture['qualification_observer_sha256']
     fixture.update(token_execution_enabled=False, token_family_path=str(out/'token-family.disabled.json'),

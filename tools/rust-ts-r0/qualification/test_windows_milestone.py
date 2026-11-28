@@ -1,6 +1,11 @@
 import copy
+import ast
+import inspect
+import json
 import os
 import tempfile
+import subprocess
+import sys
 import unittest
 from argparse import Namespace
 from pathlib import Path
@@ -10,6 +15,51 @@ import run_windows_milestone as m
 
 
 class WindowsMilestoneGuards(unittest.TestCase):
+    def test_collector_timeout_receipt_survives_cleanup_failures(self):
+        real_popen = subprocess.Popen
+        for required in [False, True]:
+            for failure in ['taskkill', 'wait', 'nonzero', 'ok']:
+                with self.subTest(required=required, failure=failure), tempfile.TemporaryDirectory() as temporary:
+                    root = Path(temporary)
+                    processes = []
+                    def start(*args, processes=processes, failure=failure, **kwargs):
+                        process = real_popen(*args, **kwargs)
+                        processes.append(process)
+                        real_wait = process.wait
+                        def wait(timeout=None):
+                            if failure == 'wait' and timeout == 30:
+                                raise subprocess.TimeoutExpired(process.args, timeout)
+                            return real_wait(timeout=timeout)
+                        process.wait = wait
+                        return process
+                    def cleanup(*args, processes=processes, failure=failure, **kwargs):
+                        self.assertEqual(kwargs.get('timeout'), 30, 'owned cleanup must have a deadline')
+                        process = processes[0]
+                        process.kill()
+                        if failure == 'taskkill':
+                            raise OSError('controlled taskkill cleanup failure')
+                        return subprocess.CompletedProcess(args[0], 1 if failure == 'nonzero' else 0, b'', b'')
+                    try:
+                        with patch.object(m.subprocess, 'Popen', side_effect=start), patch.object(m.subprocess, 'run', side_effect=cleanup):
+                            argv = [sys.executable, '-I', '-B', '-c', 'import time; print("owned stub", flush=True); time.sleep(30)']
+                            if required:
+                                with self.assertRaisesRegex(ValueError, 'command failed'):
+                                    m.run(root, root, 'timeout', argv, os.environ.copy(), timeout=.2, required=True)
+                            else:
+                                self.assertEqual(m.run(root, root, 'timeout', argv, os.environ.copy(), timeout=.2, required=False)['exit_code'], 124)
+                        receipt = root/'timeout.receipt.json'
+                        self.assertTrue(receipt.exists(), 'timeout cleanup error must retain receipt')
+                        record = json.loads(receipt.read_text())
+                        self.assertEqual(record['exit_code'], 124)
+                        self.assertTrue(record['timed_out'])
+                        self.assertEqual(bool(record['error']), failure != 'ok')
+                        self.assertIn(b'owned stub', (root/'timeout.stdout').read_bytes())
+                    finally:
+                        for process in processes:
+                            if process.poll() is None:
+                                process.kill()
+                            real_popen.wait(process, timeout=5)
+
     def valid_args(self):
         return Namespace(execute_native_campaigns=True, root_authority=m.AUTHORITY,
                          expected_head='a'*40, prerequisite_proof_sha256='b'*64)
@@ -80,6 +130,111 @@ class WindowsMilestoneGuards(unittest.TestCase):
             m.supplement_counts(duplicated)
         with self.assertRaises(ValueError):
             m.supplement_counts(carrier, [{'id': '0', 'disposition': 'additional_noncontract'}])
+
+    def message_carrier(self, status='MATCH'):
+        target = {'id': 'workspace-boundaries-01', 'state': 'CONSUMER_OUTPUTS_MATCH' if status == 'MATCH' else 'CONSUMER_OUTPUT_MISMATCH',
+                  'required_outputs': [1], 'observations': [{'sequence': 1, 'parent': None,
+                      'required_consumer_output': True, 'status': status}]}
+        return {'rows': [{'id': str(i), 'state': 'MAPPED_OBSERVATIONS_MATCH_NO_QUALIFICATION_CREDIT'} for i in range(67)],
+                'digest_pairs': [{'id': str(i), 'pass': True} for i in range(5)],
+                'addenda': [{'id': str(i), 'result': {'pass': True}} for i in range(8)],
+                'public': {'rows': [target, *[{'id': str(i), 'state': 'CONSUMER_OUTPUTS_MATCH'} for i in range(24)]]}}
+
+    def test_direct_required_match_does_not_need_unused_unknown_message_disposition(self):
+        carrier = self.message_carrier()
+        diagnostic = {'state': 'UNKNOWN', 'reason': 'source-bound helper has no disposition for this candidate'}
+        before = copy.deepcopy(diagnostic)
+        try:
+            counts = m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+        except ValueError as error:
+            self.fail('direct required MATCH blocked by unused diagnostic: ' + str(error))
+        self.assertFalse(any(counts.values()))
+        self.assertEqual(diagnostic, before)
+
+    def test_required_unknown_or_mismatch_still_requires_exact_message_disposition(self):
+        for status in ['UNKNOWN', 'MISMATCH']:
+            carrier = self.message_carrier(status)
+            with self.subTest(status=status), self.assertRaisesRegex(ValueError, 'diagnostic property remains unknown'):
+                m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
+        carrier = self.message_carrier('MISMATCH')
+        carrier['public']['rows'][0]['state'] = 'CONSUMER_OUTPUTS_MATCH'
+        with self.assertRaisesRegex(ValueError, 'diagnostic property remains unknown'):
+            m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
+        carrier = self.message_carrier()
+        carrier['public']['rows'][0]['required_outputs'].append(2)
+        with self.assertRaisesRegex(ValueError, 'required observations incomplete'):
+            m.supplement_counts(carrier, diagnostic_assessment={'state': 'UNKNOWN'})
+
+    def test_required_nonmatch_cannot_be_hidden_by_match_state_without_diagnostic_assessment(self):
+        self.assertFalse(any(m.supplement_counts(self.message_carrier(), diagnostic_assessment=None).values()))
+        for status in ['MISMATCH', 'UNKNOWN']:
+            carrier = self.message_carrier(status)
+            carrier['public']['rows'][0]['state'] = 'CONSUMER_OUTPUTS_MATCH'
+            with self.subTest(status=status), self.assertRaisesRegex(ValueError, 'configuration diagnostic assessment required'):
+                m.supplement_counts(carrier, diagnostic_assessment=None)
+
+    def test_required_message_mismatch_keeps_existing_named_scoped_disposition(self):
+        carrier = self.message_carrier('MISMATCH')
+        diagnostic = {'state': 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED',
+                      'message_disposition': 'additional_message_version_difference',
+                      'disposition_scope': {'id': 'workspace-boundaries-01', 'sequence': 1,
+                          'only_difference': 'module option choices within diagnostic message',
+                          'whole_public_match_claimed': False, 'qualification_credit': 0}}
+        counts = m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+        self.assertEqual(counts['public_nonpass'], 0)
+        self.assertEqual(counts['additional_message_representations'], 1)
+        diagnostic['disposition_scope']['sequence'] = 2
+        with self.assertRaisesRegex(ValueError, 'foreign scope'):
+            m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+
+    def test_valid_message_disposition_cannot_hide_missing_required_observation(self):
+        carrier = self.message_carrier('MISMATCH')
+        carrier['public']['rows'][0]['required_outputs'].append(2)
+        diagnostic = {'state': 'SCOPED_CODE_AND_PRECEDENCE_OBSERVATIONS_RECORDED',
+                      'message_disposition': 'additional_message_version_difference',
+                      'disposition_scope': {'id': 'workspace-boundaries-01', 'sequence': 1,
+                          'only_difference': 'module option choices within diagnostic message',
+                          'whole_public_match_claimed': False, 'qualification_credit': 0}}
+        with self.assertRaisesRegex(ValueError, 'required observations incomplete'):
+            m.supplement_counts(carrier, diagnostic_assessment=diagnostic)
+
+    def test_descendant_python_commands_use_isolated_verified_script_directory(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            repo, runtime, out = root/'producer', root/'verified-runtime-copy', root/'out'
+            runtime.mkdir()
+            qualification = repo/'tools/rust-ts-r0/qualification'
+            qualification.mkdir(parents=True)
+            for path in [qualification/'prepare_recipes.py', *[runtime/name for name in ['prepare_registry.py', 'public_bridge.py', 'write_verifier_fixture_fields.py']]]:
+                path.write_text('# verified source-proof helper\n')
+            tree = ast.parse(inspect.getsource(m.execute_acquisition))
+            selected = {call.args[2].value: call.args[3] for call in ast.walk(tree)
+                        if isinstance(call, ast.Call) and isinstance(call.func, ast.Name) and call.func.id == 'run'
+                        and len(call.args) >= 4 and isinstance(call.args[2], ast.Constant)
+                        and call.args[2].value in ['recipes', 'registry', 'public-plan', 'fixture-fragment']}
+            self.assertEqual(set(selected), {'recipes', 'registry', 'public-plan', 'fixture-fragment'})
+            environment = {'repo': repo, 'runtime': runtime, 'out': out, 'frozen': root/'frozen',
+                           'supplement_out': out/'supplement', 'case_sensitive': False, 'node': 'node.exe'}
+            for label, expression in selected.items():
+                with self.subTest(label=label):
+                    argv = eval(compile(ast.Expression(expression), '<actual collector command>', 'eval'), vars(m), environment)
+                    self.assertEqual(argv[:4], [sys.executable, '-I', '-S', '-B'], 'descendant interpreter lacks isolated startup flags')
+                    self.assertEqual(argv[4], '-c')
+
+    def test_descendant_bootstrap_executes_sibling_import_without_site_or_pythonpath(self):
+        self.assertTrue(hasattr(m, 'python_script'), 'collector descendant bootstrap is missing')
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory).resolve()
+            runtime, foreign = root/'verified-runtime-copy', root/'foreign'
+            runtime.mkdir(); foreign.mkdir()
+            (runtime/'sibling.py').write_text('VALUE="verified sibling"\n')
+            (foreign/'sibling.py').write_text('raise RuntimeError("foreign import")\n')
+            script = runtime/'helper.py'
+            script.write_text('import json,sys,sibling;print(json.dumps({"value":sibling.VALUE,"isolated":sys.flags.isolated,"no_site":sys.flags.no_site,"no_bytecode":sys.dont_write_bytecode}))\n')
+            env = dict(os.environ, PYTHONPATH=str(foreign))
+            result = subprocess.run(m.python_script(script, []), env=env, cwd=foreign, capture_output=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertEqual(json.loads(result.stdout), {'value': 'verified sibling', 'isolated': 1, 'no_site': 1, 'no_bytecode': True})
 
 
 if __name__ == '__main__':
